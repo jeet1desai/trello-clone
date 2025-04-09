@@ -12,6 +12,9 @@ const Dashboard = React.lazy(() => import('../pages/dashboard'));
 const NotFound = React.lazy(() => import('../pages/notFound'));
 const Boards = React.lazy(() => import('../pages/boards'));
 const BoardDetail = React.lazy(() => import('../pages/boards/board'));
+const Workspaces = React.lazy(() => import('../pages/workspaces'));
+const WorkspaceDetail = React.lazy(() => import('../pages/workspaces/workspace'));
+const ForgotPassword = React.lazy(() => import('../pages/auth/forgotPassword'));
 
 interface RouteProps {
   element: React.ReactNode;
@@ -53,6 +56,10 @@ const router = createBrowserRouter([
         element: <AuthRoute element={<Register />} />,
       },
       {
+        path: 'forgot-password',
+        element: <AuthRoute element={<ForgotPassword />} />,
+      },
+      {
         path: 'dashboard',
         element: <PrivateRoute element={<Dashboard />} />,
       },
@@ -63,6 +70,14 @@ const router = createBrowserRouter([
       {
         path: 'board/:id',
         element: <PrivateRoute element={<BoardDetail />} />,
+      },
+      {
+        path: 'workspaces',
+        element: <PrivateRoute element={<Workspaces />} />,
+      },
+      {
+        path: 'workspace/:id',
+        element: <PrivateRoute element={<WorkspaceDetail />} />,
       },
       {
         path: '*',

@@ -9,8 +9,6 @@ import {
   Avatar, 
   Input, 
   Dropdown, 
-  Space, 
-  Divider,
   MenuProps
 } from 'antd';
 import { 
@@ -75,7 +73,7 @@ const Header: React.FC = () => {
     {
       key: 'create-workspace',
       label: <span>Create Workspace</span>,
-      onClick: () => navigate('/create-workspace')
+      onClick: () => navigate('/workspaces?mode=create')
     }
   ];
 
@@ -91,11 +89,11 @@ const Header: React.FC = () => {
             </Link>
           </div>
           <div>
-            <Button type="text" style={{ color: 'white', marginRight: 12 }}>
-              <Link to="/login">Log In</Link>
-            </Button>
-            <Button type="primary">
+            <Button type="text" style={{ color: 'white', marginRight: 3 }}>
               <Link to="/register">Sign Up</Link>
+            </Button>
+            <Button type="primary" style={{ borderRadius: '50px', padding: '18px' }}>
+              <Link to="/login">Log In</Link>
             </Button>
           </div>
         </div>

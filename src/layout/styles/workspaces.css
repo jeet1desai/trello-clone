@@ -1,0 +1,413 @@
+/* Workspaces Page Styles */
+.workspaces-container {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Header Styles */
+.workspaces-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.header-left {
+  flex-shrink: 0;
+}
+
+.header-right {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.page-title {
+  margin: 0 !important;
+}
+
+.view-options {
+  display: flex;
+  align-items: center;
+}
+
+.search-filter {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.search-input {
+  width: 220px;
+}
+
+.filter-btn, .sort-btn {
+  display: flex;
+  align-items: center;
+}
+
+.workspaces-tabs-container {
+  margin-bottom: 24px;
+}
+
+.tab-label {
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Improved Filter Dropdown */
+.filter-dropdown {
+  min-width: 220px !important;
+}
+
+.filter-dropdown .ant-dropdown-menu {
+  padding: 12px !important;
+}
+
+.filter-section-heading {
+  padding: 0 0 8px 0;
+}
+
+.filter-checkbox-item {
+  padding: 6px 0;
+}
+
+.filter-reset {
+  padding: 8px 0 0 0;
+}
+
+/* Workspaces Grid View */
+.workspaces-grid {
+  margin-bottom: 20px;
+}
+
+.workspace-card {
+  height: 100%;
+  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+}
+
+.workspace-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.workspace-card-color-bar {
+  height: 8px;
+  width: 100%;
+  position: relative;
+}
+
+.workspace-card-star {
+  position: absolute;
+  right: 8px;
+  top: 8px;
+  z-index: 10;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.workspace-card-star:hover {
+  transform: scale(1.1);
+}
+
+.star-icon {
+  font-size: 20px;
+  color: #f8c135;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.star-icon:hover {
+  color: #f8c135;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+}
+
+.star-filled {
+  color: #f8c135;
+}
+
+.workspace-card-content {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.workspace-card-header {
+  display: flex;
+  margin-bottom: 16px;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.workspace-card-title {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.workspace-card-actions {
+  flex-shrink: 0;
+}
+
+.workspace-name {
+  margin: 0 !important;
+  line-height: 1.4 !important;
+}
+
+.workspace-link {
+  color: inherit;
+}
+
+.workspace-link:hover {
+  color: #1890ff;
+}
+
+.workspace-description {
+  margin-bottom: 12px !important;
+  flex-grow: 1;
+  color: rgba(0, 0, 0, 0.65);
+}
+
+.workspace-card-footer {
+  margin-top: auto;
+}
+
+.more-btn:hover {
+  background-color: #f0f0f0;
+}
+
+/* Create Workspace Card */
+.create-workspace-card {
+  height: 100%;
+  background-color: #f6f8fa;
+  border: 2px dashed #d9d9d9;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: all 0.2s;
+  height: 200px;
+}
+
+.create-workspace-card:hover {
+  border-color: #1890ff;
+  background-color: #f0f7ff;
+}
+
+.create-card-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.plus-icon {
+  font-size: 24px;
+  margin-bottom: 8px;
+  color: #1890ff;
+}
+
+.create-card-text {
+  color: #1890ff;
+  font-weight: 500;
+}
+
+/* Workspaces List View */
+.workspaces-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.list-item-wrapper {
+  width: 100%;
+}
+
+.workspace-list-item {
+  width: 100%;
+  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+  position: relative;
+}
+
+.workspace-list-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.workspace-list-color-bar {
+  height: 4px;
+  width: 100%;
+}
+
+.workspace-list-content {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+}
+
+.workspace-list-details {
+  flex: 1;
+  min-width: 0;
+}
+
+.workspace-list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.workspace-list-meta {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.workspace-list-description {
+  margin-bottom: 0 !important;
+  color: rgba(0, 0, 0, 0.65);
+}
+
+.workspace-list-actions {
+  flex-shrink: 0;
+}
+
+.create-workspace-list-item {
+  padding: 16px;
+  border: 2px dashed #d9d9d9;
+  background-color: #f6f8fa;
+  transition: all 0.2s;
+}
+
+.create-workspace-list-item:hover {
+  border-color: #1890ff;
+  background-color: #f0f7ff;
+}
+
+.create-list-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.create-list-text {
+  color: #1890ff;
+  font-weight: 500;
+}
+
+/* Empty State */
+.empty-state {
+  padding: 40px 0;
+  text-align: center;
+}
+
+/* Modal Styles */
+.workspace-form .form-actions {
+  margin-bottom: 0;
+  text-align: right;
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+  .workspaces-container {
+    padding: 16px;
+  }
+
+  .workspaces-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .header-right {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .search-input {
+    width: 180px;
+  }
+
+  .filter-btn, .sort-btn {
+    padding: 0 8px;
+  }
+
+  .create-btn span:not(.anticon) {
+    display: none;
+  }
+
+  .meta-tag {
+    margin-top: 4px;
+  }
+}
+
+@media (max-width: 576px) {
+  .workspaces-container {
+    padding: 12px;
+  }
+
+  .search-filter {
+    width: 100%;
+    margin-top: 8px;
+  }
+
+  .search-input {
+    width: 100%;
+    flex: 1;
+  }
+
+  .workspace-list-content {
+    flex-wrap: wrap;
+  }
+
+  .workspace-list-details {
+    width: 100%;
+  }
+
+  .workspace-list-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .workspace-list-actions {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .view-options, .filter-btn, .sort-btn {
+    display: none;
+  }
+
+  .header-right {
+    justify-content: flex-end;
+  }
+} 

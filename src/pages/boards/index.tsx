@@ -10,7 +10,6 @@ import {
   Space, 
   Tabs, 
   Dropdown, 
-  Menu,
   Avatar,
   Tag
 } from 'antd';
