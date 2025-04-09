@@ -2,8 +2,6 @@ import React, { useEffect } from 'react';
 import { Form, Input, Button, Typography, Alert } from 'antd';
 import { UserOutlined, LockOutlined, MailOutlined, PhoneOutlined } from '@ant-design/icons';
 import { Link } from 'react-router-dom';
-import { Formik } from 'formik';
-import * as Yup from 'yup';
 import { AppDispatch } from '../../../store';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../../store';
@@ -12,32 +10,10 @@ import '../../../layout/styles/Auth.css';
 
 const { Title, Text } = Typography;
 
-const validationSchema = Yup.object().shape({
-  name: Yup.string()
-    .required('Name is required')
-    .min(2, 'Name must be at least 2 characters')
-    .max(50, 'Name must not exceed 50 characters'),
-  email: Yup.string()
-    .email('Invalid email address')
-    .required('Email is required'),
-  phone: Yup.string()
-    .matches(/^[0-9]{10}$/, 'Phone number must be 10 digits')
-    .required('Phone number is required'),
-  password: Yup.string()
-    .required('Password is required')
-    .min(8, 'Password must be at least 8 characters')
-    .matches(
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
-      'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character'
-    ),
-  confirmPassword: Yup.string()
-    .oneOf([Yup.ref('password')], 'Passwords must match')
-    .required('Please confirm your password'),
-});
-
 const Register: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { loading, error } = useSelector((state: RootState) => state.user);
+  const [form] = Form.useForm();
 
   useEffect(() => {
     // Clear any previous auth states
@@ -66,96 +42,103 @@ const Register: React.FC = () => {
             className="error-alert"
           />
         )}
-        <Formik
-          initialValues={{ name: "", email: "", phone: "", password: "", confirmPassword: "" }}
-          validationSchema={validationSchema}
-          onSubmit={handleSubmit}
-        >
-          {({ handleSubmit, touched, errors, handleChange, handleBlur, values }) => (
+        
         <Form
+          form={form}
           name="register"
-          initialValues={{ remember: true }}
+          initialValues={{ name: "", email: "", phone: "", password: "", confirmPassword: "" }}
           onFinish={handleSubmit}
           layout="vertical"
           className="auth-form"
         >
           <Form.Item
             label="Full Name"
-            validateStatus={touched.name && errors.name ? 'error' : ''}
-            help={touched.name && errors.name}
+            name="name"
+            rules={[
+              { required: true, message: 'Name is required' },
+              { min: 2, message: 'Name must be at least 2 characters' },
+              { max: 50, message: 'Name must not exceed 50 characters' }
+            ]}
           >
             <Input
               prefix={<UserOutlined className="form-icon" />}
               placeholder="Enter your full name"
-              name="name"
-              value={values.name}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              className={`form-input ${touched.name && errors.name ? 'error-input' : ''}`}
+              className="form-input"
             />
           </Form.Item>
 
           <Form.Item
             label="Email"
-            validateStatus={touched.email && errors.email ? 'error' : ''}
-            help={touched.email && errors.email}
+            name="email"
+            rules={[
+              { required: true, message: 'Email is required' },
+              { type: 'email', message: 'Invalid email address' }
+            ]}
           >
             <Input
               prefix={<MailOutlined className="form-icon" />}
               placeholder="Enter your email"
-              name="email"
-              value={values.email}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              className={`form-input ${touched.email && errors.email ? 'error-input' : ''}`}
+              className="form-input"
             />
           </Form.Item>
 
           <Form.Item
             label="Phone Number"
-            validateStatus={touched.phone && errors.phone ? 'error' : ''}
-            help={touched.phone && errors.phone}
+            name="phone"
+            rules={[
+              { required: true, message: 'Phone number is required' },
+              { 
+                pattern: /^[0-9]{10}$/, 
+                message: 'Phone number must be 10 digits' 
+              }
+            ]}
           >
             <Input
               prefix={<PhoneOutlined className="form-icon" />}
               placeholder="Enter your phone number"
-              name="phone"
-              value={values.phone}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              className={`form-input ${touched.phone && errors.phone ? 'error-input' : ''}`}
+              className="form-input"
             />
           </Form.Item>
 
           <Form.Item
             label="Password"
-            validateStatus={touched.password && errors.password ? 'error' : ''}
-            help={touched.password && errors.password}
+            name="password"
+            rules={[
+              { required: true, message: 'Password is required' },
+              { min: 8, message: 'Password must be at least 8 characters' },
+              { 
+                pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/, 
+                message: 'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character' 
+              }
+            ]}
           >
             <Input.Password
               prefix={<LockOutlined className="form-icon" />}
               placeholder="Enter your password"
-              name="password"
-              value={values.password}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              className={`form-input ${touched.password && errors.password ? 'error-input' : ''}`}
+              className="form-input"
             />
           </Form.Item>
 
           <Form.Item
             label="Confirm Password"
-            validateStatus={touched.confirmPassword && errors.confirmPassword ? 'error' : ''}
-            help={touched.confirmPassword && errors.confirmPassword}
+            name="confirmPassword"
+            dependencies={['password']}
+            rules={[
+              { required: true, message: 'Please confirm your password' },
+              ({ getFieldValue }) => ({
+                validator(_, value) {
+                  if (!value || getFieldValue('password') === value) {
+                    return Promise.resolve();
+                  }
+                  return Promise.reject(new Error('Passwords must match'));
+                },
+              }),
+            ]}
           >
             <Input.Password
               prefix={<LockOutlined className="form-icon" />}
               placeholder="Confirm your password"
-              name="confirmPassword"
-              value={values.confirmPassword}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              className={`form-input ${touched.confirmPassword && errors.confirmPassword ? 'error-input' : ''}`}
+              className="form-input"
             />
           </Form.Item>
 
@@ -171,8 +154,6 @@ const Register: React.FC = () => {
             </Button>
           </Form.Item>
         </Form>
-          )}
-          </Formik>
 
         <div className="social-buttons">
           <Text>

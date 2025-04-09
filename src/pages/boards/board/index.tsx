@@ -1,11 +1,9 @@
 import React, { useState } from 'react';
-import { useParams } from 'react-router-dom';
 import { 
   Layout, 
   Typography, 
   Button, 
   Input, 
-  Menu, 
   Dropdown, 
   Avatar, 
   Space, 
@@ -18,11 +16,7 @@ import {
   EllipsisOutlined, 
   StarFilled, 
   StarOutlined,
-  UserOutlined,
   FilterOutlined,
-  BellOutlined,
-  LockOutlined,
-  TeamOutlined,
   SettingOutlined,
   ClockCircleOutlined,
   PaperClipOutlined,
@@ -38,7 +32,7 @@ import type {
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import type { MenuProps } from 'antd';
 
-const { Header, Content } = Layout;
+const { Content } = Layout;
 const { Title, Text } = Typography;
 
 // Define types for our data structures
@@ -54,7 +48,7 @@ interface Member {
   avatar: string;
 }
 
-interface Card {
+interface ICard {
   id: string;
   title: string;
   description?: string;
@@ -68,7 +62,7 @@ interface Card {
 interface List {
   id: string;
   title: string;
-  cards: Card[];
+  cards: ICard[];
 }
 
 interface BoardData {
@@ -205,20 +199,7 @@ const mockBoardData: BoardData = {
   ]
 };
 
-// Label colors
-const labelColors: Record<string, string> = {
-  'Marketing': '#61BD4F',
-  'Content': '#FF9F1A',
-  'Design': '#EB5A46',
-  'Copy': '#C377E0',
-  'Website': '#0079BF',
-  'SEO': '#00C2E0',
-  'Email': '#51E898',
-  'Research': '#FF78CB',
-};
-
 const BoardDetail: React.FC = () => {
-  const { id } = useParams<{ id: string }>();
   const [boardData, setBoardData] = useState<BoardData>(mockBoardData);
   const [newListTitle, setNewListTitle] = useState<string>('');
   const [showAddList, setShowAddList] = useState<boolean>(false);
@@ -339,7 +320,7 @@ const BoardDetail: React.FC = () => {
   };
 
   // Render card component
-  const renderCard = (card: Card, index: number) => (
+  const renderCard = (card: ICard, index: number) => (
     <Draggable key={card.id} draggableId={card.id} index={index}>
       {(provided: DraggableProvided, snapshot: DraggableStateSnapshot) => (
         <div
@@ -502,7 +483,7 @@ const BoardDetail: React.FC = () => {
                                 overflowY: 'auto'
                               }}
                             >
-                              {list.cards.map((card: Card, index: number) => renderCard(card, index))}
+                              {list.cards.map((card: ICard, index: number) => renderCard(card, index))}
                               {provided.placeholder}
                               <Button 
                                 type="text" 
