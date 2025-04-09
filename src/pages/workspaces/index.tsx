@@ -28,7 +28,6 @@ import {
   CheckOutlined,
   DeleteOutlined,
   ExclamationCircleOutlined,
-  DownOutlined,
   StarOutlined,
   StarFilled,
 } from "@ant-design/icons";
@@ -504,7 +503,6 @@ const Workspaces: React.FC = () => {
                   <FilterOutlined />
                   Filter{" "}
                   {filterCreators.length > 0 && `(${filterCreators.length})`}
-                  <DownOutlined />
                 </Space>
               </Button>
             </Dropdown>
@@ -521,7 +519,6 @@ const Workspaces: React.FC = () => {
                 <Space>
                   <SortAscendingOutlined />
                   Sort
-                  <DownOutlined />
                 </Space>
               </Button>
             </Dropdown>

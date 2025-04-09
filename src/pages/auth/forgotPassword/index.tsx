@@ -2,24 +2,17 @@ import React, { useEffect } from "react";
 import { Form, Input, Button, Typography, Alert } from "antd";
 import { MailOutlined } from "@ant-design/icons";
 import { Link } from "react-router-dom";
-import { Formik, Field } from "formik";
-import * as Yup from "yup";
-import "../../../layout/styles/Auth.css";
 import { clearAuthState, requestPasswordReset } from "../../../store/slices/userSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../../store";
+import "../../../layout/styles/Auth.css";
 
 const { Title, Text } = Typography;
-
-const validationSchema = Yup.object().shape({
-  email: Yup.string()
-    .email("Please enter a valid email address")
-    .required("Email is required"),
-});
 
 const ForgotPassword: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { loading, error, passwordResetRequested } = useSelector((state: RootState) => state.user);
+  const [form] = Form.useForm();
 
   useEffect(() => {
     // Clear any previous auth states
@@ -69,59 +62,51 @@ const ForgotPassword: React.FC = () => {
           />
         )}
 
-        <Formik
+        <Form
+          form={form}
+          name="forgot_password"
+          onFinish={handleSubmit}
+          layout="vertical"
+          className="auth-form"
           initialValues={{ email: "" }}
-          validationSchema={validationSchema}
-          onSubmit={handleSubmit}
         >
-          {({ handleSubmit, touched, errors }) => (
-            <Form
-              name="forgot_password"
-              onFinish={handleSubmit}
-              layout="vertical"
-              className="auth-form"
+          <Form.Item
+            label="Email"
+            name="email"
+            rules={[
+              { required: true, message: "Email is required" },
+              { type: "email", message: "Please enter a valid email address" }
+            ]}
+          >
+            <Input
+              prefix={<MailOutlined className="form-icon" />}
+              placeholder="Enter your email"
+              size="large"
+              className="form-input"
+            />
+          </Form.Item>
+
+          <Form.Item>
+            <Button
+              type="primary"
+              htmlType="submit"
+              className="submit-button"
+              loading={loading}
+              block
+              size="large"
             >
-              <Form.Item
-                label="Email"
-                validateStatus={touched.email && errors.email ? "error" : ""}
-                help={touched.email && errors.email}
-              >
-                <Field name="email">
-                  {({ field }: any) => (
-                    <Input
-                      {...field}
-                      prefix={<MailOutlined className="form-icon" />}
-                      placeholder="Enter your email"
-                      size="large"
-                      className="form-input"
-                    />
-                  )}
-                </Field>
-              </Form.Item>
+              {passwordResetRequested ? 'Email Sent' : 'Send Reset Link'}
+            </Button>
+          </Form.Item>
 
-              <Form.Item>
-                <Button
-                  type="primary"
-                  htmlType="submit"
-                  className="submit-button"
-                  loading={loading}
-                  block
-                  size="large"
-                >
-                  {passwordResetRequested ? 'Email Sent' : 'Send Reset Link'}
-                </Button>
-              </Form.Item>
-
-              <div className="auth-links">
-                <Text>
-                  <Link to="/login" className="auth-link">
-                    Back to Login
-                  </Link>
-                </Text>
-              </div>
-            </Form>
-          )}
-        </Formik>
+          <div className="auth-links">
+            <Text>
+              <Link to="/login" className="auth-link">
+                Back to Login
+              </Link>
+            </Text>
+          </div>
+        </Form>
       </div>
     </div>
   );
