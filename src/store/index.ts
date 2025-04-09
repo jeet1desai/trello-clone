@@ -11,16 +11,18 @@ import {
 } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
 import userReducer from './slices/userSlice';
+import workspaceReducer from './slices/workspaceSlice';
 
 const persistConfig = {
   key: 'root',
   version: 1,
   storage,
-  whitelist: ['user'], // Only persist user state
+  whitelist: ['user', 'workspace'], // Persist user and workspace state
 };
 
 const rootReducer = combineReducers({
   user: userReducer,
+  workspace: workspaceReducer,
   // Add other reducers here
 });
 

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import { Layout as AntLayout } from 'antd';
-import { Header, Footer } from './components';
+import { Header, Footer, Sidebar } from './components';
 import './styles/Layout.css';
 
 const { Content } = AntLayout;
@@ -30,15 +30,18 @@ const Layout: React.FC = () => {
   return (
     <AntLayout style={{ minHeight: '100vh' }}>
       <Header />
-      <Content style={contentStyle}>
-        <div style={{ 
-          maxWidth: isBoardDetailPage ? '100%' : 1200, 
-          margin: '0 auto',
-          height: '100%'
-        }}>
-          <Outlet />
-        </div>
-      </Content>
+      <AntLayout>
+        <Sidebar />
+        <Content style={contentStyle}>
+          <div style={{ 
+            maxWidth: isBoardDetailPage ? '100%' : 1200, 
+            margin: '0 auto',
+            height: '100%'
+          }}>
+            <Outlet />
+          </div>
+        </Content>
+      </AntLayout>
       {showFooter && <Footer />}
     </AntLayout>
   );
