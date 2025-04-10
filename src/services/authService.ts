@@ -8,7 +8,7 @@ export const authService = {
   },
 
   async login(email: string, password: string) {
-    const response = await axios.post(`${API_URL}/auth/login`, { email, password });
+    const response = await axios.post(`${API_URL}/auth/signin`, { email, password });
     return response.data;
   },
 
