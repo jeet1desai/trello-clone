@@ -32,6 +32,7 @@ import {
   EyeOutlined,
   EyeInvisibleOutlined,
   TeamOutlined,
+  ArrowLeftOutlined,
 } from "@ant-design/icons";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../../../store";
@@ -334,6 +335,9 @@ const WorkspaceDetail: React.FC = () => {
         />
         <div className="workspace-header-content">
           <div className="workspace-info">
+          <Text className="workspace-back" onClick={() => navigate("/workspaces")}>
+             <ArrowLeftOutlined /> Back
+             </Text>
             <div className="workspace-title-row">
               <Title level={2} className="workspace-title">
                 {workspace.name}

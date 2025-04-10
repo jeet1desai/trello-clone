@@ -70,16 +70,8 @@
   padding: 12px !important;
 }
 
-.filter-section-heading {
-  padding: 0 0 8px 0;
-}
-
-.filter-checkbox-item {
-  padding: 6px 0;
-}
-
 .filter-reset {
-  padding: 8px 0 0 0;
+  color: #1890ff;
 }
 
 /* Workspaces Grid View */

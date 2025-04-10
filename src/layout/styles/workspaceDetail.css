@@ -44,8 +44,16 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-top: 10px;
   margin-bottom: 12px;
   flex-wrap: wrap;
+}
+
+.workspace-back {
+  margin: 0 12px 0 0 !important;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 600;
 }
 
 .workspace-title {

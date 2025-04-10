@@ -59,7 +59,7 @@ const Register: React.FC = () => {
             message={error}
             type="error"
             showIcon
-            className="error-alert"
+            style={{ marginBottom: 10 }}
           />
         )}
 

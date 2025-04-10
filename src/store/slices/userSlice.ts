@@ -17,7 +17,8 @@ interface UserState {
   loading: boolean;
   error: string | null;
   registrationSuccess: boolean;
-  passwordResetRequested: boolean;
+  passwordChangeRequested: boolean;
+  passwordChangeSuccess: boolean;
   passwordResetSuccess: boolean;
   verificationSuccess: boolean;
 }
@@ -28,7 +29,8 @@ const initialState: UserState = {
   loading: false,
   error: null,
   registrationSuccess: false,
-  passwordResetRequested: false,
+  passwordChangeRequested: false,
+  passwordChangeSuccess: false,
   passwordResetSuccess: false,
   verificationSuccess: false,
 };
@@ -42,7 +44,6 @@ export const loginUser = createAsyncThunk(
   ) => {
     try {
       const response = await authService.login(email, password);
-      localStorage.setItem("token", response.accessToken);
       return response.user;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || "Login failed");
@@ -116,6 +117,23 @@ export const requestPasswordReset = createAsyncThunk(
   }
 );
 
+export const changePassword = createAsyncThunk(
+  "user/changePassword",
+  async (
+    { email, otp, newPassword: password }: { email: string; otp: string; newPassword: string },
+    { rejectWithValue }
+  ) => {
+    try {
+      const response = await authService.changePassword(email, otp, password);
+      return response;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message || "Password reset failed"
+      );
+    }
+  }
+);
+
 export const resetPassword = createAsyncThunk(
   "user/resetPassword",
   async (
@@ -129,6 +147,21 @@ export const resetPassword = createAsyncThunk(
       return rejectWithValue(
         error.response?.data?.message || "Password reset failed"
       );
+    }
+  }
+);
+
+export const logoutUser = createAsyncThunk(
+  "user/logout",
+  async (
+    { email, password }: { email: string; password: string },
+    { rejectWithValue }
+  ) => {
+    try {
+      const response = await authService.logout();
+      return response.user;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || "Logout failed");
     }
   }
 );
@@ -165,7 +198,8 @@ const userSlice = createSlice({
     clearAuthState: (state) => {
       state.error = null;
       state.registrationSuccess = false;
-      state.passwordResetRequested = false;
+      state.passwordChangeRequested = false;
+      state.passwordChangeSuccess = false;
       state.passwordResetSuccess = false;
       state.verificationSuccess = false;
     },
@@ -178,7 +212,6 @@ const userSlice = createSlice({
         state.error = null;
       })
       .addCase(loginUser.fulfilled, (state, action) => {
-        console.log("sss1", action)
         const {
           _id,
           first_name,
@@ -226,14 +259,14 @@ const userSlice = createSlice({
         message.error((action.payload as string) || "Registration failed");
       })
 
-      // Request Password Reset
+      // Request Password Change
       .addCase(requestPasswordReset.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
       .addCase(requestPasswordReset.fulfilled, (state) => {
         state.loading = false;
-        state.passwordResetRequested = true;
+        state.passwordChangeRequested = true;
         state.error = null;
         message.success("Password reset link has been sent to your email");
       })
@@ -242,6 +275,25 @@ const userSlice = createSlice({
         state.error = action.payload as string;
         message.error(
           (action.payload as string) || "Failed to send password reset link"
+        );
+      })
+      
+      // Change Password
+      .addCase(changePassword.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(changePassword.fulfilled, (state) => {
+        state.loading = false;
+        state.passwordChangeRequested = true;
+        state.error = null;
+        message.success("Password updated successfully");
+      })
+      .addCase(changePassword.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+        message.error(
+          (action.payload as string) || "Failed to update password"
         );
       })
 

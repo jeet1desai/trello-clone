@@ -32,7 +32,7 @@ import {
   StarOutlined,
   StarFilled,
   InboxOutlined,
-  UndoOutlined
+  UndoOutlined,
 } from "@ant-design/icons";
 import type { MenuProps } from "antd";
 import { useDispatch, useSelector } from "react-redux";
@@ -44,7 +44,7 @@ import {
   deleteWorkspace,
   toggleStarWorkspace,
   archiveWorkspace,
-  restoreWorkspace
+  restoreWorkspace,
 } from "../../store/slices/workspaceSlice";
 import "../../layout/styles/workspaces.css";
 
@@ -275,7 +275,7 @@ const Workspaces: React.FC = () => {
   const renderWorkspaceCard = (workspace: Workspace) => {
     const color = generateColor(workspace.name);
     let moreMenu: MenuProps["items"] = [];
-    
+
     if (workspace.archived) {
       // Menu items for archived workspaces
       moreMenu = [
@@ -320,7 +320,7 @@ const Workspaces: React.FC = () => {
     return (
       <Card
         hoverable
-        className={`workspace-card ${workspace.archived ? 'archived' : ''}`}
+        className={`workspace-card ${workspace.archived ? "archived" : ""}`}
         headStyle={{ backgroundColor: color, padding: 0 }}
       >
         <div
@@ -372,10 +372,10 @@ const Workspaces: React.FC = () => {
             </div>
           </div>
 
-          <Paragraph 
-            ellipsis={{ rows: 2 }} 
-            className="workspace-description" 
-            style={{ color: 'inherit' }}
+          <Paragraph
+            ellipsis={{ rows: 2 }}
+            className="workspace-description"
+            style={{ color: "inherit" }}
           >
             {workspace.description || "No description"}
           </Paragraph>
@@ -494,32 +494,26 @@ const Workspaces: React.FC = () => {
     {
       key: "creators",
       label: (
-        <div className="filter-section-heading">
-          <Title level={5} style={{ margin: 0 }}>
-            Filter by Creator
-          </Title>
-        </div>
+        <Title level={5} style={{ margin: 0 }}>
+          Filter by Creator
+        </Title>
       ),
       type: "group",
       children: allCreators.map((creator) => ({
         key: creator,
         label: (
-          <div className="filter-checkbox-item">
-            <Checkbox
-              checked={filterCreators.includes(creator)}
-              onChange={(e) => {
-                if (e.target.checked) {
-                  setFilterCreators([...filterCreators, creator]);
-                } else {
-                  setFilterCreators(
-                    filterCreators.filter((c) => c !== creator)
-                  );
-                }
-              }}
-            >
-              {creator}
-            </Checkbox>
-          </div>
+          <Checkbox
+            checked={filterCreators.includes(creator)}
+            onChange={(e) => {
+              if (e.target.checked) {
+                setFilterCreators([...filterCreators, creator]);
+              } else {
+                setFilterCreators(filterCreators.filter((c) => c !== creator));
+              }
+            }}
+          >
+            {creator}
+          </Checkbox>
         ),
       })),
     },
@@ -529,16 +523,8 @@ const Workspaces: React.FC = () => {
     {
       key: "reset",
       label: (
-        <div className="filter-reset">
-          <Button
-            type="primary"
-            size="small"
-            disabled={filterCreators.length === 0}
-            onClick={handleFilterReset}
-            block
-          >
-            Reset Filters
-          </Button>
+        <div className="filter-reset" onClick={handleFilterReset}>
+          Reset Filters
         </div>
       ),
     },
