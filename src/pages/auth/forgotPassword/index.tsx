@@ -1,8 +1,12 @@
 import React, { useEffect } from "react";
 import { Form, Input, Button, Typography, Alert } from "antd";
-import { MailOutlined } from "@ant-design/icons";
-import { Link } from "react-router-dom";
-import { clearAuthState, requestPasswordReset } from "../../../store/slices/userSlice";
+import { MailOutlined, LockOutlined } from "@ant-design/icons";
+import { Link, useNavigate } from "react-router-dom";
+import {
+  changePassword,
+  clearAuthState,
+  requestPasswordReset,
+} from "../../../store/slices/userSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../../store";
 import "../../../layout/styles/Auth.css";
@@ -10,8 +14,10 @@ import "../../../layout/styles/Auth.css";
 const { Title, Text } = Typography;
 
 const ForgotPassword: React.FC = () => {
+  const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
-  const { loading, error, passwordResetRequested } = useSelector((state: RootState) => state.user);
+  const { loading, error, passwordChangeRequested } =
+    useSelector((state: RootState) => state.user);
   const [form] = Form.useForm();
 
   useEffect(() => {
@@ -19,15 +25,17 @@ const ForgotPassword: React.FC = () => {
     dispatch(clearAuthState());
   }, [dispatch]);
 
-  useEffect(() => {
-    // If password reset was requested successfully, show a message
-    if (passwordResetRequested) {
-      // The message is already shown in the reducer, nothing to do here
+  const handleSubmit = async (values: {
+    email: string;
+    otp: string;
+    newPassword: string;
+  }) => {
+    if (!values.otp && !values.newPassword) {
+      await dispatch(requestPasswordReset(values.email));
+    } else {
+      await dispatch(changePassword(values));
+      navigate("/login");
     }
-  }, [passwordResetRequested]);
-
-  const handleSubmit = async (values: { email: string }) => {
-    await dispatch(requestPasswordReset(values.email));
   };
 
   return (
@@ -47,18 +55,17 @@ const ForgotPassword: React.FC = () => {
             description={error}
             type="error"
             showIcon
-            className="auth-alert"
-            closable
+            style={{ marginBottom: 10 }}
           />
         )}
 
-        {passwordResetRequested && (
+        {passwordChangeRequested && (
           <Alert
             message="Check your email"
             description="We've sent a password reset link to your email address."
             type="success"
+            style={{ marginBottom: 10 }}
             showIcon
-            className="auth-alert"
           />
         )}
 
@@ -68,15 +75,19 @@ const ForgotPassword: React.FC = () => {
           onFinish={handleSubmit}
           layout="vertical"
           className="auth-form"
-          initialValues={{ email: "" }}
+          initialValues={{ email: "", otp: "", newPassword: "" }}
           requiredMark={false}
         >
           <Form.Item
-            label={<span>Email <span style={{ color: 'red' }}>*</span></span>}
+            label={
+              <span>
+                Email <span style={{ color: "red" }}>*</span>
+              </span>
+            }
             name="email"
             rules={[
               { required: true, message: "Email is required" },
-              { type: "email", message: "Please enter a valid email address" }
+              { type: "email", message: "Please enter a valid email address" },
             ]}
           >
             <Input
@@ -87,6 +98,52 @@ const ForgotPassword: React.FC = () => {
             />
           </Form.Item>
 
+          {passwordChangeRequested && (
+            <>
+              <Form.Item
+                label={
+                  <span>
+                    OTP <span style={{ color: "red" }}>*</span>
+                  </span>
+                }
+                name="otp"
+                rules={[{ required: true, message: "OTP is required" }]}
+              >
+                <Input
+                  prefix={<LockOutlined className="form-icon" />}
+                  placeholder="Enter your email otp"
+                  size="large"
+                  className="form-input"
+                />
+              </Form.Item>
+
+              <Form.Item
+                label={
+                  <span>
+                    New Password <span style={{ color: "red" }}>*</span>
+                  </span>
+                }
+                name="newPassword"
+                rules={[
+                  { required: true, message: "Password is required" },
+                  { min: 8, message: "Password must be at least 8 characters" },
+                  {
+                    pattern:
+                      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
+                    message:
+                      "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character",
+                  },
+                ]}
+              >
+                <Input.Password
+                  prefix={<LockOutlined className="form-icon" />}
+                  placeholder="Enter your new password"
+                  className="form-input"
+                />
+              </Form.Item>
+            </>
+          )}
+
           <Form.Item>
             <Button
               type="primary"
@@ -96,7 +153,9 @@ const ForgotPassword: React.FC = () => {
               block
               size="large"
             >
-              {passwordResetRequested ? 'Email Sent' : 'Send Reset Link'}
+              {passwordChangeRequested
+                ? "Verify And Update"
+                : "Send Reset Link"}
             </Button>
           </Form.Item>
 

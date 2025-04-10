@@ -27,7 +27,7 @@ export const authService = {
 
   async login(email: string, password: string) {
     const response = await axios.post(`${API_URL}/auth/signin`, { email, password });
-    return response.data;
+    return response.data.data;
   },
 
   async requestPasswordReset(email: string) {
@@ -35,8 +35,18 @@ export const authService = {
     return response.data;
   },
 
+  async changePassword(email: string, otp: string, password: string) {
+    const response = await axios.post(`${API_URL}/auth/change-password`, { email, otp, password });
+    return response.data;
+  },
+
   async resetPassword(token: string, password: string) {
     const response = await axios.post(`${API_URL}/auth/reset-password`, { token, password });
     return response.data;
-  }
+  },
+
+  async logout() {
+    const response = await axios.get(`${API_URL}/auth/logout`);
+    return response.data;
+  },
 }; 
