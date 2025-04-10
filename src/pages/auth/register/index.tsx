@@ -1,18 +1,24 @@
-import React, { useEffect } from 'react';
-import { Form, Input, Button, Typography, Alert } from 'antd';
-import { UserOutlined, LockOutlined, MailOutlined, PhoneOutlined } from '@ant-design/icons';
-import { Link } from 'react-router-dom';
-import { AppDispatch } from '../../../store';
-import { useDispatch, useSelector } from 'react-redux';
-import { RootState } from '../../../store';
-import { clearAuthState, registerUser } from '../../../store/slices/userSlice';
-import '../../../layout/styles/Auth.css';
+import React, { useEffect } from "react";
+import { Form, Input, Button, Typography, Alert } from "antd";
+import {
+  UserOutlined,
+  LockOutlined,
+  MailOutlined,
+  PhoneOutlined,
+} from "@ant-design/icons";
+import { Link, useNavigate } from "react-router-dom";
+import { AppDispatch } from "../../../store";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "../../../store";
+import { clearAuthState, registerUser } from "../../../store/slices/userSlice";
+import "../../../layout/styles/Auth.css";
 
 const { Title, Text } = Typography;
 
 const Register: React.FC = () => {
+  const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
-  const { loading, error } = useSelector((state: RootState) => state.user);
+  const { loading, error, registrationSuccess } = useSelector((state: RootState) => state.user);
   const [form] = Form.useForm();
 
   useEffect(() => {
@@ -20,7 +26,21 @@ const Register: React.FC = () => {
     dispatch(clearAuthState());
   }, [dispatch]);
 
-  const handleSubmit = async (values: { name: string; email: string; phone: string; password: string; confirmPassword: string }) => {
+  useEffect(() => {
+    // Redirect if authenticated
+    if (registrationSuccess) {
+      navigate("/verify-email");
+    }
+  }, [registrationSuccess, navigate]);
+
+  const handleSubmit = async (values: {
+    first_name: string;
+    middle_name: string;
+    last_name: string;
+    email: string;
+    phone: string;
+    password: string;
+  }) => {
     await dispatch(registerUser(values));
   };
 
@@ -42,37 +62,94 @@ const Register: React.FC = () => {
             className="error-alert"
           />
         )}
-        
+
         <Form
           form={form}
           name="register"
-          initialValues={{ name: "", email: "", phone: "", password: "", confirmPassword: "" }}
+          initialValues={{
+            first_name: "",
+            middle_name: "",
+            last_name: "",
+            email: "",
+            phone: "",
+            password: "",
+            confirmPassword: "",
+          }}
           onFinish={handleSubmit}
           layout="vertical"
           className="auth-form"
+          requiredMark={false}
         >
           <Form.Item
-            label="Full Name"
-            name="name"
+            label={
+              <span>
+                First Name <span style={{ color: "red" }}>*</span>
+              </span>
+            }
+            name="first_name"
             rules={[
-              { required: true, message: 'Name is required' },
-              { min: 2, message: 'Name must be at least 2 characters' },
-              { max: 50, message: 'Name must not exceed 50 characters' }
+              { required: true, message: "First Name is required" },
+              { min: 2, message: "First Name must be at least 2 characters" },
+              { max: 50, message: "First Name must not exceed 50 characters" },
             ]}
           >
             <Input
               prefix={<UserOutlined className="form-icon" />}
-              placeholder="Enter your full name"
+              placeholder="Enter your first name"
               className="form-input"
             />
           </Form.Item>
 
           <Form.Item
-            label="Email"
+            label={
+              <span>
+                Middle Name <span style={{ color: "red" }}>*</span>
+              </span>
+            }
+            name="middle_name"
+            rules={[
+              { required: true, message: "Middle Name is required" },
+              { min: 2, message: "Middle Name must be at least 2 characters" },
+              { max: 50, message: "Middle Name must not exceed 50 characters" },
+            ]}
+          >
+            <Input
+              prefix={<UserOutlined className="form-icon" />}
+              placeholder="Enter your middle name"
+              className="form-input"
+            />
+          </Form.Item>
+
+          <Form.Item
+            label={
+              <span>
+                Last Name <span style={{ color: "red" }}>*</span>
+              </span>
+            }
+            name="last_name"
+            rules={[
+              { required: true, message: "Last Name is required" },
+              { min: 2, message: "Last Name must be at least 2 characters" },
+              { max: 50, message: "Last Name must not exceed 50 characters" },
+            ]}
+          >
+            <Input
+              prefix={<UserOutlined className="form-icon" />}
+              placeholder="Enter your last name"
+              className="form-input"
+            />
+          </Form.Item>
+
+          <Form.Item
+            label={
+              <span>
+                Email <span style={{ color: "red" }}>*</span>
+              </span>
+            }
             name="email"
             rules={[
-              { required: true, message: 'Email is required' },
-              { type: 'email', message: 'Invalid email address' }
+              { required: true, message: "Email is required" },
+              { type: "email", message: "Invalid email address" },
             ]}
           >
             <Input
@@ -83,14 +160,18 @@ const Register: React.FC = () => {
           </Form.Item>
 
           <Form.Item
-            label="Phone Number"
+            label={
+              <span>
+                Phone Number <span style={{ color: "red" }}>*</span>
+              </span>
+            }
             name="phone"
             rules={[
-              { required: true, message: 'Phone number is required' },
-              { 
-                pattern: /^[0-9]{10}$/, 
-                message: 'Phone number must be 10 digits' 
-              }
+              { required: true, message: "Phone number is required" },
+              {
+                pattern: /^[0-9]{10}$/,
+                message: "Phone number must be 10 digits",
+              },
             ]}
           >
             <Input
@@ -101,15 +182,21 @@ const Register: React.FC = () => {
           </Form.Item>
 
           <Form.Item
-            label="Password"
+            label={
+              <span>
+                Password <span style={{ color: "red" }}>*</span>
+              </span>
+            }
             name="password"
             rules={[
-              { required: true, message: 'Password is required' },
-              { min: 8, message: 'Password must be at least 8 characters' },
-              { 
-                pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/, 
-                message: 'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character' 
-              }
+              { required: true, message: "Password is required" },
+              { min: 8, message: "Password must be at least 8 characters" },
+              {
+                pattern:
+                  /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
+                message:
+                  "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character",
+              },
             ]}
           >
             <Input.Password
@@ -120,17 +207,21 @@ const Register: React.FC = () => {
           </Form.Item>
 
           <Form.Item
-            label="Confirm Password"
+            label={
+              <span>
+                Confirm Password <span style={{ color: "red" }}>*</span>
+              </span>
+            }
             name="confirmPassword"
-            dependencies={['password']}
+            dependencies={["password"]}
             rules={[
-              { required: true, message: 'Please confirm your password' },
+              { required: true, message: "Please confirm your password" },
               ({ getFieldValue }) => ({
                 validator(_, value) {
-                  if (!value || getFieldValue('password') === value) {
+                  if (!value || getFieldValue("password") === value) {
                     return Promise.resolve();
                   }
-                  return Promise.reject(new Error('Passwords must match'));
+                  return Promise.reject(new Error("Passwords must match"));
                 },
               }),
             ]}
@@ -157,7 +248,7 @@ const Register: React.FC = () => {
 
         <div className="social-buttons">
           <Text>
-            Already have an account?{' '}
+            Already have an account?{" "}
             <Link to="/login" className="auth-link">
               Login
             </Link>
@@ -168,4 +259,4 @@ const Register: React.FC = () => {
   );
 };
 
-export default Register; 
+export default Register;

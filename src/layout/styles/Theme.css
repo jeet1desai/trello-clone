@@ -1,0 +1,429 @@
+/* Base CSS Variables */
+:root {
+  /* Light Theme (Default) */
+  --bg-primary: #ffffff;
+  --bg-secondary: #f5f5f5;
+  --bg-tertiary: #f0f0f0;
+  --bg-elevated: #ffffff;
+  
+  --text-primary: rgba(0, 0, 0, 0.85);
+  --text-secondary: rgba(0, 0, 0, 0.65);
+  --text-tertiary: rgba(0, 0, 0, 0.45);
+  
+  --border-color: #d9d9d9;
+  
+  --primary-color: #1890ff;
+  --primary-color-hover: #40a9ff;
+  --link-color: #1890ff;
+  --success-color: #52c41a;
+  --warning-color: #faad14;
+  --error-color: #f5222d;
+  
+  --header-bg: #ffffff;
+  --card-bg: #ffffff;
+  --footer-bg: #f5f5f5;
+  --footer-text: rgba(0, 0, 0, 0.65);
+  
+  --button-text: rgba(0, 0, 0, 0.85);
+  --button-text-hover: rgba(0, 0, 0, 0.95);
+  --button-bg-hover: rgba(0, 0, 0, 0.05);
+  --button-primary-color: #fff;
+  --button-primary-bg: #1890ff;
+  
+  --welcome-gradient: linear-gradient(to right, #1890ff, #52c41a);
+  
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.09);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
+  
+  /* Component-specific colors */
+  --stat-card-bg: #ffffff;
+  --dashboard-card-bg: #ffffff;
+  --input-bg: #ffffff;
+  --dropdown-bg: #ffffff;
+  --tab-active-color: #1890ff;
+  --tab-inactive-color: rgba(0, 0, 0, 0.65);
+  --tab-hover-color: #40a9ff;
+}
+
+/* Dark Theme */
+.theme-dark {
+  --bg-primary: #141414;
+  --bg-secondary: #1f1f1f;
+  --bg-tertiary: #262626;
+  --bg-elevated: #2a2a2a;
+  
+  --text-primary: rgba(255, 255, 255, 0.85);
+  --text-secondary: rgba(255, 255, 255, 0.65);
+  --text-tertiary: rgba(255, 255, 255, 0.45);
+  
+  --border-color: #434343;
+  
+  --primary-color: #177ddc;
+  --primary-color-hover: #1890ff;
+  --link-color: #177ddc;
+  --success-color: #49aa19;
+  --warning-color: #d89614;
+  --error-color: #d32029;
+  
+  --header-bg: #1d1d1d;
+  --card-bg: #1d1d1d;
+  --footer-bg: #1d1d1d;
+  --footer-text: rgba(255, 255, 255, 0.65);
+  
+  --button-text: rgba(255, 255, 255, 0.85);
+  --button-text-hover: rgba(255, 255, 255, 0.95);
+  --button-bg-hover: rgba(255, 255, 255, 0.08);
+  --button-primary-color: #fff;
+  --button-primary-bg: #177ddc;
+  
+  --welcome-gradient: linear-gradient(to right, #096dd9, #389e0d);
+  
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.5);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.5);
+  
+  /* Component-specific colors */
+  --stat-card-bg: #2a2a2a;
+  --dashboard-card-bg: #1d1d1d;
+  --input-bg: #2a2a2a;
+  --dropdown-bg: #1d1d1d;
+  --tab-active-color: #177ddc;
+  --tab-inactive-color: rgba(255, 255, 255, 0.65);
+  --tab-hover-color: #1890ff;
+}
+
+/* Apply CSS variables to global elements */
+body {
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Apply to ant design components */
+.ant-layout {
+  background-color: var(--bg-secondary);
+}
+
+.ant-layout-header {
+  background-color: var(--header-bg);
+  color: var(--text-primary);
+}
+
+.ant-layout-content {
+  background-color: var(--bg-secondary);
+}
+
+.ant-layout-footer {
+  background-color: var(--footer-bg) !important;
+  color: var(--footer-text) !important;
+}
+
+.ant-card {
+  background-color: var(--card-bg);
+  color: var(--text-primary);
+  box-shadow: var(--shadow-sm);
+}
+
+.ant-card-head {
+  color: var(--text-primary);
+}
+
+/* Typography */
+.ant-typography {
+  color: var(--text-primary);
+}
+
+.ant-typography.ant-typography-secondary {
+  color: var(--text-secondary);
+}
+
+/* Links */
+a {
+  color: var(--link-color);
+}
+
+a:hover {
+  color: var(--primary-color-hover);
+}
+
+/* Form elements */
+.ant-input {
+  background-color: var(--input-bg);
+  color: var(--text-primary);
+  border-color: var(--border-color);
+}
+
+.ant-input-affix-wrapper {
+  background-color: var(--input-bg);
+  border-color: var(--border-color);
+}
+
+.ant-input-affix-wrapper .ant-input {
+  background-color: transparent;
+}
+
+/* Buttons */
+.ant-btn-text {
+  color: var(--button-text);
+}
+
+.ant-btn-text:hover {
+  background-color: var(--button-bg-hover);
+  color: var(--button-text-hover);
+}
+
+.ant-btn-default {
+  background-color: var(--bg-primary);
+  border-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+.ant-btn-primary {
+  background-color: var(--button-primary-bg);
+  border-color: var(--button-primary-bg);
+  color: var(--button-primary-color);
+}
+
+.ant-btn-primary:hover, 
+.ant-btn-primary:focus {
+  background-color: var(--primary-color-hover);
+  border-color: var(--primary-color-hover);
+}
+
+.ant-btn-link {
+  color: var(--link-color);
+}
+
+.ant-btn-link:hover {
+  color: var(--primary-color-hover);
+}
+
+.ant-btn-dangerous {
+  color: var(--error-color) !important;
+}
+
+.ant-btn-dangerous.ant-btn-primary {
+  background-color: var(--error-color);
+  border-color: var(--error-color);
+  color: #fff !important;
+}
+
+/* Tag colors */
+.ant-tag-blue {
+  background: rgba(24, 144, 255, 0.1);
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+}
+
+.ant-tag-green {
+  background: rgba(82, 196, 26, 0.1);
+  border-color: var(--success-color);
+  color: var(--success-color);
+}
+
+.ant-tag-orange {
+  background: rgba(250, 173, 20, 0.1);
+  border-color: var(--warning-color);
+  color: var(--warning-color);
+}
+
+.ant-tag-red {
+  background: rgba(245, 34, 45, 0.1);
+  border-color: var(--error-color);
+  color: var(--error-color);
+}
+
+/* Menu */
+.ant-menu-horizontal {
+  border-bottom: none;
+}
+
+.ant-menu-dark {
+  background-color: var(--header-bg);
+}
+
+.ant-menu-dark .ant-menu-item-selected {
+  background-color: var(--primary-color);
+}
+
+.theme-light .ant-menu {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+.theme-light .ant-menu-item {
+  color: var(--text-primary);
+}
+
+.theme-light .ant-menu-item:hover {
+  color: var(--primary-color);
+}
+
+.theme-light .ant-menu-item-selected,
+.theme-light .ant-menu-submenu-selected,
+.theme-light .ant-menu-item-active {
+  color: var(--primary-color) !important;
+}
+
+.theme-dark .ant-menu {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+.theme-dark .ant-menu-item {
+  color: var(--text-secondary);
+}
+
+.theme-dark .ant-menu-item:hover {
+  color: var(--text-primary);
+}
+
+.theme-dark .ant-menu-item-selected,
+.theme-dark .ant-menu-submenu-selected,
+.theme-dark .ant-menu-item-active {
+  color: var(--primary-color) !important;
+}
+
+/* Dropdown */
+.ant-dropdown-menu {
+  background-color: var(--dropdown-bg);
+  color: var(--text-primary);
+}
+
+.ant-dropdown-menu-item {
+  color: var(--text-primary);
+}
+
+.ant-dropdown-menu-item:hover {
+  background-color: var(--button-bg-hover);
+}
+
+.ant-dropdown-menu-item-danger {
+  color: var(--error-color);
+}
+
+.theme-dark .ant-dropdown-menu-submenu .ant-dropdown-menu {
+  background-color: var(--dropdown-bg);
+}
+
+.theme-dark .ant-dropdown-menu-item-divider {
+  background-color: var(--border-color);
+}
+
+.theme-dark .ant-dropdown-menu-submenu-title:hover {
+  background-color: var(--button-bg-hover);
+}
+
+/* Cards in Dark Theme */
+.theme-dark .ant-card {
+  background-color: var(--card-bg);
+  color: var(--text-primary);
+  border-color: var(--border-color);
+}
+
+.theme-dark .ant-card-hoverable:hover {
+  border-color: var(--primary-color);
+  box-shadow: 0 1px 2px -2px rgba(0, 0, 0, 0.64),
+    0 3px 6px 0 rgba(0, 0, 0, 0.48),
+    0 5px 12px 4px rgba(0, 0, 0, 0.36);
+}
+
+/* Tag adjustments */
+.theme-dark .ant-tag.ant-tag-blue {
+  background: rgba(24, 144, 255, 0.2);
+  border-color: #4096ff;
+  color: #4096ff;
+}
+
+.theme-dark .ant-tag .anticon {
+  color: #4096ff;
+}
+
+/* Tooltip */
+.theme-dark .ant-tooltip .ant-tooltip-inner {
+  background-color: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+.theme-dark .ant-tooltip .ant-tooltip-arrow-content::before {
+  background-color: var(--bg-tertiary);
+}
+
+/* Tabs */
+.ant-tabs-tab {
+  color: var(--tab-inactive-color) !important;
+}
+
+.ant-tabs-tab:hover {
+  color: var(--tab-hover-color) !important;
+}
+
+.ant-tabs-tab.ant-tabs-tab-active .ant-tabs-tab-btn {
+  color: var(--tab-active-color) !important;
+}
+
+.ant-tabs-ink-bar {
+  background-color: var(--primary-color) !important;
+}
+
+/* Theme-specific dashboard elements */
+.dashboard-welcome {
+  background: var(--welcome-gradient);
+}
+
+.dashboard-card {
+  background-color: var(--dashboard-card-bg);
+  box-shadow: var(--shadow-sm);
+}
+
+.stat-card {
+  background-color: var(--stat-card-bg);
+  box-shadow: var(--shadow-sm);
+}
+
+.theme-dark .ant-menu-dark {
+  background-color: var(--header-bg);
+}
+
+.theme-dark .ant-menu-dark .ant-menu-item-selected {
+  background-color: var(--bg-tertiary);
+}
+
+/* Segmented control */
+.ant-segmented {
+  background-color: var(--bg-tertiary);
+}
+
+.ant-segmented-item {
+  color: var(--text-secondary);
+}
+
+.ant-segmented-item-selected {
+  background-color: var(--bg-primary);
+  color: var(--primary-color) !important;
+  font-weight: 500;
+}
+
+.ant-segmented-item:hover:not(.ant-segmented-item-selected) {
+  color: var(--primary-color);
+}
+
+/* Add transition for smooth theme changes */
+.ant-layout,
+.ant-layout-header,
+.ant-layout-content,
+.ant-layout-footer,
+.ant-card,
+.ant-typography,
+.ant-input,
+.ant-btn,
+.ant-tag,
+.ant-menu,
+.dashboard-welcome,
+.dashboard-card,
+.stat-card,
+.ant-tabs-tab,
+.ant-segmented-item {
+  transition: all 0.3s ease;
+} 

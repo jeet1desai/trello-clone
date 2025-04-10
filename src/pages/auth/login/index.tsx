@@ -19,7 +19,9 @@ const { Title, Text } = Typography;
 const Login: React.FC = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
-  const { loading, error, isAuthenticated } = useSelector((state: RootState) => state.user);
+  const { loading, error, isAuthenticated } = useSelector(
+    (state: RootState) => state.user
+  );
   const [form] = Form.useForm();
 
   useEffect(() => {
@@ -30,12 +32,14 @@ const Login: React.FC = () => {
   useEffect(() => {
     // Redirect if authenticated
     if (isAuthenticated) {
-      navigate('/dashboard');
+      navigate("/dashboard");
     }
   }, [isAuthenticated, navigate]);
 
   const handleSubmit = async (values: { email: string; password: string }) => {
-    await dispatch(loginUser({ email: values.email, password: values.password }));
+    await dispatch(
+      loginUser({ email: values.email, password: values.password })
+    );
   };
 
   const handleSocialLogin = (provider: string) => {
@@ -70,13 +74,14 @@ const Login: React.FC = () => {
           layout="vertical"
           className="auth-form"
           initialValues={{ email: "", password: "" }}
+          requiredMark={false}
         >
           <Form.Item
-            label="Email"
+            label={<span>Email <span style={{ color: 'red' }}>*</span></span>}
             name="email"
             rules={[
               { required: true, message: "Email is required" },
-              { type: "email", message: "Please enter a valid email address" }
+              { type: "email", message: "Please enter a valid email address" },
             ]}
           >
             <Input
@@ -88,11 +93,11 @@ const Login: React.FC = () => {
           </Form.Item>
 
           <Form.Item
-            label="Password"
+            label={<span>Password <span style={{ color: 'red' }}>*</span></span>}
             name="password"
             rules={[
               { required: true, message: "Password is required" },
-              { min: 8, message: "Password must be at least 8 characters" }
+              { min: 8, message: "Password must be at least 8 characters" },
             ]}
           >
             <Input.Password
@@ -132,9 +137,7 @@ const Login: React.FC = () => {
           </div>
 
           <div className="social-auth">
-            <Divider className="social-auth-title">
-              Or continue with
-            </Divider>
+            <Divider className="social-auth-title">Or continue with</Divider>
             <div className="social-buttons">
               <Button
                 icon={<GoogleOutlined />}

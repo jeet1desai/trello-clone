@@ -1,6 +1,5 @@
 /* Workspaces Page Styles */
 .workspaces-container {
-  padding: 20px;
   max-width: 1200px;
   margin: 0 auto;
 }
@@ -104,6 +103,20 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
+.workspace-card.archived::after {
+  content: 'ARCHIVED';
+  position: absolute;
+  top: 20px;
+  right: -25px;
+  background-color: #1890ff;
+  color: white;
+  font-size: 10px;
+  font-weight: bold;
+  padding: 2px 30px;
+  transform: rotate(45deg);
+  z-index: 10;
+}
+
 .workspace-card-color-bar {
   height: 8px;
   width: 100%;
@@ -154,7 +167,6 @@
 
 .workspace-card-header {
   display: flex;
-  margin-bottom: 16px;
   align-items: flex-start;
   justify-content: space-between;
 }
@@ -186,7 +198,11 @@
 .workspace-description {
   margin-bottom: 12px !important;
   flex-grow: 1;
-  color: rgba(0, 0, 0, 0.65);
+  color: var(--text-secondary) !important;
+}
+
+.theme-dark .workspace-description {
+  color: var(--text-secondary) !important;
 }
 
 .workspace-card-footer {
@@ -194,14 +210,15 @@
 }
 
 .more-btn:hover {
-  background-color: #f0f0f0;
+  background-color: var(--button-bg-hover) !important;
+  color: var(--text-primary) !important;
 }
 
 /* Create Workspace Card */
 .create-workspace-card {
   height: 100%;
-  background-color: #f6f8fa;
-  border: 2px dashed #d9d9d9;
+  background-color: var(--bg-secondary);
+  border: 2px dashed var(--border-color);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -209,9 +226,18 @@
   height: 200px;
 }
 
+.theme-dark .create-workspace-card {
+  background-color: var(--bg-tertiary);
+  border: 2px dashed var(--border-color);
+}
+
 .create-workspace-card:hover {
-  border-color: #1890ff;
-  background-color: #f0f7ff;
+  border-color: var(--primary-color);
+  background-color: var(--bg-tertiary);
+}
+
+.theme-dark .create-workspace-card:hover {
+  background-color: rgba(24, 144, 255, 0.1);
 }
 
 .create-card-content {
@@ -225,12 +251,36 @@
 .plus-icon {
   font-size: 24px;
   margin-bottom: 8px;
-  color: #1890ff;
+  color: var(--primary-color);
 }
 
 .create-card-text {
-  color: #1890ff;
+  color: var(--primary-color);
   font-weight: 500;
+}
+
+/* Fix tag styles for dark theme */
+.theme-dark .ant-tag {
+  border-color: var(--primary-color);
+  background-color: rgba(24, 144, 255, 0.15);
+}
+
+.theme-dark .ant-tag-blue {
+  color: #40a9ff;
+}
+
+/* Fix dropdown menu for dark theme */
+.theme-dark .ant-dropdown-menu {
+  background-color: var(--dropdown-bg);
+  box-shadow: var(--shadow-md);
+}
+
+.theme-dark .ant-dropdown-menu-item:hover {
+  background-color: var(--bg-tertiary);
+}
+
+.theme-dark .ant-dropdown-menu-item-divider {
+  background-color: var(--border-color);
 }
 
 /* Workspaces List View */

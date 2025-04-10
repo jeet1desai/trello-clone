@@ -69,9 +69,10 @@ const ForgotPassword: React.FC = () => {
           layout="vertical"
           className="auth-form"
           initialValues={{ email: "" }}
+          requiredMark={false}
         >
           <Form.Item
-            label="Email"
+            label={<span>Email <span style={{ color: 'red' }}>*</span></span>}
             name="email"
             rules={[
               { required: true, message: "Email is required" },

@@ -15,6 +15,7 @@ const BoardDetail = React.lazy(() => import('../pages/boards/board'));
 const Workspaces = React.lazy(() => import('../pages/workspaces'));
 const WorkspaceDetail = React.lazy(() => import('../pages/workspaces/workspace'));
 const ForgotPassword = React.lazy(() => import('../pages/auth/forgotPassword'));
+const VerifyEmail = React.lazy(() => import('../pages/auth/verifyEmail'));
 
 interface RouteProps {
   element: React.ReactNode;
@@ -58,6 +59,10 @@ const router = createBrowserRouter([
       {
         path: 'forgot-password',
         element: <AuthRoute element={<ForgotPassword />} />,
+      },
+      {
+        path: 'verify-email',
+        element: <PublicRoute element={<VerifyEmail />} />,
       },
       {
         path: 'dashboard',

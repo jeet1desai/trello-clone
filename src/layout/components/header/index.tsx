@@ -9,20 +9,21 @@ import {
   Avatar, 
   Input, 
   Dropdown, 
-  MenuProps
+  MenuProps,
+  Space
 } from 'antd';
 import { 
   SearchOutlined, 
-  PlusOutlined, 
   AppstoreOutlined, 
   BellOutlined, 
   UserOutlined, 
   LogoutOutlined, 
-  SettingOutlined,
-  QuestionCircleOutlined
+  SettingOutlined
 } from '@ant-design/icons';
 import { RootState } from '../../../store';
 import { logout } from '../../../store/slices/userSlice';
+import { ThemeToggle } from '../../../components/ui';
+import { useTheme } from '../../../contexts/ThemeContext';
 import '../../styles/Layout.css';
 
 const { Header: AntHeader } = Layout;
@@ -33,6 +34,9 @@ const Header: React.FC = () => {
   const navigate = useNavigate();
   const { currentUser, isAuthenticated } = useSelector((state: RootState) => state.user);
   const [searchText, setSearchText] = useState('');
+  const { theme } = useTheme();
+  
+  const isDarkMode = theme === 'dark';
 
   const handleLogout = () => {
     dispatch(logout());
@@ -64,49 +68,37 @@ const Header: React.FC = () => {
     }
   ];
 
-  const createMenuItems: MenuProps['items'] = [
-    {
-      key: 'create-board',
-      label: <span>Create Board</span>,
-      onClick: () => navigate('/create-board')
-    },
-    {
-      key: 'create-workspace',
-      label: <span>Create Workspace</span>,
-      onClick: () => navigate('/workspaces?mode=create')
-    }
-  ];
-
   if (!isAuthenticated) {
     return (
-      <AntHeader style={{ background: '#1D2125', padding: '0 20px' }}>
+      <AntHeader className="app-header">
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', height: '100%' }}>
           <div className="logo">
             <Link to="/">
-              <Title level={4} style={{ color: 'white', margin: 0, display: 'flex', alignItems: 'center' }}>
+              <Title level={4} style={{ color: isDarkMode ? 'white' : 'inherit', margin: 0, display: 'flex', alignItems: 'center' }}>
                 <AppstoreOutlined style={{ marginRight: 8 }} /> Board Camp
               </Title>
             </Link>
           </div>
-          <div>
-            <Button type="text" style={{ color: 'white', marginRight: 3 }}>
+          <Space>
+            <ThemeToggle />
+            <Button type="text" style={{ color: isDarkMode ? 'white' : 'inherit', marginRight: 3 }}>
               <Link to="/register">Sign Up</Link>
             </Button>
             <Button type="primary" style={{ borderRadius: '50px', padding: '18px' }}>
               <Link to="/login">Log In</Link>
             </Button>
-          </div>
+          </Space>
         </div>
       </AntHeader>
     );
   }
 
   return (
-    <AntHeader style={{ background: '#1D2125', padding: '0 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+    <AntHeader className="app-header">
       <div style={{ display: 'flex', alignItems: 'center' }}>
         <div className="logo" style={{ marginRight: 24 }}>
-          <Link to="/boards">
-            <Title level={4} style={{ color: 'white', margin: 0, display: 'flex', alignItems: 'center' }}>
+          <Link to="/dashboard">
+            <Title level={4} style={{ color: isDarkMode ? 'white' : 'inherit', margin: 0, display: 'flex', alignItems: 'center' }}>
               <AppstoreOutlined style={{ marginRight: 8 }} /> Board Camp
             </Title>
           </Link>
@@ -114,7 +106,7 @@ const Header: React.FC = () => {
         
         <Menu 
           mode="horizontal" 
-          theme="dark"
+          theme={isDarkMode ? "dark" : "light"}
           style={{ background: 'transparent', borderBottom: 'none', lineHeight: '64px' }}
           items={[
             {
@@ -128,45 +120,24 @@ const Header: React.FC = () => {
           ]}
           selectedKeys={[]}
         />
-        
-        <Dropdown menu={{ items: createMenuItems }} placement="bottomLeft" arrow>
-          <Button 
-            type="primary" 
-            icon={<PlusOutlined />}
-            style={{ marginLeft: 16 }}
-          >
-            Create
-          </Button>
-        </Dropdown>
       </div>
       
-      <div style={{ display: 'flex', alignItems: 'center' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
         <Input 
-          prefix={<SearchOutlined style={{ color: 'rgba(255, 255, 255, 0.65)' }} />}
+          prefix={<SearchOutlined style={{ color: isDarkMode ? 'rgba(255, 255, 255, 0.65)' : 'rgba(0, 0, 0, 0.45)' }} />}
           placeholder="Search"
-          style={{ 
-            background: 'rgba(255, 255, 255, 0.1)', 
-            borderRadius: '4px',
-            marginRight: 16,
-            width: 200,
-            border: 'none',
-            color: 'white'
-          }}
           value={searchText}
           onChange={(e) => setSearchText(e.target.value)}
+          className={`search-input ${isDarkMode ? 'search-input-dark' : 'search-input-light'}`}
         />
         
         <Button 
           type="text" 
           icon={<BellOutlined />}
-          style={{ color: 'white', marginRight: 8 }}
+          style={{ color: isDarkMode ? 'white' : 'inherit' }}
         />
         
-        <Button 
-          type="text" 
-          icon={<QuestionCircleOutlined />}
-          style={{ color: 'white', marginRight: 16 }}
-        />
+        <ThemeToggle style={{ marginRight: 8 }} />
         
         <Dropdown menu={{ items: userMenuItems }} placement="bottomRight" arrow>
           <Avatar 
@@ -175,7 +146,7 @@ const Header: React.FC = () => {
               cursor: 'pointer'
             }}
           >
-            {currentUser?.name?.[0]?.toUpperCase() || <UserOutlined />}
+            {currentUser?.first_name?.[0]?.toUpperCase() || <UserOutlined />}
           </Avatar>
         </Dropdown>
       </div>

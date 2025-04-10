@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Link, useLocation } from "react-router-dom";
 import {
   Row,
@@ -16,6 +16,7 @@ import {
   Empty,
   Tooltip,
   Checkbox,
+  App,
 } from "antd";
 import {
   PlusOutlined,
@@ -30,6 +31,8 @@ import {
   ExclamationCircleOutlined,
   StarOutlined,
   StarFilled,
+  InboxOutlined,
+  UndoOutlined
 } from "@ant-design/icons";
 import type { MenuProps } from "antd";
 import { useDispatch, useSelector } from "react-redux";
@@ -40,11 +43,12 @@ import {
   editWorkspace,
   deleteWorkspace,
   toggleStarWorkspace,
+  archiveWorkspace,
+  restoreWorkspace
 } from "../../store/slices/workspaceSlice";
 import "../../layout/styles/workspaces.css";
 
 const { Title, Paragraph } = Typography;
-const { confirm } = Modal;
 
 // Function to generate a consistent color from workspace name
 const generateColor = (name: string) => {
@@ -79,6 +83,7 @@ const Workspaces: React.FC = () => {
   const dispatch = useDispatch();
   const { workspaces } = useSelector((state: RootState) => state.workspace);
   const location = useLocation();
+  const { modal } = App.useApp();
 
   const [searchText, setSearchText] = useState("");
   const [activeTab, setActiveTab] = useState("all-workspaces");
@@ -100,11 +105,11 @@ const Workspaces: React.FC = () => {
     return Array.from(new Set(creators));
   }, [workspaces]);
 
-  const showAddModal = () => {
+  const showAddModal = useCallback(() => {
     setEditingWorkspace(null);
     form.resetFields();
     setIsModalVisible(true);
-  };
+  }, [form]);
 
   // Check URL parameters for mode=create
   useEffect(() => {
@@ -112,57 +117,85 @@ const Workspaces: React.FC = () => {
     if (searchParams.get("mode") === "create") {
       showAddModal();
     }
-  }, [location]);
+  }, [location, showAddModal]);
 
-  // Apply search, filter, and sort
+  // Calculate processed workspaces
   const processedWorkspaces = React.useMemo(() => {
-    // First apply search filter
-    let result = workspaces.filter(
-      (workspace) =>
-        workspace.name.toLowerCase().includes(searchText.toLowerCase()) ||
-        workspace.description.toLowerCase().includes(searchText.toLowerCase())
-    );
+    return workspaces
+      .filter((workspace) => {
+        // Filter by search text
+        const nameMatch = workspace.name
+          .toLowerCase()
+          .includes(searchText.toLowerCase());
+        const descMatch = workspace.description
+          .toLowerCase()
+          .includes(searchText.toLowerCase());
+        const textMatch = nameMatch || descMatch;
 
-    // Apply creator filter if any
-    if (filterCreators.length > 0) {
-      result = result.filter((workspace) =>
-        filterCreators.includes(workspace.created_by)
-      );
-    }
+        // Filter by creator
+        const creatorMatch =
+          filterCreators.length === 0 ||
+          filterCreators.includes(workspace.created_by);
 
-    // Apply sorting
-    return result.sort((a, b) => {
-      switch (sortOption) {
-        case SORT_OPTIONS.NAME_ASC:
+        // Filter out archived workspaces
+        const notArchived = !workspace.archived;
+
+        return textMatch && creatorMatch && notArchived;
+      })
+      .sort((a, b) => {
+        if (sortOption === SORT_OPTIONS.NAME_ASC) {
           return a.name.localeCompare(b.name);
-        case SORT_OPTIONS.NAME_DESC:
+        } else if (sortOption === SORT_OPTIONS.NAME_DESC) {
           return b.name.localeCompare(a.name);
-        case SORT_OPTIONS.CREATED_ASC:
+        } else if (sortOption === SORT_OPTIONS.CREATED_ASC) {
           return (
             new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
           );
-        case SORT_OPTIONS.CREATED_DESC:
+        } else if (sortOption === SORT_OPTIONS.CREATED_DESC) {
           return (
             new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
           );
-        default:
-          return 0;
-      }
-    });
+        }
+        return 0;
+      });
   }, [workspaces, searchText, filterCreators, sortOption]);
 
-  const recentWorkspaces = [...processedWorkspaces]
-    .sort(
-      (a, b) =>
-        new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-    )
-    .slice(0, 4);
-
+  // Calculate starred workspaces
   const starredWorkspaces = React.useMemo(() => {
-    return processedWorkspaces.filter(
-      (workspace) => workspace.starred === true
-    );
+    return processedWorkspaces.filter((workspace) => workspace.starred);
   }, [processedWorkspaces]);
+
+  // Calculate recent workspaces (just use last 5 by created date)
+  const recentWorkspaces = React.useMemo(() => {
+    return [...processedWorkspaces]
+      .sort(
+        (a, b) =>
+          new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      )
+      .slice(0, 5);
+  }, [processedWorkspaces]);
+
+  // Calculate archived workspaces
+  const archivedWorkspaces = React.useMemo(() => {
+    return workspaces
+      .filter((workspace) => workspace.archived)
+      .sort((a, b) => {
+        if (sortOption === SORT_OPTIONS.NAME_ASC) {
+          return a.name.localeCompare(b.name);
+        } else if (sortOption === SORT_OPTIONS.NAME_DESC) {
+          return b.name.localeCompare(a.name);
+        } else if (sortOption === SORT_OPTIONS.CREATED_ASC) {
+          return (
+            new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+          );
+        } else if (sortOption === SORT_OPTIONS.CREATED_DESC) {
+          return (
+            new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+          );
+        }
+        return 0;
+      });
+  }, [workspaces, sortOption]);
 
   const handleFilterReset = () => {
     setFilterCreators([]);
@@ -201,7 +234,8 @@ const Workspaces: React.FC = () => {
   };
 
   const handleDelete = (id: string, name: string) => {
-    confirm({
+    console.log("handleDelete", id, name);
+    modal.confirm({
       title: `Are you sure you want to delete "${name}"?`,
       icon: <ExclamationCircleOutlined />,
       content:
@@ -224,6 +258,12 @@ const Workspaces: React.FC = () => {
       case "edit":
         showEditModal(workspace);
         break;
+      case "archive":
+        dispatch(archiveWorkspace(workspace.id));
+        break;
+      case "restore":
+        dispatch(restoreWorkspace(workspace.id));
+        break;
       case "delete":
         handleDelete(workspace.id, workspace.name);
         break;
@@ -234,30 +274,53 @@ const Workspaces: React.FC = () => {
 
   const renderWorkspaceCard = (workspace: Workspace) => {
     const color = generateColor(workspace.name);
-    const moreMenu: MenuProps["items"] = [
-      {
-        key: "edit",
-        label: "Edit",
-      },
-      {
-        key: "archive",
-        label: "Archive",
-      },
-      {
-        type: "divider",
-      },
-      {
-        key: "delete",
-        label: "Delete",
-        icon: <DeleteOutlined />,
-        danger: true,
-      },
-    ];
+    let moreMenu: MenuProps["items"] = [];
+    
+    if (workspace.archived) {
+      // Menu items for archived workspaces
+      moreMenu = [
+        {
+          key: "restore",
+          label: "Restore",
+          icon: <UndoOutlined />,
+        },
+        {
+          type: "divider",
+        },
+        {
+          key: "delete",
+          label: "Delete Permanently",
+          icon: <DeleteOutlined />,
+          danger: true,
+        },
+      ];
+    } else {
+      // Menu items for non-archived workspaces
+      moreMenu = [
+        {
+          key: "edit",
+          label: "Edit",
+        },
+        {
+          key: "archive",
+          label: "Archive",
+        },
+        {
+          type: "divider",
+        },
+        {
+          key: "delete",
+          label: "Delete",
+          icon: <DeleteOutlined />,
+          danger: true,
+        },
+      ];
+    }
 
     return (
       <Card
         hoverable
-        className="workspace-card"
+        className={`workspace-card ${workspace.archived ? 'archived' : ''}`}
         headStyle={{ backgroundColor: color, padding: 0 }}
       >
         <div
@@ -275,18 +338,20 @@ const Workspaces: React.FC = () => {
                   {workspace.name}
                 </Title>
               </Link>
-              <div
-                style={{ marginTop: "auto" }}
-                onClick={() =>
-                  handleToggleStar(workspace.id, !!workspace.starred)
-                }
-              >
-                {workspace.starred ? (
-                  <StarFilled className="star-icon star-filled" />
-                ) : (
-                  <StarOutlined className="star-icon" />
-                )}
-              </div>
+              {!workspace.archived && (
+                <div
+                  style={{ marginTop: "auto" }}
+                  onClick={() =>
+                    handleToggleStar(workspace.id, !!workspace.starred)
+                  }
+                >
+                  {workspace.starred ? (
+                    <StarFilled className="star-icon star-filled" />
+                  ) : (
+                    <StarOutlined className="star-icon" />
+                  )}
+                </div>
+              )}
             </div>
             <div className="workspace-card-actions">
               <Dropdown
@@ -307,8 +372,12 @@ const Workspaces: React.FC = () => {
             </div>
           </div>
 
-          <Paragraph ellipsis={{ rows: 2 }} className="workspace-description">
-            {workspace.description}
+          <Paragraph 
+            ellipsis={{ rows: 2 }} 
+            className="workspace-description" 
+            style={{ color: 'inherit' }}
+          >
+            {workspace.description || "No description"}
           </Paragraph>
 
           <div className="workspace-card-footer">
@@ -343,6 +412,9 @@ const Workspaces: React.FC = () => {
       } else if (activeTab === "recent") {
         emptyMessage =
           "No recent workspaces. Start using workspaces to see your recent activity!";
+      } else if (activeTab === "archived") {
+        emptyMessage =
+          "No archived workspaces. Archive workspaces you no longer need to see them here.";
       }
 
       return (
@@ -529,7 +601,7 @@ const Workspaces: React.FC = () => {
             onClick={showAddModal}
             className="create-btn"
           >
-            Create
+            Create New Workspace
           </Button>
         </div>
       </div>
@@ -559,6 +631,14 @@ const Workspaces: React.FC = () => {
               ),
             },
             {
+              key: "archived",
+              label: (
+                <span className="tab-label">
+                  <InboxOutlined /> Archived ({archivedWorkspaces.length})
+                </span>
+              ),
+            },
+            {
               key: "recent",
               label: (
                 <span className="tab-label">
@@ -575,6 +655,7 @@ const Workspaces: React.FC = () => {
           renderWorkspaces(processedWorkspaces)}
         {activeTab === "starred" && renderWorkspaces(starredWorkspaces)}
         {activeTab === "recent" && renderWorkspaces(recentWorkspaces)}
+        {activeTab === "archived" && renderWorkspaces(archivedWorkspaces)}
       </div>
 
       {/* Add/Edit Workspace Modal */}
