@@ -12,17 +12,19 @@ import {
 import storage from 'redux-persist/lib/storage';
 import userReducer from './slices/userSlice';
 import workspaceReducer from './slices/workspaceSlice';
+import boardReducer from './slices/boardSlice';
 
 const persistConfig = {
   key: 'root',
   version: 1,
   storage,
-  whitelist: ['user', 'workspace'], // Persist user and workspace state
+  whitelist: ['user', 'workspace', 'board'], // Persist user, workspace and board state
 };
 
 const rootReducer = combineReducers({
   user: userReducer,
   workspace: workspaceReducer,
+  board: boardReducer,
   // Add other reducers here
 });
 

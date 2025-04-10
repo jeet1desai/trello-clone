@@ -8,6 +8,7 @@ export interface Workspace {
   created_by: string;
   created_at: string;
   starred?: boolean;
+  archived?: boolean;
 }
 
 interface WorkspaceState {
@@ -24,7 +25,8 @@ const initialState: WorkspaceState = {
       description: 'Workspace for marketing team',
       created_by: 'user1',
       created_at: new Date().toISOString(),
-      starred: false
+      starred: false,
+      archived: false
     },
     {
       id: '2',
@@ -32,7 +34,8 @@ const initialState: WorkspaceState = {
       description: 'Workspace for engineering team',
       created_by: 'user2',
       created_at: new Date().toISOString(),
-      starred: true
+      starred: true,
+      archived: false
     },
     {
       id: '3',
@@ -40,7 +43,8 @@ const initialState: WorkspaceState = {
       description: 'Workspace for design team',
       created_by: 'user3',
       created_at: new Date().toISOString(),
-      starred: false
+      starred: false,
+      archived: false
     }
   ],
   loading: false,
@@ -55,7 +59,8 @@ const workspaceSlice = createSlice({
       const newWorkspace = {
         ...action.payload,
         id: Date.now().toString(),
-        created_at: new Date().toISOString()
+        created_at: new Date().toISOString(),
+        archived: false
       };
       state.workspaces.push(newWorkspace);
       message.success('Workspace created successfully');
@@ -95,6 +100,26 @@ const workspaceSlice = createSlice({
       } else {
         message.error('Workspace not found');
       }
+    },
+    archiveWorkspace: (state, action: PayloadAction<string>) => {
+      const id = action.payload;
+      const index = state.workspaces.findIndex(workspace => workspace.id === id);
+      if (index !== -1) {
+        state.workspaces[index].archived = true;
+        message.success('Workspace archived successfully');
+      } else {
+        message.error('Workspace not found');
+      }
+    },
+    restoreWorkspace: (state, action: PayloadAction<string>) => {
+      const id = action.payload;
+      const index = state.workspaces.findIndex(workspace => workspace.id === id);
+      if (index !== -1) {
+        state.workspaces[index].archived = false;
+        message.success('Workspace restored successfully');
+      } else {
+        message.error('Workspace not found');
+      }
     }
   }
 });
@@ -103,7 +128,9 @@ export const {
   addWorkspace, 
   editWorkspace, 
   deleteWorkspace,
-  toggleStarWorkspace
+  toggleStarWorkspace,
+  archiveWorkspace,
+  restoreWorkspace
 } = workspaceSlice.actions;
 
 export default workspaceSlice.reducer; 
