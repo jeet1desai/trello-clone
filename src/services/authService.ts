@@ -1,9 +1,27 @@
 import axios from 'axios';
-import { API_URL } from '../config';
+
+const API_URL = process.env.REACT_APP_BASE_URL;
 
 export const authService = {
-  async register(name: string, email: string, phone: string, password: string) {
-    const response = await axios.post(`${API_URL}/auth/register`, { name, email, phone, password });
+  async register(first_name: string, middle_name: string, last_name: string, email: string, phone: string, password: string) {
+    const formData = new FormData();
+    formData.append('first_name', first_name);
+    formData.append('middle_name', middle_name);
+    formData.append('last_name', last_name);
+    formData.append('email', email);
+    formData.append('phone', phone);
+    formData.append('password', password);
+    
+    const response = await axios.post(`${API_URL}/auth/signup`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    });
+    return response.data;
+  },
+
+  async verifyUser(token: string) {
+    const response = await axios.post(`${API_URL}/auth/verify-email`, { token });
     return response.data;
   },
 

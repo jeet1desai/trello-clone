@@ -16,13 +16,17 @@
   padding: 0 24px;
   height: 72px;
   line-height: 72px;
-  background: var(--header-bg);
+  background-color: var(--header-bg) !important;
+  color: var(--text-primary);
   border-bottom: 1px solid var(--border-color);
   position: sticky;
   top: 0;
   z-index: 1000;
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .header-content {
@@ -58,7 +62,7 @@
 
 .logo-title {
   margin: 0;
-  color: var(--text-color);
+  color: var(--text-primary) !important;
   font-size: 20px;
   font-weight: 600;
   letter-spacing: -0.5px;
@@ -97,12 +101,28 @@
 
 .search-input {
   width: 240px;
+  background: transparent !important;
+}
+
+.search-input-light {
+  border: 1px solid var(--border-color) !important;
+}
+
+.search-input-light:hover, .search-input-light:focus {
+  border-color: var(--primary-color) !important;
+}
+
+.search-input-dark {
+  border: 1px solid var(--border-color) !important;
+}
+
+.search-input-dark:hover, .search-input-dark:focus {
+  border-color: var(--primary-color) !important;
 }
 
 .search-input .ant-input {
-  background: var(--input-bg);
+  color: var(--text-primary) !important;
   border-color: var(--border-color);
-  color: var(--text-color);
   border-radius: 8px;
   height: 40px;
   transition: all 0.3s ease;
@@ -115,7 +135,11 @@
 }
 
 .search-input .ant-input::placeholder {
-  color: var(--text-color-secondary);
+  color: var(--text-secondary) !important;
+}
+
+.search-input .ant-input-prefix {
+  color: var(--text-secondary) !important;
 }
 
 .search-icon {
@@ -123,7 +147,7 @@
 }
 
 .header-icon-button {
-  color: var(--text-color);
+  color: var(--text-primary);
   width: 40px;
   height: 40px;
   border-radius: 8px;
@@ -226,6 +250,15 @@
   margin-top: auto;
 }
 
+/* Footer theming */
+.footer-light {
+  border-top: 1px solid var(--border-color) !important;
+}
+
+.footer-dark {
+  border-top: 1px solid var(--border-color) !important;
+}
+
 /* Responsive styles */
 @media (max-width: 992px) {
   .main-menu {
@@ -237,7 +270,7 @@
   .search-input {
     display: none;
   }
-  
+
   .header-left {
     gap: 16px;
   }
@@ -247,15 +280,15 @@
   .app-header {
     padding: 0 16px;
   }
-  
+
   .logo-title {
     font-size: 18px;
   }
-  
+
   .auth-buttons {
     gap: 8px;
   }
-  
+
   .login-button,
   .signup-button,
   .create-button {
@@ -276,8 +309,77 @@
   overflow-y: auto;
 }
 
+.search-input::placeholder {
+  color: white;
+  opacity: 0.65;
+}
+
+.search-input {
+  background: rgba(255, 255, 255, 0.1) !important;
+  border-radius: 4px;
+  margin-right: 16;
+  width: 200;
+  border: none;
+  color: white;
+}
+
+.search-input .ant-input {
+  height: 25px;
+}
+
 @media (max-width: 768px) {
   .main-content {
     padding: 16px;
   }
-} 
+}
+
+/* Add the app-footer class */
+.app-footer {
+  background-color: var(--footer-bg) !important;
+  color: var(--footer-text) !important;
+  padding: 40px 0;
+  transition: all 0.3s ease;
+}
+
+.app-footer .ant-typography {
+  color: var(--text-primary) !important;
+}
+
+.app-footer a {
+  color: var(--text-secondary);
+  transition: color 0.3s ease;
+}
+
+.app-footer a:hover {
+  color: var(--text-primary);
+}
+
+.app-footer .ant-divider {
+  border-color: var(--border-color);
+}
+
+/* Fix existing styles related to theming */
+.ant-menu-item a {
+  color: inherit;
+}
+
+/* Theme toggle button */
+.theme-toggle-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+}
+
+.theme-toggle-light:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+  color: var(--primary-color);
+}
+
+.theme-toggle-dark:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: var(--primary-color);
+}

@@ -1,0 +1,72 @@
+.dashboard-container {
+  padding: 24px;
+}
+
+.dashboard-welcome {
+  margin-bottom: 24px;
+  background: var(--welcome-gradient);
+  color: white;
+  border-radius: 8px;
+  box-shadow: var(--shadow-md);
+}
+
+.dashboard-welcome-content {
+  padding: 24px;
+}
+
+.welcome-title {
+  color: white !important;
+  margin-bottom: 12px !important;
+}
+
+.welcome-subtitle {
+  color: rgba(255, 255, 255, 0.85) !important;
+  margin-bottom: 0 !important;
+}
+
+.dashboard-card {
+  height: 100%;
+  box-shadow: var(--shadow-sm);
+  border-radius: 8px;
+  background-color: var(--dashboard-card-bg) !important;
+}
+
+.stat-card {
+  height: 100%;
+  border-radius: 8px;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.3s;
+  background-color: var(--stat-card-bg) !important;
+}
+
+.stat-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-md);
+}
+
+.dashboard-section {
+  margin-bottom: 24px;
+}
+
+/* Make sure charts handle dark mode */
+.theme-dark .recharts-text {
+  fill: var(--text-primary);
+}
+
+.theme-dark .recharts-cartesian-grid line {
+  stroke: rgba(255, 255, 255, 0.15);
+}
+
+.theme-dark .recharts-cartesian-axis-line {
+  stroke: rgba(255, 255, 255, 0.25);
+}
+
+@media (max-width: 576px) {
+  .dashboard-container {
+    padding: 16px;
+  }
+  
+  .dashboard-welcome-content {
+    padding: 16px;
+  }
+} 
