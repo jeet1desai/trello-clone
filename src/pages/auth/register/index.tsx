@@ -4,7 +4,6 @@ import {
   UserOutlined,
   LockOutlined,
   MailOutlined,
-  PhoneOutlined,
 } from "@ant-design/icons";
 import { Link, useNavigate } from "react-router-dom";
 import { AppDispatch } from "../../../store";
@@ -38,7 +37,6 @@ const Register: React.FC = () => {
     middle_name: string;
     last_name: string;
     email: string;
-    phone: string;
     password: string;
   }) => {
     await dispatch(registerUser(values));
@@ -155,28 +153,6 @@ const Register: React.FC = () => {
             <Input
               prefix={<MailOutlined className="form-icon" />}
               placeholder="Enter your email"
-              className="form-input"
-            />
-          </Form.Item>
-
-          <Form.Item
-            label={
-              <span>
-                Phone Number <span style={{ color: "red" }}>*</span>
-              </span>
-            }
-            name="phone"
-            rules={[
-              { required: true, message: "Phone number is required" },
-              {
-                pattern: /^[0-9]{10}$/,
-                message: "Phone number must be 10 digits",
-              },
-            ]}
-          >
-            <Input
-              prefix={<PhoneOutlined className="form-icon" />}
-              placeholder="Enter your phone number"
               className="form-input"
             />
           </Form.Item>

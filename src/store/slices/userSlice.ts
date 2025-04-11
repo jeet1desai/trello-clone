@@ -59,14 +59,12 @@ export const registerUser = createAsyncThunk(
       middle_name,
       last_name,
       email,
-      phone,
       password,
     }: {
       first_name: string;
       middle_name: string;
       last_name: string;
       email: string;
-      phone: string;
       password: string;
     },
     { rejectWithValue }
@@ -77,7 +75,6 @@ export const registerUser = createAsyncThunk(
         middle_name,
         last_name,
         email,
-        phone,
         password
       );
       return response;

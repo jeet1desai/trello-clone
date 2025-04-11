@@ -1,10 +1,9 @@
-import axios from "axios";
-
-const API_URL = process.env.REACT_APP_BASE_URL;
+import { API_URL } from "../config";
+import axiosInstance from "../helper/axiosInstance";
 
 export const profileService = {
   async getProfileData() {
-    const response = await axios.get(`${API_URL}/user/profile`);
+    const response = await axiosInstance.get(`${API_URL}/user/profile`);
     return response.data.data;
   },
 
@@ -21,7 +20,7 @@ export const profileService = {
     formData.append("last_name", data.last_name);
     formData.append("email", data.email);
     formData.append("profile_image", data.profile_image);
-    const response = await axios.put(`${API_URL}/user/profile`, formData, {
+    const response = await axiosInstance.put(`${API_URL}/user/profile`, formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },

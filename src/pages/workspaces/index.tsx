@@ -17,6 +17,7 @@ import {
   Tooltip,
   Checkbox,
   App,
+  Alert,
 } from "antd";
 import {
   PlusOutlined,
@@ -36,15 +37,16 @@ import {
 } from "@ant-design/icons";
 import type { MenuProps } from "antd";
 import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "../../store";
+import { AppDispatch, RootState } from "../../store";
 import {
-  Workspace,
-  addWorkspace,
+  IWorkspace,
   editWorkspace,
   deleteWorkspace,
   toggleStarWorkspace,
   archiveWorkspace,
   restoreWorkspace,
+  addNewWorkspace,
+  openWorkspaceAddModal,
 } from "../../store/slices/workspaceSlice";
 import "../../layout/styles/workspaces.css";
 
@@ -80,15 +82,17 @@ const SORT_OPTIONS = {
 };
 
 const Workspaces: React.FC = () => {
-  const dispatch = useDispatch();
-  const { workspaces } = useSelector((state: RootState) => state.workspace);
+  const dispatch = useDispatch<AppDispatch>();
+  const { workspaces, addError, editError } = useSelector(
+    (state: RootState) => state.workspace
+  );
   const location = useLocation();
   const { modal } = App.useApp();
 
   const [searchText, setSearchText] = useState("");
   const [activeTab, setActiveTab] = useState("all-workspaces");
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [editingWorkspace, setEditingWorkspace] = useState<Workspace | null>(
+  const [editingWorkspace, setEditingWorkspace] = useState<IWorkspace | null>(
     null
   );
   const [form] = Form.useForm();
@@ -100,16 +104,17 @@ const Workspaces: React.FC = () => {
   // Get all unique creators
   const allCreators = React.useMemo(() => {
     const creators = workspaces.map(
-      (workspace: { created_by: string }) => workspace.created_by
+      (workspace: { createdBy: string }) => workspace.createdBy
     );
     return Array.from(new Set(creators));
   }, [workspaces]);
 
   const showAddModal = useCallback(() => {
+    dispatch(openWorkspaceAddModal());
     setEditingWorkspace(null);
     form.resetFields();
     setIsModalVisible(true);
-  }, [form]);
+  }, [form, dispatch]);
 
   // Check URL parameters for mode=create
   useEffect(() => {
@@ -135,7 +140,7 @@ const Workspaces: React.FC = () => {
         // Filter by creator
         const creatorMatch =
           filterCreators.length === 0 ||
-          filterCreators.includes(workspace.created_by);
+          filterCreators.includes(workspace.createdBy);
 
         // Filter out archived workspaces
         const notArchived = !workspace.archived;
@@ -149,11 +154,11 @@ const Workspaces: React.FC = () => {
           return b.name.localeCompare(a.name);
         } else if (sortOption === SORT_OPTIONS.CREATED_ASC) {
           return (
-            new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+            new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
           );
         } else if (sortOption === SORT_OPTIONS.CREATED_DESC) {
           return (
-            new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
           );
         }
         return 0;
@@ -170,7 +175,7 @@ const Workspaces: React.FC = () => {
     return [...processedWorkspaces]
       .sort(
         (a, b) =>
-          new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
       )
       .slice(0, 5);
   }, [processedWorkspaces]);
@@ -186,11 +191,11 @@ const Workspaces: React.FC = () => {
           return b.name.localeCompare(a.name);
         } else if (sortOption === SORT_OPTIONS.CREATED_ASC) {
           return (
-            new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+            new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
           );
         } else if (sortOption === SORT_OPTIONS.CREATED_DESC) {
           return (
-            new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
           );
         }
         return 0;
@@ -201,30 +206,29 @@ const Workspaces: React.FC = () => {
     setFilterCreators([]);
   };
 
-  const handleAddOrEditWorkspace = (values: any) => {
+  const handleAddOrEditWorkspace = async (values: any) => {
     if (editingWorkspace) {
-      dispatch(
+      await dispatch(
         editWorkspace({
           id: editingWorkspace.id,
-          data: values,
+          name: values.name,
+          description: values.description,
         })
       );
     } else {
-      dispatch(
-        addWorkspace({
-          ...values,
-          created_by: "user1", // In a real app, this would come from the current user's ID
-          members: ["user1"],
-          starred: false,
-        })
+      await dispatch(
+        addNewWorkspace({ name: values.name, description: values.description })
       );
     }
-    setIsModalVisible(false);
-    form.resetFields();
-    setEditingWorkspace(null);
+    if (!addError) {
+      setIsModalVisible(false);
+    }
+    if (!editError) {
+      setEditingWorkspace(null);
+    }
   };
 
-  const showEditModal = (workspace: Workspace) => {
+  const showEditModal = (workspace: IWorkspace) => {
     setEditingWorkspace(workspace);
     form.setFieldsValue({
       name: workspace.name,
@@ -253,7 +257,7 @@ const Workspaces: React.FC = () => {
     dispatch(toggleStarWorkspace(id));
   };
 
-  const handleMenuClick = (key: string, workspace: Workspace) => {
+  const handleMenuClick = (key: string, workspace: IWorkspace) => {
     switch (key) {
       case "edit":
         showEditModal(workspace);
@@ -272,7 +276,7 @@ const Workspaces: React.FC = () => {
     }
   };
 
-  const renderWorkspaceCard = (workspace: Workspace) => {
+  const renderWorkspaceCard = (workspace: IWorkspace) => {
     const color = generateColor(workspace.name);
     let moreMenu: MenuProps["items"] = [];
 
@@ -382,18 +386,18 @@ const Workspaces: React.FC = () => {
 
           <div className="workspace-card-footer">
             <Space wrap>
-              <Tooltip title={`Created by ${workspace.created_by}`}>
+              <Tooltip title={`Created by ${workspace.createdBy}`}>
                 <Tag icon={<UserOutlined />} color="blue">
-                  {workspace.created_by}
+                  {workspace.createdBy}
                 </Tag>
               </Tooltip>
               <Tooltip
                 title={`Created on ${new Date(
-                  workspace.created_at
+                  workspace.createdAt
                 ).toLocaleDateString()}`}
               >
                 <Tag icon={<ClockCircleOutlined />} color="blue">
-                  {new Date(workspace.created_at).toLocaleDateString()}
+                  {new Date(workspace.createdAt).toLocaleDateString()}
                 </Tag>
               </Tooltip>
             </Space>
@@ -403,7 +407,7 @@ const Workspaces: React.FC = () => {
     );
   };
 
-  const renderWorkspaces = (workspaces: Workspace[]) => {
+  const renderWorkspaces = (workspaces: IWorkspace[]) => {
     if (workspaces.length === 0) {
       let emptyMessage = "No workspaces found";
       if (activeTab === "starred") {
@@ -656,6 +660,24 @@ const Workspaces: React.FC = () => {
         footer={null}
         className="workspace-modal"
       >
+        {addError && (
+          <Alert
+            message={addError}
+            type="error"
+            showIcon
+            style={{ marginBottom: 10 }}
+            icon={<ExclamationCircleOutlined />}
+          />
+        )}
+        {editError && (
+          <Alert
+            message={editError}
+            type="error"
+            showIcon
+            style={{ marginBottom: 10 }}
+            icon={<ExclamationCircleOutlined />}
+          />
+        )}
         <Form
           form={form}
           layout="vertical"

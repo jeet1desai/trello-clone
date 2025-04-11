@@ -378,10 +378,10 @@ const WorkspaceDetail: React.FC = () => {
             <div className="workspace-meta">
               <Space wrap>
                 <Tag icon={<UserOutlined />} color="blue">
-                  {workspace.created_by}
+                  {workspace.createdBy}
                 </Tag>
                 <Tag icon={<ClockCircleOutlined />} color="blue">
-                  {new Date(workspace.created_at).toLocaleDateString()}
+                  {new Date(workspace.createdAt).toLocaleDateString()}
                 </Tag>
               </Space>
             </div>
@@ -409,11 +409,11 @@ const WorkspaceDetail: React.FC = () => {
                       >
                         <div className="info-card-content">
                           <p>
-                            <strong>Created by:</strong> {workspace.created_by}
+                            <strong>Created by:</strong> {workspace.createdBy}
                           </p>
                           <p>
                             <strong>Created at:</strong>{" "}
-                            {new Date(workspace.created_at).toLocaleString()}
+                            {new Date(workspace.createdAt).toLocaleString()}
                           </p>
                           <p>
                             <strong>Status:</strong>{" "}

@@ -20,11 +20,11 @@ const { Title, Text } = Typography;
 
 const ProfilePage = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const { currentUser } = useSelector((state: RootState) => state.user);
+  const { profileDetails } = useSelector((state: RootState) => state.profile);
   const [editMode, setEditMode] = useState(false);
   const [form] = Form.useForm();
   const [previewImage, setPreviewImage] = useState<string | undefined>(
-    currentUser?.profile_image
+    profileDetails?.profile_image
   );
 
   useEffect(() => {
@@ -47,7 +47,7 @@ const ProfilePage = () => {
   return (
     <div className="profile-container">
       <div className="profile-header-gradient">
-        <Title level={3}>Welcome, {currentUser?.first_name || "User"}</Title>
+        <Title level={3}>Welcome, {profileDetails?.first_name || "User"}</Title>
         <Text type="secondary">Today, {new Date().toDateString()}</Text>
       </div>
 
@@ -79,9 +79,9 @@ const ProfilePage = () => {
             </Upload>
             <div className="profile-name-wrapper">
               <Title level={4} className="profile-name-text">
-                {`${currentUser?.first_name} ${currentUser?.middle_name} ${currentUser?.last_name}`}
+                {`${profileDetails?.first_name} ${profileDetails?.middle_name} ${profileDetails?.last_name}`}
               </Title>
-              <Text type="secondary">{currentUser?.email}</Text>
+              <Text type="secondary">{profileDetails?.email}</Text>
             </div>
           </div>
           <Button
@@ -96,8 +96,8 @@ const ProfilePage = () => {
           form={form}
           name="profile"
           initialValues={
-            currentUser
-              ? currentUser
+            profileDetails
+              ? profileDetails
               : {
                   first_name: "",
                   middle_name: "",
@@ -196,7 +196,7 @@ const ProfilePage = () => {
               </Form.Item>
             </Col>
 
-            <Col span={12}>
+            <Col span={24}>
               <Form.Item
                 label={
                   <span>
@@ -211,30 +211,6 @@ const ProfilePage = () => {
               >
                 <Input
                   placeholder="Enter your email"
-                  className="form-input"
-                  disabled={!editMode}
-                />
-              </Form.Item>
-            </Col>
-
-            <Col span={12}>
-              <Form.Item
-                label={
-                  <span>
-                    Phone Number <span style={{ color: "red" }}>*</span>
-                  </span>
-                }
-                name="phone"
-                rules={[
-                  { required: true, message: "Phone number is required" },
-                  {
-                    pattern: /^[0-9]{10}$/,
-                    message: "Phone number must be 10 digits",
-                  },
-                ]}
-              >
-                <Input
-                  placeholder="Enter your phone number"
                   className="form-input"
                   disabled={!editMode}
                 />
