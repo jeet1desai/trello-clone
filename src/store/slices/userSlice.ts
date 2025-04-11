@@ -2,7 +2,7 @@ import { createSlice, PayloadAction, createAsyncThunk } from "@reduxjs/toolkit";
 import { authService } from "../../services/authService";
 import { message } from "antd";
 
-interface User {
+export interface User {
   id: string;
   first_name: string;
   middle_name: string;
@@ -120,7 +120,11 @@ export const requestPasswordReset = createAsyncThunk(
 export const changePassword = createAsyncThunk(
   "user/changePassword",
   async (
-    { email, otp, newPassword: password }: { email: string; otp: string; newPassword: string },
+    {
+      email,
+      otp,
+      newPassword: password,
+    }: { email: string; otp: string; newPassword: string },
     { rejectWithValue }
   ) => {
     try {
@@ -153,13 +157,10 @@ export const resetPassword = createAsyncThunk(
 
 export const logoutUser = createAsyncThunk(
   "user/logout",
-  async (
-    { email, password }: { email: string; password: string },
-    { rejectWithValue }
-  ) => {
+  async (_, { rejectWithValue }) => {
     try {
       const response = await authService.logout();
-      return response.user;
+      return response;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || "Logout failed");
     }
@@ -277,7 +278,7 @@ const userSlice = createSlice({
           (action.payload as string) || "Failed to send password reset link"
         );
       })
-      
+
       // Change Password
       .addCase(changePassword.pending, (state) => {
         state.loading = true;
@@ -331,6 +332,23 @@ const userSlice = createSlice({
         message.error(
           (action.payload as string) || "Email verification failed"
         );
+      })
+
+      // Log out
+      .addCase(logoutUser.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(logoutUser.fulfilled, (state) => {
+        state.currentUser = null;
+        state.isAuthenticated = false;
+        state.loading = false;
+        state.error = null;
+        message.success("Logout successful");
+      })
+      .addCase(logoutUser.rejected, (state) => {
+        state.loading = false;
+        message.error("Logout failed");
       });
   },
 });

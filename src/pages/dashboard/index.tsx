@@ -36,7 +36,7 @@ const Dashboard: React.FC = () => {
   const completedTasks = 15;
   
   return (
-    <div className="dashboard-container">
+    <div>
       {/* Welcome Section */}
       <Card className="dashboard-welcome">
         <div className="dashboard-welcome-content">

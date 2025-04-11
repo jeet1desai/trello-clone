@@ -15,6 +15,7 @@ export const useAxios = (): AxiosInstance => {
     headers: {
       'Content-Type': 'application/json',
     },
+    withCredentials: true,
   });
 
   axiosInstance.interceptors.request.use(

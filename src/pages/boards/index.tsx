@@ -26,6 +26,7 @@ import {
   SortAscendingOutlined
 } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
+import "../../layout/styles/boards.css";
 
 const { Title, Text } = Typography;
 
@@ -229,20 +230,11 @@ const Boards: React.FC = () => {
               <Col xs={24} sm={12} md={8} lg={6}>
                 <Card
                   hoverable
-                  style={{ 
-                    marginBottom: 16, 
-                    height: 184,
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    backgroundColor: '#F0F2F5',
-                    border: '2px dashed #d9d9d9',
-                    cursor: 'pointer',
-                  }}
+                  className="create-board-card"
                 >
-                  <div style={{ textAlign: 'center' }}>
-                    <PlusOutlined style={{ fontSize: 24, marginBottom: 8, color: '#1890ff' }} />
-                    <div>Create New Board</div>
+                  <div className="create-card-content">
+                    <PlusOutlined className="plus-icon" />
+                    <div className="create-card-text">Create New Board</div>
                   </div>
                 </Card>
               </Col>
