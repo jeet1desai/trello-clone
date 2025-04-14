@@ -5,8 +5,6 @@ import { Header, Footer } from "./components";
 import { useTheme } from "../contexts/ThemeContext";
 import "./styles/Layout.css";
 import "./styles/Theme.css";
-import { useSelector } from "react-redux";
-import { RootState } from "../store";
 
 const { Content } = AntLayout;
 
@@ -14,9 +12,6 @@ const Layout: React.FC = () => {
   const location = useLocation();
   const { theme } = useTheme();
   const isDarkMode = theme === "dark";
-  const { isAuthenticated } = useSelector(
-    (state: RootState) => state.user
-  );
 
   // Scroll to top when location changes
   useEffect(() => {
@@ -38,11 +33,19 @@ const Layout: React.FC = () => {
       };
 
   // Don't show footer on board detail pages
+  const showHeader = !(
+    location.pathname.includes("register") ||
+    location.pathname.includes("verify-email") ||
+    location.pathname.includes("login") ||
+    location.pathname.includes("forgot-password")
+  );
+
+  // Don't show footer on board detail pages
   const showFooter = !isBoardDetailPage;
 
   return (
     <AntLayout style={{ minHeight: "100vh" }}>
-      {isAuthenticated && <Header />}
+      {showHeader && <Header />}
       <AntLayout>
         <Content style={contentStyle}>
           <div

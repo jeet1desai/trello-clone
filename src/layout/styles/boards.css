@@ -1,0 +1,44 @@
+/* Create Board Card */
+.create-board-card {
+    height: 100%;
+    background-color: var(--bg-secondary);
+    border: 2px dashed var(--border-color);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: all 0.2s;
+    height: 200px;
+  }
+  
+  .theme-dark .create-board-card {
+    background-color: var(--bg-tertiary);
+    border: 2px dashed var(--border-color);
+  }
+  
+  .create-board-card:hover {
+    border-color: var(--primary-color);
+    background-color: var(--bg-tertiary);
+  }
+  
+  .theme-dark .create-board-card:hover {
+    background-color: rgba(24, 144, 255, 0.1);
+  }
+  
+  .create-card-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+  
+  .plus-icon {
+    font-size: 24px;
+    margin-bottom: 8px;
+    color: var(--primary-color);
+  }
+  
+  .create-card-text {
+    color: var(--primary-color);
+    font-weight: 500;
+  }
