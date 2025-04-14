@@ -2,6 +2,13 @@ import { API_URL } from "../config";
 import axiosInstance from "../helper/axiosInstance";
 
 export const workspaceService = {
+  async getAllWorkspaces() {
+    const response = await axiosInstance.get(
+      `${API_URL}/workspace/get-workspaces`
+    );
+    return response.data;
+  },
+
   async addWorkspace(name: string, description: string) {
     const response = await axiosInstance.post(
       `${API_URL}/workspace/create-workspace`,

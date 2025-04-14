@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
   Typography,
@@ -35,11 +35,12 @@ import {
   ArrowLeftOutlined,
 } from "@ant-design/icons";
 import { useSelector, useDispatch } from "react-redux";
-import { RootState } from "../../../store";
+import { AppDispatch, RootState } from "../../../store";
 import {
   archiveWorkspace,
-  restoreWorkspace,
   deleteWorkspace,
+  getWorkspaceById,
+  restoreWorkspace,
 } from "../../../store/slices/workspaceSlice";
 import {
   Board,
@@ -50,36 +51,19 @@ import {
   restoreBoard,
 } from "../../../store/slices/boardSlice";
 import "../../../layout/styles/workspaceDetail.css";
+import { generateGradient } from "../../../config";
 
 const { Title, Text, Paragraph } = Typography;
 const { Option } = Select;
 
-// Function to generate a consistent color from workspace name
-const generateColor = (name: string) => {
-  const colors = [
-    "#52c41a", // Green
-    "#1890ff", // Blue
-    "#722ed1", // Purple
-    "#eb2f96", // Pink
-    "#fa8c16", // Orange
-    "#faad14", // Gold
-    "#13c2c2", // Cyan
-    "#f5222d", // Red
-  ];
-
-  let sum = 0;
-  for (let i = 0; i < name.length; i++) {
-    sum += name.charCodeAt(i);
-  }
-
-  return colors[sum % colors.length];
-};
-
 const WorkspaceDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const dispatch = useDispatch();
-  const { workspaces } = useSelector((state: RootState) => state.workspace);
+  const dispatch = useDispatch<AppDispatch>();
+  const { selectedWorkspace } = useSelector(
+    (state: RootState) => state.workspace
+  );
+  const { currentUser } = useSelector((state: RootState) => state.user);
   const { boards } = useSelector((state: RootState) => state.board);
   const { modal } = App.useApp();
 
@@ -88,53 +72,61 @@ const WorkspaceDetail: React.FC = () => {
   const [boardForm] = Form.useForm();
   const [activeTabKey, setActiveTabKey] = useState("1");
 
-  const workspace = workspaces.find((w) => w.id === id);
+  useEffect(() => {
+    if (id) (async () => await dispatch(getWorkspaceById(id)))();
+  }, [dispatch, id]);
 
-  if (!workspace) {
+  if (!selectedWorkspace) {
     return (
-      <div className="workspace-not-found">
-        <Title level={4}>Workspace not found</Title>
+      <div className="flex flex-col items-center justify-center min-h-[300px] bg-gray-50 rounded-2xl shadow-inner p-8">
+        <Empty
+          image={Empty.PRESENTED_IMAGE_SIMPLE}
+          description={
+            <span className="text-lg text-gray-600">Workspace not found</span>
+          }
+        />
       </div>
     );
   }
 
   // Get boards for this workspace
   const workspaceBoards = boards.filter(
-    (board) => board.workspace_id === workspace.id && !board.archived
-  );
-  
-  // Get archived boards for this workspace
-  const archivedBoards = boards.filter(
-    (board) => board.workspace_id === workspace.id && board.archived
+    (board) => board.workspace_id === selectedWorkspace._id && !board.archived
   );
 
-  const workspaceColor = generateColor(workspace.name);
+  // Get archived boards for this workspace
+  const archivedBoards = boards.filter(
+    (board) => board.workspace_id === selectedWorkspace._id && board.archived
+  );
+
+  const workspaceColor = generateGradient(selectedWorkspace.name);
 
   const handleArchive = () => {
     modal.confirm({
-      title: `Archive "${workspace.name}"?`,
+      title: `Archive "${selectedWorkspace.name}"?`,
       icon: <ExclamationCircleOutlined />,
-      content: 'The workspace will be moved to the archive. You can restore it later.',
+      content:
+        "The workspace will be moved to the archive. You can restore it later.",
       onOk() {
-        dispatch(archiveWorkspace(workspace.id));
-      }
+        dispatch(archiveWorkspace(selectedWorkspace._id));
+      },
     });
   };
 
   const handleRestore = () => {
-    dispatch(restoreWorkspace(workspace.id));
+    dispatch(restoreWorkspace(selectedWorkspace._id));
   };
 
   const handleDelete = () => {
     modal.confirm({
-      title: `Delete "${workspace.name}"?`,
+      title: `Delete "${selectedWorkspace.name}"?`,
       icon: <ExclamationCircleOutlined />,
       content:
         "This action cannot be undone. All boards and data will be permanently deleted.",
       okText: "Delete",
       okType: "danger",
       onOk() {
-        dispatch(deleteWorkspace(workspace.id));
+        dispatch(deleteWorkspace(selectedWorkspace._id));
         navigate("/workspaces");
       },
     });
@@ -160,7 +152,7 @@ const WorkspaceDetail: React.FC = () => {
     if (editingBoard) {
       dispatch(
         editBoard({
-          id: editingBoard.id,
+          _id: editingBoard._id,
           data: values,
         })
       );
@@ -168,9 +160,19 @@ const WorkspaceDetail: React.FC = () => {
       dispatch(
         addBoard({
           ...values,
-          workspace_id: workspace.id,
-          owner: "user1", // In a real app, this would come from the authenticated user
-          members: ["user1"], // Initially just the creator
+          workspace_id: selectedWorkspace._id,
+          owner: currentUser
+            ? currentUser.first_name +
+              currentUser.middle_name +
+              currentUser.last_name
+            : "User 1",
+          members: [
+            currentUser
+              ? currentUser.first_name +
+                currentUser.middle_name +
+                currentUser.last_name
+              : "User 1",
+          ],
         })
       );
     }
@@ -211,7 +213,7 @@ const WorkspaceDetail: React.FC = () => {
               : "No boards created yet. Create your first board to get started."
           }
         >
-          {!showArchived && !workspace.archived && (
+          {!showArchived && !selectedWorkspace.archived && (
             <Button type="primary" onClick={showAddBoardModal}>
               Create Board
             </Button>
@@ -225,42 +227,45 @@ const WorkspaceDetail: React.FC = () => {
         itemLayout="horizontal"
         dataSource={boards}
         renderItem={(board) => {
-          const boardColor = generateColor(board.name);
-          
+          const boardColor = generateGradient(board.name);
+
           // Create board dropdown menu
-          const getBoardMenuItems = (board: Board, isArchived: boolean): MenuProps['items'] => {
-            const items: MenuProps['items'] = [
+          const getBoardMenuItems = (
+            board: Board,
+            isArchived: boolean
+          ): MenuProps["items"] => {
+            const items: MenuProps["items"] = [
               {
                 key: "edit",
                 label: "Edit",
-                disabled: workspace.archived,
+                disabled: selectedWorkspace.archived,
                 onClick: () => showEditBoardModal(board),
-              }
+              },
             ];
-            
+
             // Add restore or archive item based on current status
             if (isArchived) {
               items.push({
                 key: "restore",
                 label: "Restore",
-                onClick: () => handleRestoreBoard(board.id),
+                onClick: () => handleRestoreBoard(board._id),
               });
             } else {
               items.push({
                 key: "archive",
                 label: "Archive",
-                onClick: () => handleArchiveBoard(board.id),
+                onClick: () => handleArchiveBoard(board._id),
               });
             }
-            
+
             // Add delete item
             items.push({
               key: "delete",
               label: "Delete",
               danger: true,
-              onClick: () => handleDeleteBoard(board.id, board.name),
+              onClick: () => handleDeleteBoard(board._id, board.name),
             });
-            
+
             return items;
           };
 
@@ -270,12 +275,12 @@ const WorkspaceDetail: React.FC = () => {
                 <Dropdown
                   menu={{ items: getBoardMenuItems(board, showArchived) }}
                   trigger={["click"]}
-                  disabled={workspace.archived}
+                  disabled={selectedWorkspace.archived}
                 >
                   <Button
                     type="text"
                     icon={<EllipsisOutlined />}
-                    disabled={workspace.archived}
+                    disabled={selectedWorkspace.archived}
                   />
                 </Dropdown>,
               ]}
@@ -283,7 +288,10 @@ const WorkspaceDetail: React.FC = () => {
               <List.Item.Meta
                 avatar={
                   <Avatar
-                    style={{ backgroundColor: boardColor, verticalAlign: "middle" }}
+                    style={{
+                      background: boardColor,
+                      verticalAlign: "middle",
+                    }}
                     size="large"
                   >
                     {board.name.charAt(0).toUpperCase()}
@@ -291,9 +299,9 @@ const WorkspaceDetail: React.FC = () => {
                 }
                 title={
                   <Space>
-                    <Button 
-                      type="link" 
-                      onClick={() => navigate(`/board/${board.id}`)}
+                    <Button
+                      type="link"
+                      onClick={() => navigate(`/board/${board._id}`)}
                       style={{ padding: 0 }}
                     >
                       {board.name}
@@ -331,24 +339,27 @@ const WorkspaceDetail: React.FC = () => {
       <div className="workspace-header">
         <div
           className="workspace-color-bar"
-          style={{ backgroundColor: workspaceColor }}
+          style={{ background: workspaceColor }}
         />
         <div className="workspace-header-content">
           <div className="workspace-info">
-          <Text className="workspace-back" onClick={() => navigate("/workspaces")}>
-             <ArrowLeftOutlined /> Back
-             </Text>
+            <Text
+              className="workspace-back"
+              onClick={() => navigate("/workspaces")}
+            >
+              <ArrowLeftOutlined /> Back
+            </Text>
             <div className="workspace-title-row">
               <Title level={2} className="workspace-title">
-                {workspace.name}
-                {workspace.archived && (
+                {selectedWorkspace.name}
+                {selectedWorkspace.archived && (
                   <Tag color="blue" style={{ marginLeft: 12 }}>
                     <InboxOutlined /> Archived
                   </Tag>
                 )}
               </Title>
               <div>
-                {workspace.archived ? (
+                {selectedWorkspace.archived ? (
                   <Button
                     icon={<UndoOutlined />}
                     onClick={handleRestore}
@@ -372,16 +383,16 @@ const WorkspaceDetail: React.FC = () => {
             </div>
 
             <Paragraph className="workspace-description">
-              {workspace.description}
+              {selectedWorkspace.description}
             </Paragraph>
 
             <div className="workspace-meta">
               <Space wrap>
                 <Tag icon={<UserOutlined />} color="blue">
-                  {workspace.createdBy}
+                  {selectedWorkspace.createdBy}
                 </Tag>
                 <Tag icon={<ClockCircleOutlined />} color="blue">
-                  {new Date(workspace.createdAt).toLocaleDateString()}
+                  {new Date(selectedWorkspace.createdAt).toLocaleDateString()}
                 </Tag>
               </Space>
             </div>
@@ -409,15 +420,18 @@ const WorkspaceDetail: React.FC = () => {
                       >
                         <div className="info-card-content">
                           <p>
-                            <strong>Created by:</strong> {workspace.createdBy}
+                            <strong>Created by:</strong>{" "}
+                            {selectedWorkspace.createdBy}
                           </p>
                           <p>
                             <strong>Created at:</strong>{" "}
-                            {new Date(workspace.createdAt).toLocaleString()}
+                            {new Date(
+                              selectedWorkspace.createdAt
+                            ).toLocaleString()}
                           </p>
                           <p>
                             <strong>Status:</strong>{" "}
-                            {workspace.archived ? "Archived" : "Active"}
+                            {selectedWorkspace.archived ? "Archived" : "Active"}
                           </p>
                         </div>
                       </Card>
@@ -437,13 +451,19 @@ const WorkspaceDetail: React.FC = () => {
                       <Card
                         title="Recent Boards"
                         className="boards-card"
-                        extra={<Button type="link" size="small" onClick={() => setActiveTabKey("2")}>View All</Button>}
+                        extra={
+                          <Button
+                            type="link"
+                            size="small"
+                            onClick={() => setActiveTabKey("2")}
+                          >
+                            View All
+                          </Button>
+                        }
                         headStyle={{ borderTop: `3px solid ${workspaceColor}` }}
                       >
                         <div className="boards-card-content">
-                          {renderBoardsList(
-                            workspaceBoards.slice(0, 3)
-                          )}
+                          {renderBoardsList(workspaceBoards.slice(0, 3))}
                         </div>
                       </Card>
                     </Col>
@@ -460,7 +480,7 @@ const WorkspaceDetail: React.FC = () => {
                     <Col xs={24}>
                       <div className="boards-header">
                         <Title level={4}>All Boards</Title>
-                        {!workspace.archived && (
+                        {!selectedWorkspace.archived && (
                           <Button
                             type="primary"
                             icon={<PlusOutlined />}
@@ -470,7 +490,7 @@ const WorkspaceDetail: React.FC = () => {
                           </Button>
                         )}
                       </div>
-                      
+
                       <Card
                         bordered={false}
                         className="boards-list-card"
@@ -478,16 +498,13 @@ const WorkspaceDetail: React.FC = () => {
                       >
                         {renderBoardsList(workspaceBoards)}
                       </Card>
-                      
+
                       {archivedBoards.length > 0 && (
                         <>
                           <Title level={4} style={{ marginTop: 24 }}>
                             Archived Boards
                           </Title>
-                          <Card
-                            bordered={false}
-                            className="boards-list-card"
-                          >
+                          <Card bordered={false} className="boards-list-card">
                             {renderBoardsList(archivedBoards, true)}
                           </Card>
                         </>
@@ -524,7 +541,7 @@ const WorkspaceDetail: React.FC = () => {
           >
             <Input placeholder="Enter board name" />
           </Form.Item>
-          
+
           <Form.Item
             name="description"
             label="Description"
@@ -532,12 +549,9 @@ const WorkspaceDetail: React.FC = () => {
               { required: true, message: "Please enter board description" },
             ]}
           >
-            <Input.TextArea
-              placeholder="Enter board description"
-              rows={4}
-            />
+            <Input.TextArea placeholder="Enter board description" rows={4} />
           </Form.Item>
-          
+
           <Form.Item
             name="visibility"
             label="Visibility"
@@ -557,7 +571,7 @@ const WorkspaceDetail: React.FC = () => {
               </Option>
             </Select>
           </Form.Item>
-          
+
           <Form.Item>
             <Space>
               <Button

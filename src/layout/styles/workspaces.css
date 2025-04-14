@@ -110,7 +110,8 @@
 }
 
 .workspace-card-color-bar {
-  height: 8px;
+  height: 12px;
+  border-radius: 4px;
   width: 100%;
   position: relative;
 }
@@ -151,7 +152,7 @@
 }
 
 .workspace-card-content {
-  padding: 16px;
+  padding: 8px 4px 16px 4px;
   display: flex;
   flex-direction: column;
   height: 100%;

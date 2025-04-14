@@ -1,4 +1,4 @@
-import { createSlice, PayloadAction, createAsyncThunk } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { authService } from "../../services/authService";
 import { message } from "antd";
 
@@ -168,31 +168,6 @@ const userSlice = createSlice({
   name: "user",
   initialState,
   reducers: {
-    loginStart: (state) => {
-      state.loading = true;
-      state.error = null;
-    },
-    loginSuccess: (state, action) => {
-      state.currentUser = action.payload;
-      state.isAuthenticated = true;
-      state.loading = false;
-      state.error = null;
-    },
-    loginFailure: (state, action: PayloadAction<string>) => {
-      state.loading = false;
-      state.error = action.payload;
-    },
-    logout: (state) => {
-      state.currentUser = null;
-      state.isAuthenticated = false;
-      state.loading = false;
-      state.error = null;
-    },
-    updateUser: (state, action: PayloadAction<Partial<User>>) => {
-      if (state.currentUser) {
-        state.currentUser = { ...state.currentUser, ...action.payload };
-      }
-    },
     clearAuthState: (state) => {
       state.error = null;
       state.registrationSuccess = false;
@@ -234,6 +209,8 @@ const userSlice = createSlice({
       })
       .addCase(loginUser.rejected, (state, action) => {
         state.loading = false;
+        state.currentUser = null;
+        state.isAuthenticated = false;
         state.error = action.payload as string;
         message.error((action.payload as string) || "Login failed");
       })
@@ -350,13 +327,6 @@ const userSlice = createSlice({
   },
 });
 
-export const {
-  loginStart,
-  loginSuccess,
-  loginFailure,
-  logout,
-  updateUser,
-  clearAuthState,
-} = userSlice.actions;
+export const { clearAuthState } = userSlice.actions;
 
 export default userSlice.reducer;

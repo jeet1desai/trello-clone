@@ -55,12 +55,7 @@ export const updateProfile = createAsyncThunk(
 const profileSlice = createSlice({
   name: "profile",
   initialState,
-  reducers: {
-    getProfileDataStart: (state, action) => {
-      state.loading = false;
-      state.error = null;
-    },
-  },
+  reducers: {},
   extraReducers: (builder) => {
     builder
       // Get Profile
@@ -70,7 +65,6 @@ const profileSlice = createSlice({
         state.error = null;
       })
       .addCase(getProfileData.fulfilled, (state, action) => {
-        console.log('sss', action)
         state.profileDetails = action.payload;
         state.loading = false;
         state.error = null;
@@ -80,7 +74,9 @@ const profileSlice = createSlice({
         state.profileDetails = null;
         state.loading = false;
         state.error = action.payload as string;
-        message.error((action.payload as string) || "Error while fetching profile details");
+        message.error(
+          (action.payload as string) || "Error while fetching profile details"
+        );
       })
 
       // Profile Update
@@ -95,14 +91,11 @@ const profileSlice = createSlice({
         message.success("Profile updated successfully");
       })
       .addCase(updateProfile.rejected, (state, action) => {
-        state.profileDetails = null;
         state.loading = false;
         state.error = action.payload as string;
         message.error((action.payload as string) || "Profile update failed");
       });
   },
 });
-
-export const { getProfileDataStart } = profileSlice.actions;
 
 export default profileSlice.reducer;

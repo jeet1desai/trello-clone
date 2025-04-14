@@ -47,39 +47,12 @@ import {
   restoreWorkspace,
   addNewWorkspace,
   openWorkspaceAddModal,
+  getAllWorkspaces,
 } from "../../store/slices/workspaceSlice";
 import "../../layout/styles/workspaces.css";
+import { generateGradient, SORT_OPTIONS } from "../../config";
 
 const { Title, Paragraph } = Typography;
-
-// Function to generate a consistent color from workspace name
-const generateColor = (name: string) => {
-  const colors = [
-    "#52c41a", // Green
-    "#1890ff", // Blue
-    "#722ed1", // Purple
-    "#eb2f96", // Pink
-    "#fa8c16", // Orange
-    "#faad14", // Gold
-    "#13c2c2", // Cyan
-    "#f5222d", // Red
-  ];
-
-  let sum = 0;
-  for (let i = 0; i < name.length; i++) {
-    sum += name.charCodeAt(i);
-  }
-
-  return colors[sum % colors.length];
-};
-
-// Sort options
-const SORT_OPTIONS = {
-  NAME_ASC: "name_asc",
-  NAME_DESC: "name_desc",
-  CREATED_ASC: "created_asc",
-  CREATED_DESC: "created_desc",
-};
 
 const Workspaces: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -99,7 +72,7 @@ const Workspaces: React.FC = () => {
 
   // Filter and sort state
   const [filterCreators, setFilterCreators] = useState<string[]>([]);
-  const [sortOption, setSortOption] = useState<string>(SORT_OPTIONS.NAME_ASC);
+  const [sortOption, setSortOption] = useState<string>(SORT_OPTIONS.DEFAULT);
 
   // Get all unique creators
   const allCreators = React.useMemo(() => {
@@ -210,7 +183,7 @@ const Workspaces: React.FC = () => {
     if (editingWorkspace) {
       await dispatch(
         editWorkspace({
-          id: editingWorkspace.id,
+          _id: editingWorkspace._id,
           name: values.name,
           description: values.description,
         })
@@ -237,8 +210,7 @@ const Workspaces: React.FC = () => {
     setIsModalVisible(true);
   };
 
-  const handleDelete = (id: string, name: string) => {
-    console.log("handleDelete", id, name);
+  const handleDelete = (_id: string, name: string) => {
     modal.confirm({
       title: `Are you sure you want to delete "${name}"?`,
       icon: <ExclamationCircleOutlined />,
@@ -248,12 +220,12 @@ const Workspaces: React.FC = () => {
       okType: "danger",
       cancelText: "Cancel",
       onOk() {
-        dispatch(deleteWorkspace(id));
+        dispatch(deleteWorkspace(_id));
       },
     });
   };
 
-  const handleToggleStar = (id: string, currentStarred: boolean) => {
+  const handleToggleStar = (id: string) => {
     dispatch(toggleStarWorkspace(id));
   };
 
@@ -263,21 +235,25 @@ const Workspaces: React.FC = () => {
         showEditModal(workspace);
         break;
       case "archive":
-        dispatch(archiveWorkspace(workspace.id));
+        dispatch(archiveWorkspace(workspace._id));
         break;
       case "restore":
-        dispatch(restoreWorkspace(workspace.id));
+        dispatch(restoreWorkspace(workspace._id));
         break;
       case "delete":
-        handleDelete(workspace.id, workspace.name);
+        handleDelete(workspace._id, workspace.name);
         break;
       default:
         break;
     }
   };
 
+  useEffect(() => {
+    (async () => await dispatch(getAllWorkspaces()))();
+  }, [dispatch]);
+
   const renderWorkspaceCard = (workspace: IWorkspace) => {
-    const color = generateColor(workspace.name);
+    const background = generateGradient(workspace.name);
     let moreMenu: MenuProps["items"] = [];
 
     if (workspace.archived) {
@@ -325,17 +301,14 @@ const Workspaces: React.FC = () => {
       <Card
         hoverable
         className={`workspace-card ${workspace.archived ? "archived" : ""}`}
-        headStyle={{ backgroundColor: color, padding: 0 }}
+        headStyle={{ background, padding: 0 }}
       >
-        <div
-          className="workspace-card-color-bar"
-          style={{ backgroundColor: color }}
-        />
+        <div className="workspace-card-color-bar" style={{ background }} />
         <div className="workspace-card-content">
           <div className="workspace-card-header">
             <div className="workspace-card-title">
               <Link
-                to={`/workspace/${workspace.id}`}
+                to={`/workspace/${workspace._id}`}
                 className="workspace-link"
               >
                 <Title level={4} className="workspace-name">
@@ -345,9 +318,7 @@ const Workspaces: React.FC = () => {
               {!workspace.archived && (
                 <div
                   style={{ marginTop: "auto" }}
-                  onClick={() =>
-                    handleToggleStar(workspace.id, !!workspace.starred)
-                  }
+                  onClick={() => handleToggleStar(workspace._id)}
                 >
                   {workspace.starred ? (
                     <StarFilled className="star-icon star-filled" />
@@ -444,7 +415,7 @@ const Workspaces: React.FC = () => {
     return (
       <Row gutter={[16, 16]} className="workspaces-grid">
         {workspaces.map((workspace) => (
-          <Col xs={24} sm={12} md={8} lg={6} key={workspace.id}>
+          <Col xs={24} sm={12} md={8} lg={6} key={workspace._id}>
             {renderWorkspaceCard(workspace)}
           </Col>
         ))}
@@ -468,6 +439,11 @@ const Workspaces: React.FC = () => {
 
   // Sort menu items
   const sortMenuItems: MenuProps["items"] = [
+    {
+      key: SORT_OPTIONS.DEFAULT,
+      label: "Default",
+      icon: sortOption === SORT_OPTIONS.DEFAULT ? <CheckOutlined /> : null,
+    },
     {
       key: SORT_OPTIONS.NAME_ASC,
       label: "Name (A-Z)",
