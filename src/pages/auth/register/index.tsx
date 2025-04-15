@@ -4,7 +4,6 @@ import {
   UserOutlined,
   LockOutlined,
   MailOutlined,
-  PhoneOutlined,
 } from "@ant-design/icons";
 import { Link, useNavigate } from "react-router-dom";
 import { AppDispatch } from "../../../store";
@@ -38,7 +37,6 @@ const Register: React.FC = () => {
     middle_name: string;
     last_name: string;
     email: string;
-    phone: string;
     password: string;
   }) => {
     await dispatch(registerUser(values));
@@ -82,7 +80,7 @@ const Register: React.FC = () => {
         >
           <Form.Item
             label={
-              <span>
+              <span className="input-label">
                 First Name <span style={{ color: "red" }}>*</span>
               </span>
             }
@@ -102,7 +100,7 @@ const Register: React.FC = () => {
 
           <Form.Item
             label={
-              <span>
+              <span className="input-label">
                 Middle Name <span style={{ color: "red" }}>*</span>
               </span>
             }
@@ -122,7 +120,7 @@ const Register: React.FC = () => {
 
           <Form.Item
             label={
-              <span>
+              <span className="input-label">
                 Last Name <span style={{ color: "red" }}>*</span>
               </span>
             }
@@ -142,7 +140,7 @@ const Register: React.FC = () => {
 
           <Form.Item
             label={
-              <span>
+              <span className="input-label">
                 Email <span style={{ color: "red" }}>*</span>
               </span>
             }
@@ -161,29 +159,7 @@ const Register: React.FC = () => {
 
           <Form.Item
             label={
-              <span>
-                Phone Number <span style={{ color: "red" }}>*</span>
-              </span>
-            }
-            name="phone"
-            rules={[
-              { required: true, message: "Phone number is required" },
-              {
-                pattern: /^[0-9]{10}$/,
-                message: "Phone number must be 10 digits",
-              },
-            ]}
-          >
-            <Input
-              prefix={<PhoneOutlined className="form-icon" />}
-              placeholder="Enter your phone number"
-              className="form-input"
-            />
-          </Form.Item>
-
-          <Form.Item
-            label={
-              <span>
+              <span className="input-label">
                 Password <span style={{ color: "red" }}>*</span>
               </span>
             }
@@ -208,7 +184,7 @@ const Register: React.FC = () => {
 
           <Form.Item
             label={
-              <span>
+              <span className="input-label">
                 Confirm Password <span style={{ color: "red" }}>*</span>
               </span>
             }
@@ -237,7 +213,7 @@ const Register: React.FC = () => {
             <Button
               type="primary"
               htmlType="submit"
-              className="submit-button"
+              className="button"
               loading={loading}
               block
             >

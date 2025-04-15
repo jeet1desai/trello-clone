@@ -1,297 +1,517 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { 
-  Row, 
-  Col, 
-  Card, 
-  Typography, 
-  Button, 
-  Input, 
-  Space, 
-  Tabs, 
-  Dropdown, 
-  Avatar,
-  Tag
-} from 'antd';
-import { 
-  PlusOutlined, 
-  StarOutlined, 
-  StarFilled, 
-  ClockCircleOutlined,
+import React, { useState, useEffect, useCallback } from "react";
+import { Link, useLocation } from "react-router-dom";
+import {
+  Row,
+  Col,
+  Card,
+  Typography,
+  Button,
+  Input,
+  Space,
+  Dropdown,
+  Modal,
+  Form,
+  Tag,
+  Empty,
+  Tooltip,
+  Checkbox,
+  App,
+  Alert,
+} from "antd";
+import {
+  PlusOutlined,
   UserOutlined,
   EllipsisOutlined,
-  TeamOutlined,
   SearchOutlined,
   FilterOutlined,
-  SortAscendingOutlined
-} from '@ant-design/icons';
-import type { MenuProps } from 'antd';
+  SortAscendingOutlined,
+  CheckOutlined,
+  DeleteOutlined,
+  ExclamationCircleOutlined,
+  BranchesOutlined,
+  EditOutlined,
+} from "@ant-design/icons";
+import type { MenuProps } from "antd";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "../../store";
+import {
+  IBoard,
+  addNewBoard,
+  editBoard,
+  deleteBoard,
+  getAllBoards,
+  openBoardAddModal,
+  clearSelectedBoard,
+} from "../../store/slices/boardSlice";
+import "../../layout/styles/boards.css";
+import { generateGradient, SORT_OPTIONS } from "../../config";
+import AddBoardForm from "./components/AddBoardForm";
 
-const { Title, Text } = Typography;
-
-// Demo data for boards
-const demoBoards = [
-  {
-    id: '1',
-    title: 'Marketing Campaign',
-    starred: true,
-    color: '#0079BF',
-    lastVisited: new Date().toISOString(),
-    team: 'Marketing Team',
-    members: ['user1', 'user2', 'user3']
-  },
-  {
-    id: '2',
-    title: 'Product Development',
-    starred: false,
-    color: '#D29034',
-    lastVisited: new Date().toISOString(),
-    team: 'Product Team',
-    members: ['user1', 'user4']
-  },
-  {
-    id: '3',
-    title: 'Website Redesign',
-    starred: true,
-    color: '#519839',
-    lastVisited: new Date().toISOString(),
-    team: 'Design Team',
-    members: ['user2', 'user5', 'user6', 'user7']
-  },
-  {
-    id: '4',
-    title: 'Customer Feedback',
-    starred: false,
-    color: '#B04632',
-    lastVisited: new Date().toISOString(),
-    team: 'Support Team',
-    members: ['user1', 'user3', 'user5']
-  },
-  {
-    id: '5',
-    title: 'Q3 Planning',
-    starred: false,
-    color: '#89609E',
-    lastVisited: new Date().toISOString(),
-    team: 'Management',
-    members: ['user1', 'user2']
-  }
-];
+const { Title, Paragraph } = Typography;
 
 const Boards: React.FC = () => {
-  const [searchText, setSearchText] = useState('');
-  const [activeTab, setActiveTab] = useState('all-boards');
-
-  const filteredBoards = demoBoards.filter(board => 
-    board.title.toLowerCase().includes(searchText.toLowerCase()) ||
-    board.team.toLowerCase().includes(searchText.toLowerCase())
+  const dispatch = useDispatch<AppDispatch>();
+  const { boards, addError, editError } = useSelector(
+    (state: RootState) => state.board
   );
+  const location = useLocation();
+  const { modal } = App.useApp();
 
-  const starredBoards = filteredBoards.filter(board => board.starred);
-  const recentBoards = [...filteredBoards].sort((a, b) => 
-    new Date(b.lastVisited).getTime() - new Date(a.lastVisited).getTime()
-  ).slice(0, 4);
+  const [searchText, setSearchText] = useState("");
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [selectedBoard, setSelectedBoard] = useState<IBoard | null>(null);
+  const [form] = Form.useForm();
 
-  const renderBoardCard = (board: typeof demoBoards[0]) => {
-    const moreMenu: MenuProps['items'] = [
+  // Filter and sort state
+  const [filterCreators, setFilterCreators] = useState<string[]>([]);
+  const [sortOption, setSortOption] = useState<string>(SORT_OPTIONS.DEFAULT);
+
+  // Get owner details
+  const getOwnerDetails = (board: IBoard) => {
+    const owner = board.members?.find((user) => user.role === "ADMIN")?.user;
+    return owner;
+  };
+
+  // Get all unique creators
+  const allCreators = React.useMemo(() => {
+    const creators = boards.map(
+      (board: { createdBy: string }) => board.createdBy
+    );
+    return Array.from(new Set(creators));
+  }, [boards]);
+
+  const showAddModal = useCallback(() => {
+    dispatch(openBoardAddModal());
+    setSelectedBoard(null);
+    form.resetFields();
+    setIsModalVisible(true);
+  }, [form, dispatch]);
+
+  // Check URL parameters for mode=create
+  useEffect(() => {
+    const searchParams = new URLSearchParams(location.search);
+    if (searchParams.get("mode") === "create") {
+      showAddModal();
+    }
+  }, [location, showAddModal]);
+
+  // Calculate processed boards
+  const processedBoards = React.useMemo(() => {
+    return boards
+      .filter((board) => {
+        // Filter by search text
+        const nameMatch = board.name
+          .toLowerCase()
+          .includes(searchText.toLowerCase());
+        const descMatch = board.description
+          .toLowerCase()
+          .includes(searchText.toLowerCase());
+        const textMatch = nameMatch || descMatch;
+
+        // Filter by creator
+        const creatorMatch =
+          filterCreators.length === 0 ||
+          filterCreators.includes(board.createdBy);
+
+        return textMatch && creatorMatch;
+      })
+      .sort((a, b) => {
+        if (sortOption === SORT_OPTIONS.NAME_ASC) {
+          return a.name.localeCompare(b.name);
+        } else if (sortOption === SORT_OPTIONS.NAME_DESC) {
+          return b.name.localeCompare(a.name);
+        } else if (sortOption === SORT_OPTIONS.CREATED_ASC) {
+          return (
+            new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+          );
+        } else if (sortOption === SORT_OPTIONS.CREATED_DESC) {
+          return (
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          );
+        }
+        return 0;
+      });
+  }, [boards, searchText, filterCreators, sortOption]);
+
+  const handleFilterReset = () => {
+    setFilterCreators([]);
+  };
+
+  const handleAddOrEditBoard = async (values: any) => {
+    if (selectedBoard) {
+      await dispatch(
+        editBoard({
+          _id: selectedBoard._id,
+          name: values.name,
+          description: values.description,
+          workspace: values.workspace,
+          members: values.members,
+        })
+      );
+    } else {
+      await dispatch(
+        addNewBoard({
+          name: values.name,
+          description: values.description,
+          workspace: values.workspace,
+          members: values.members,
+        })
+      );
+      await dispatch(getAllBoards());
+    }
+    if (!addError) {
+      setIsModalVisible(false);
+    }
+    if (!editError) {
+      setSelectedBoard(null);
+    }
+  };
+
+  const showEditModal = (board: IBoard) => {
+    setSelectedBoard(board);
+    form.setFieldsValue({
+      name: board.name,
+      description: board.description,
+      workspace: board.workspace._id,
+      // members: board.members,
+    });
+    setIsModalVisible(true);
+  };
+
+  const handleDelete = (_id: string, name: string) => {
+    modal.confirm({
+      title: `Are you sure you want to delete "${name}"?`,
+      icon: <ExclamationCircleOutlined />,
+      content:
+        "This action cannot be undone. All data will be permanently deleted.",
+      okText: "Delete",
+      okType: "danger",
+      cancelText: "Cancel",
+      onOk() {
+        dispatch(deleteBoard(_id));
+      },
+    });
+  };
+
+  const handleMenuClick = (key: string, board: IBoard) => {
+    switch (key) {
+      case "edit":
+        showEditModal(board);
+        break;
+      case "delete":
+        handleDelete(board._id, board.name);
+        break;
+      default:
+        break;
+    }
+  };
+
+  useEffect(() => {
+    (async () => {
+      await dispatch(getAllBoards());
+    })();
+
+    return () => {
+      dispatch(openBoardAddModal());
+      dispatch(clearSelectedBoard());
+    };
+  }, [dispatch]);
+
+  const renderBoardCard = (board: IBoard) => {
+    const background = generateGradient(board.name);
+    const moreMenu: MenuProps["items"] = [
       {
-        key: 'rename',
-        label: 'Rename',
+        key: "edit",
+        icon: <EditOutlined />,
+        label: "Edit",
       },
       {
-        key: 'star',
-        label: board.starred ? 'Remove from Starred' : 'Add to Starred',
-      },
-      {
-        key: 'archive',
-        label: 'Archive',
-      },
-      {
-        type: 'divider',
-      },
-      {
-        key: 'delete',
-        label: 'Delete Board',
+        key: "delete",
+        label: "Delete",
+        icon: <DeleteOutlined />,
         danger: true,
       },
     ];
 
     return (
-      <Card 
-        hoverable 
-        style={{ 
-          marginBottom: 16,
-          boxShadow: '0 1px 2px rgba(0, 0, 0, 0.1)',
-        }}
-        bodyStyle={{ padding: 0 }}
-      >
-        <div 
-          style={{ 
-            height: 120, 
-            background: board.color,
-            borderTopLeftRadius: 2,
-            borderTopRightRadius: 2,
-            padding: '8px 12px',
-            display: 'flex',
-            justifyContent: 'space-between',
-          }}
-        >
-          <div>
-            <Button 
-              type="text" 
-              shape="circle" 
-              icon={board.starred ? <StarFilled /> : <StarOutlined />} 
-              style={{ color: 'white' }}
-            />
+      <Card hoverable className="board-card">
+        <div className="board-card-color-bar" style={{ background }} />
+        <div className="board-card-content">
+          <div className="board-card-header">
+            <div className="board-card-title">
+              <Link to={`/board/${board._id}`} className="board-link">
+                <Title level={4} className="board-name">
+                  {board.name}
+                </Title>
+              </Link>
+            </div>
+            <div className="board-card-actions">
+              <Dropdown
+                menu={{
+                  items: moreMenu,
+                  onClick: ({ key }) => handleMenuClick(key, board),
+                }}
+                placement="bottomRight"
+                trigger={["click"]}
+              >
+                <Button
+                  type="text"
+                  shape="circle"
+                  icon={<EllipsisOutlined />}
+                  className="more-btn"
+                />
+              </Dropdown>
+            </div>
           </div>
-          <div>
-            <Dropdown menu={{ items: moreMenu }} placement="bottomRight" trigger={['click']}>
-              <Button 
-                type="text" 
-                shape="circle" 
-                icon={<EllipsisOutlined />} 
-                style={{ color: 'white' }}
-              />
-            </Dropdown>
-          </div>
-        </div>
-        <div style={{ padding: 12 }}>
-          <Link to={`/board/${board.id}`}>
-            <Title level={5} style={{ margin: 0, marginBottom: 8 }}>{board.title}</Title>
-          </Link>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <Tag icon={<TeamOutlined />} color="default">{board.team}</Tag>
-            <Avatar.Group maxCount={3} size="small">
-              {board.members.map((member, index) => (
-                <Avatar key={index} icon={<UserOutlined />} />
-              ))}
-            </Avatar.Group>
+
+          <Paragraph
+            ellipsis={{ rows: 2 }}
+            className="board-description"
+            style={{ color: "inherit" }}
+          >
+            {board.description || "No description"}
+          </Paragraph>
+
+          <div className="board-card-footer">
+            <Space wrap>
+              <Tooltip title={getOwnerDetails(board)?.email}>
+                <Tag icon={<UserOutlined />}>
+                  {getOwnerDetails(board)?.first_name +
+                    " " +
+                    getOwnerDetails(board)?.last_name}
+                </Tag>
+              </Tooltip>
+              <Tag icon={<BranchesOutlined />}>{board?.workspace?.name}</Tag>
+            </Space>
           </div>
         </div>
       </Card>
     );
   };
 
-  return (
-    <div>
-      <div style={{ marginBottom: 24 }}>
-        <Row justify="space-between" align="middle" style={{ marginBottom: 24 }}>
-          <Col>
-            <Title level={3} style={{ margin: 0 }}>Your Boards</Title>
-          </Col>
-          <Col>
-            <Space>
-              <Input 
-                prefix={<SearchOutlined />} 
-                placeholder="Search boards" 
-                allowClear
-                value={searchText}
-                onChange={(e) => setSearchText(e.target.value)}
-                style={{ width: 200 }}
-              />
-              <Button icon={<FilterOutlined />}>Filter</Button>
-              <Button icon={<SortAscendingOutlined />}>Sort</Button>
-              <Button type="primary" icon={<PlusOutlined />}>Create New Board</Button>
-            </Space>
-          </Col>
-        </Row>
+  const renderBoards = (boards: IBoard[]) => {
+    if (boards.length === 0) {
+      let emptyMessage = "No boards found";
 
-        <Tabs 
-          activeKey={activeTab} 
-          onChange={setActiveTab}
-          size="large"
-          items={[
-            {
-              key: "all-boards",
-              label: <span>All Boards ({filteredBoards.length})</span>
-            },
-            {
-              key: "starred",
-              label: <span><StarFilled style={{ color: '#f8c135' }} /> Starred ({starredBoards.length})</span>
-            },
-            {
-              key: "recent",
-              label: <span><ClockCircleOutlined /> Recent</span>
-            }
-          ]}
-        />
+      return (
+        <div className="empty-state">
+          <Empty
+            image={Empty.PRESENTED_IMAGE_SIMPLE}
+            description={emptyMessage}
+          >
+            <Button
+              type="primary"
+              className="button"
+              icon={<PlusOutlined />}
+              onClick={showAddModal}
+            >
+              Create New Board
+            </Button>
+          </Empty>
+        </div>
+      );
+    }
+
+    return (
+      <Row gutter={[16, 16]} className="boards-grid">
+        {boards.map((board) => (
+          <Col xs={24} sm={12} md={8} lg={6} key={board._id}>
+            {renderBoardCard(board)}
+          </Col>
+        ))}
+        <Col xs={24} sm={12} md={8} lg={6}>
+          <Card hoverable className="create-board-card" onClick={showAddModal}>
+            <div className="create-card-content">
+              <PlusOutlined className="plus-icon" />
+              <div className="create-card-text button">Create New Board</div>
+            </div>
+          </Card>
+        </Col>
+      </Row>
+    );
+  };
+
+  // Sort menu items
+  const sortMenuItems: MenuProps["items"] = [
+    {
+      key: SORT_OPTIONS.DEFAULT,
+      label: "Default",
+      icon: sortOption === SORT_OPTIONS.DEFAULT ? <CheckOutlined /> : null,
+    },
+    {
+      key: SORT_OPTIONS.NAME_ASC,
+      label: "Name (A-Z)",
+      icon: sortOption === SORT_OPTIONS.NAME_ASC ? <CheckOutlined /> : null,
+    },
+    {
+      key: SORT_OPTIONS.NAME_DESC,
+      label: "Name (Z-A)",
+      icon: sortOption === SORT_OPTIONS.NAME_DESC ? <CheckOutlined /> : null,
+    },
+    {
+      type: "divider",
+    },
+    {
+      key: SORT_OPTIONS.CREATED_ASC,
+      label: "Date Created (Oldest first)",
+      icon: sortOption === SORT_OPTIONS.CREATED_ASC ? <CheckOutlined /> : null,
+    },
+    {
+      key: SORT_OPTIONS.CREATED_DESC,
+      label: "Date Created (Newest first)",
+      icon: sortOption === SORT_OPTIONS.CREATED_DESC ? <CheckOutlined /> : null,
+    },
+  ];
+
+  // Filter menu items - creators
+  const filterMenuItems: MenuProps["items"] = [
+    {
+      key: "creators",
+      label: (
+        <Title level={5} style={{ margin: 0 }}>
+          Filter by Creator
+        </Title>
+      ),
+      type: "group",
+      children: allCreators.map((creator) => ({
+        key: creator,
+        label: (
+          <Checkbox
+            checked={filterCreators.includes(creator)}
+            onChange={(e) => {
+              if (e.target.checked) {
+                setFilterCreators([...filterCreators, creator]);
+              } else {
+                setFilterCreators(filterCreators.filter((c) => c !== creator));
+              }
+            }}
+          >
+            {creator}
+          </Checkbox>
+        ),
+      })),
+    },
+    {
+      type: "divider",
+    },
+    {
+      key: "reset",
+      label: (
+        <div className="filter-reset" onClick={handleFilterReset}>
+          Reset Filters
+        </div>
+      ),
+    },
+  ];
+
+  return (
+    <div className="boards-container">
+      <div className="boards-header">
+        <div className="header-left">
+          <Title level={3} className="page-title">
+            Your Boards
+          </Title>
+        </div>
+        <div className="header-right">
+          <Space className="search-filter">
+            <Input
+              prefix={<SearchOutlined />}
+              placeholder="Search boards"
+              allowClear
+              value={searchText}
+              onChange={(e) => setSearchText(e.target.value)}
+              style={{ width: 220, marginTop: "8px" }}
+              className="form-input"
+            />
+            <Dropdown
+              menu={{ items: filterMenuItems }}
+              trigger={["click"]}
+              overlayClassName="filter-dropdown"
+            >
+              <Button
+                className="button"
+                type={filterCreators.length > 0 ? "primary" : "default"}
+              >
+                <Space>
+                  <FilterOutlined />
+                  Filter{" "}
+                  {filterCreators.length > 0 && `(${filterCreators.length})`}
+                </Space>
+              </Button>
+            </Dropdown>
+            <Dropdown
+              menu={{
+                items: sortMenuItems,
+                onClick: ({ key }) => setSortOption(key),
+                selectable: true,
+                defaultSelectedKeys: [sortOption],
+              }}
+              trigger={["click"]}
+            >
+              <Button type="default" className="button">
+                <Space>
+                  <SortAscendingOutlined />
+                  Sort
+                </Space>
+              </Button>
+            </Dropdown>
+          </Space>
+          <Button
+            type="primary"
+            icon={<PlusOutlined />}
+            onClick={showAddModal}
+            className="button"
+          >
+            Create New Board
+          </Button>
+        </div>
       </div>
-      
-      {activeTab === 'all-boards' && (
-        <>
-          {filteredBoards.length > 0 ? (
-            <Row gutter={[16, 16]}>
-              {filteredBoards.map(board => (
-                <Col xs={24} sm={12} md={8} lg={6} key={board.id}>
-                  {renderBoardCard(board)}
-                </Col>
-              ))}
-              <Col xs={24} sm={12} md={8} lg={6}>
-                <Card
-                  hoverable
-                  style={{ 
-                    marginBottom: 16, 
-                    height: 184,
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    backgroundColor: '#F0F2F5',
-                    border: '2px dashed #d9d9d9',
-                    cursor: 'pointer',
-                  }}
-                >
-                  <div style={{ textAlign: 'center' }}>
-                    <PlusOutlined style={{ fontSize: 24, marginBottom: 8, color: '#1890ff' }} />
-                    <div>Create New Board</div>
-                  </div>
-                </Card>
-              </Col>
-            </Row>
-          ) : (
-            <div style={{ textAlign: 'center', padding: '40px 0' }}>
-              <Text type="secondary">No boards found. Create your first board!</Text>
-            </div>
-          )}
-        </>
-      )}
-      
-      {activeTab === 'starred' && (
-        <>
-          {starredBoards.length > 0 ? (
-            <Row gutter={[16, 16]}>
-              {starredBoards.map(board => (
-                <Col xs={24} sm={12} md={8} lg={6} key={board.id}>
-                  {renderBoardCard(board)}
-                </Col>
-              ))}
-            </Row>
-          ) : (
-            <div style={{ textAlign: 'center', padding: '40px 0' }}>
-              <Text type="secondary">No starred boards yet. Star your favorite boards to see them here!</Text>
-            </div>
-          )}
-        </>
-      )}
-      
-      {activeTab === 'recent' && (
-        <>
-          {recentBoards.length > 0 ? (
-            <Row gutter={[16, 16]}>
-              {recentBoards.map(board => (
-                <Col xs={24} sm={12} md={8} lg={6} key={board.id}>
-                  {renderBoardCard(board)}
-                </Col>
-              ))}
-            </Row>
-          ) : (
-            <div style={{ textAlign: 'center', padding: '40px 0' }}>
-              <Text type="secondary">No recent boards. Start using boards to see your recent activity!</Text>
-            </div>
-          )}
-        </>
-      )}
+
+      <div className="boards-content">{renderBoards(processedBoards)}</div>
+
+      {/* Add/Edit Board Modal */}
+      <Modal
+        title={selectedBoard ? "Edit Board" : "Create New Board"}
+        open={isModalVisible || !!addError || !!editError}
+        onCancel={() => {
+          setIsModalVisible(false);
+          dispatch(openBoardAddModal());
+          form.resetFields();
+          setSelectedBoard(null);
+        }}
+        footer={null}
+      >
+        {addError && (
+          <Alert
+            message={addError}
+            type="error"
+            showIcon
+            style={{ marginBottom: 10 }}
+            icon={<ExclamationCircleOutlined />}
+          />
+        )}
+        {editError && (
+          <Alert
+            message={editError}
+            type="error"
+            showIcon
+            style={{ marginBottom: 10 }}
+            icon={<ExclamationCircleOutlined />}
+          />
+        )}
+        <AddBoardForm
+          form={form}
+          isEdit={selectedBoard}
+          onCancel={() => {
+            setIsModalVisible(false);
+            form.resetFields();
+            setSelectedBoard(null);
+          }}
+          onFinish={handleAddOrEditBoard}
+        />
+      </Modal>
     </div>
   );
 };
 
-export default Boards; 
+export default Boards;

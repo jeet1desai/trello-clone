@@ -1,165 +1,399 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { message } from 'antd';
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import { message } from "antd";
+import { boardService } from "../../services/boardService";
 
-// Define the visibility type for boards
-export type BoardVisibility = 'private' | 'public';
+export interface IMember {
+  _id: string;
+  role: string;
+  user: IBoardUser;
+}
 
-// Define the Board interface
-export interface Board {
-  id: string;
+export interface IBoard {
+  _id: string;
   name: string;
   description: string;
-  workspace_id: string;
-  owner: string;
-  members: string[];
-  visibility: BoardVisibility;
-  created_at: string;
-  archived?: boolean;
+  createdBy: string;
+  workspace: {
+    _id: string;
+    name: string;
+  };
+  members: IMember[];
+  createdAt: string;
+  updatedAt: string;
 }
 
-// Define the state shape
+export interface IBoardOwner {
+  _id: string;
+  first_name: string;
+  middle_name: string;
+  last_name: string;
+  email: string;
+}
+
+export interface IBoardUser {
+  _id: string;
+  first_name: string;
+  middle_name: string;
+  last_name: string;
+  email: string;
+  profile_image: string;
+}
+
+export interface IBoardMember {
+  _id: string;
+  memberId: string;
+  role: string;
+  boardId: string;
+  workspaceId: string;
+  user: IBoardUser;
+}
+
+export interface IBoardWorkspace {
+  _id: string;
+  name: string;
+  workspaceOwner: {
+    _id: string;
+    first_name: string;
+    middle_name: string;
+    last_name: string;
+    email: string;
+  };
+}
+
+export interface IBoardList {
+  _id: string;
+  title: string;
+  cards: ICard[];
+}
+
+export interface ICardLabel {
+  _id: string;
+  text: string;
+  color: string;
+}
+
+export interface ICard {
+  _id: string;
+  title: string;
+  description?: string;
+  labels: ICardLabel[];
+  members: IBoardUser[];
+  dueDate?: string;
+  attachments: number;
+  comments: number;
+}
+
+export interface IBoardDetails {
+  _id: string;
+  name: string;
+  description: string;
+  createdBy: string;
+  workspaceId: string;
+  createdAt: string;
+  updatedAt: string;
+  boardOwner: IBoardOwner;
+  members: IBoardMember[];
+  workspace: IBoardWorkspace[];
+  lists: IBoardList[];
+}
+
 interface BoardState {
-  boards: Board[];
+  boards: IBoard[];
+  selectedBoard: IBoardDetails | null;
   loading: boolean;
   error: string | null;
+  addError: string | null;
+  editError: string | null;
 }
 
-// Initial state with some example boards
 const initialState: BoardState = {
-  boards: [
-    {
-      id: '1',
-      name: 'Marketing Campaign',
-      description: 'Q2 Marketing Campaign Planning',
-      workspace_id: '1', // Marketing workspace
-      owner: 'user1',
-      members: ['user1', 'user3'],
-      visibility: 'public',
-      created_at: new Date().toISOString(),
-      archived: false
-    },
-    {
-      id: '2',
-      name: 'Website Redesign',
-      description: 'Website redesign project board',
-      workspace_id: '3', // Design workspace
-      owner: 'user3',
-      members: ['user1', 'user2', 'user3'],
-      visibility: 'public',
-      created_at: new Date().toISOString(),
-      archived: false
-    }
-  ],
+  boards: [],
+  selectedBoard: null,
   loading: false,
-  error: null
+  error: null,
+  addError: null,
+  editError: null,
 };
 
-const boardSlice = createSlice({
-  name: 'board',
-  initialState,
-  reducers: {
-    // Add a new board
-    addBoard: (state, action: PayloadAction<Omit<Board, 'id' | 'created_at'>>) => {
-      const newBoard = {
-        ...action.payload,
-        id: Date.now().toString(),
-        created_at: new Date().toISOString(),
-        archived: false
-      };
-      state.boards.push(newBoard);
-      message.success('Board created successfully');
-    },
-    
-    // Edit an existing board
-    editBoard: (state, action: PayloadAction<{ id: string; data: Partial<Omit<Board, 'id' | 'created_at'>> }>) => {
-      const { id, data } = action.payload;
-      const index = state.boards.findIndex(board => board.id === id);
-      if (index !== -1) {
-        state.boards[index] = {
-          ...state.boards[index],
-          ...data
-        };
-        message.success('Board updated successfully');
-      } else {
-        message.error('Board not found');
-      }
-    },
-    
-    // Delete a board
-    deleteBoard: (state, action: PayloadAction<string>) => {
-      const id = action.payload;
-      const index = state.boards.findIndex(board => board.id === id);
-      if (index !== -1) {
-        state.boards.splice(index, 1);
-        message.success('Board deleted successfully');
-      } else {
-        message.error('Board not found');
-      }
-    },
-    
-    // Archive a board
-    archiveBoard: (state, action: PayloadAction<string>) => {
-      const id = action.payload;
-      const index = state.boards.findIndex(board => board.id === id);
-      if (index !== -1) {
-        state.boards[index].archived = true;
-        message.success('Board archived successfully');
-      } else {
-        message.error('Board not found');
-      }
-    },
-    
-    // Restore an archived board
-    restoreBoard: (state, action: PayloadAction<string>) => {
-      const id = action.payload;
-      const index = state.boards.findIndex(board => board.id === id);
-      if (index !== -1) {
-        state.boards[index].archived = false;
-        message.success('Board restored successfully');
-      } else {
-        message.error('Board not found');
-      }
-    },
-    
-    // Add a member to a board
-    addBoardMember: (state, action: PayloadAction<{ boardId: string; memberId: string }>) => {
-      const { boardId, memberId } = action.payload;
-      const index = state.boards.findIndex(board => board.id === boardId);
-      if (index !== -1) {
-        // Check if member already exists
-        if (!state.boards[index].members.includes(memberId)) {
-          state.boards[index].members.push(memberId);
-          message.success('Member added to board');
-        } else {
-          message.info('Member is already part of this board');
-        }
-      } else {
-        message.error('Board not found');
-      }
-    },
-    
-    // Remove a member from a board
-    removeBoardMember: (state, action: PayloadAction<{ boardId: string; memberId: string }>) => {
-      const { boardId, memberId } = action.payload;
-      const index = state.boards.findIndex(board => board.id === boardId);
-      if (index !== -1) {
-        state.boards[index].members = state.boards[index].members.filter(m => m !== memberId);
-        message.success('Member removed from board');
-      } else {
-        message.error('Board not found');
-      }
+export const getAllBoards = createAsyncThunk(
+  "board/get-all",
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await boardService.getAllBoards();
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message || "Error while fetching boards"
+      );
     }
   }
+);
+
+export const getBoardById = createAsyncThunk(
+  "board/get-board-by-id",
+  async (_id: string, { rejectWithValue }) => {
+    try {
+      const response = await boardService.getBoardById(_id);
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message || "Error while fetching board details"
+      );
+    }
+  }
+);
+
+export const addNewBoard = createAsyncThunk(
+  "board/add",
+  async (
+    {
+      name,
+      description,
+      workspace,
+      members,
+    }: {
+      name: string;
+      description: string;
+      workspace: string;
+      members: string[];
+    },
+    { rejectWithValue }
+  ) => {
+    try {
+      const response = await boardService.addNewBoard(
+        name,
+        description,
+        workspace,
+        members
+      );
+      return response;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message || "Error while adding board"
+      );
+    }
+  }
+);
+
+export const editBoard = createAsyncThunk(
+  "board/edit",
+  async (
+    {
+      _id,
+      name,
+      description,
+      workspace,
+      members,
+    }: {
+      _id: string;
+      name: string;
+      description: string;
+      workspace: string;
+      members: string[];
+    },
+    { rejectWithValue }
+  ) => {
+    try {
+      const response = await boardService.editBoard(
+        _id,
+        name,
+        description,
+        workspace,
+        members
+      );
+      return response;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message || "Error while updating board"
+      );
+    }
+  }
+);
+
+export const deleteBoard = createAsyncThunk(
+  "board/delete",
+  async (_id: string, { rejectWithValue }) => {
+    try {
+      const response = await boardService.deleteBoard(_id);
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message || "Error while deleting board"
+      );
+    }
+  }
+);
+
+const boardSlice = createSlice({
+  name: "board",
+  initialState,
+  reducers: {
+    openBoardAddModal: (state) => {
+      state.addError = null;
+      state.editError = null;
+      state.loading = false;
+    },
+    clearSelectedBoard: (state) => {
+      state.selectedBoard = null;
+      state.loading = false;
+      state.error = null;
+    },
+  },
+  extraReducers: (builder) => {
+    builder
+      //Get all boards
+      .addCase(getAllBoards.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getAllBoards.fulfilled, (state, action) => {
+        state.boards = action.payload;
+        state.loading = false;
+        state.error = null;
+        message.success("Boards fetched successfully");
+      })
+      .addCase(getAllBoards.rejected, (state, action) => {
+        state.loading = false;
+        state.boards = [];
+        state.error = action.payload as string;
+        message.error(
+          (action.payload as string) || "Error while fetching boards"
+        );
+      })
+
+      // Fetch board details
+      .addCase(getBoardById.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getBoardById.fulfilled, (state, action) => {
+        state.selectedBoard = action.payload;
+        state.loading = false;
+        state.error = null;
+        message.success("Board details fetched successfully");
+      })
+      .addCase(getBoardById.rejected, (state, action) => {
+        state.loading = false;
+        state.selectedBoard = null;
+        state.error = action.payload as string;
+        message.error(
+          (action.payload as string) || "Error while fetching board details"
+        );
+      })
+
+      // Add board
+      .addCase(addNewBoard.pending, (state) => {
+        state.loading = true;
+        state.addError = null;
+      })
+      .addCase(addNewBoard.fulfilled, (state, action) => {
+        const {
+          _id,
+          name,
+          description,
+          createdBy,
+          workspace,
+          createdAt,
+          updatedAt,
+          members,
+        } = action.payload.data;
+        const currentWorkspace = {
+          _id: _id,
+          name,
+          description,
+          createdBy,
+          workspace,
+          createdAt,
+          updatedAt,
+          members,
+        };
+        state.boards = [...state.boards, currentWorkspace];
+        state.loading = false;
+        state.addError = null;
+        message.success("Board added successfully");
+      })
+      .addCase(addNewBoard.rejected, (state, action) => {
+        state.loading = false;
+        state.addError = action.payload as string;
+        message.error((action.payload as string) || "Error while adding board");
+      })
+
+      // Edit board
+      .addCase(editBoard.pending, (state) => {
+        state.loading = true;
+        state.editError = null;
+      })
+      .addCase(editBoard.fulfilled, (state, action) => {
+        const {
+          _id,
+          name,
+          description,
+          workspaceId,
+          updatedAt,
+        } = action.payload.data;
+        const currentWorkspace = {
+          _id,
+          name,
+          description,
+          workspaceId,
+          updatedAt,
+        };
+        const index = state.boards.findIndex(
+          (board) => board._id === currentWorkspace._id
+        );
+        if (index !== -1) {
+          state.loading = false;
+          state.editError = null;
+          state.boards[index] = {
+            ...state.boards[index],
+            ...currentWorkspace,
+            workspace: {
+              ...state.boards[index].workspace,
+              _id: currentWorkspace.workspaceId,
+            },
+          };
+          message.success("Board updated successfully");
+        } else {
+          state.loading = false;
+          state.editError = "Board not found";
+        }
+      })
+      .addCase(editBoard.rejected, (state, action) => {
+        state.loading = false;
+        state.editError = action.payload as string;
+        message.error(
+          (action.payload as string) || "Error while updating board"
+        );
+      })
+
+      // Delete board
+      .addCase(deleteBoard.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(deleteBoard.fulfilled, (state, action) => {
+        const { _id } = action.payload;
+        const index = state.boards.findIndex((board) => board._id === _id);
+        if (index !== -1) {
+          state.loading = false;
+          state.error = null;
+          state.boards.splice(index, 1);
+          message.success("Board deleted successfully");
+        } else {
+          state.loading = false;
+          state.error = "Board not found";
+        }
+      })
+      .addCase(deleteBoard.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+        message.error(
+          (action.payload as string) || "Error while fetching board"
+        );
+      });
+  },
 });
 
-export const { 
-  addBoard, 
-  editBoard, 
-  deleteBoard,
-  archiveBoard,
-  restoreBoard,
-  addBoardMember,
-  removeBoardMember
-} = boardSlice.actions;
+export const { openBoardAddModal, clearSelectedBoard } = boardSlice.actions;
 
-export default boardSlice.reducer; 
+export default boardSlice.reducer;

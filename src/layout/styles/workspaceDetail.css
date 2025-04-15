@@ -80,10 +80,6 @@
   width: 100%;
 }
 
-.tab-content {
-  padding: 16px 0;
-}
-
 .info-card,
 .activity-card,
 .boards-card,
@@ -157,9 +153,5 @@
 
   .workspace-content {
     padding: 10px;
-  }
-
-  .tab-content {
-    padding: 10px 0;
   }
 } 

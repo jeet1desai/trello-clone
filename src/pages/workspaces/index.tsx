@@ -17,6 +17,7 @@ import {
   Tooltip,
   Checkbox,
   App,
+  Alert,
 } from "antd";
 import {
   PlusOutlined,
@@ -33,83 +34,63 @@ import {
   StarFilled,
   InboxOutlined,
   UndoOutlined,
+  EditOutlined,
 } from "@ant-design/icons";
 import type { MenuProps } from "antd";
 import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "../../store";
+import { AppDispatch, RootState } from "../../store";
 import {
-  Workspace,
-  addWorkspace,
+  IWorkspace,
   editWorkspace,
   deleteWorkspace,
   toggleStarWorkspace,
   archiveWorkspace,
   restoreWorkspace,
+  addNewWorkspace,
+  openWorkspaceAddModal,
+  getAllWorkspaces,
+  clearSelectedWorkspace,
+  IUser,
 } from "../../store/slices/workspaceSlice";
 import "../../layout/styles/workspaces.css";
+import { generateGradient, SORT_OPTIONS } from "../../config";
 
 const { Title, Paragraph } = Typography;
 
-// Function to generate a consistent color from workspace name
-const generateColor = (name: string) => {
-  const colors = [
-    "#52c41a", // Green
-    "#1890ff", // Blue
-    "#722ed1", // Purple
-    "#eb2f96", // Pink
-    "#fa8c16", // Orange
-    "#faad14", // Gold
-    "#13c2c2", // Cyan
-    "#f5222d", // Red
-  ];
-
-  let sum = 0;
-  for (let i = 0; i < name.length; i++) {
-    sum += name.charCodeAt(i);
-  }
-
-  return colors[sum % colors.length];
-};
-
-// Sort options
-const SORT_OPTIONS = {
-  NAME_ASC: "name_asc",
-  NAME_DESC: "name_desc",
-  CREATED_ASC: "created_asc",
-  CREATED_DESC: "created_desc",
-};
-
 const Workspaces: React.FC = () => {
-  const dispatch = useDispatch();
-  const { workspaces } = useSelector((state: RootState) => state.workspace);
+  const dispatch = useDispatch<AppDispatch>();
+  const { workspaces, addError, editError } = useSelector(
+    (state: RootState) => state.workspace
+  );
   const location = useLocation();
   const { modal } = App.useApp();
 
   const [searchText, setSearchText] = useState("");
   const [activeTab, setActiveTab] = useState("all-workspaces");
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [editingWorkspace, setEditingWorkspace] = useState<Workspace | null>(
+  const [editingWorkspace, setEditingWorkspace] = useState<IWorkspace | null>(
     null
   );
   const [form] = Form.useForm();
 
   // Filter and sort state
   const [filterCreators, setFilterCreators] = useState<string[]>([]);
-  const [sortOption, setSortOption] = useState<string>(SORT_OPTIONS.NAME_ASC);
+  const [sortOption, setSortOption] = useState<string>(SORT_OPTIONS.DEFAULT);
 
   // Get all unique creators
   const allCreators = React.useMemo(() => {
     const creators = workspaces.map(
-      (workspace: { created_by: string }) => workspace.created_by
+      (workspace: { createdBy: IUser }) => workspace.createdBy.email
     );
     return Array.from(new Set(creators));
   }, [workspaces]);
 
   const showAddModal = useCallback(() => {
+    dispatch(openWorkspaceAddModal());
     setEditingWorkspace(null);
     form.resetFields();
     setIsModalVisible(true);
-  }, [form]);
+  }, [form, dispatch]);
 
   // Check URL parameters for mode=create
   useEffect(() => {
@@ -135,7 +116,7 @@ const Workspaces: React.FC = () => {
         // Filter by creator
         const creatorMatch =
           filterCreators.length === 0 ||
-          filterCreators.includes(workspace.created_by);
+          filterCreators.includes(workspace.createdBy.email);
 
         // Filter out archived workspaces
         const notArchived = !workspace.archived;
@@ -149,11 +130,11 @@ const Workspaces: React.FC = () => {
           return b.name.localeCompare(a.name);
         } else if (sortOption === SORT_OPTIONS.CREATED_ASC) {
           return (
-            new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+            new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
           );
         } else if (sortOption === SORT_OPTIONS.CREATED_DESC) {
           return (
-            new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
           );
         }
         return 0;
@@ -170,7 +151,7 @@ const Workspaces: React.FC = () => {
     return [...processedWorkspaces]
       .sort(
         (a, b) =>
-          new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
       )
       .slice(0, 5);
   }, [processedWorkspaces]);
@@ -186,11 +167,11 @@ const Workspaces: React.FC = () => {
           return b.name.localeCompare(a.name);
         } else if (sortOption === SORT_OPTIONS.CREATED_ASC) {
           return (
-            new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+            new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
           );
         } else if (sortOption === SORT_OPTIONS.CREATED_DESC) {
           return (
-            new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
           );
         }
         return 0;
@@ -201,30 +182,30 @@ const Workspaces: React.FC = () => {
     setFilterCreators([]);
   };
 
-  const handleAddOrEditWorkspace = (values: any) => {
+  const handleAddOrEditWorkspace = async (values: any) => {
     if (editingWorkspace) {
-      dispatch(
+      await dispatch(
         editWorkspace({
-          id: editingWorkspace.id,
-          data: values,
+          _id: editingWorkspace._id,
+          name: values.name,
+          description: values.description,
         })
       );
     } else {
-      dispatch(
-        addWorkspace({
-          ...values,
-          created_by: "user1", // In a real app, this would come from the current user's ID
-          members: ["user1"],
-          starred: false,
-        })
+      await dispatch(
+        addNewWorkspace({ name: values.name, description: values.description })
       );
+      await dispatch(getAllWorkspaces());
     }
-    setIsModalVisible(false);
-    form.resetFields();
-    setEditingWorkspace(null);
+    if (!addError) {
+      setIsModalVisible(false);
+    }
+    if (!editError) {
+      setEditingWorkspace(null);
+    }
   };
 
-  const showEditModal = (workspace: Workspace) => {
+  const showEditModal = (workspace: IWorkspace) => {
     setEditingWorkspace(workspace);
     form.setFieldsValue({
       name: workspace.name,
@@ -233,8 +214,7 @@ const Workspaces: React.FC = () => {
     setIsModalVisible(true);
   };
 
-  const handleDelete = (id: string, name: string) => {
-    console.log("handleDelete", id, name);
+  const handleDelete = (_id: string, name: string) => {
     modal.confirm({
       title: `Are you sure you want to delete "${name}"?`,
       icon: <ExclamationCircleOutlined />,
@@ -244,36 +224,44 @@ const Workspaces: React.FC = () => {
       okType: "danger",
       cancelText: "Cancel",
       onOk() {
-        dispatch(deleteWorkspace(id));
+        dispatch(deleteWorkspace(_id));
       },
     });
   };
 
-  const handleToggleStar = (id: string, currentStarred: boolean) => {
+  const handleToggleStar = (id: string) => {
     dispatch(toggleStarWorkspace(id));
   };
 
-  const handleMenuClick = (key: string, workspace: Workspace) => {
+  const handleMenuClick = (key: string, workspace: IWorkspace) => {
     switch (key) {
       case "edit":
         showEditModal(workspace);
         break;
       case "archive":
-        dispatch(archiveWorkspace(workspace.id));
+        dispatch(archiveWorkspace(workspace._id));
         break;
       case "restore":
-        dispatch(restoreWorkspace(workspace.id));
+        dispatch(restoreWorkspace(workspace._id));
         break;
       case "delete":
-        handleDelete(workspace.id, workspace.name);
+        handleDelete(workspace._id, workspace.name);
         break;
       default:
         break;
     }
   };
 
-  const renderWorkspaceCard = (workspace: Workspace) => {
-    const color = generateColor(workspace.name);
+  useEffect(() => {
+    (async () => await dispatch(getAllWorkspaces()))();
+
+    return () => {
+      dispatch(clearSelectedWorkspace());
+    };
+  }, [dispatch]);
+
+  const renderWorkspaceCard = (workspace: IWorkspace) => {
+    const background = generateGradient(workspace.name);
     let moreMenu: MenuProps["items"] = [];
 
     if (workspace.archived) {
@@ -299,10 +287,12 @@ const Workspaces: React.FC = () => {
       moreMenu = [
         {
           key: "edit",
+          icon: <EditOutlined />,
           label: "Edit",
         },
         {
           key: "archive",
+          icon: <InboxOutlined />,
           label: "Archive",
         },
         {
@@ -321,17 +311,14 @@ const Workspaces: React.FC = () => {
       <Card
         hoverable
         className={`workspace-card ${workspace.archived ? "archived" : ""}`}
-        headStyle={{ backgroundColor: color, padding: 0 }}
+        headStyle={{ background, padding: 0 }}
       >
-        <div
-          className="workspace-card-color-bar"
-          style={{ backgroundColor: color }}
-        />
+        <div className="workspace-card-color-bar" style={{ background }} />
         <div className="workspace-card-content">
           <div className="workspace-card-header">
             <div className="workspace-card-title">
               <Link
-                to={`/workspace/${workspace.id}`}
+                to={`/workspace/${workspace._id}`}
                 className="workspace-link"
               >
                 <Title level={4} className="workspace-name">
@@ -341,9 +328,7 @@ const Workspaces: React.FC = () => {
               {!workspace.archived && (
                 <div
                   style={{ marginTop: "auto" }}
-                  onClick={() =>
-                    handleToggleStar(workspace.id, !!workspace.starred)
-                  }
+                  onClick={() => handleToggleStar(workspace._id)}
                 >
                   {workspace.starred ? (
                     <StarFilled className="star-icon star-filled" />
@@ -382,18 +367,20 @@ const Workspaces: React.FC = () => {
 
           <div className="workspace-card-footer">
             <Space wrap>
-              <Tooltip title={`Created by ${workspace.created_by}`}>
-                <Tag icon={<UserOutlined />} color="blue">
-                  {workspace.created_by}
+              <Tooltip title={workspace.createdBy.email}>
+                <Tag icon={<UserOutlined />}>
+                  {workspace.createdBy.first_name +
+                    " " +
+                    workspace.createdBy.last_name}
                 </Tag>
               </Tooltip>
               <Tooltip
                 title={`Created on ${new Date(
-                  workspace.created_at
+                  workspace.createdAt
                 ).toLocaleDateString()}`}
               >
-                <Tag icon={<ClockCircleOutlined />} color="blue">
-                  {new Date(workspace.created_at).toLocaleDateString()}
+                <Tag icon={<ClockCircleOutlined />}>
+                  {new Date(workspace.createdAt).toLocaleDateString()}
                 </Tag>
               </Tooltip>
             </Space>
@@ -403,7 +390,7 @@ const Workspaces: React.FC = () => {
     );
   };
 
-  const renderWorkspaces = (workspaces: Workspace[]) => {
+  const renderWorkspaces = (workspaces: IWorkspace[]) => {
     if (workspaces.length === 0) {
       let emptyMessage = "No workspaces found";
       if (activeTab === "starred") {
@@ -426,6 +413,7 @@ const Workspaces: React.FC = () => {
             {activeTab === "all-workspaces" && (
               <Button
                 type="primary"
+                className="button"
                 icon={<PlusOutlined />}
                 onClick={showAddModal}
               >
@@ -440,7 +428,7 @@ const Workspaces: React.FC = () => {
     return (
       <Row gutter={[16, 16]} className="workspaces-grid">
         {workspaces.map((workspace) => (
-          <Col xs={24} sm={12} md={8} lg={6} key={workspace.id}>
+          <Col xs={24} sm={12} md={8} lg={6} key={workspace._id}>
             {renderWorkspaceCard(workspace)}
           </Col>
         ))}
@@ -453,7 +441,9 @@ const Workspaces: React.FC = () => {
             >
               <div className="create-card-content">
                 <PlusOutlined className="plus-icon" />
-                <div className="create-card-text">Create New Workspace</div>
+                <div className="create-card-text button">
+                  Create New Workspace
+                </div>
               </div>
             </Card>
           </Col>
@@ -464,6 +454,11 @@ const Workspaces: React.FC = () => {
 
   // Sort menu items
   const sortMenuItems: MenuProps["items"] = [
+    {
+      key: SORT_OPTIONS.DEFAULT,
+      label: "Default",
+      icon: sortOption === SORT_OPTIONS.DEFAULT ? <CheckOutlined /> : null,
+    },
     {
       key: SORT_OPTIONS.NAME_ASC,
       label: "Name (A-Z)",
@@ -546,7 +541,8 @@ const Workspaces: React.FC = () => {
               allowClear
               value={searchText}
               onChange={(e) => setSearchText(e.target.value)}
-              style={{ width: 200 }}
+              style={{ width: 220, marginTop: "8px" }}
+              className="form-input"
             />
             <Dropdown
               menu={{ items: filterMenuItems }}
@@ -554,7 +550,7 @@ const Workspaces: React.FC = () => {
               overlayClassName="filter-dropdown"
             >
               <Button
-                className="filter-btn"
+                className="button"
                 type={filterCreators.length > 0 ? "primary" : "default"}
               >
                 <Space>
@@ -573,7 +569,7 @@ const Workspaces: React.FC = () => {
               }}
               trigger={["click"]}
             >
-              <Button className="sort-btn">
+              <Button type="default" className="button">
                 <Space>
                   <SortAscendingOutlined />
                   Sort
@@ -585,7 +581,7 @@ const Workspaces: React.FC = () => {
             type="primary"
             icon={<PlusOutlined />}
             onClick={showAddModal}
-            className="create-btn"
+            className="button"
           >
             Create New Workspace
           </Button>
@@ -654,36 +650,65 @@ const Workspaces: React.FC = () => {
           setEditingWorkspace(null);
         }}
         footer={null}
-        className="workspace-modal"
       >
+        {addError && (
+          <Alert
+            message={addError}
+            type="error"
+            showIcon
+            style={{ marginBottom: 10 }}
+            icon={<ExclamationCircleOutlined />}
+          />
+        )}
+        {editError && (
+          <Alert
+            message={editError}
+            type="error"
+            showIcon
+            style={{ marginBottom: 10 }}
+            icon={<ExclamationCircleOutlined />}
+          />
+        )}
         <Form
           form={form}
           layout="vertical"
           onFinish={handleAddOrEditWorkspace}
           className="workspace-form"
+          requiredMark={false}
         >
           <Form.Item
+            label={
+              <span className="input-label">
+                Workspace Name <span style={{ color: "red" }}>*</span>
+              </span>
+            }
             name="name"
-            label="Workspace Name"
             rules={[{ required: true, message: "Please enter workspace name" }]}
           >
-            <Input placeholder="Enter workspace name" />
+            <Input placeholder="Enter workspace name" className="form-input" />
           </Form.Item>
           <Form.Item
+            label={
+              <span className="input-label">
+                Description <span style={{ color: "red" }}>*</span>
+              </span>
+            }
             name="description"
-            label="Description"
             rules={[
               { required: true, message: "Please enter workspace description" },
             ]}
           >
             <Input.TextArea
               placeholder="Enter workspace description"
+              className="form-input"
               rows={4}
             />
           </Form.Item>
           <Form.Item className="form-actions">
             <Space>
               <Button
+                type="default"
+                className="button"
                 onClick={() => {
                   setIsModalVisible(false);
                   form.resetFields();
@@ -692,7 +717,7 @@ const Workspaces: React.FC = () => {
               >
                 Cancel
               </Button>
-              <Button type="primary" htmlType="submit">
+              <Button type="primary" className="button" htmlType="submit">
                 {editingWorkspace ? "Update" : "Create"}
               </Button>
             </Space>

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Layout,
   Typography,
@@ -14,8 +14,6 @@ import {
 import {
   PlusOutlined,
   EllipsisOutlined,
-  StarFilled,
-  StarOutlined,
   FilterOutlined,
   SettingOutlined,
   ClockCircleOutlined,
@@ -31,49 +29,22 @@ import type {
 } from "@hello-pangea/dnd";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import type { MenuProps } from "antd";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "../../../store";
+import { useParams } from "react-router";
+import {
+  IBoardDetails,
+  IBoardList,
+  IBoardUser,
+  ICard,
+  ICardLabel,
+  getBoardById,
+} from "../../../store/slices/boardSlice";
 import TaskCardForm from "./components/taskCardForm";
 import "../../../layout/styles/Board.css";
 
 const { Content } = Layout;
 const { Title, Text } = Typography;
-
-// Define types for our data structures
-interface Label {
-  id: string;
-  text: string;
-  color: string;
-}
-
-interface Member {
-  id: string;
-  name: string;
-  avatar: string;
-}
-
-interface ICard {
-  id: string;
-  title: string;
-  description?: string;
-  labels: Label[];
-  members: Member[];
-  dueDate?: string;
-  attachments: number;
-  comments: number;
-}
-
-interface List {
-  id: string;
-  title: string;
-  cards: ICard[];
-}
-
-interface BoardData {
-  id: string;
-  title: string;
-  starred: boolean;
-  color: string;
-  lists: List[];
-}
 
 export interface Attachment {
   name: string;
@@ -94,124 +65,13 @@ export interface TaskPayload {
   attachments: Attachment[];
 }
 
-// Mock data for board
-const mockBoardData: BoardData = {
-  id: "1",
-  title: "Marketing Campaign",
-  starred: true,
-  color: "#0079BF",
-  lists: [
-    {
-      id: "list-1",
-      title: "To Do",
-      cards: [
-        {
-          id: "card-1",
-          title: "Create social media posts",
-          description: "Create content for Instagram, Facebook, and Twitter",
-          labels: [
-            { id: "label-1", text: "Marketing", color: "#61BD4F" },
-            { id: "label-2", text: "Content", color: "#FF9F1A" },
-          ],
-          members: [
-            { id: "user1", name: "User 1", avatar: "" },
-            { id: "user2", name: "User 2", avatar: "" },
-          ],
-          dueDate: "2023-08-25",
-          attachments: 2,
-          comments: 3,
-        },
-        {
-          id: "card-2",
-          title: "Design new banner ads",
-          description: "Create banner ads for Google display network",
-          labels: [{ id: "label-3", text: "Design", color: "#EB5A46" }],
-          members: [{ id: "user1", name: "User 1", avatar: "" }],
-          dueDate: "2023-08-30",
-          attachments: 1,
-          comments: 0,
-        },
-      ],
-    },
-    {
-      id: "list-2",
-      title: "In Progress",
-      cards: [
-        {
-          id: "card-3",
-          title: "Email newsletter draft",
-          description: "Write content for August newsletter",
-          labels: [
-            { id: "label-2", text: "Content", color: "#FF9F1A" },
-            { id: "label-4", text: "Email", color: "#51E898" },
-          ],
-          members: [{ id: "user3", name: "User 3", avatar: "" }],
-          dueDate: "2023-08-20",
-          attachments: 0,
-          comments: 5,
-        },
-      ],
-    },
-    {
-      id: "list-3",
-      title: "Review",
-      cards: [
-        {
-          id: "card-4",
-          title: "Landing page copy",
-          description: "Review copy for new product landing page",
-          labels: [
-            { id: "label-5", text: "Copy", color: "#C377E0" },
-            { id: "label-6", text: "Website", color: "#0079BF" },
-          ],
-          members: [
-            { id: "user1", name: "User 1", avatar: "" },
-            { id: "user2", name: "User 2", avatar: "" },
-            { id: "user3", name: "User 3", avatar: "" },
-          ],
-          dueDate: "2023-08-18",
-          attachments: 3,
-          comments: 8,
-        },
-      ],
-    },
-    {
-      id: "list-4",
-      title: "Done",
-      cards: [
-        {
-          id: "card-5",
-          title: "SEO audit",
-          description: "Complete SEO audit of website",
-          labels: [
-            { id: "label-7", text: "SEO", color: "#00C2E0" },
-            { id: "label-6", text: "Website", color: "#0079BF" },
-          ],
-          members: [{ id: "user2", name: "User 2", avatar: "" }],
-          dueDate: "2023-08-15",
-          attachments: 2,
-          comments: 1,
-        },
-        {
-          id: "card-6",
-          title: "Competitor analysis",
-          description: "Research and analyze top 3 competitors",
-          labels: [{ id: "label-8", text: "Research", color: "#FF78CB" }],
-          members: [
-            { id: "user1", name: "User 1", avatar: "" },
-            { id: "user3", name: "User 3", avatar: "" },
-          ],
-          dueDate: "2023-08-10",
-          attachments: 4,
-          comments: 2,
-        },
-      ],
-    },
-  ],
-};
-
 const BoardDetail: React.FC = () => {
-  const [boardData, setBoardData] = useState<BoardData>(mockBoardData);
+  const { id } = useParams<{ id: string }>();
+  const dispatch = useDispatch<AppDispatch>();
+  const { selectedBoard } = useSelector((state: RootState) => state.board);
+  const [boardData, setBoardData] = useState(
+    selectedBoard || ({} as IBoardDetails)
+  );
   const [newListTitle, setNewListTitle] = useState<string>("");
   const [showAddList, setShowAddList] = useState<boolean>(false);
   const [visibleTaskCardForm, setVisibleTaskCardForm] =
@@ -259,40 +119,40 @@ const BoardDetail: React.FC = () => {
 
     // Moving lists
     if (type === "list") {
-      const newLists = Array.from(boardData.lists);
+      const newLists = Array.from(boardData?.lists || []);
       const [movedList] = newLists.splice(source.index, 1);
       newLists.splice(destination.index, 0, movedList);
 
       setBoardData({
         ...boardData,
-        lists: newLists,
+        lists: newLists as IBoardList[],
       });
       return;
     }
 
     // Moving cards
-    const sourceList = boardData.lists.find(
-      (list) => list.id === source.droppableId
+    const sourceList = boardData?.lists?.find(
+      (list: IBoardList) => list._id === source.droppableId
     );
-    const destList = boardData.lists.find(
-      (list) => list.id === destination.droppableId
+    const destList = boardData?.lists?.find(
+      (list: IBoardList) => list._id === destination.droppableId
     );
 
     if (!sourceList || !destList) return;
 
     if (source.droppableId === destination.droppableId) {
       // Same list movement
-      const newCards = Array.from(sourceList.cards);
-      const [movedCard] = newCards.splice(source.index, 1);
+      const newCards = Array.from(sourceList?.cards);
+      const [movedCard] = newCards?.splice(source.index, 1);
       newCards.splice(destination.index, 0, movedCard);
 
-      const newLists = boardData.lists.map((list) =>
-        list.id === sourceList.id ? { ...list, cards: newCards } : list
+      const newLists = boardData?.lists?.map((list: IBoardList) =>
+        list._id === sourceList._id ? { ...list, cards: newCards } : list
       );
 
       setBoardData({
         ...boardData,
-        lists: newLists,
+        lists: newLists as IBoardList[],
       });
     } else {
       // Different list movement
@@ -301,11 +161,11 @@ const BoardDetail: React.FC = () => {
       const destCards = Array.from(destList.cards);
       destCards.splice(destination.index, 0, movedCard);
 
-      const newLists = boardData.lists.map((list) => {
-        if (list.id === source.droppableId) {
+      const newLists = boardData?.lists?.map((list) => {
+        if (list._id === source.droppableId) {
           return { ...list, cards: sourceCards };
         }
-        if (list.id === destination.droppableId) {
+        if (list._id === destination.droppableId) {
           return { ...list, cards: destCards };
         }
         return list;
@@ -321,8 +181,8 @@ const BoardDetail: React.FC = () => {
   const handleAddList = () => {
     if (!newListTitle.trim()) return;
 
-    const newList: List = {
-      id: `list-${Date.now()}`,
+    const newList: IBoardList = {
+      _id: `list-${Date.now()}`,
       title: newListTitle,
       cards: [],
     };
@@ -338,7 +198,7 @@ const BoardDetail: React.FC = () => {
 
   // Render card component
   const renderCard = (card: ICard, index: number) => (
-    <Draggable key={card.id} draggableId={card.id} index={index}>
+    <Draggable key={card._id} draggableId={card._id} index={index}>
       {(provided: DraggableProvided, snapshot: DraggableStateSnapshot) => (
         <div
           ref={provided.innerRef}
@@ -359,9 +219,9 @@ const BoardDetail: React.FC = () => {
             bodyStyle={{ padding: "8px 12px" }}
           >
             <div style={{ marginBottom: 8 }}>
-              {card.labels.map((label: Label) => (
+              {card?.labels?.map((label: ICardLabel) => (
                 <div
-                  key={label.id}
+                  key={label._id}
                   style={{
                     backgroundColor: label.color,
                     display: "inline-block",
@@ -414,9 +274,9 @@ const BoardDetail: React.FC = () => {
                 )}
               </Space>
               <Avatar.Group size="small" maxCount={2}>
-                {card.members.map((member: Member, i: number) => (
-                  <Tooltip key={i} title={member.name}>
-                    <Avatar src={member.avatar} size="small" />
+                {card?.members?.map((member: IBoardUser, i: number) => (
+                  <Tooltip key={i} title={member.email}>
+                    <Avatar src={member.profile_image} size="small" />
                   </Tooltip>
                 ))}
               </Avatar.Group>
@@ -427,6 +287,10 @@ const BoardDetail: React.FC = () => {
     </Draggable>
   );
 
+  useEffect(() => {
+    if (id) (async () => await dispatch(getBoardById(id)))();
+  }, [dispatch, id]);
+
   const handleTaskCardFormSubmit = (values: TaskPayload) => {
     console.log("Submitted values:", values);
     setVisibleTaskCardForm(false);
@@ -436,22 +300,13 @@ const BoardDetail: React.FC = () => {
     <Content className="board-detail">
       <div
         className="board-header"
-        style={{ padding: "16px 24px", backgroundColor: boardData.color }}
+        style={{ padding: "16px 24px", background: "#40A9FF" }}
       >
         <div className="board-header-left">
           <Space size={16}>
             <Title level={4} style={{ margin: 0, color: "white" }}>
-              {boardData.title}
+              {selectedBoard?.name}
             </Title>
-            {boardData.starred ? (
-              <StarFilled
-                style={{ fontSize: "20px", color: "white", cursor: "pointer" }}
-              />
-            ) : (
-              <StarOutlined
-                style={{ fontSize: "20px", color: "white", cursor: "pointer" }}
-              />
-            )}
           </Space>
         </div>
         <div className="board-header-right">
@@ -491,8 +346,12 @@ const BoardDetail: React.FC = () => {
                 ref={provided.innerRef}
                 style={{ display: "flex", gap: "16px" }}
               >
-                {boardData.lists.map((list: List, index: number) => (
-                  <Draggable key={list.id} draggableId={list.id} index={index}>
+                {boardData?.lists?.map((list: IBoardList, index: number) => (
+                  <Draggable
+                    key={list._id}
+                    draggableId={list._id}
+                    index={index}
+                  >
                     {(
                       provided: DraggableProvided,
                       snapshot: DraggableStateSnapshot
@@ -526,7 +385,7 @@ const BoardDetail: React.FC = () => {
                             icon={<EllipsisOutlined />}
                           />
                         </div>
-                        <Droppable droppableId={list.id} type="card">
+                        <Droppable droppableId={list._id} type="card">
                           {(provided: DroppableProvided) => (
                             <div
                               ref={provided.innerRef}
@@ -542,7 +401,7 @@ const BoardDetail: React.FC = () => {
                                 overflowY: "auto",
                               }}
                             >
-                              {list.cards.map((card: ICard, index: number) =>
+                              {list?.cards?.map((card: ICard, index: number) =>
                                 renderCard(card, index)
                               )}
                               {provided.placeholder}
@@ -551,7 +410,6 @@ const BoardDetail: React.FC = () => {
                                 icon={<PlusOutlined />}
                                 block
                                 style={{ textAlign: "left", marginTop: "8px" }}
-                                onClick={() => setVisibleTaskCardForm(true)}
                               >
                                 Add a card
                               </Button>
@@ -627,6 +485,10 @@ const BoardDetail: React.FC = () => {
           </Droppable>
         </DragDropContext>
       </div>
+      <div>
+        <Button onClick={() => setVisibleTaskCardForm(true)}>Add a card</Button>
+      </div>
+
       <TaskCardForm
         visible={visibleTaskCardForm}
         onCancel={() => setVisibleTaskCardForm(false)}

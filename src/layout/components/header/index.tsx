@@ -10,6 +10,7 @@ import {
   Input,
   Dropdown,
   MenuProps,
+  Space,
 } from "antd";
 import {
   SearchOutlined,
@@ -19,8 +20,8 @@ import {
   LogoutOutlined,
   SettingOutlined,
 } from "@ant-design/icons";
-import { RootState } from "../../../store";
-import { logout } from "../../../store/slices/userSlice";
+import { AppDispatch, RootState } from "../../../store";
+import { logoutUser } from "../../../store/slices/userSlice";
 import { ThemeToggle } from "../../../components/ui";
 import { useTheme } from "../../../contexts/ThemeContext";
 import "../../styles/Layout.css";
@@ -29,9 +30,9 @@ const { Header: AntHeader } = Layout;
 const { Title } = Typography;
 
 const Header: React.FC = () => {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
-  const { currentUser } = useSelector(
+  const { currentUser, isAuthenticated } = useSelector(
     (state: RootState) => state.user
   );
   const [searchText, setSearchText] = useState("");
@@ -39,8 +40,8 @@ const Header: React.FC = () => {
 
   const isDarkMode = theme === "dark";
 
-  const handleLogout = () => {
-    dispatch(logout());
+  const handleLogout = async () => {
+    await dispatch(logoutUser());
     localStorage.removeItem("token");
     navigate("/login");
   };
@@ -48,13 +49,13 @@ const Header: React.FC = () => {
   const userMenuItems: MenuProps["items"] = [
     {
       key: "profile",
-      label: <span>Profile Settings</span>,
+      label: <span>Profile</span>,
       icon: <UserOutlined />,
       onClick: () => navigate("/profile"),
     },
     {
       key: "settings",
-      label: <span>App Settings</span>,
+      label: <span>Settings</span>,
       icon: <SettingOutlined />,
       onClick: () => navigate("/settings"),
     },
@@ -68,6 +69,59 @@ const Header: React.FC = () => {
       onClick: handleLogout,
     },
   ];
+
+  if (!isAuthenticated) {
+    return (
+      <AntHeader className="app-header">
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            height: "100%",
+            width: "100%",
+          }}
+        >
+          <div className="logo">
+            <Link to="/">
+              <Title
+                level={4}
+                style={{
+                  color: isDarkMode ? "white" : "inherit",
+                  margin: 0,
+                  display: "flex",
+                  alignItems: "center",
+                }}
+              >
+                <AppstoreOutlined style={{ marginRight: 8 }} /> Board Camp
+              </Title>
+            </Link>
+          </div>
+          <Space>
+            <ThemeToggle />
+            <Button
+              type="text"
+              style={{
+                color: isDarkMode ? "white" : "inherit",
+                borderRadius: "50px",
+                padding: "18px",
+              }}
+            >
+              <Link to="/register">Sign Up</Link>
+            </Button>
+            <Button
+              type="primary"
+              style={{ borderRadius: "50px", padding: "18px" }}
+            >
+              <Link to="/login" style={{ color: "inherit" }}>
+                Log In
+              </Link>
+            </Button>
+          </Space>
+        </div>
+      </AntHeader>
+    );
+  }
 
   return (
     <AntHeader className="app-header">
@@ -112,23 +166,14 @@ const Header: React.FC = () => {
 
       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
         <Input
-          prefix={
-            <SearchOutlined
-              style={{
-                color: isDarkMode
-                  ? "rgba(255, 255, 255, 0.65)"
-                  : "rgba(0, 0, 0, 0.45)",
-              }}
-            />
-          }
+          prefix={<SearchOutlined />}
           placeholder="Search"
+          allowClear
           value={searchText}
           onChange={(e) => setSearchText(e.target.value)}
-          className={`search-input ${
-            isDarkMode ? "search-input-dark" : "search-input-light"
-          }`}
+          style={{ width: 250 }}
+          className="form-input"
         />
-
         <Button
           type="text"
           icon={<BellOutlined />}

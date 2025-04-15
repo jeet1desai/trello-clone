@@ -1,11 +1,11 @@
-/* Workspaces Page Styles */
-.workspaces-container {
+/* Board Page Styles */
+.boards-container {
   max-width: 1200px;
   margin: 0 auto;
 }
 
 /* Header Styles */
-.workspaces-header {
+.boards-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -34,22 +34,8 @@
   align-items: center;
 }
 
-.search-filter {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.workspaces-tabs-container {
+.boards-tabs-container {
   margin-bottom: 24px;
-}
-
-.tab-label {
-  font-size: 15px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
 }
 
 /* Improved Filter Dropdown */
@@ -65,12 +51,12 @@
   color: #1890ff;
 }
 
-/* Workspaces Grid View */
-.workspaces-grid {
+/* Board Grid View */
+.boards-grid {
   margin-bottom: 20px;
 }
 
-.workspace-card {
+.board-card {
   height: 100%;
   transition: transform 0.2s, box-shadow 0.2s;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
@@ -79,14 +65,15 @@
   flex-direction: column;
   overflow: hidden;
   position: relative;
+  padding: 0;
 }
 
-.workspace-card:hover {
+.board-card:hover {
   transform: translateY(-3px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
-.workspace-card.archived::after {
+.board-card.archived::after {
   content: "ARCHIVED";
   position: absolute;
   top: 20px;
@@ -100,96 +87,61 @@
   z-index: 10;
 }
 
-.workspace-card-color-bar {
+.board-card-color-bar {
   height: 12px;
   border-radius: 4px;
   width: 100%;
   position: relative;
 }
 
-.workspace-card-star {
-  position: absolute;
-  right: 8px;
-  top: 8px;
-  z-index: 10;
-  width: 28px;
-  height: 28px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.workspace-card-star:hover {
-  transform: scale(1.1);
-}
-
-.star-icon {
-  font-size: 20px;
-  color: #f8c135;
-  cursor: pointer;
-  transition: all 0.2s;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
-}
-
-.star-icon:hover {
-  color: #f8c135;
-  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
-}
-
-.star-filled {
-  color: #f8c135;
-}
-
-.workspace-card-content {
-  padding: 8px 4px 16px 4px;
+.board-card-content {
+  padding: 8px 4px;
   display: flex;
   flex-direction: column;
   height: 100%;
 }
 
-.workspace-card-header {
+.board-card-header {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
 }
 
-.workspace-card-title {
+.board-card-title {
   flex: 1;
   display: flex;
   align-items: center;
   gap: 8px;
 }
 
-.workspace-card-actions {
+.board-card-actions {
   flex-shrink: 0;
 }
 
-.workspace-name {
+.board-name {
   margin: 0 !important;
   line-height: 1.4 !important;
 }
 
-.workspace-link {
+.board-link {
   color: inherit;
 }
 
-.workspace-link:hover {
+.board-link:hover {
   color: #1890ff;
 }
 
-.workspace-description {
+.board-description {
   margin-bottom: 12px !important;
   flex-grow: 1;
   color: var(--text-secondary) !important;
 }
 
-.theme-dark .workspace-description {
+.theme-dark .board-description {
   color: var(--text-secondary) !important;
 }
 
-.workspace-card-footer {
+.board-card-footer {
   margin-top: auto;
 }
 
@@ -198,8 +150,8 @@
   color: var(--text-primary) !important;
 }
 
-/* Create Workspace Card */
-.create-workspace-card {
+/* Create board Card */
+.create-board-card {
   height: 100%;
   background-color: var(--bg-secondary);
   border: 2px dashed var(--border-color);
@@ -209,17 +161,17 @@
   transition: all 0.2s;
 }
 
-.theme-dark .create-workspace-card {
+.theme-dark .create-board-card {
   background-color: var(--bg-tertiary);
   border: 2px dashed var(--border-color);
 }
 
-.create-workspace-card:hover {
+.create-board-card:hover {
   border-color: var(--primary-color);
   background-color: var(--bg-tertiary);
 }
 
-.theme-dark .create-workspace-card:hover {
+.theme-dark .create-board-card:hover {
   background-color: rgba(24, 144, 255, 0.1);
 }
 
@@ -266,8 +218,8 @@
   background-color: var(--border-color);
 }
 
-/* Workspaces List View */
-.workspaces-list {
+/* Board List View */
+.boards-list {
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -277,7 +229,7 @@
   width: 100%;
 }
 
-.workspace-list-item {
+.board-list-item {
   width: 100%;
   transition: transform 0.2s, box-shadow 0.2s;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
@@ -285,29 +237,29 @@
   position: relative;
 }
 
-.workspace-list-item:hover {
+.board-list-item:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-.workspace-list-color-bar {
+.board-list-color-bar {
   height: 4px;
   width: 100%;
 }
 
-.workspace-list-content {
+.board-list-content {
   display: flex;
   align-items: center;
   gap: 16px;
   padding: 16px;
 }
 
-.workspace-list-details {
+.board-list-details {
   flex: 1;
   min-width: 0;
 }
 
-.workspace-list-header {
+.board-list-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -316,29 +268,29 @@
   gap: 8px;
 }
 
-.workspace-list-meta {
+.board-list-meta {
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
 }
 
-.workspace-list-description {
+.board-list-description {
   margin-bottom: 0 !important;
   color: rgba(0, 0, 0, 0.65);
 }
 
-.workspace-list-actions {
+.board-list-actions {
   flex-shrink: 0;
 }
 
-.create-workspace-list-item {
+.create-board-list-item {
   padding: 16px;
   border: 2px dashed #d9d9d9;
   background-color: #f6f8fa;
   transition: all 0.2s;
 }
 
-.create-workspace-list-item:hover {
+.create-board-list-item:hover {
   border-color: #1890ff;
   background-color: #f0f7ff;
 }
@@ -362,18 +314,18 @@
 }
 
 /* Modal Styles */
-.workspace-form .form-actions {
+.board-form .form-actions {
   margin-bottom: 0;
   text-align: right;
 }
 
 /* Responsive Styles */
 @media (max-width: 768px) {
-  .workspaces-container {
+  .boards-container {
     padding: 16px;
   }
 
-  .workspaces-header {
+  .boards-header {
     flex-direction: column;
     align-items: flex-start;
   }
@@ -389,29 +341,24 @@
 }
 
 @media (max-width: 576px) {
-  .workspaces-container {
+  .boards-container {
     padding: 12px;
   }
 
-  .search-filter {
-    width: 100%;
-    margin-top: 8px;
-  }
-
-  .workspace-list-content {
+  .board-list-content {
     flex-wrap: wrap;
   }
 
-  .workspace-list-details {
+  .board-list-details {
     width: 100%;
   }
 
-  .workspace-list-header {
+  .board-list-header {
     flex-direction: column;
     align-items: flex-start;
   }
 
-  .workspace-list-actions {
+  .board-list-actions {
     position: absolute;
     top: 12px;
     right: 12px;
