@@ -40,17 +40,42 @@ import {
   ICardLabel,
   getBoardById,
 } from "../../../store/slices/boardSlice";
+import TaskCardForm from "./components/taskCardForm";
+import "../../../layout/styles/Board.css";
 
 const { Content } = Layout;
 const { Title, Text } = Typography;
+
+export interface Attachment {
+  name: string;
+  url?: string;
+  type?: string;
+  size?: number;
+}
+
+export interface TaskPayload {
+  title: string;
+  created_by: string;
+  description: string;
+  list_id: string;
+  start_date: string;
+  due_date: string;
+  priority: "Low" | "Medium" | "High" | "Highest";
+  status: "Incomplete" | "Complete";
+  attachments: Attachment[];
+}
 
 const BoardDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const dispatch = useDispatch<AppDispatch>();
   const { selectedBoard } = useSelector((state: RootState) => state.board);
-  const [boardData, setBoardData] = useState(selectedBoard || {} as IBoardDetails);
+  const [boardData, setBoardData] = useState(
+    selectedBoard || ({} as IBoardDetails)
+  );
   const [newListTitle, setNewListTitle] = useState<string>("");
   const [showAddList, setShowAddList] = useState<boolean>(false);
+  const [visibleTaskCardForm, setVisibleTaskCardForm] =
+    useState<boolean>(false);
 
   const actionsMenu: MenuProps["items"] = [
     {
@@ -266,9 +291,17 @@ const BoardDetail: React.FC = () => {
     if (id) (async () => await dispatch(getBoardById(id)))();
   }, [dispatch, id]);
 
+  const handleTaskCardFormSubmit = (values: TaskPayload) => {
+    console.log("Submitted values:", values);
+    setVisibleTaskCardForm(false);
+  };
+
   return (
     <Content className="board-detail">
-      <div className="board-header" style={{ padding: "16px 24px", background: "#40A9FF" }}>
+      <div
+        className="board-header"
+        style={{ padding: "16px 24px", background: "#40A9FF" }}
+      >
         <div className="board-header-left">
           <Space size={16}>
             <Title level={4} style={{ margin: 0, color: "white" }}>
@@ -292,6 +325,14 @@ const BoardDetail: React.FC = () => {
                 Settings
               </Button>
             </Dropdown>
+            <div>
+              <Button
+                color="primary"
+                onClick={() => setVisibleTaskCardForm(true)}
+              >
+                Add a card
+              </Button>
+            </div>
           </Space>
         </div>
       </div>
@@ -452,6 +493,12 @@ const BoardDetail: React.FC = () => {
           </Droppable>
         </DragDropContext>
       </div>
+
+      <TaskCardForm
+        visible={visibleTaskCardForm}
+        onCancel={() => setVisibleTaskCardForm(false)}
+        onFinish={handleTaskCardFormSubmit}
+      />
     </Content>
   );
 };
