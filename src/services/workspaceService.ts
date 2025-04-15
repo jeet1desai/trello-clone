@@ -44,4 +44,11 @@ export const workspaceService = {
     );
     return response.data;
   },
+
+  async getBoardsByWorkspaceId(workspaceId: string) {
+    const response = await axiosInstance.get(
+      `${API_URL}/board/get-boards-list/${workspaceId}`
+    );
+    return response.data;
+  },
 };

@@ -80,7 +80,7 @@ const Register: React.FC = () => {
         >
           <Form.Item
             label={
-              <span>
+              <span className="input-label">
                 First Name <span style={{ color: "red" }}>*</span>
               </span>
             }
@@ -100,7 +100,7 @@ const Register: React.FC = () => {
 
           <Form.Item
             label={
-              <span>
+              <span className="input-label">
                 Middle Name <span style={{ color: "red" }}>*</span>
               </span>
             }
@@ -120,7 +120,7 @@ const Register: React.FC = () => {
 
           <Form.Item
             label={
-              <span>
+              <span className="input-label">
                 Last Name <span style={{ color: "red" }}>*</span>
               </span>
             }
@@ -140,7 +140,7 @@ const Register: React.FC = () => {
 
           <Form.Item
             label={
-              <span>
+              <span className="input-label">
                 Email <span style={{ color: "red" }}>*</span>
               </span>
             }
@@ -159,7 +159,7 @@ const Register: React.FC = () => {
 
           <Form.Item
             label={
-              <span>
+              <span className="input-label">
                 Password <span style={{ color: "red" }}>*</span>
               </span>
             }
@@ -184,7 +184,7 @@ const Register: React.FC = () => {
 
           <Form.Item
             label={
-              <span>
+              <span className="input-label">
                 Confirm Password <span style={{ color: "red" }}>*</span>
               </span>
             }
@@ -213,7 +213,7 @@ const Register: React.FC = () => {
             <Button
               type="primary"
               htmlType="submit"
-              className="submit-button"
+              className="button"
               loading={loading}
               block
             >

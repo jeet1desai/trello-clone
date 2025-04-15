@@ -24,12 +24,6 @@ const Dashboard: React.FC = () => {
   const { workspaces } = useSelector((state: RootState) => state.workspace);
   const { boards } = useSelector((state: RootState) => state.board);
 
-  // Filter for active (non-archived) items
-  const activeWorkspaces = workspaces.filter(
-    (workspace) => !workspace.archived
-  );
-  const activeBoards = boards.filter((board) => !board.archived);
-
   // Analytics timeframe state
   const [timeframe, setTimeframe] = useState<string | number>("week");
 
@@ -57,7 +51,7 @@ const Dashboard: React.FC = () => {
           <Col xs={24} sm={12} lg={6}>
             <StatCard
               title="Total Workspaces"
-              value={activeWorkspaces.length}
+              value={workspaces.length}
               icon={<TeamOutlined style={{ fontSize: 24 }} />}
               color="#1890ff"
               trend={{ value: 12, type: "up" }}
@@ -66,7 +60,7 @@ const Dashboard: React.FC = () => {
           <Col xs={24} sm={12} lg={6}>
             <StatCard
               title="Total Boards"
-              value={activeBoards.length}
+              value={boards.length}
               icon={<ProjectOutlined style={{ fontSize: 24 }} />}
               color="#52c41a"
               trend={{ value: 5, type: "up" }}

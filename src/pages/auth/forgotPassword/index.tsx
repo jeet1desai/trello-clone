@@ -80,7 +80,7 @@ const ForgotPassword: React.FC = () => {
         >
           <Form.Item
             label={
-              <span>
+              <span className="input-label">
                 Email <span style={{ color: "red" }}>*</span>
               </span>
             }
@@ -102,7 +102,7 @@ const ForgotPassword: React.FC = () => {
             <>
               <Form.Item
                 label={
-                  <span>
+                  <span className="input-label">
                     OTP <span style={{ color: "red" }}>*</span>
                   </span>
                 }
@@ -119,7 +119,7 @@ const ForgotPassword: React.FC = () => {
 
               <Form.Item
                 label={
-                  <span>
+                  <span className="input-label">
                     New Password <span style={{ color: "red" }}>*</span>
                   </span>
                 }
@@ -148,7 +148,7 @@ const ForgotPassword: React.FC = () => {
             <Button
               type="primary"
               htmlType="submit"
-              className="submit-button"
+              className="button"
               loading={loading}
               block
               size="large"

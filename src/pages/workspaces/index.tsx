@@ -34,6 +34,7 @@ import {
   StarFilled,
   InboxOutlined,
   UndoOutlined,
+  EditOutlined,
 } from "@ant-design/icons";
 import type { MenuProps } from "antd";
 import { useDispatch, useSelector } from "react-redux";
@@ -48,6 +49,8 @@ import {
   addNewWorkspace,
   openWorkspaceAddModal,
   getAllWorkspaces,
+  clearSelectedWorkspace,
+  IUser,
 } from "../../store/slices/workspaceSlice";
 import "../../layout/styles/workspaces.css";
 import { generateGradient, SORT_OPTIONS } from "../../config";
@@ -77,7 +80,7 @@ const Workspaces: React.FC = () => {
   // Get all unique creators
   const allCreators = React.useMemo(() => {
     const creators = workspaces.map(
-      (workspace: { createdBy: string }) => workspace.createdBy
+      (workspace: { createdBy: IUser }) => workspace.createdBy.email
     );
     return Array.from(new Set(creators));
   }, [workspaces]);
@@ -113,7 +116,7 @@ const Workspaces: React.FC = () => {
         // Filter by creator
         const creatorMatch =
           filterCreators.length === 0 ||
-          filterCreators.includes(workspace.createdBy);
+          filterCreators.includes(workspace.createdBy.email);
 
         // Filter out archived workspaces
         const notArchived = !workspace.archived;
@@ -192,6 +195,7 @@ const Workspaces: React.FC = () => {
       await dispatch(
         addNewWorkspace({ name: values.name, description: values.description })
       );
+      await dispatch(getAllWorkspaces());
     }
     if (!addError) {
       setIsModalVisible(false);
@@ -250,6 +254,10 @@ const Workspaces: React.FC = () => {
 
   useEffect(() => {
     (async () => await dispatch(getAllWorkspaces()))();
+
+    return () => {
+      dispatch(clearSelectedWorkspace());
+    };
   }, [dispatch]);
 
   const renderWorkspaceCard = (workspace: IWorkspace) => {
@@ -279,10 +287,12 @@ const Workspaces: React.FC = () => {
       moreMenu = [
         {
           key: "edit",
+          icon: <EditOutlined />,
           label: "Edit",
         },
         {
           key: "archive",
+          icon: <InboxOutlined />,
           label: "Archive",
         },
         {
@@ -357,9 +367,11 @@ const Workspaces: React.FC = () => {
 
           <div className="workspace-card-footer">
             <Space wrap>
-              <Tooltip title={`Created by ${workspace.createdBy}`}>
-                <Tag icon={<UserOutlined />} color="blue">
-                  {workspace.createdBy}
+              <Tooltip title={workspace.createdBy.email}>
+                <Tag icon={<UserOutlined />}>
+                  {workspace.createdBy.first_name +
+                    " " +
+                    workspace.createdBy.last_name}
                 </Tag>
               </Tooltip>
               <Tooltip
@@ -367,7 +379,7 @@ const Workspaces: React.FC = () => {
                   workspace.createdAt
                 ).toLocaleDateString()}`}
               >
-                <Tag icon={<ClockCircleOutlined />} color="blue">
+                <Tag icon={<ClockCircleOutlined />}>
                   {new Date(workspace.createdAt).toLocaleDateString()}
                 </Tag>
               </Tooltip>
@@ -401,6 +413,7 @@ const Workspaces: React.FC = () => {
             {activeTab === "all-workspaces" && (
               <Button
                 type="primary"
+                className="button"
                 icon={<PlusOutlined />}
                 onClick={showAddModal}
               >
@@ -428,7 +441,9 @@ const Workspaces: React.FC = () => {
             >
               <div className="create-card-content">
                 <PlusOutlined className="plus-icon" />
-                <div className="create-card-text">Create New Workspace</div>
+                <div className="create-card-text button">
+                  Create New Workspace
+                </div>
               </div>
             </Card>
           </Col>
@@ -526,7 +541,8 @@ const Workspaces: React.FC = () => {
               allowClear
               value={searchText}
               onChange={(e) => setSearchText(e.target.value)}
-              style={{ width: 200 }}
+              style={{ width: 220, marginTop: "8px" }}
+              className="form-input"
             />
             <Dropdown
               menu={{ items: filterMenuItems }}
@@ -534,7 +550,7 @@ const Workspaces: React.FC = () => {
               overlayClassName="filter-dropdown"
             >
               <Button
-                className="filter-btn"
+                className="button"
                 type={filterCreators.length > 0 ? "primary" : "default"}
               >
                 <Space>
@@ -553,7 +569,7 @@ const Workspaces: React.FC = () => {
               }}
               trigger={["click"]}
             >
-              <Button className="sort-btn">
+              <Button type="default" className="button">
                 <Space>
                   <SortAscendingOutlined />
                   Sort
@@ -565,7 +581,7 @@ const Workspaces: React.FC = () => {
             type="primary"
             icon={<PlusOutlined />}
             onClick={showAddModal}
-            className="create-btn"
+            className="button"
           >
             Create New Workspace
           </Button>
@@ -634,7 +650,6 @@ const Workspaces: React.FC = () => {
           setEditingWorkspace(null);
         }}
         footer={null}
-        className="workspace-modal"
       >
         {addError && (
           <Alert
@@ -659,29 +674,41 @@ const Workspaces: React.FC = () => {
           layout="vertical"
           onFinish={handleAddOrEditWorkspace}
           className="workspace-form"
+          requiredMark={false}
         >
           <Form.Item
+            label={
+              <span className="input-label">
+                Workspace Name <span style={{ color: "red" }}>*</span>
+              </span>
+            }
             name="name"
-            label="Workspace Name"
             rules={[{ required: true, message: "Please enter workspace name" }]}
           >
-            <Input placeholder="Enter workspace name" />
+            <Input placeholder="Enter workspace name" className="form-input" />
           </Form.Item>
           <Form.Item
+            label={
+              <span className="input-label">
+                Description <span style={{ color: "red" }}>*</span>
+              </span>
+            }
             name="description"
-            label="Description"
             rules={[
               { required: true, message: "Please enter workspace description" },
             ]}
           >
             <Input.TextArea
               placeholder="Enter workspace description"
+              className="form-input"
               rows={4}
             />
           </Form.Item>
           <Form.Item className="form-actions">
             <Space>
               <Button
+                type="default"
+                className="button"
                 onClick={() => {
                   setIsModalVisible(false);
                   form.resetFields();
@@ -690,7 +717,7 @@ const Workspaces: React.FC = () => {
               >
                 Cancel
               </Button>
-              <Button type="primary" htmlType="submit">
+              <Button type="primary" className="button" htmlType="submit">
                 {editingWorkspace ? "Update" : "Create"}
               </Button>
             </Space>
