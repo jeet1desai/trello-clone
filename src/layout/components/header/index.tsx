@@ -1,11 +1,9 @@
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import {
   Layout,
-  Menu,
   Button,
-  Typography,
   Avatar,
   Input,
   Dropdown,
@@ -14,7 +12,6 @@ import {
 } from "antd";
 import {
   SearchOutlined,
-  AppstoreOutlined,
   BellOutlined,
   UserOutlined,
   LogoutOutlined,
@@ -27,11 +24,11 @@ import { useTheme } from "../../../contexts/ThemeContext";
 import "../../styles/Layout.css";
 
 const { Header: AntHeader } = Layout;
-const { Title } = Typography;
 
 const Header: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
+  const location = useLocation();
   const { currentUser, isAuthenticated } = useSelector(
     (state: RootState) => state.user
   );
@@ -84,17 +81,17 @@ const Header: React.FC = () => {
         >
           <div className="logo">
             <Link to="/">
-              <Title
-                level={4}
+              <img
+                src={require("../../../assets/base-team-logo.png")}
+                alt="Base Team"
                 style={{
-                  color: isDarkMode ? "white" : "inherit",
-                  margin: 0,
+                  width: "36px",
+                  height: "auto",
                   display: "flex",
                   alignItems: "center",
+                  borderRadius: "4px",
                 }}
-              >
-                <AppstoreOutlined style={{ marginRight: 8 }} /> Board Camp
-              </Title>
+              />
             </Link>
           </div>
           <Space>
@@ -126,42 +123,50 @@ const Header: React.FC = () => {
   return (
     <AntHeader className="app-header">
       <div style={{ display: "flex", alignItems: "center" }}>
-        <div className="logo" style={{ marginRight: 24 }}>
+        <div className="logo" style={{ marginRight: 12 }}>
           <Link to="/dashboard">
-            <Title
-              level={4}
+            <img
+              src={require("../../../assets/base-team-logo.png")}
+              alt="Base Team"
               style={{
-                color: isDarkMode ? "white" : "inherit",
-                margin: 0,
+                width: "36px",
+                height: "auto",
                 display: "flex",
                 alignItems: "center",
+                borderRadius: "4px",
               }}
-            >
-              <AppstoreOutlined style={{ marginRight: 8 }} /> Board Camp
-            </Title>
+            />
           </Link>
         </div>
 
-        <Menu
-          mode="horizontal"
-          theme={isDarkMode ? "dark" : "light"}
-          style={{
-            background: "transparent",
-            borderBottom: "none",
-            lineHeight: "64px",
-          }}
-          items={[
-            {
-              key: "boards",
-              label: <Link to="/boards">Boards</Link>,
-            },
-            {
-              key: "workspaces",
-              label: <Link to="/workspaces">Workspaces</Link>,
-            },
-          ]}
-          selectedKeys={[]}
-        />
+        <div style={{ display: "flex", gap: 10 }}>
+          <Button
+            type="text"
+            style={{
+              padding: 0,
+              color: location.pathname.includes("workspaces")
+                ? "#40A9FF"
+                : "inherit",
+              fontWeight: location.pathname.includes("workspaces") ? 600 : 400,
+            }}
+            onClick={() => navigate("/workspaces")}
+          >
+            Workspaces
+          </Button>
+          <Button
+            type="text"
+            style={{
+              padding: 0,
+              color: location.pathname.includes("boards")
+                ? "#40A9FF"
+                : "inherit",
+              fontWeight: location.pathname.includes("boards") ? 600 : 400,
+            }}
+            onClick={() => navigate("/boards")}
+          >
+            Boards
+          </Button>
+        </div>
       </div>
 
       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>

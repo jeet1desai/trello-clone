@@ -1,6 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { authService } from "../../services/authService";
-import { message } from "antd";
 
 export interface User {
   id: string;
@@ -16,6 +15,7 @@ interface UserState {
   isAuthenticated: boolean;
   loading: boolean;
   error: string | null;
+  success: string | null;
   registrationSuccess: boolean;
   passwordChangeRequested: boolean;
   passwordChangeSuccess: boolean;
@@ -28,6 +28,7 @@ const initialState: UserState = {
   isAuthenticated: false,
   loading: false,
   error: null,
+  success: null,
   registrationSuccess: false,
   passwordChangeRequested: false,
   passwordChangeSuccess: false,
@@ -169,6 +170,7 @@ const userSlice = createSlice({
   initialState,
   reducers: {
     clearAuthState: (state) => {
+      state.success = null;
       state.error = null;
       state.registrationSuccess = false;
       state.passwordChangeRequested = false;
@@ -183,6 +185,7 @@ const userSlice = createSlice({
       .addCase(loginUser.pending, (state) => {
         state.loading = true;
         state.error = null;
+        state.success = null;
       })
       .addCase(loginUser.fulfilled, (state, action) => {
         const {
@@ -205,124 +208,130 @@ const userSlice = createSlice({
         state.isAuthenticated = true;
         state.loading = false;
         state.error = null;
-        message.success("Login successful");
+        state.success = "Login successful.";
       })
       .addCase(loginUser.rejected, (state, action) => {
         state.loading = false;
         state.currentUser = null;
         state.isAuthenticated = false;
-        state.error = action.payload as string;
-        message.error((action.payload as string) || "Login failed");
+        state.success = null;
+        state.error = (action.payload as string) || "Error while login.";
       })
 
       // Register
       .addCase(registerUser.pending, (state) => {
         state.loading = true;
         state.error = null;
+        state.success = null;
       })
       .addCase(registerUser.fulfilled, (state) => {
         state.loading = false;
         state.registrationSuccess = true;
         state.error = null;
-        message.success(
-          "Registration successful. Please check your email to verify your account."
-        );
+        state.success =
+          "Registration successful. Please check your email to verify your account.";
       })
       .addCase(registerUser.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload as string;
-        message.error((action.payload as string) || "Registration failed");
+        state.success = null;
+        state.error = (action.payload as string) || "Error while registration.";
       })
 
       // Request Password Change
       .addCase(requestPasswordReset.pending, (state) => {
         state.loading = true;
         state.error = null;
+        state.success = null;
       })
       .addCase(requestPasswordReset.fulfilled, (state) => {
         state.loading = false;
         state.passwordChangeRequested = true;
         state.error = null;
-        message.success("Password reset link has been sent to your email");
+        state.success = "Password reset link has been sent to your email.";
       })
       .addCase(requestPasswordReset.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload as string;
-        message.error(
-          (action.payload as string) || "Failed to send password reset link"
-        );
+        state.success = null;
+        state.error =
+          (action.payload as string) ||
+          "Error while sending password reset link.";
       })
 
       // Change Password
       .addCase(changePassword.pending, (state) => {
         state.loading = true;
         state.error = null;
+        state.success = null;
       })
       .addCase(changePassword.fulfilled, (state) => {
         state.loading = false;
         state.passwordChangeRequested = true;
         state.error = null;
-        message.success("Password updated successfully");
+        state.success = "Password updated successfully.";
       })
       .addCase(changePassword.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload as string;
-        message.error(
-          (action.payload as string) || "Failed to update password"
-        );
+        state.success = null;
+        state.error =
+          (action.payload as string) || "Error while updating password.";
       })
 
       // Reset Password
       .addCase(resetPassword.pending, (state) => {
         state.loading = true;
         state.error = null;
+        state.success = null;
       })
       .addCase(resetPassword.fulfilled, (state) => {
         state.loading = false;
         state.passwordResetSuccess = true;
         state.error = null;
-        message.success("Password has been reset successfully");
+        state.success = "Password has been reset successfully.";
       })
       .addCase(resetPassword.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload as string;
-        message.error((action.payload as string) || "Failed to reset password");
+        state.success = null;
+        state.error =
+          (action.payload as string) || "Error while resetting password.";
       })
 
       // Email Verification
       .addCase(verifyUser.pending, (state) => {
         state.loading = true;
         state.error = null;
+        state.success = null;
       })
       .addCase(verifyUser.fulfilled, (state) => {
         state.loading = false;
         state.verificationSuccess = true;
         state.error = null;
-        message.success("Email verification successful. You can now log in.");
+        state.success = "Email verification successful. You can now log in.";
       })
       .addCase(verifyUser.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload as string;
-        message.error(
-          (action.payload as string) || "Email verification failed"
-        );
+        state.success = null;
+        state.error =
+          (action.payload as string) ||
+          "Error while sending verification email.";
       })
 
       // Log out
       .addCase(logoutUser.pending, (state) => {
         state.loading = true;
         state.error = null;
+        state.success = null;
       })
       .addCase(logoutUser.fulfilled, (state) => {
         state.currentUser = null;
         state.isAuthenticated = false;
         state.loading = false;
         state.error = null;
-        message.success("Logout successful");
+        state.success = "Logout successful.";
       })
       .addCase(logoutUser.rejected, (state) => {
         state.loading = false;
-        message.error("Logout failed");
+        state.success = null;
+        state.error = "Error while logging out.";
       });
   },
 });

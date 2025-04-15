@@ -1,5 +1,6 @@
-import React, { ReactNode, createContext, useContext } from "react";
+import React, { ReactNode, createContext, useContext, useEffect } from "react";
 import { notification } from "antd";
+import { setNotificationApi } from "../services/notificationService";
 
 type NotificationApi = ReturnType<typeof notification.useNotification>[0];
 
@@ -19,6 +20,10 @@ export const NotificationProvider = ({
   children: ReactNode;
 }) => {
   const [api, contextHolder] = notification.useNotification();
+
+  useEffect(() => {
+    setNotificationApi(api);
+  }, [api]);
 
   return (
     <NotificationContext.Provider value={api}>

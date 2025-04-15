@@ -13,15 +13,22 @@ import {
 import { CameraOutlined, UserOutlined } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../store";
-import { getProfileData, updateProfile } from "../../store/slices/profileSlice";
+import {
+  getProfileData,
+  resetPassword,
+  updateProfile,
+} from "../../store/slices/profileSlice";
 import "../../layout/styles/Profile.css";
 
 const { Title, Text } = Typography;
 
 const ProfilePage = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const { profileDetails } = useSelector((state: RootState) => state.profile);
+  const { profileDetails, error } = useSelector(
+    (state: RootState) => state.profile
+  );
   const [editMode, setEditMode] = useState(false);
+  const [resetPasswordFlag, setResetPasswordFlag] = useState(false);
   const [form] = Form.useForm();
   const [previewImage, setPreviewImage] = useState<string | undefined>(
     profileDetails?.profile_image
@@ -42,6 +49,14 @@ const ProfilePage = () => {
       updateProfile({ ...values, profile_image: previewImage || "" })
     );
     setEditMode(false);
+  };
+
+  const handleResetPassword = async (values: {
+    old_password: string;
+    new_password: string;
+  }) => {
+    await dispatch(resetPassword(values));
+    if (!error) setResetPasswordFlag(false);
   };
 
   return (
@@ -108,7 +123,6 @@ const ProfilePage = () => {
           }
           onFinish={handleUpdate}
           layout="vertical"
-          className="auth-form"
           requiredMark={false}
         >
           <Row gutter={16}>
@@ -226,6 +240,132 @@ const ProfilePage = () => {
             </Form.Item>
           )}
         </Form>
+      </Card>
+
+      <Card className="profile-card" style={{ marginTop: 20 }}>
+        <Title level={4} className="profile-name-text">
+          Password Settings
+        </Title>
+        {!resetPasswordFlag ? (
+          <Button
+            type="dashed"
+            className="button"
+            onClick={() => setResetPasswordFlag(true)}
+          >
+            Reset Password
+          </Button>
+        ) : (
+          <Form
+            form={form}
+            name="password"
+            initialValues={{
+              old_password: "",
+              new_password: "",
+            }}
+            onFinish={handleResetPassword}
+            layout="vertical"
+            requiredMark={false}
+          >
+            <Row gutter={16}>
+              <Col span={8}>
+                <Form.Item
+                  label={
+                    <span className="input-label">
+                      Old Password <span style={{ color: "red" }}>*</span>
+                    </span>
+                  }
+                  name="old_password"
+                  rules={[
+                    { required: true, message: "Please enter old password" },
+                    {
+                      min: 8,
+                      message: "Password must be at least 8 characters",
+                    },
+                  ]}
+                >
+                  <Input.Password
+                    placeholder="Enter old password"
+                    size="large"
+                    className="form-input"
+                  />
+                </Form.Item>
+              </Col>
+
+              <Col span={8}>
+                <Form.Item
+                  label={
+                    <span className="input-label">
+                      New Password <span style={{ color: "red" }}>*</span>
+                    </span>
+                  }
+                  name="new_password"
+                  rules={[
+                    { required: true, message: "Please enter new password" },
+                    {
+                      min: 8,
+                      message: "New password must be at least 8 characters",
+                    },
+                  ]}
+                >
+                  <Input.Password
+                    placeholder="Enter new password"
+                    size="large"
+                    className="form-input"
+                  />
+                </Form.Item>
+              </Col>
+
+              <Col span={8}>
+                <Form.Item
+                  label={
+                    <span className="input-label">
+                      Confirm Password <span style={{ color: "red" }}>*</span>
+                    </span>
+                  }
+                  name="confirm_password"
+                  dependencies={["new_password"]}
+                  rules={[
+                    { required: true, message: "Please confirm your password" },
+                    ({ getFieldValue }) => ({
+                      validator(_, value) {
+                        if (!value || getFieldValue("new_password") === value) {
+                          return Promise.resolve();
+                        }
+                        return Promise.reject(
+                          new Error("Passwords must match")
+                        );
+                      },
+                    }),
+                  ]}
+                >
+                  <Input.Password
+                    placeholder="Confirm your password"
+                    className="form-input"
+                  />
+                </Form.Item>
+              </Col>
+            </Row>
+
+            {resetPasswordFlag && (
+              <div style={{ display: "flex", gap: 8 }}>
+                <Form.Item>
+                  <Button
+                    type="default"
+                    className="button"
+                    onClick={() => setResetPasswordFlag(false)}
+                  >
+                    Cancel
+                  </Button>
+                </Form.Item>
+                <Form.Item>
+                  <Button type="dashed" htmlType="submit" className="button">
+                    Save Changes
+                  </Button>
+                </Form.Item>
+              </div>
+            )}
+          </Form>
+        )}
       </Card>
     </div>
   );

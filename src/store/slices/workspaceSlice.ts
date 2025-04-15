@@ -55,6 +55,7 @@ interface WorkspaceState {
   workspaceBoards: IWorkspaceBoard[];
   loading: boolean;
   error: string | null;
+  success: string | null;
   addError: string | null;
   editError: string | null;
 }
@@ -65,6 +66,7 @@ const initialState: WorkspaceState = {
   workspaceBoards: [],
   loading: false,
   error: null,
+  success: null,
   addError: null,
   editError: null,
 };
@@ -222,6 +224,7 @@ const workspaceSlice = createSlice({
       state.workspaceBoards = [];
       state.loading = false;
       state.error = null;
+      state.success = null;
     },
   },
   extraReducers: (builder) => {
@@ -230,46 +233,49 @@ const workspaceSlice = createSlice({
       .addCase(getAllWorkspaces.pending, (state) => {
         state.loading = true;
         state.error = null;
+        state.success = null;
       })
       .addCase(getAllWorkspaces.fulfilled, (state, action) => {
         state.workspaces = action.payload;
         state.loading = false;
         state.error = null;
-        message.success("Workspace fetched successfully");
+        state.success = "Workspace fetched successfully.";
       })
       .addCase(getAllWorkspaces.rejected, (state, action) => {
         state.loading = false;
         state.workspaces = [];
-        state.error = action.payload as string;
-        message.error(
-          (action.payload as string) || "Error while fetching workspace"
-        );
+        state.success = null;
+        state.error =
+          (action.payload as string) || "Error while fetching workspaces.";
       })
 
       // Fetch workspace details
       .addCase(getWorkspaceById.pending, (state) => {
         state.loading = true;
         state.error = null;
+        state.success = null;
       })
       .addCase(getWorkspaceById.fulfilled, (state, action) => {
         state.selectedWorkspace = action.payload;
         state.loading = false;
         state.error = null;
-        message.success("Workspace details fetched successfully");
+        state.success = "Workspace details fetched successfully.";
       })
       .addCase(getWorkspaceById.rejected, (state, action) => {
         state.loading = false;
         state.selectedWorkspace = null;
-        state.error = action.payload as string;
-        message.error(
-          (action.payload as string) || "Error while fetching workspace details"
-        );
+        state.success = null;
+        state.error =
+          (action.payload as string) ||
+          "Error while fetching workspace details.";
       })
 
       // Add workspace
       .addCase(addNewWorkspace.pending, (state) => {
         state.loading = true;
         state.addError = null;
+        state.success = null;
+        state.error = null;
       })
       .addCase(addNewWorkspace.fulfilled, (state, action) => {
         const {
@@ -295,30 +301,28 @@ const workspaceSlice = createSlice({
         state.workspaces = [...state.workspaces, currentWorkspace];
         state.loading = false;
         state.addError = null;
-        message.success("Workspace added successfully");
+        state.error = null;
+        state.success = "Workspace added successfully.";
       })
       .addCase(addNewWorkspace.rejected, (state, action) => {
         state.loading = false;
-        state.addError = action.payload as string;
-        message.error(
-          (action.payload as string) || "Error while adding workspace"
-        );
+        state.success = null;
+        state.addError =
+          (action.payload as string) || "Error while adding workspace.";
+        state.error =
+          (action.payload as string) || "Error while adding workspace.";
       })
 
       // Edit workspace
       .addCase(editWorkspace.pending, (state) => {
         state.loading = true;
         state.editError = null;
+        state.success = null;
+        state.error = null;
       })
       .addCase(editWorkspace.fulfilled, (state, action) => {
-        const {
-          _id,
-          name,
-          description,
-          updatedAt,
-          archived,
-          starred,
-        } = action.payload.data;
+        const { _id, name, description, updatedAt, archived, starred } =
+          action.payload.data;
         const currentWorkspace = {
           _id,
           name,
@@ -333,28 +337,32 @@ const workspaceSlice = createSlice({
         if (index !== -1) {
           state.loading = false;
           state.editError = null;
+          state.error = null;
           state.workspaces[index] = {
             ...state.workspaces[index],
             ...currentWorkspace,
           };
-          message.success("Workspace updated successfully");
+          state.success = "Workspace updated successfully.";
         } else {
           state.loading = false;
-          state.editError = "Workspace not found";
+          state.editError = "Workspace not found.";
+          state.error = "Workspace not found.";
         }
       })
       .addCase(editWorkspace.rejected, (state, action) => {
         state.loading = false;
-        state.editError = action.payload as string;
-        message.error(
-          (action.payload as string) || "Error while updating workspace"
-        );
+        state.success = null;
+        state.editError =
+          (action.payload as string) || "Error while updating workspace.";
+        state.error =
+          (action.payload as string) || "Error while updating workspace.";
       })
 
       // Delete workspace
       .addCase(deleteWorkspace.pending, (state) => {
         state.loading = true;
         state.error = null;
+        state.success = null;
       })
       .addCase(deleteWorkspace.fulfilled, (state, action) => {
         const { _id } = action.payload;
@@ -365,38 +373,37 @@ const workspaceSlice = createSlice({
           state.loading = false;
           state.error = null;
           state.workspaces.splice(index, 1);
-          message.success("Workspace deleted successfully");
+          state.success = "Workspace deleted successfully.";
         } else {
           state.loading = false;
-          state.error = "Workspace not found";
+          state.error = "Workspace not found.";
         }
       })
       .addCase(deleteWorkspace.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload as string;
-        message.error(
-          (action.payload as string) || "Error while fetching workspace"
-        );
+        state.success = null;
+        state.error =
+          (action.payload as string) || "Error while fetching workspace.";
       })
 
       // Workspace boards
       .addCase(getBoardsByWorkspaceId.pending, (state) => {
         state.loading = true;
         state.error = null;
+        state.success = null;
       })
       .addCase(getBoardsByWorkspaceId.fulfilled, (state, action) => {
         state.workspaceBoards = action.payload;
         state.loading = false;
         state.error = null;
-        message.success("Boards fetched successfully");
+        state.success = "Boards fetched successfully.";
       })
       .addCase(getBoardsByWorkspaceId.rejected, (state, action) => {
         state.loading = false;
         state.workspaceBoards = [];
-        state.error = action.payload as string;
-        message.error(
-          (action.payload as string) || "Error while fetching boards"
-        );
+        state.success = null;
+        state.error =
+          (action.payload as string) || "Error while fetching boards.";
       });
   },
 });
