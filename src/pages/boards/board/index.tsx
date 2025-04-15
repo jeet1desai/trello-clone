@@ -32,6 +32,7 @@ import type {
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import type { MenuProps } from "antd";
 import TaskCardForm from "./compoents/taskCardForm";
+import "../../../layout/styles/Board.css";
 
 const { Content } = Layout;
 const { Title, Text } = Typography;
@@ -72,6 +73,25 @@ interface BoardData {
   starred: boolean;
   color: string;
   lists: List[];
+}
+
+export interface Attachment {
+  name: string;
+  url?: string;
+  type?: string;
+  size?: number;
+}
+
+export interface TaskPayload {
+  title: string;
+  created_by: string;
+  description: string;
+  list_id: string;
+  start_date: string;
+  due_date: string;
+  priority: "Low" | "Medium" | "High" | "Highest";
+  status: "Incomplete" | "Complete";
+  attachments: Attachment[];
 }
 
 // Mock data for board
@@ -194,7 +214,8 @@ const BoardDetail: React.FC = () => {
   const [boardData, setBoardData] = useState<BoardData>(mockBoardData);
   const [newListTitle, setNewListTitle] = useState<string>("");
   const [showAddList, setShowAddList] = useState<boolean>(false);
-  const [visibleTaskCardForm, setVisibleTaskCardForm] = useState(false);
+  const [visibleTaskCardForm, setVisibleTaskCardForm] =
+    useState<boolean>(false);
 
   const actionsMenu: MenuProps["items"] = [
     {
@@ -406,8 +427,9 @@ const BoardDetail: React.FC = () => {
     </Draggable>
   );
 
-  const handleTaskCardFormSubmit = (values: any) => {
+  const handleTaskCardFormSubmit = (values: TaskPayload) => {
     console.log("Submitted values:", values);
+    setVisibleTaskCardForm(false);
   };
 
   return (

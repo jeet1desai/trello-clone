@@ -20,6 +20,10 @@ import {
   PlusOutlined,
 } from "@ant-design/icons";
 import type { RcFile, UploadFile } from "antd/es/upload/interface";
+import type { UploadRequestOption as RcCustomRequestOptions } from "rc-upload/lib/interface";
+
+import CustomUploadItem from "./uploadItems";
+import { TaskPayload } from "..";
 
 const { TextArea } = Input;
 const { Text } = Typography;
@@ -45,7 +49,7 @@ const MAX_FILE_COUNT = 5;
 interface TaskCardFormProps {
   visible: boolean;
   onCancel: () => void;
-  onFinish: (values: any) => void;
+  onFinish: (values: TaskPayload) => void;
   form?: FormInstance;
 }
 
@@ -66,97 +70,31 @@ const TaskCardForm: React.FC<TaskCardFormProps> = ({
   const [taskForm] = Form.useForm();
   const finalForm = form || taskForm;
 
-  const [previewOpen, setPreviewOpen] = useState(false);
-  const [previewImage, setPreviewImage] = useState("");
-  const [previewTitle, setPreviewTitle] = useState("");
+  const [previewOpen, setPreviewOpen] = useState<boolean>(false);
+  const [previewTitle, setPreviewTitle] = useState<string>("");
   const [fileList, setFileList] = useState<UploadFile[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState<boolean>(false);
   const [previewContent, setPreviewContent] = useState<React.ReactNode>(null);
+  const [uploadFileError, setUploadFileError] = useState<string>("");
 
   const handlePreview = async (file: UploadFile) => {
     if (!file.url && !file.preview && file.originFileObj) {
-      file.preview = await getBase64(file.originFileObj as RcFile);
+      file.preview = await getBase64(file.originFileObj);
     }
 
-    setPreviewImage(file.url || (file.preview as string));
     setPreviewTitle(
-      file.name ||
-        file.url?.substring(file.url.lastIndexOf("/") + 1) ||
+      file.name ??
+        file.url?.substring(file.url.lastIndexOf("/") + 1) ??
         "Preview"
     );
 
-    // Determine file type and render appropriate preview
     if (file.type?.startsWith("image/")) {
       setPreviewContent(
         <img
           alt="preview"
-          style={{ width: "100%", maxHeight: "80vh", objectFit: "contain" }}
-          src={file.url || file.preview}
+          className="img-preview-container"
+          src={file.url ?? file.preview}
         />
-      );
-    } else if (file.type === "application/pdf") {
-      setPreviewContent(
-        <div style={{ height: "80vh" }}>
-          <iframe
-            title="PDF Preview"
-            src={file.url || file.preview}
-            width="100%"
-            height="100%"
-            style={{ border: "none" }}
-          />
-        </div>
-      );
-    } else if (
-      file.type === "application/vnd.ms-excel" ||
-      file.type ===
-        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-    ) {
-      setPreviewContent(
-        <div style={{ textAlign: "center", padding: "24px" }}>
-          <FileExcelOutlined style={{ fontSize: "48px", color: "#1d6f42" }} />
-          <Text strong style={{ display: "block", marginTop: "16px" }}>
-            {file.name}
-          </Text>
-          <Text type="secondary" style={{ display: "block", marginTop: "8px" }}>
-            Excel files can't be previewed directly. Please download to view.
-          </Text>
-          <Button
-            type="primary"
-            style={{ marginTop: "16px" }}
-            onClick={() => {
-              const link = document.createElement("a");
-              link.href = file.url || file.preview || "";
-              link.download = file.name || "download";
-              link.click();
-            }}
-          >
-            Download Excel File
-          </Button>
-        </div>
-      );
-    } else {
-      setPreviewContent(
-        <div style={{ textAlign: "center", padding: "24px" }}>
-          <FilePdfOutlined style={{ fontSize: "48px", color: "#ff4d4f" }} />
-          <Text strong style={{ display: "block", marginTop: "16px" }}>
-            {file.name}
-          </Text>
-          <Text type="secondary" style={{ display: "block", marginTop: "8px" }}>
-            This file type can't be previewed. Please download to view.
-          </Text>
-          <Button
-            type="primary"
-            style={{ marginTop: "16px" }}
-            onClick={() => {
-              const link = document.createElement("a");
-              link.href = file.url || file.preview || "";
-              link.download = file.name || "download";
-              link.click();
-            }}
-          >
-            Download File
-          </Button>
-        </div>
       );
     }
 
@@ -164,25 +102,33 @@ const TaskCardForm: React.FC<TaskCardFormProps> = ({
   };
 
   const beforeUpload = (file: RcFile) => {
-    const isAllowedType = allowedTypes.includes(file.type);
+    const hasValidExtension = allowedTypes.some((type) =>
+      file.name.toLowerCase().endsWith(type.split("/")[1])
+    );
+    const isAllowedType = file.type
+      ? allowedTypes.includes(file.type)
+      : hasValidExtension;
     const isWithinSizeLimit = file.size / 1024 / 1024 <= MAX_FILE_SIZE_MB;
     const isWithinCountLimit = fileList.length < MAX_FILE_COUNT;
-
     if (!isAllowedType) {
-      message.error(`You can only upload ${allowedTypes.join(", ")} files!`);
+      setUploadFileError(
+        `"${file.name}" is not a valid file. Allowed types: images, pdf and excel sheet`
+      );
       return Upload.LIST_IGNORE;
     }
 
     if (!isWithinSizeLimit) {
-      message.error(`File must be smaller than ${MAX_FILE_SIZE_MB}MB!`);
+      setUploadFileError(
+        `"${file.name}" exceeds the size limit of ${MAX_FILE_SIZE_MB}MB.`
+      );
       return Upload.LIST_IGNORE;
     }
 
     if (!isWithinCountLimit) {
-      message.error(`You can only upload up to ${MAX_FILE_COUNT} files!`);
+      setUploadFileError(`You can only upload up to ${MAX_FILE_COUNT} files.`);
       return Upload.LIST_IGNORE;
     }
-
+    setUploadFileError("");
     return true;
   };
 
@@ -192,10 +138,26 @@ const TaskCardForm: React.FC<TaskCardFormProps> = ({
     fileList: UploadFile[];
   }) => {
     setFileList(newFileList);
+    setUploadFileError("");
   };
 
-  console.log("hello=>", fileList);
-  const normFile = (e: any) => {
+  const customUpload = async (options: RcCustomRequestOptions) => {
+    const { onSuccess, onError, file } = options;
+
+    try {
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      if (onSuccess) {
+        onSuccess("ok", file);
+      }
+    } catch (err) {
+      if (onError) {
+        onError(err as Error);
+      }
+    }
+  };
+
+  const normFile = (e: { fileList: UploadFile[] }) => {
     if (Array.isArray(e)) {
       return e;
     }
@@ -203,65 +165,55 @@ const TaskCardForm: React.FC<TaskCardFormProps> = ({
   };
 
   const getFileIcon = (file: UploadFile) => {
+    const iconClass = "font-size-20";
+
     if (!file.type) {
-      // If file type is not available, try to determine from extension
-      const extension = file.name?.split(".").pop()?.toLowerCase();
-      if (extension === "pdf")
-        return (
-          <FilePdfOutlined style={{ color: "#ff4d4f", fontSize: "20px" }} />
-        );
-      if (["xls", "xlsx"].includes(extension as string))
-        return (
-          <FileExcelOutlined style={{ color: "#1d6f42", fontSize: "20px" }} />
-        );
-      if (["jpg", "jpeg", "png", "gif", "webp"].includes(extension as string))
-        return (
-          <FileImageOutlined style={{ color: "#52c41a", fontSize: "20px" }} />
-        );
-      return <FilePdfOutlined style={{ fontSize: "20px" }} />;
+      return <FilePdfOutlined className={iconClass} />;
     }
 
     if (file.type.startsWith("image/")) {
-      return (
-        <FileImageOutlined style={{ color: "#52c41a", fontSize: "20px" }} />
-      );
-    } else if (file.type === "application/pdf") {
-      return <FilePdfOutlined style={{ color: "#ff4d4f", fontSize: "20px" }} />;
-    } else if (
-      file.type === "application/vnd.ms-excel" ||
-      file.type ===
-        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-    ) {
-      return (
-        <FileExcelOutlined style={{ color: "#1d6f42", fontSize: "20px" }} />
-      );
+      return <FileImageOutlined className={`${iconClass} img-color`} />;
     }
-    return <FilePdfOutlined style={{ fontSize: "20px" }} />;
-  };
 
-  const uploadItemStyle = (file: UploadFile) => {
-    const isImage = file.type?.startsWith("image/");
-    return {
-      borderRadius: "8px",
-      padding: isImage ? "0" : "8px",
-    };
+    if (file.type === "application/pdf") {
+      return <FilePdfOutlined className={`${iconClass} pdf-color`} />;
+    }
+
+    if (
+      [
+        "application/vnd.ms-excel",
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      ].includes(file.type)
+    ) {
+      return <FileExcelOutlined className={`${iconClass} excel-color`} />;
+    }
+
+    return <FilePdfOutlined className={iconClass} />;
   };
 
   const uploadButton = (
     <div>
       <PlusOutlined />
-      <div style={{ marginTop: 8 }}>Upload</div>
+      <div className="upload-btn-text">Upload</div>
     </div>
   );
 
-  const onFormFinish = async (values: any) => {
+  const onFormFinish = async (values: TaskPayload) => {
+    const isUploading = fileList.some((file) => file.status === "uploading");
+
+    if (isUploading) {
+      setUploadFileError("Please wait until all files are uploaded.");
+      return; // prevent form submission
+    }
+
+    setUploadFileError("");
     setLoading(true);
     try {
-      await onFinish({
+      onFinish({
         ...values,
         attachments: fileList.map((file) => ({
           name: file.name,
-          url: file.url || file.preview,
+          url: file.url ?? file.preview,
           type: file.type,
           size: file.size,
         })),
@@ -292,6 +244,8 @@ const TaskCardForm: React.FC<TaskCardFormProps> = ({
         initialValues={{
           priority: "Medium",
           status: "Incomplete",
+          created_by: "Test",
+          list_id: "123",
         }}
         validateTrigger="onBlur"
       >
@@ -310,6 +264,12 @@ const TaskCardForm: React.FC<TaskCardFormProps> = ({
           </Col>
 
           <Col xs={24} md={12}>
+            <Form.Item name="created_by" label="Created By">
+              <Input placeholder="User ID" disabled />
+            </Form.Item>
+          </Col>
+
+          <Col xs={24} md={24}>
             <Form.Item
               name="description"
               label="Description"
@@ -325,27 +285,20 @@ const TaskCardForm: React.FC<TaskCardFormProps> = ({
           </Col>
 
           <Col xs={24} md={12}>
-            <Form.Item
-              name="list_id"
-              label="List ID"
-              rules={[
-                { required: true, message: "Please enter list ID" },
-                { pattern: /^[0-9]+$/, message: "List ID must be a number" },
-              ]}
-            >
-              <Input placeholder="Enter List ID" />
+            <Form.Item name="list_id" label="List ID">
+              <Input placeholder="Enter List ID" disabled />
             </Form.Item>
           </Col>
 
           <Col xs={24} md={12}>
             <Form.Item
-              name="created_by"
-              label="Created By"
+              name="position"
+              label="Position"
               rules={[
-                { pattern: /^[0-9]+$/, message: "User ID must be a number" },
+                { pattern: /^\d+$/, message: "Position must be a number" },
               ]}
             >
-              <Input placeholder="User ID" />
+              <Input placeholder="Sort Order" />
             </Form.Item>
           </Col>
 
@@ -355,7 +308,7 @@ const TaskCardForm: React.FC<TaskCardFormProps> = ({
               label="Start Date"
               rules={[{ required: true, message: "Please select start date" }]}
             >
-              <DatePicker showTime style={{ width: "100%" }} />
+              <DatePicker className="date-picker-container" />
             </Form.Item>
           </Col>
 
@@ -381,7 +334,7 @@ const TaskCardForm: React.FC<TaskCardFormProps> = ({
                 }),
               ]}
             >
-              <DatePicker showTime style={{ width: "100%" }} />
+              <DatePicker className="date-picker-container" />
             </Form.Item>
           </Col>
 
@@ -413,18 +366,6 @@ const TaskCardForm: React.FC<TaskCardFormProps> = ({
             </Form.Item>
           </Col>
 
-          <Col xs={24} md={12}>
-            <Form.Item
-              name="position"
-              label="Position"
-              rules={[
-                { pattern: /^[0-9]+$/, message: "Position must be a number" },
-              ]}
-            >
-              <Input placeholder="Sort Order" />
-            </Form.Item>
-          </Col>
-
           <Col xs={24}>
             <Form.Item
               label="Attachments"
@@ -436,21 +377,24 @@ const TaskCardForm: React.FC<TaskCardFormProps> = ({
               <Upload
                 listType="picture-card"
                 beforeUpload={beforeUpload}
-                onPreview={handlePreview}
+                customRequest={customUpload}
                 onChange={handleChange}
+                showUploadList={{
+                  showPreviewIcon: false,
+                  showRemoveIcon: false,
+                }}
                 multiple
-                itemRender={(originNode, file) => (
-                  <div
-                    style={uploadItemStyle(file)}
-                    title={file.name} // Tooltip added here
-                  >
-                    {originNode}
-                  </div>
+                itemRender={(originNode, file, _, actions) => (
+                  <CustomUploadItem
+                    originNode={originNode}
+                    file={file}
+                    actions={actions}
+                    handlePreview={handlePreview}
+                  />
                 )}
                 maxCount={MAX_FILE_COUNT}
                 fileList={fileList}
                 iconRender={(file) => getFileIcon(file)}
-                disabled={fileList.length >= MAX_FILE_COUNT}
               >
                 {fileList.length >= MAX_FILE_COUNT ? null : uploadButton}
               </Upload>
@@ -466,9 +410,11 @@ const TaskCardForm: React.FC<TaskCardFormProps> = ({
             </Modal>
           </Col>
         </Row>
-
-        <Form.Item style={{ textAlign: "right", marginTop: 24 }}>
-          <Button onClick={onCancel} style={{ marginRight: 8 }}>
+        {uploadFileError && (
+          <div className="error-container">{uploadFileError}</div>
+        )}
+        <Form.Item className="task-card-btn-container">
+          <Button onClick={onCancel} className="task-card-cancel-btn">
             Cancel
           </Button>
           <Button
