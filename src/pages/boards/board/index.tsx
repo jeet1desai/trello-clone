@@ -325,6 +325,14 @@ const BoardDetail: React.FC = () => {
                 Settings
               </Button>
             </Dropdown>
+            <div>
+              <Button
+                color="primary"
+                onClick={() => setVisibleTaskCardForm(true)}
+              >
+                Add a card
+              </Button>
+            </div>
           </Space>
         </div>
       </div>
@@ -484,9 +492,6 @@ const BoardDetail: React.FC = () => {
             )}
           </Droppable>
         </DragDropContext>
-      </div>
-      <div>
-        <Button onClick={() => setVisibleTaskCardForm(true)}>Add a card</Button>
       </div>
 
       <TaskCardForm
