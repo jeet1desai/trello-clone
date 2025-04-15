@@ -85,8 +85,8 @@ const ProfilePage = () => {
             </div>
           </div>
           <Button
-            type="primary"
-            className="submit-button"
+            type={editMode ? "default" : "primary"}
+            className="button"
             onClick={() => setEditMode(!editMode)}
           >
             {editMode ? "Cancel" : "Edit"}
@@ -115,7 +115,7 @@ const ProfilePage = () => {
             <Col span={8}>
               <Form.Item
                 label={
-                  <span>
+                  <span className="input-label">
                     First Name <span style={{ color: "red" }}>*</span>
                   </span>
                 }
@@ -143,7 +143,7 @@ const ProfilePage = () => {
             <Col span={8}>
               <Form.Item
                 label={
-                  <span>
+                  <span className="input-label">
                     Middle Name <span style={{ color: "red" }}>*</span>
                   </span>
                 }
@@ -171,7 +171,7 @@ const ProfilePage = () => {
             <Col span={8}>
               <Form.Item
                 label={
-                  <span>
+                  <span className="input-label">
                     Last Name <span style={{ color: "red" }}>*</span>
                   </span>
                 }
@@ -199,7 +199,7 @@ const ProfilePage = () => {
             <Col span={24}>
               <Form.Item
                 label={
-                  <span>
+                  <span className="input-label">
                     Email <span style={{ color: "red" }}>*</span>
                   </span>
                 }
@@ -220,11 +220,7 @@ const ProfilePage = () => {
 
           {editMode && (
             <Form.Item>
-              <Button
-                type="primary"
-                htmlType="submit"
-                className="submit-button"
-              >
+              <Button type="primary" htmlType="submit" className="button">
                 Save Changes
               </Button>
             </Form.Item>

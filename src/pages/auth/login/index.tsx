@@ -77,7 +77,7 @@ const Login: React.FC = () => {
           requiredMark={false}
         >
           <Form.Item
-            label={<span>Email <span style={{ color: 'red' }}>*</span></span>}
+            label={<span className="input-label">Email <span style={{ color: 'red' }}>*</span></span>}
             name="email"
             rules={[
               { required: true, message: "Email is required" },
@@ -93,7 +93,7 @@ const Login: React.FC = () => {
           </Form.Item>
 
           <Form.Item
-            label={<span>Password <span style={{ color: 'red' }}>*</span></span>}
+            label={<span className="input-label">Password <span style={{ color: 'red' }}>*</span></span>}
             name="password"
             rules={[
               { required: true, message: "Password is required" },
@@ -112,7 +112,7 @@ const Login: React.FC = () => {
             <Button
               type="primary"
               htmlType="submit"
-              className="submit-button"
+              className="button"
               loading={loading}
               block
               size="large"

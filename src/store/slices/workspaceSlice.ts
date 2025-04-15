@@ -2,20 +2,57 @@ import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { message } from "antd";
 import { workspaceService } from "../../services/workspaceService";
 
+export interface IUser {
+  _id: string;
+  first_name: string;
+  last_name: string;
+  email: string;
+}
+
 export interface IWorkspace {
   _id: string;
   name: string;
   description: string;
-  createdBy: string;
+  createdBy: IUser;
   createdAt: string;
   updatedAt: string;
   starred: boolean;
   archived: boolean;
 }
 
+export interface IWorkspaceBoard {
+  _id: string;
+  name: string;
+  description: string;
+  members: [
+    {
+      _id: string;
+      memberId: string;
+      role: string;
+      boardId: string;
+      workspaceId: string;
+      user: {
+        _id: string;
+        first_name: string;
+        middle_name: string;
+        last_name: string;
+        email: string;
+      };
+    }
+  ];
+  boardOwner: {
+    _id: string;
+    first_name: string;
+    middle_name: string;
+    last_name: string;
+    email: string;
+  };
+}
+
 interface WorkspaceState {
   workspaces: IWorkspace[];
   selectedWorkspace: IWorkspace | null;
+  workspaceBoards: IWorkspaceBoard[];
   loading: boolean;
   error: string | null;
   addError: string | null;
@@ -25,6 +62,7 @@ interface WorkspaceState {
 const initialState: WorkspaceState = {
   workspaces: [],
   selectedWorkspace: null,
+  workspaceBoards: [],
   loading: false,
   error: null,
   addError: null,
@@ -116,6 +154,20 @@ export const deleteWorkspace = createAsyncThunk(
   }
 );
 
+export const getBoardsByWorkspaceId = createAsyncThunk(
+  "workspace/get-boards",
+  async (_id: string, { rejectWithValue }) => {
+    try {
+      const response = await workspaceService.getBoardsByWorkspaceId(_id);
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message || "Error while fetching boards"
+      );
+    }
+  }
+);
+
 const workspaceSlice = createSlice({
   name: "workspace",
   initialState,
@@ -164,6 +216,12 @@ const workspaceSlice = createSlice({
       } else {
         message.error("Workspace not found");
       }
+    },
+    clearSelectedWorkspace: (state) => {
+      state.selectedWorkspace = null;
+      state.workspaceBoards = [];
+      state.loading = false;
+      state.error = null;
     },
   },
   extraReducers: (builder) => {
@@ -257,18 +315,14 @@ const workspaceSlice = createSlice({
           _id,
           name,
           description,
-          createdBy,
-          createdAt,
           updatedAt,
           archived,
           starred,
         } = action.payload.data;
         const currentWorkspace = {
-          _id: _id,
+          _id,
           name,
           description,
-          createdBy,
-          createdAt,
           updatedAt,
           archived,
           starred,
@@ -279,7 +333,10 @@ const workspaceSlice = createSlice({
         if (index !== -1) {
           state.loading = false;
           state.editError = null;
-          state.workspaces[index] = currentWorkspace;
+          state.workspaces[index] = {
+            ...state.workspaces[index],
+            ...currentWorkspace,
+          };
           message.success("Workspace updated successfully");
         } else {
           state.loading = false;
@@ -304,7 +361,6 @@ const workspaceSlice = createSlice({
         const index = state.workspaces.findIndex(
           (workspace) => workspace._id === _id
         );
-        console.log("sss", action.payload, index);
         if (index !== -1) {
           state.loading = false;
           state.error = null;
@@ -321,6 +377,26 @@ const workspaceSlice = createSlice({
         message.error(
           (action.payload as string) || "Error while fetching workspace"
         );
+      })
+
+      // Workspace boards
+      .addCase(getBoardsByWorkspaceId.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getBoardsByWorkspaceId.fulfilled, (state, action) => {
+        state.workspaceBoards = action.payload;
+        state.loading = false;
+        state.error = null;
+        message.success("Boards fetched successfully");
+      })
+      .addCase(getBoardsByWorkspaceId.rejected, (state, action) => {
+        state.loading = false;
+        state.workspaceBoards = [];
+        state.error = action.payload as string;
+        message.error(
+          (action.payload as string) || "Error while fetching boards"
+        );
       });
   },
 });
@@ -330,6 +406,7 @@ export const {
   toggleStarWorkspace,
   archiveWorkspace,
   restoreWorkspace,
+  clearSelectedWorkspace,
 } = workspaceSlice.actions;
 
 export default workspaceSlice.reducer;

@@ -166,23 +166,14 @@ const Header: React.FC = () => {
 
       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
         <Input
-          prefix={
-            <SearchOutlined
-              style={{
-                color: isDarkMode
-                  ? "rgba(255, 255, 255, 0.65)"
-                  : "rgba(0, 0, 0, 0.45)",
-              }}
-            />
-          }
+          prefix={<SearchOutlined />}
           placeholder="Search"
+          allowClear
           value={searchText}
           onChange={(e) => setSearchText(e.target.value)}
-          className={`search-input ${
-            isDarkMode ? "search-input-dark" : "search-input-light"
-          }`}
+          style={{ width: 250 }}
+          className="form-input"
         />
-
         <Button
           type="text"
           icon={<BellOutlined />}

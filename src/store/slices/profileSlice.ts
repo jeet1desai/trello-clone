@@ -6,18 +6,20 @@ import { User } from "./userSlice";
 interface UserState {
   loading: boolean;
   error: string | null;
+  success: string | null;
   profileDetails: User | null;
 }
 
 const initialState: UserState = {
   loading: false,
   error: null,
+  success: null,
   profileDetails: null,
 };
 
 // Async thunks
 export const getProfileData = createAsyncThunk(
-  "user/profile",
+  "profile/get-profile",
   async (_, { rejectWithValue }) => {
     try {
       const response = await profileService.getProfileData();
@@ -30,7 +32,7 @@ export const getProfileData = createAsyncThunk(
   }
 );
 export const updateProfile = createAsyncThunk(
-  "user/updateProfile",
+  "profile/update-profile",
   async (
     profileData: {
       first_name: string;
@@ -55,7 +57,12 @@ export const updateProfile = createAsyncThunk(
 const profileSlice = createSlice({
   name: "profile",
   initialState,
-  reducers: {},
+  reducers: {
+    clearProfileStatus: (state) => {
+      state.error = null;
+      state.success = null;
+    },
+  },
   extraReducers: (builder) => {
     builder
       // Get Profile
@@ -83,19 +90,21 @@ const profileSlice = createSlice({
       .addCase(updateProfile.pending, (state) => {
         state.loading = true;
         state.error = null;
+        state.success = null;
       })
       .addCase(updateProfile.fulfilled, (state, action) => {
         state.profileDetails = action.payload;
         state.loading = false;
         state.error = null;
-        message.success("Profile updated successfully");
+        state.success = "Profile updated successfully";
       })
       .addCase(updateProfile.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload as string;
-        message.error((action.payload as string) || "Profile update failed");
+        state.error = "Error while updating profile";
       });
   },
 });
+
+export const { clearProfileStatus } = profileSlice.actions;
 
 export default profileSlice.reducer;
