@@ -22,20 +22,35 @@ const CustomUploadItem: React.FC<CustomUploadItemProps> = ({
   handlePreview,
 }) => {
   const [hovered, setHovered] = useState<boolean>(false);
-  const isDownloadable =
-    file.type === "application/pdf" ||
-    file.type ===
-      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" ||
-    file.type === "application/vnd.ms-excel";
+  const isDownloadable = [
+    "application/pdf",
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    "application/vnd.ms-excel",
+  ].includes(file.type ?? "");
 
   const handleDownload = () => {
+    let downloadUrl = file.url ?? file.preview;
+
+    if (!downloadUrl && file.originFileObj instanceof File) {
+      downloadUrl = URL.createObjectURL(file.originFileObj);
+    }
+
+    if (!downloadUrl) {
+      console.warn("No URL available to download this file.");
+      return;
+    }
+
     const link = document.createElement("a");
-    link.href = file.url ?? file.preview ?? "";
+    link.href = downloadUrl;
     link.download = file.name;
     link.target = "_blank";
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+
+    if (file.originFileObj instanceof File && !file.url && !file.preview) {
+      setTimeout(() => URL.revokeObjectURL(downloadUrl!), 1000);
+    }
   };
 
   const handleKeyPress =
@@ -68,16 +83,7 @@ const CustomUploadItem: React.FC<CustomUploadItemProps> = ({
               </Button>
             </Tooltip>
           )}
-          <Tooltip title="Remove">
-            <Button
-              tabIndex={0}
-              onClick={() => actions.remove(file)}
-              onKeyDown={handleKeyPress(() => actions.remove(file))}
-              className="hover-btn"
-            >
-              <DeleteOutlined />
-            </Button>
-          </Tooltip>
+
           {isDownloadable && (
             <Tooltip title="Download">
               <Button
@@ -93,6 +99,17 @@ const CustomUploadItem: React.FC<CustomUploadItemProps> = ({
               </Button>
             </Tooltip>
           )}
+
+          <Tooltip title="Remove">
+            <Button
+              tabIndex={0}
+              onClick={() => actions.remove(file)}
+              onKeyDown={handleKeyPress(() => actions.remove(file))}
+              className="hover-btn"
+            >
+              <DeleteOutlined />
+            </Button>
+          </Tooltip>
         </div>
       )}
     </div>

@@ -31,7 +31,7 @@ import type {
 } from "@hello-pangea/dnd";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import type { MenuProps } from "antd";
-import TaskCardForm from "./compoents/taskCardForm";
+import TaskCardForm from "./components/taskCardForm";
 import "../../../layout/styles/Board.css";
 
 const { Content } = Layout;

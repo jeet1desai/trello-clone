@@ -10,7 +10,6 @@ import {
   Col,
   Upload,
   message,
-  Typography,
 } from "antd";
 import type { FormInstance } from "antd";
 import {
@@ -24,9 +23,17 @@ import type { UploadRequestOption as RcCustomRequestOptions } from "rc-upload/li
 
 import CustomUploadItem from "./uploadItems";
 import { TaskPayload } from "..";
+import dayjs, { Dayjs } from "dayjs";
+import advancedFormat from "dayjs/plugin/advancedFormat";
+
+import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
+import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
+
+dayjs.extend(isSameOrAfter);
+dayjs.extend(isSameOrBefore);
+dayjs.extend(advancedFormat);
 
 const { TextArea } = Input;
-const { Text } = Typography;
 const { Option } = Select;
 
 const allowedTypes = [
@@ -227,6 +234,58 @@ const TaskCardForm: React.FC<TaskCardFormProps> = ({
     }
   };
 
+  const validateStartDate = (value: Dayjs) => {
+    const today = dayjs().startOf("day");
+    const max = today.add(15, "day");
+
+    const startDate = dayjs(value);
+
+    if (
+      !value ||
+      (startDate.isSameOrAfter(today) && startDate.isSameOrBefore(max))
+    ) {
+      return Promise.resolve();
+    }
+
+    return Promise.reject(
+      new Error("Start date must be today or within 15 days")
+    );
+  };
+
+  const validateDueDate = (startDate: Dayjs, value: Dayjs) => {
+    if (!startDate || !value) return Promise.resolve();
+
+    const start = dayjs(startDate);
+    const maxDueDate = start.add(30, "day");
+    const dueDate = dayjs(value);
+
+    if (
+      dueDate.isSameOrAfter(start, "day") &&
+      dueDate.isSameOrBefore(maxDueDate, "day")
+    ) {
+      return Promise.resolve();
+    }
+
+    return Promise.reject(
+      new Error("Due date must be after Start Date and within 30 days")
+    );
+  };
+
+  const disableStartDate = (current: Dayjs) => {
+    const today = dayjs().startOf("day");
+    const max = today.add(15, "day");
+    return current < today || current > max;
+  };
+
+  const disableDueDate = (startDate: Dayjs, current: Dayjs) => {
+    if (!startDate) return true;
+
+    const min = dayjs(startDate).add(0, "day");
+    const max = dayjs(startDate).add(30, "day");
+
+    return current < min.startOf("day") || current > max.endOf("day");
+  };
+
   return (
     <Modal
       title="Create New Task"
@@ -262,13 +321,11 @@ const TaskCardForm: React.FC<TaskCardFormProps> = ({
               <Input placeholder="Task Title" />
             </Form.Item>
           </Col>
-
           <Col xs={24} md={12}>
             <Form.Item name="created_by" label="Created By">
               <Input placeholder="User ID" disabled />
             </Form.Item>
           </Col>
-
           <Col xs={24} md={24}>
             <Form.Item
               name="description"
@@ -283,13 +340,11 @@ const TaskCardForm: React.FC<TaskCardFormProps> = ({
               <TextArea rows={2} placeholder="Short description" />
             </Form.Item>
           </Col>
-
           <Col xs={24} md={12}>
             <Form.Item name="list_id" label="List ID">
               <Input placeholder="Enter List ID" disabled />
             </Form.Item>
           </Col>
-
           <Col xs={24} md={12}>
             <Form.Item
               name="position"
@@ -306,9 +361,22 @@ const TaskCardForm: React.FC<TaskCardFormProps> = ({
             <Form.Item
               name="start_date"
               label="Start Date"
-              rules={[{ required: true, message: "Please select start date" }]}
+              rules={[
+                {
+                  required: true,
+                  message: "Please select start date",
+                },
+                () => ({
+                  validator(_, value) {
+                    return validateStartDate(value);
+                  },
+                }),
+              ]}
             >
-              <DatePicker className="date-picker-container" />
+              <DatePicker
+                className="date-picker-container"
+                disabledDate={disableStartDate}
+              />
             </Form.Item>
           </Col>
 
@@ -316,25 +384,24 @@ const TaskCardForm: React.FC<TaskCardFormProps> = ({
             <Form.Item
               name="due_date"
               label="Due Date"
+              dependencies={["start_date"]}
               rules={[
                 { required: true, message: "Please select due date" },
                 ({ getFieldValue }) => ({
                   validator(_, value) {
-                    if (
-                      !value ||
-                      !getFieldValue("start_date") ||
-                      value >= getFieldValue("start_date")
-                    ) {
-                      return Promise.resolve();
-                    }
-                    return Promise.reject(
-                      new Error("Due date must be after start date")
-                    );
+                    const startDate = getFieldValue("start_date");
+                    return validateDueDate(startDate, value);
                   },
                 }),
               ]}
             >
-              <DatePicker className="date-picker-container" />
+              <DatePicker
+                className="date-picker-container"
+                disabledDate={(current) => {
+                  const startDate = finalForm.getFieldValue("start_date");
+                  return disableDueDate(startDate, current);
+                }}
+              />
             </Form.Item>
           </Col>
 
@@ -352,7 +419,6 @@ const TaskCardForm: React.FC<TaskCardFormProps> = ({
               </Select>
             </Form.Item>
           </Col>
-
           <Col xs={24} md={12}>
             <Form.Item
               name="status"
@@ -365,7 +431,6 @@ const TaskCardForm: React.FC<TaskCardFormProps> = ({
               </Select>
             </Form.Item>
           </Col>
-
           <Col xs={24}>
             <Form.Item
               label="Attachments"
