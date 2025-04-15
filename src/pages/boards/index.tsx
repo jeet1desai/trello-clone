@@ -187,6 +187,12 @@ const Boards: React.FC = () => {
       okText: "Delete",
       okType: "danger",
       cancelText: "Cancel",
+      okButtonProps: {
+        className: "button",
+      },
+      cancelButtonProps: {
+        className: "button",
+      },
       onOk() {
         dispatch(deleteBoard(_id));
       },

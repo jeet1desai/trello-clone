@@ -16,7 +16,7 @@ const { Title, Text } = Typography;
 const ForgotPassword: React.FC = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
-  const { loading, error, passwordChangeRequested } =
+  const { loading, passwordChangeRequested } =
     useSelector((state: RootState) => state.user);
   const [form] = Form.useForm();
 
@@ -48,16 +48,6 @@ const ForgotPassword: React.FC = () => {
           Enter your email address and we'll send you a link to reset your
           password.
         </Text>
-
-        {error && (
-          <Alert
-            message="Error"
-            description={error}
-            type="error"
-            showIcon
-            style={{ marginBottom: 10 }}
-          />
-        )}
 
         {passwordChangeRequested && (
           <Alert

@@ -17,7 +17,6 @@ import {
   Tooltip,
   Checkbox,
   App,
-  Alert,
 } from "antd";
 import {
   PlusOutlined,
@@ -223,6 +222,12 @@ const Workspaces: React.FC = () => {
       okText: "Delete",
       okType: "danger",
       cancelText: "Cancel",
+      okButtonProps: {
+        className: "button",
+      },
+      cancelButtonProps: {
+        className: "button",
+      },
       onOk() {
         dispatch(deleteWorkspace(_id));
       },
@@ -651,24 +656,6 @@ const Workspaces: React.FC = () => {
         }}
         footer={null}
       >
-        {addError && (
-          <Alert
-            message={addError}
-            type="error"
-            showIcon
-            style={{ marginBottom: 10 }}
-            icon={<ExclamationCircleOutlined />}
-          />
-        )}
-        {editError && (
-          <Alert
-            message={editError}
-            type="error"
-            showIcon
-            style={{ marginBottom: 10 }}
-            icon={<ExclamationCircleOutlined />}
-          />
-        )}
         <Form
           form={form}
           layout="vertical"

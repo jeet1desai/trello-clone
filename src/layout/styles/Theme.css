@@ -169,7 +169,7 @@ a:hover {
 }
 
 .ant-btn-text:hover {
-  background-color: var(--button-bg-hover);
+  background-color: var(--bg-primary) !important;
   color: var(--button-text-hover);
 }
 
@@ -207,6 +207,23 @@ a:hover {
   background-color: var(--error-color);
   border-color: var(--error-color);
   color: #fff !important;
+}
+
+.ant-btn-variant-dashed {
+  height: 42px;
+  border-radius: 12px !important;
+  font-weight: 600;
+  font-size: 16px;
+  transition: all 0.3s ease;
+  margin-top: 8px;
+  border: 1px solid rgba(255, 51, 24) !important;
+  background: rgba(255, 51, 24) !important;
+  color: #ffffff !important;
+}
+
+.ant-btn-variant-dashed:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(255, 51, 24, 0.2) !important;
 }
 
 .ant-list-item-meta {
@@ -285,7 +302,8 @@ a:hover {
 }
 
 /* Modal */
-.ant-modal-content, .ant-modal-close {
+.ant-modal-content,
+.ant-modal-close {
   border-radius: 10px !important;
 }
 
@@ -304,19 +322,19 @@ a:hover {
 }
 
 .ant-notification-notice-success {
-  background-color: #ceedce !important;
+  border-left: 3px solid #17e217 !important;
 }
 
 .ant-notification-notice-error {
-  background-color: #edcece !important;
+  border-left: 3px solid #e21717 !important;
 }
 
 .ant-notification-notice-warning {
-  background-color: #ededce !important;
+  border-left: 3px solid #dbe217 !important;
 }
 
 .ant-notification-notice-info {
-  background-color: #ced4ed !important;
+  border-left: 3px solid #179ee2 !important;
 }
 
 .ant-notification-notice-message {
@@ -526,6 +544,11 @@ a:hover {
   }
 
   .button {
+    height: 44px;
+    font-size: 15px;
+  }
+
+  .ant-btn-variant-dashed {
     height: 44px;
     font-size: 15px;
   }

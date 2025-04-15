@@ -1,5 +1,4 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { message } from "antd";
 import { boardService } from "../../services/boardService";
 
 export interface IMember {
@@ -102,6 +101,7 @@ interface BoardState {
   selectedBoard: IBoardDetails | null;
   loading: boolean;
   error: string | null;
+  success: string | null;
   addError: string | null;
   editError: string | null;
 }
@@ -111,6 +111,7 @@ const initialState: BoardState = {
   selectedBoard: null,
   loading: false,
   error: null,
+  success: null,
   addError: null,
   editError: null,
 };
@@ -232,11 +233,14 @@ const boardSlice = createSlice({
       state.addError = null;
       state.editError = null;
       state.loading = false;
+      state.error = null;
+      state.success = null;
     },
     clearSelectedBoard: (state) => {
       state.selectedBoard = null;
       state.loading = false;
       state.error = null;
+      state.success = null;
     },
   },
   extraReducers: (builder) => {
@@ -245,46 +249,48 @@ const boardSlice = createSlice({
       .addCase(getAllBoards.pending, (state) => {
         state.loading = true;
         state.error = null;
+        state.success = null;
       })
       .addCase(getAllBoards.fulfilled, (state, action) => {
         state.boards = action.payload;
         state.loading = false;
         state.error = null;
-        message.success("Boards fetched successfully");
+        state.success = "Boards fetched successfully.";
       })
       .addCase(getAllBoards.rejected, (state, action) => {
         state.loading = false;
         state.boards = [];
-        state.error = action.payload as string;
-        message.error(
-          (action.payload as string) || "Error while fetching boards"
-        );
+        state.success = null;
+        state.error =
+          (action.payload as string) || "Error while fetching boards.";
       })
 
       // Fetch board details
       .addCase(getBoardById.pending, (state) => {
         state.loading = true;
         state.error = null;
+        state.success = null;
       })
       .addCase(getBoardById.fulfilled, (state, action) => {
         state.selectedBoard = action.payload;
         state.loading = false;
         state.error = null;
-        message.success("Board details fetched successfully");
+        state.success = "Board details fetched successfully.";
       })
       .addCase(getBoardById.rejected, (state, action) => {
         state.loading = false;
         state.selectedBoard = null;
-        state.error = action.payload as string;
-        message.error(
-          (action.payload as string) || "Error while fetching board details"
-        );
+        state.success = null;
+        state.error =
+          (action.payload as string) || "Error while fetching board details.";
       })
 
       // Add board
       .addCase(addNewBoard.pending, (state) => {
         state.loading = true;
         state.addError = null;
+        state.error = null;
+        state.success = null;
       })
       .addCase(addNewBoard.fulfilled, (state, action) => {
         const {
@@ -310,27 +316,27 @@ const boardSlice = createSlice({
         state.boards = [...state.boards, currentWorkspace];
         state.loading = false;
         state.addError = null;
-        message.success("Board added successfully");
+        state.error = null;
+        state.success = "Board added successfully.";
       })
       .addCase(addNewBoard.rejected, (state, action) => {
         state.loading = false;
-        state.addError = action.payload as string;
-        message.error((action.payload as string) || "Error while adding board");
+        state.success = null;
+        state.addError =
+          (action.payload as string) || "Error while adding board.";
+        state.error = (action.payload as string) || "Error while adding board.";
       })
 
       // Edit board
       .addCase(editBoard.pending, (state) => {
         state.loading = true;
         state.editError = null;
+        state.error = null;
+        state.success = null;
       })
       .addCase(editBoard.fulfilled, (state, action) => {
-        const {
-          _id,
-          name,
-          description,
-          workspaceId,
-          updatedAt,
-        } = action.payload.data;
+        const { _id, name, description, workspaceId, updatedAt } =
+          action.payload.data;
         const currentWorkspace = {
           _id,
           name,
@@ -352,24 +358,28 @@ const boardSlice = createSlice({
               _id: currentWorkspace.workspaceId,
             },
           };
-          message.success("Board updated successfully");
+          state.error = null;
+          state.success = "Board updated successfully.";
         } else {
           state.loading = false;
-          state.editError = "Board not found";
+          state.editError = "Board not found.";
+          state.error = "Board not found.";
         }
       })
       .addCase(editBoard.rejected, (state, action) => {
         state.loading = false;
-        state.editError = action.payload as string;
-        message.error(
-          (action.payload as string) || "Error while updating board"
-        );
+        state.success = null;
+        state.editError =
+          (action.payload as string) || "Error while updating board.";
+        state.error =
+          (action.payload as string) || "Error while updating board.";
       })
 
       // Delete board
       .addCase(deleteBoard.pending, (state) => {
         state.loading = true;
         state.error = null;
+        state.success = null;
       })
       .addCase(deleteBoard.fulfilled, (state, action) => {
         const { _id } = action.payload;
@@ -378,18 +388,17 @@ const boardSlice = createSlice({
           state.loading = false;
           state.error = null;
           state.boards.splice(index, 1);
-          message.success("Board deleted successfully");
+          state.success = "Board deleted successfully.";
         } else {
           state.loading = false;
-          state.error = "Board not found";
+          state.error = "Board not found.";
         }
       })
       .addCase(deleteBoard.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload as string;
-        message.error(
-          (action.payload as string) || "Error while fetching board"
-        );
+        state.success = null;
+        state.error =
+          (action.payload as string) || "Error while fetching board.";
       });
   },
 });

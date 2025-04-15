@@ -96,6 +96,12 @@ const WorkspaceDetail: React.FC = () => {
       icon: <ExclamationCircleOutlined />,
       content:
         "The workspace will be moved to the archive. You can restore it later.",
+      okButtonProps: {
+        className: "button",
+      },
+      cancelButtonProps: {
+        className: "button",
+      },
       onOk() {
         dispatch(archiveWorkspace(selectedWorkspace._id));
       },

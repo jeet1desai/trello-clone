@@ -1,11 +1,10 @@
 import React, { useEffect } from "react";
-import { Form, Input, Button, Typography, Divider, Alert } from "antd";
+import { Form, Input, Button, Typography, Divider } from "antd";
 import {
   UserOutlined,
   LockOutlined,
   GoogleOutlined,
   GithubOutlined,
-  ExclamationCircleOutlined,
 } from "@ant-design/icons";
 import { Link, useNavigate } from "react-router-dom";
 import { RootState } from "../../../store";
@@ -19,7 +18,7 @@ const { Title, Text } = Typography;
 const Login: React.FC = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
-  const { loading, error, isAuthenticated } = useSelector(
+  const { loading, isAuthenticated } = useSelector(
     (state: RootState) => state.user
   );
   const [form] = Form.useForm();
@@ -57,16 +56,6 @@ const Login: React.FC = () => {
           Sign in to your account to continue
         </Text>
 
-        {error && (
-          <Alert
-            message={error}
-            type="error"
-            showIcon
-            style={{ marginBottom: 10 }}
-            icon={<ExclamationCircleOutlined />}
-          />
-        )}
-
         <Form
           form={form}
           name="login"
@@ -77,7 +66,11 @@ const Login: React.FC = () => {
           requiredMark={false}
         >
           <Form.Item
-            label={<span className="input-label">Email <span style={{ color: 'red' }}>*</span></span>}
+            label={
+              <span className="input-label">
+                Email <span style={{ color: "red" }}>*</span>
+              </span>
+            }
             name="email"
             rules={[
               { required: true, message: "Email is required" },
@@ -93,7 +86,11 @@ const Login: React.FC = () => {
           </Form.Item>
 
           <Form.Item
-            label={<span className="input-label">Password <span style={{ color: 'red' }}>*</span></span>}
+            label={
+              <span className="input-label">
+                Password <span style={{ color: "red" }}>*</span>
+              </span>
+            }
             name="password"
             rules={[
               { required: true, message: "Password is required" },

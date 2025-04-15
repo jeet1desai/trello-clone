@@ -1,6 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { profileService } from "../../services/profileService";
-import { message } from "antd";
 import { User } from "./userSlice";
 
 interface UserState {
@@ -26,11 +25,12 @@ export const getProfileData = createAsyncThunk(
       return response;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message || "Failed to fetch profile details"
+        error.response?.data?.message || "Error while fetching profile details"
       );
     }
   }
 );
+
 export const updateProfile = createAsyncThunk(
   "profile/update-profile",
   async (
@@ -48,7 +48,27 @@ export const updateProfile = createAsyncThunk(
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message || "Profile update failed"
+        error.response?.data?.message || "Error while updating profile details"
+      );
+    }
+  }
+);
+
+export const resetPassword = createAsyncThunk(
+  "profile/reset-password",
+  async (
+    passwordDetails: {
+      old_password: string;
+      new_password: string;
+    },
+    { rejectWithValue }
+  ) => {
+    try {
+      const response = await profileService.resetPassword(passwordDetails);
+      return response.message;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message || "Error while updating password"
       );
     }
   }
@@ -61,6 +81,7 @@ const profileSlice = createSlice({
     clearProfileStatus: (state) => {
       state.error = null;
       state.success = null;
+      state.loading = false;
     },
   },
   extraReducers: (builder) => {
@@ -70,20 +91,20 @@ const profileSlice = createSlice({
         state.profileDetails = null;
         state.loading = true;
         state.error = null;
+        state.success = null;
       })
       .addCase(getProfileData.fulfilled, (state, action) => {
         state.profileDetails = action.payload;
         state.loading = false;
         state.error = null;
-        message.success("Profile details fetched successfully");
+        state.success = "Profile details fetched successfully.";
       })
       .addCase(getProfileData.rejected, (state, action) => {
         state.profileDetails = null;
         state.loading = false;
-        state.error = action.payload as string;
-        message.error(
-          (action.payload as string) || "Error while fetching profile details"
-        );
+        state.success = null;
+        state.error =
+          (action.payload as string) || "Error while fetching profile details.";
       })
 
       // Profile Update
@@ -96,11 +117,31 @@ const profileSlice = createSlice({
         state.profileDetails = action.payload;
         state.loading = false;
         state.error = null;
-        state.success = "Profile updated successfully";
+        state.success = "Profile updated successfully.";
       })
       .addCase(updateProfile.rejected, (state, action) => {
         state.loading = false;
-        state.error = "Error while updating profile";
+        state.success = null;
+        state.error =
+          (action.payload as string) || "Error while updating profile details.";
+      })
+
+      // Reset Password
+      .addCase(resetPassword.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.success = null;
+      })
+      .addCase(resetPassword.fulfilled, (state) => {
+        state.loading = false;
+        state.error = null;
+        state.success = "Password updated successfully.";
+      })
+      .addCase(resetPassword.rejected, (state, action) => {
+        state.loading = false;
+        state.success = null;
+        state.error =
+          (action.payload as string) || "Error while fetching profile details.";
       });
   },
 });

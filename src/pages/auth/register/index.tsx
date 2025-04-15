@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { Form, Input, Button, Typography, Alert } from "antd";
+import { Form, Input, Button, Typography } from "antd";
 import {
   UserOutlined,
   LockOutlined,
@@ -17,7 +17,7 @@ const { Title, Text } = Typography;
 const Register: React.FC = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
-  const { loading, error, registrationSuccess } = useSelector((state: RootState) => state.user);
+  const { loading, registrationSuccess } = useSelector((state: RootState) => state.user);
   const [form] = Form.useForm();
 
   useEffect(() => {
@@ -51,15 +51,6 @@ const Register: React.FC = () => {
         <Text type="secondary" className="auth-subtitle">
           Join us and start managing your tasks efficiently
         </Text>
-
-        {error && (
-          <Alert
-            message={error}
-            type="error"
-            showIcon
-            style={{ marginBottom: 10 }}
-          />
-        )}
 
         <Form
           form={form}
