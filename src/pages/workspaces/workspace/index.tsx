@@ -17,6 +17,7 @@ import {
   Dropdown,
   Empty,
   MenuProps,
+  Spin,
 } from "antd";
 import {
   UserOutlined,
@@ -45,7 +46,7 @@ import {
   deleteBoard,
   editBoard,
 } from "../../../store/slices/boardSlice";
-import "../../../layout/styles/workspaceDetail.css";
+import "../../../layout/styles/WorkspaceDetail.css";
 import { generateGradient } from "../../../config";
 import AddBoardForm from "../../boards/components/AddBoardForm";
 
@@ -55,7 +56,7 @@ const WorkspaceDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
-  const { selectedWorkspace, workspaceBoards } = useSelector(
+  const { selectedWorkspace, workspaceBoards, loading } = useSelector(
     (state: RootState) => state.workspace
   );
   const { modal } = App.useApp();
@@ -309,13 +310,10 @@ const WorkspaceDetail: React.FC = () => {
   };
 
   return (
-    <div className="workspace-detail-container">
-      <div className="workspace-header">
-        <div
-          className="workspace-color-bar"
-          style={{ background: workspaceColor }}
-        />
-        <div className="workspace-header-content">
+    <>
+      <Spin spinning={loading} fullscreen />
+      <div className="workspace-detail-container">
+        <Card className="workspace-header">
           <div className="workspace-info">
             <Text
               className="workspace-back"
@@ -335,6 +333,7 @@ const WorkspaceDetail: React.FC = () => {
               <div>
                 {selectedWorkspace.archived ? (
                   <Button
+                    className="button"
                     icon={<UndoOutlined />}
                     onClick={handleRestore}
                     style={{ marginRight: 8 }}
@@ -343,6 +342,7 @@ const WorkspaceDetail: React.FC = () => {
                   </Button>
                 ) : (
                   <Button
+                    className="button"
                     icon={<InboxOutlined />}
                     onClick={handleArchive}
                     style={{ marginRight: 8 }}
@@ -350,7 +350,12 @@ const WorkspaceDetail: React.FC = () => {
                     Archive
                   </Button>
                 )}
-                <Button danger icon={<DeleteOutlined />} onClick={handleDelete}>
+                <Button
+                  className="button"
+                  danger
+                  icon={<DeleteOutlined />}
+                  onClick={handleDelete}
+                >
                   Delete
                 </Button>
               </div>
@@ -373,140 +378,141 @@ const WorkspaceDetail: React.FC = () => {
               </Space>
             </div>
           </div>
-        </div>
-      </div>
+        </Card>
 
-      <div className="workspace-content">
-        <Tabs
-          activeKey={activeTabKey}
-          onChange={setActiveTabKey}
-          className="workspace-tabs"
-          items={[
-            {
-              label: <span>Overview</span>,
-              key: "1",
-              children: (
-                <Row gutter={[16, 16]}>
-                  <Col xs={24} md={16}>
-                    <Card
-                      title="Workspace Information"
-                      className="info-card"
-                      headStyle={{ borderTop: `3px solid ${workspaceColor}` }}
-                    >
-                      <div className="info-card-content">
-                        <p>
-                          <strong>Created by:</strong>{" "}
-                          {selectedWorkspace.createdBy.first_name +
-                            " " +
-                            selectedWorkspace.createdBy.last_name}{" "}
-                          ({selectedWorkspace.createdBy.email})
-                        </p>
-                        <p>
-                          <strong>Created at:</strong>{" "}
-                          {new Date(
-                            selectedWorkspace.createdAt
-                          ).toLocaleString()}
-                        </p>
-                        <p>
-                          <strong>Status:</strong>{" "}
-                          {selectedWorkspace.archived ? "Archived" : "Active"}
-                        </p>
+        <Card className="workspace-content">
+          <Tabs
+            activeKey={activeTabKey}
+            onChange={setActiveTabKey}
+            className="workspace-tabs"
+            items={[
+              {
+                label: <span>Overview</span>,
+                key: "1",
+                children: (
+                  <Row gutter={[16, 16]}>
+                    <Col xs={24} md={16}>
+                      <Card
+                        title="Workspace Information"
+                        className="info-card"
+                        headStyle={{ borderTop: `3px solid ${workspaceColor}` }}
+                      >
+                        <div className="info-card-content">
+                          <p>
+                            <strong>Created by:</strong>{" "}
+                            {selectedWorkspace.createdBy.first_name +
+                              " " +
+                              selectedWorkspace.createdBy.last_name}{" "}
+                            ({selectedWorkspace.createdBy.email})
+                          </p>
+                          <p>
+                            <strong>Created at:</strong>{" "}
+                            {new Date(
+                              selectedWorkspace.createdAt
+                            ).toLocaleString()}
+                          </p>
+                          <p>
+                            <strong>Status:</strong>{" "}
+                            {selectedWorkspace.archived ? "Archived" : "Active"}
+                          </p>
+                        </div>
+                      </Card>
+                    </Col>
+                    <Col xs={24} md={8}>
+                      <Card
+                        title="Activity"
+                        className="activity-card"
+                        headStyle={{ borderTop: `3px solid ${workspaceColor}` }}
+                      >
+                        <div className="activity-content">
+                          <Text type="secondary">No recent activity</Text>
+                        </div>
+                      </Card>
+                    </Col>
+                    <Col xs={24}>
+                      <Card
+                        title="Recent Boards"
+                        className="boards-card"
+                        extra={
+                          <Button
+                            type="link"
+                            size="small"
+                            onClick={() => setActiveTabKey("2")}
+                          >
+                            View All
+                          </Button>
+                        }
+                        headStyle={{ borderTop: `3px solid ${workspaceColor}` }}
+                      >
+                        <div className="boards-card-content">
+                          {renderBoardsList(workspaceBoards.slice(0, 3))}
+                        </div>
+                      </Card>
+                    </Col>
+                  </Row>
+                ),
+              },
+              {
+                label: <span>Boards</span>,
+                key: "2",
+                children: (
+                  <Row gutter={[16, 16]}>
+                    <Col xs={24}>
+                      <div className="boards-header">
+                        <Title level={4}>All Boards</Title>
+                        {!selectedWorkspace.archived && (
+                          <Button
+                            type="primary"
+                            className="button"
+                            icon={<PlusOutlined />}
+                            onClick={showAddBoardModal}
+                          >
+                            Create Board
+                          </Button>
+                        )}
                       </div>
-                    </Card>
-                  </Col>
-                  <Col xs={24} md={8}>
-                    <Card
-                      title="Activity"
-                      className="activity-card"
-                      headStyle={{ borderTop: `3px solid ${workspaceColor}` }}
-                    >
-                      <div className="activity-content">
-                        <Text type="secondary">No recent activity</Text>
-                      </div>
-                    </Card>
-                  </Col>
-                  <Col xs={24}>
-                    <Card
-                      title="Recent Boards"
-                      className="boards-card"
-                      extra={
-                        <Button
-                          type="link"
-                          size="small"
-                          onClick={() => setActiveTabKey("2")}
-                        >
-                          View All
-                        </Button>
-                      }
-                      headStyle={{ borderTop: `3px solid ${workspaceColor}` }}
-                    >
-                      <div className="boards-card-content">
-                        {renderBoardsList(workspaceBoards.slice(0, 3))}
-                      </div>
-                    </Card>
-                  </Col>
-                </Row>
-              ),
-            },
-            {
-              label: <span>Boards</span>,
-              key: "2",
-              children: (
-                <Row gutter={[16, 16]}>
-                  <Col xs={24}>
-                    <div className="boards-header">
-                      <Title level={4}>All Boards</Title>
-                      {!selectedWorkspace.archived && (
-                        <Button
-                          type="primary"
-                          className="button"
-                          icon={<PlusOutlined />}
-                          onClick={showAddBoardModal}
-                        >
-                          Create Board
-                        </Button>
-                      )}
-                    </div>
 
-                    <Card
-                      bordered={false}
-                      className="boards-list-card"
-                      headStyle={{ borderTop: `3px solid ${workspaceColor}` }}
-                    >
-                      {renderBoardsList(workspaceBoards)}
-                    </Card>
-                  </Col>
-                </Row>
-              ),
-            },
-          ]}
-        />
-      </div>
+                      <Card
+                        bordered={false}
+                        className="boards-list-card"
+                        headStyle={{ borderTop: `3px solid ${workspaceColor}` }}
+                      >
+                        {renderBoardsList(workspaceBoards)}
+                      </Card>
+                    </Col>
+                  </Row>
+                ),
+              },
+            ]}
+          />
+        </Card>
 
-      {/* Board Add/Edit Modal */}
-      <Modal
-        title={editingBoard ? "Edit Board" : "Create New Board"}
-        open={isBoardModalVisible}
-        onCancel={() => {
-          setIsBoardModalVisible(false);
-          boardForm.resetFields();
-          setEditingBoard(null);
-        }}
-        footer={null}
-      >
-        <AddBoardForm
-          form={boardForm}
-          isEdit={editingBoard}
-          defaultWorkspace={id}
+        {/* Board Add/Edit Modal */}
+        <Modal
+          title={editingBoard ? "Edit Board" : "Create New Board"}
+          open={isBoardModalVisible}
           onCancel={() => {
             setIsBoardModalVisible(false);
             boardForm.resetFields();
             setEditingBoard(null);
           }}
-          onFinish={handleBoardFormSubmit}
-        />
-      </Modal>
-    </div>
+          footer={null}
+        >
+          <AddBoardForm
+            form={boardForm}
+            isEdit={editingBoard}
+            defaultWorkspace={id}
+            loading={loading}
+            onCancel={() => {
+              setIsBoardModalVisible(false);
+              boardForm.resetFields();
+              setEditingBoard(null);
+            }}
+            onFinish={handleBoardFormSubmit}
+          />
+        </Modal>
+      </div>
+    </>
   );
 };
 

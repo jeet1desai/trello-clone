@@ -4,7 +4,6 @@ import {
   Typography,
   Button,
   Input,
-  Dropdown,
   Avatar,
   Space,
   Card,
@@ -15,11 +14,11 @@ import {
   PlusOutlined,
   EllipsisOutlined,
   FilterOutlined,
-  SettingOutlined,
   ClockCircleOutlined,
   PaperClipOutlined,
   MessageOutlined,
   CloseOutlined,
+  UserAddOutlined,
 } from "@ant-design/icons";
 import type {
   DraggableProvided,
@@ -28,7 +27,6 @@ import type {
   DropResult,
 } from "@hello-pangea/dnd";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
-import type { MenuProps } from "antd";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../../store";
 import { useParams } from "react-router";
@@ -76,29 +74,6 @@ const BoardDetail: React.FC = () => {
   const [showAddList, setShowAddList] = useState<boolean>(false);
   const [visibleTaskCardForm, setVisibleTaskCardForm] =
     useState<boolean>(false);
-
-  const actionsMenu: MenuProps["items"] = [
-    {
-      key: "1",
-      label: "Board settings",
-    },
-    {
-      key: "2",
-      label: "Change background",
-    },
-    {
-      key: "3",
-      label: "Copy board",
-    },
-    {
-      type: "divider",
-    },
-    {
-      key: "4",
-      label: "Close board",
-      danger: true,
-    },
-  ];
 
   // Handle drag and drop
   const handleDragEnd = (result: DropResult) => {
@@ -189,7 +164,7 @@ const BoardDetail: React.FC = () => {
 
     setBoardData({
       ...boardData,
-      lists: [...boardData.lists, newList],
+      lists: [newList],
     });
 
     setNewListTitle("");
@@ -296,56 +271,49 @@ const BoardDetail: React.FC = () => {
     setVisibleTaskCardForm(false);
   };
 
+  console.log("sss", boardData.members);
+
   return (
-    <Content className="board-detail">
-      <div
-        className="board-header"
-        style={{ padding: "16px 24px", background: "#40A9FF" }}
-      >
-        <div className="board-header-left">
+    <Content>
+      <div className="board-header">
+        <div>
           <Space size={16}>
-            <Title level={4} style={{ margin: 0, color: "white" }}>
+            <Title level={4} className="board-title">
               {selectedBoard?.name}
             </Title>
           </Space>
+          <Title level={5} className="board-title">
+            {selectedBoard?.description}
+          </Title>
         </div>
-        <div className="board-header-right">
+        <div>
           <Space size={16}>
-            <Button icon={<FilterOutlined />} ghost>
-              Filter
-            </Button>
             <Avatar.Group maxCount={3}>
-              <Avatar src="https://xsgames.co/randomusers/avatar.php?g=male&seed=1" />
-              <Avatar src="https://xsgames.co/randomusers/avatar.php?g=female&seed=2" />
-              <Avatar src="https://xsgames.co/randomusers/avatar.php?g=male&seed=3" />
-              <Avatar src="https://xsgames.co/randomusers/avatar.php?g=female&seed=4" />
+              {boardData?.members?.map((member) => {
+                return (
+                  <Tooltip title={member?.user?.email}>
+                    <Avatar src={member?.user?.profile_image} />
+                  </Tooltip>
+                );
+              })}
             </Avatar.Group>
-            <Dropdown menu={{ items: actionsMenu }} trigger={["click"]}>
-              <Button icon={<SettingOutlined />} ghost>
-                Settings
-              </Button>
-            </Dropdown>
-            <div>
-              <Button
-                color="primary"
-                onClick={() => setVisibleTaskCardForm(true)}
-              >
-                Add a card
-              </Button>
-            </div>
+            <Button className="button" type="default" style={{ marginTop: 0 }}>
+              <Space>
+                <UserAddOutlined />
+                Invite
+              </Space>
+            </Button>
+            <Button className="button" type="default" style={{ marginTop: 0 }}>
+              <Space>
+                <FilterOutlined />
+                Filter
+              </Space>
+            </Button>
           </Space>
         </div>
       </div>
 
-      <div
-        className="board-content"
-        style={{
-          padding: "24px",
-          overflowX: "auto",
-          display: "flex",
-          height: "calc(100vh - 180px)",
-        }}
-      >
+      <div className="board-content">
         <DragDropContext onDragEnd={handleDragEnd}>
           <Droppable droppableId="all-lists" direction="horizontal" type="list">
             {(provided: DroppableProvided) => (
@@ -376,15 +344,6 @@ const BoardDetail: React.FC = () => {
                         <div
                           className="list-header"
                           {...provided.dragHandleProps}
-                          style={{
-                            padding: "12px",
-                            backgroundColor: "rgba(0, 0, 0, 0.03)",
-                            borderTopLeftRadius: "6px",
-                            borderTopRightRadius: "6px",
-                            display: "flex",
-                            justifyContent: "space-between",
-                            alignItems: "center",
-                          }}
                         >
                           <Text strong>{list.title}</Text>
                           <Button
@@ -415,9 +374,10 @@ const BoardDetail: React.FC = () => {
                               {provided.placeholder}
                               <Button
                                 type="text"
+                                className="button"
                                 icon={<PlusOutlined />}
                                 block
-                                style={{ textAlign: "left", marginTop: "8px" }}
+                                onClick={() => setVisibleTaskCardForm(true)}
                               >
                                 Add a card
                               </Button>

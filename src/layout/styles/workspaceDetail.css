@@ -19,21 +19,12 @@
 
 .workspace-header {
   margin-bottom: 30px;
-  background-color: #fff;
+  transition: transform 0.2s, box-shadow 0.2s;
   padding: 0;
   border-radius: 8px;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
   overflow: hidden;
   position: relative;
-}
-
-.workspace-color-bar {
-  height: 8px;
-  width: 100%;
-}
-
-.workspace-header-content {
-  padding: 24px;
 }
 
 .workspace-info {
@@ -72,7 +63,6 @@
 .workspace-content {
   background-color: #fff;
   border-radius: 8px;
-  padding: 20px;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
@@ -127,11 +117,6 @@
     padding: 15px;
   }
 
-  .workspace-header-content {
-    padding: 16px;
-    text-align: center;
-  }
-
   .workspace-title-row {
     justify-content: center;
   }
@@ -140,18 +125,10 @@
     justify-content: center;
     flex-wrap: wrap;
   }
-
-  .workspace-content {
-    padding: 15px;
-  }
 }
 
 @media (max-width: 480px) {
   .workspace-detail-container {
-    padding: 10px;
-  }
-
-  .workspace-content {
     padding: 10px;
   }
 } 

@@ -1,7 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Result, Button } from 'antd';
-import '../Pages.css';
 
 const NotFound: React.FC = () => {
   return (

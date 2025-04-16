@@ -15,7 +15,6 @@ import {
   RecentActivity,
 } from "../../components";
 import "../../layout/styles/Dashboard.css";
-import "../Pages.css";
 
 const { Title, Paragraph } = Typography;
 

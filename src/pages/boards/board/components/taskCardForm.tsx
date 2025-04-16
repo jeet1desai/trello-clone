@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import {
   Form,
-  Input,
   Button,
   DatePicker,
   Select,
@@ -10,6 +9,7 @@ import {
   Col,
   Upload,
   message,
+  Space,
 } from "antd";
 import type { FormInstance } from "antd";
 import {
@@ -28,12 +28,12 @@ import advancedFormat from "dayjs/plugin/advancedFormat";
 
 import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
 import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
+import { Input } from "../../../../components";
 
 dayjs.extend(isSameOrAfter);
 dayjs.extend(isSameOrBefore);
 dayjs.extend(advancedFormat);
 
-const { TextArea } = Input;
 const { Option } = Select;
 
 const allowedTypes = [
@@ -307,29 +307,37 @@ const TaskCardForm: React.FC<TaskCardFormProps> = ({
           list_id: "123",
         }}
         validateTrigger="onBlur"
+        requiredMark={false}
       >
         <Row gutter={16}>
           <Col xs={24} md={12}>
             <Form.Item
               name="title"
-              label="Title"
+              label={
+                <span className="input-label">
+                  Title <span style={{ color: "red" }}>*</span>
+                </span>
+              }
               rules={[
                 { required: true, message: "Please enter task title" },
                 { max: 100, message: "Title cannot exceed 100 characters" },
               ]}
             >
-              <Input placeholder="Task Title" />
+              <Input placeholder="Enter title" className="form-input" />
             </Form.Item>
           </Col>
           <Col xs={24} md={12}>
-            <Form.Item name="created_by" label="Created By">
-              <Input placeholder="User ID" disabled />
+            <Form.Item
+              name="created_by"
+              label={<span className="input-label">Created by</span>}
+            >
+              <Input placeholder="User ID" className="form-input" disabled />
             </Form.Item>
           </Col>
           <Col xs={24} md={24}>
             <Form.Item
               name="description"
-              label="Description"
+              label={<span className="input-label">Description</span>}
               rules={[
                 {
                   max: 500,
@@ -337,30 +345,45 @@ const TaskCardForm: React.FC<TaskCardFormProps> = ({
                 },
               ]}
             >
-              <TextArea rows={2} placeholder="Short description" />
+              <Input.TextArea
+                rows={3}
+                placeholder="Enter description"
+                className="form-input"
+              />
             </Form.Item>
           </Col>
           <Col xs={24} md={12}>
-            <Form.Item name="list_id" label="List ID">
-              <Input placeholder="Enter List ID" disabled />
+            <Form.Item
+              name="list_id"
+              label={<span className="input-label">List ID</span>}
+            >
+              <Input
+                placeholder="Enter List ID"
+                className="form-input"
+                disabled
+              />
             </Form.Item>
           </Col>
           <Col xs={24} md={12}>
             <Form.Item
               name="position"
-              label="Position"
+              label={<span className="input-label">Position</span>}
               rules={[
                 { pattern: /^\d+$/, message: "Position must be a number" },
               ]}
             >
-              <Input placeholder="Sort Order" />
+              <Input placeholder="Sort Order" className="form-input" />
             </Form.Item>
           </Col>
 
           <Col xs={24} md={12}>
             <Form.Item
               name="start_date"
-              label="Start Date"
+              label={
+                <span className="input-label">
+                  Start Date <span style={{ color: "red" }}>*</span>
+                </span>
+              }
               rules={[
                 {
                   required: true,
@@ -374,7 +397,7 @@ const TaskCardForm: React.FC<TaskCardFormProps> = ({
               ]}
             >
               <DatePicker
-                className="date-picker-container"
+                className="date-picker-container form-input"
                 disabledDate={disableStartDate}
               />
             </Form.Item>
@@ -383,7 +406,11 @@ const TaskCardForm: React.FC<TaskCardFormProps> = ({
           <Col xs={24} md={12}>
             <Form.Item
               name="due_date"
-              label="Due Date"
+              label={
+                <span className="input-label">
+                  Due Date <span style={{ color: "red" }}>*</span>
+                </span>
+              }
               dependencies={["start_date"]}
               rules={[
                 { required: true, message: "Please select due date" },
@@ -396,7 +423,7 @@ const TaskCardForm: React.FC<TaskCardFormProps> = ({
               ]}
             >
               <DatePicker
-                className="date-picker-container"
+                className="date-picker-container form-input"
                 disabledDate={(current) => {
                   const startDate = finalForm.getFieldValue("start_date");
                   return disableDueDate(startDate, current);
@@ -408,10 +435,14 @@ const TaskCardForm: React.FC<TaskCardFormProps> = ({
           <Col xs={24} md={12}>
             <Form.Item
               name="priority"
-              label="Priority"
+              label={
+                <span className="input-label">
+                  Priority <span style={{ color: "red" }}>*</span>
+                </span>
+              }
               rules={[{ required: true, message: "Please select priority" }]}
             >
-              <Select>
+              <Select className="form-input">
                 <Option value="Low">Low</Option>
                 <Option value="Medium">Medium</Option>
                 <Option value="High">High</Option>
@@ -422,10 +453,14 @@ const TaskCardForm: React.FC<TaskCardFormProps> = ({
           <Col xs={24} md={12}>
             <Form.Item
               name="status"
-              label="Status"
+              label={
+                <span className="input-label">
+                  Status <span style={{ color: "red" }}>*</span>
+                </span>
+              }
               rules={[{ required: true, message: "Please select status" }]}
             >
-              <Select>
+              <Select className="form-input">
                 <Option value="Incomplete">Incomplete</Option>
                 <Option value="Complete">Complete</Option>
               </Select>
@@ -433,8 +468,8 @@ const TaskCardForm: React.FC<TaskCardFormProps> = ({
           </Col>
           <Col xs={24}>
             <Form.Item
-              label="Attachments"
               name="attachments"
+              label={<span className="input-label">Attachments</span>}
               valuePropName="fileList"
               getValueFromEvent={normFile}
               extra={`Max ${MAX_FILE_COUNT} files (${MAX_FILE_SIZE_MB}MB each)`}
@@ -479,17 +514,20 @@ const TaskCardForm: React.FC<TaskCardFormProps> = ({
           <div className="error-container">{uploadFileError}</div>
         )}
         <Form.Item className="task-card-btn-container">
-          <Button onClick={onCancel} className="task-card-cancel-btn">
-            Cancel
-          </Button>
-          <Button
-            type="primary"
-            htmlType="submit"
-            loading={loading}
-            disabled={loading}
-          >
-            Submit Task
-          </Button>
+          <Space>
+            <Button onClick={onCancel} className="button">
+              Cancel
+            </Button>
+            <Button
+              type="primary"
+              htmlType="submit"
+              className="button"
+              loading={loading}
+              disabled={loading}
+            >
+              Create
+            </Button>
+          </Space>
         </Form.Item>
       </Form>
     </Modal>
