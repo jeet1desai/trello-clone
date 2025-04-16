@@ -362,6 +362,7 @@ const BoardDetail: React.FC = () => {
               <Button
                 className="button"
                 type="default"
+                onClick={()=> setshowInviteModal(true)}
                 style={{ marginTop: 0 }}
               >
                 <Space>
