@@ -59,12 +59,6 @@ export interface IBoardWorkspace {
   };
 }
 
-export interface IBoardList {
-  _id: string;
-  title: string;
-  cards: ICard[];
-}
-
 export interface ICardLabel {
   _id: string;
   text: string;
@@ -93,7 +87,6 @@ export interface IBoardDetails {
   boardOwner: IBoardOwner;
   members: IBoardMember[];
   workspace: IBoardWorkspace[];
-  lists: IBoardList[];
 }
 
 interface MemberData {

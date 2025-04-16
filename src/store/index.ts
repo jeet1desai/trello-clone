@@ -14,13 +14,15 @@ import userReducer from "./slices/userSlice";
 import profileReducer from "./slices/profileSlice";
 import workspaceReducer from "./slices/workspaceSlice";
 import boardReducer from "./slices/boardSlice";
+import statusReducer from "./slices/statusSlice";
+import taskReducer from "./slices/taskSlice";
 import { notificationMiddleware } from "./middleware/notificationMiddleware";
 
 const persistConfig = {
   key: "root",
   version: 1,
   storage,
-  whitelist: ["user", "profile", "workspace", "board"],
+  whitelist: ["user", "profile", "workspace", "board", "status", "task"],
 };
 
 const rootReducer = combineReducers({
@@ -28,6 +30,8 @@ const rootReducer = combineReducers({
   profile: profileReducer,
   workspace: workspaceReducer,
   board: boardReducer,
+  status: statusReducer,
+  task: taskReducer,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
