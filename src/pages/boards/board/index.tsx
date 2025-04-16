@@ -39,6 +39,7 @@ import {
   getBoardById,
 } from "../../../store/slices/boardSlice";
 import TaskCardForm from "./components/taskCardForm";
+import InviteBoard from "./components/inviteBoard";
 import "../../../layout/styles/Board.css";
 
 const { Content } = Layout;
@@ -72,6 +73,7 @@ const BoardDetail: React.FC = () => {
   );
   const [newListTitle, setNewListTitle] = useState<string>("");
   const [showAddList, setShowAddList] = useState<boolean>(false);
+  const [showInviteModal, setshowInviteModal] = useState<boolean>(false);
   const [visibleTaskCardForm, setVisibleTaskCardForm] =
     useState<boolean>(false);
 
@@ -297,7 +299,7 @@ const BoardDetail: React.FC = () => {
                 );
               })}
             </Avatar.Group>
-            <Button className="button" type="default" style={{ marginTop: 0 }}>
+            <Button className="button" onClick={()=>setshowInviteModal(true)} type="default" style={{ marginTop: 0 }}>
               <Space>
                 <UserAddOutlined />
                 Invite
@@ -459,6 +461,11 @@ const BoardDetail: React.FC = () => {
         onCancel={() => setVisibleTaskCardForm(false)}
         onFinish={handleTaskCardFormSubmit}
       />
+
+        <InviteBoard
+          isOpen={showInviteModal}
+          onClose={()=>setshowInviteModal(false)}
+        />
     </Content>
   );
 };
