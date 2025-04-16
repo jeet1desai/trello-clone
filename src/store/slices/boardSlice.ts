@@ -59,12 +59,6 @@ export interface IBoardWorkspace {
   };
 }
 
-export interface IBoardList {
-  _id: string;
-  title: string;
-  cards: ICard[];
-}
-
 export interface ICardLabel {
   _id: string;
   text: string;
@@ -93,7 +87,6 @@ export interface IBoardDetails {
   boardOwner: IBoardOwner;
   members: IBoardMember[];
   workspace: IBoardWorkspace[];
-  lists: IBoardList[];
 }
 
 interface BoardState {
@@ -398,7 +391,7 @@ const boardSlice = createSlice({
         state.loading = false;
         state.success = null;
         state.error =
-          (action.payload as string) || "Error while fetching board.";
+          (action.payload as string) || "Error while deleting board.";
       });
   },
 });

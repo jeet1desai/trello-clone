@@ -238,16 +238,14 @@ const WorkspaceDetail: React.FC = () => {
                 icon: <EditOutlined />,
                 onClick: () => showEditBoardModal(board),
               },
+              {
+                key: "delete",
+                label: "Delete",
+                icon: <DeleteOutlined />,
+                danger: true,
+                onClick: () => handleDeleteBoard(board._id, board.name),
+              }
             ];
-
-            // Add delete item
-            items.push({
-              key: "delete",
-              label: "Delete",
-              icon: <DeleteOutlined />,
-              danger: true,
-              onClick: () => handleDeleteBoard(board._id, board.name),
-            });
 
             return items;
           };

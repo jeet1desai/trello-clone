@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Form,
   Button,
@@ -29,6 +29,10 @@ import advancedFormat from "dayjs/plugin/advancedFormat";
 import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
 import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
 import { Input } from "../../../../components";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "../../../../store";
+import { updateTask } from "../../../../store/slices/taskSlice";
+import { getStatusListByBoardId } from "../../../../store/slices/statusSlice";
 
 dayjs.extend(isSameOrAfter);
 dayjs.extend(isSameOrBefore);
@@ -76,13 +80,49 @@ const TaskCardForm: React.FC<TaskCardFormProps> = ({
 }) => {
   const [taskForm] = Form.useForm();
   const finalForm = form || taskForm;
+  const dispatch = useDispatch<AppDispatch>();
+  const { selectedTask } = useSelector((state: RootState) => state.task);
+  const { statusList } = useSelector((state: RootState) => state.status);
 
   const [previewOpen, setPreviewOpen] = useState<boolean>(false);
   const [previewTitle, setPreviewTitle] = useState<string>("");
   const [fileList, setFileList] = useState<UploadFile[]>([]);
-  const [loading, setLoading] = useState<boolean>(false);
+  const [formLoading, setFormLoading] = useState<boolean>(false);
   const [previewContent, setPreviewContent] = useState<React.ReactNode>(null);
   const [uploadFileError, setUploadFileError] = useState<string>("");
+
+  // Initialize form with selected task data when it changes
+  useEffect(() => {
+    if (selectedTask && visible) {
+      finalForm.setFieldsValue({
+        title: selectedTask.title,
+        description: selectedTask.description,
+        status_id: selectedTask.status_list_id._id,
+        priority: "",
+        status: selectedTask.status,
+        start_date: undefined,
+        due_date: undefined,
+      });
+
+      // Initialize attachments if available
+      if (selectedTask.attachment && selectedTask.attachment.length > 0) {
+        const files = selectedTask.attachment.map((attachment, index) => ({
+          uid: `-${index}`,
+          name: attachment.name,
+          status: 'done',
+          url: attachment.url,
+          type: attachment.type,
+          size: attachment.size,
+        }));
+        setFileList(files as UploadFile[]);
+      } else {
+        setFileList([]);
+      }
+    } else {
+      finalForm.resetFields();
+      setFileList([]);
+    }
+  }, [selectedTask, visible, finalForm]);
 
   const handlePreview = async (file: UploadFile) => {
     if (!file.url && !file.preview && file.originFileObj) {
@@ -198,251 +238,183 @@ const TaskCardForm: React.FC<TaskCardFormProps> = ({
     return <FilePdfOutlined className={iconClass} />;
   };
 
-  const uploadButton = (
-    <div>
-      <PlusOutlined />
-      <div className="upload-btn-text">Upload</div>
-    </div>
-  );
-
-  const onFormFinish = async (values: TaskPayload) => {
-    const isUploading = fileList.some((file) => file.status === "uploading");
-
-    if (isUploading) {
-      setUploadFileError("Please wait until all files are uploaded.");
-      return; // prevent form submission
-    }
-
-    setUploadFileError("");
-    setLoading(true);
+  const onFormFinish = async (values: any) => {
+    setFormLoading(true);
     try {
-      onFinish({
-        ...values,
-        attachments: fileList.map((file) => ({
-          name: file.name,
-          url: file.url ?? file.preview,
-          type: file.type,
-          size: file.size,
-        })),
-      });
-      finalForm.resetFields();
-      setFileList([]);
+      // Convert attachments
+      const attachments = fileList.map(file => ({
+        name: file.name,
+        url: file.url || '',
+        type: file.type || '',
+        size: file.size || 0,
+      }));
+
+      // Format payload
+      const payload: any = {
+        title: values.title,
+        description: values.description || '',
+        status_list_id: values.status_list_id,
+      };
+
+
+      if (values.status) {
+        payload.status = values.status;
+      }
+
+      if (selectedTask) {
+        // Update existing task
+        await dispatch(updateTask({
+          taskId: selectedTask._id,
+          ...payload
+        }));
+        
+        // Reload board data
+        if (selectedTask.board_id) {
+          await dispatch(getStatusListByBoardId(selectedTask.board_id));
+        }
+      }
+      
+      // Format the final payload for the onFinish callback
+      const taskPayload: TaskPayload = {
+        title: payload.title,
+        description: payload.description,
+        list_id: payload.status_id,
+        created_by: selectedTask?.created_by || '',
+        start_date: payload.start_date || '',
+        due_date: payload.due_date || '',
+        priority: payload.priority || 'Medium',
+        status: payload.status || 'Incomplete',
+        attachments: attachments || [],
+      };
+      
+      onFinish(taskPayload);
     } catch (error) {
-      message.error("Failed to submit task");
+      console.error('Error saving task:', error);
+      message.error('Failed to save task');
     } finally {
-      setLoading(false);
+      setFormLoading(false);
     }
   };
 
   const validateStartDate = (value: Dayjs) => {
-    const today = dayjs().startOf("day");
-    const max = today.add(15, "day");
-
-    const startDate = dayjs(value);
-
-    if (
-      !value ||
-      (startDate.isSameOrAfter(today) && startDate.isSameOrBefore(max))
-    ) {
-      return Promise.resolve();
+    const dueDate = finalForm.getFieldValue("due_date");
+    if (dueDate && value && value.isAfter(dueDate)) {
+      return Promise.reject(
+        new Error("Start date cannot be after the due date")
+      );
     }
-
-    return Promise.reject(
-      new Error("Start date must be today or within 15 days")
-    );
+    return Promise.resolve();
   };
 
   const validateDueDate = (startDate: Dayjs, value: Dayjs) => {
-    if (!startDate || !value) return Promise.resolve();
-
-    const start = dayjs(startDate);
-    const maxDueDate = start.add(30, "day");
-    const dueDate = dayjs(value);
-
-    if (
-      dueDate.isSameOrAfter(start, "day") &&
-      dueDate.isSameOrBefore(maxDueDate, "day")
-    ) {
-      return Promise.resolve();
+    const startDateField = finalForm.getFieldValue("start_date");
+    const finalStartDate = startDate || startDateField;
+    if (finalStartDate && value && value.isBefore(finalStartDate)) {
+      return Promise.reject(
+        new Error("Due date cannot be before the start date")
+      );
     }
-
-    return Promise.reject(
-      new Error("Due date must be after Start Date and within 30 days")
-    );
+    return Promise.resolve();
   };
 
   const disableStartDate = (current: Dayjs) => {
-    const today = dayjs().startOf("day");
-    const max = today.add(15, "day");
-    return current < today || current > max;
+    return current && current.endOf("day").isBefore(dayjs().startOf("day"));
   };
 
   const disableDueDate = (startDate: Dayjs, current: Dayjs) => {
-    if (!startDate) return true;
-
-    const min = dayjs(startDate).add(0, "day");
-    const max = dayjs(startDate).add(30, "day");
-
-    return current < min.startOf("day") || current > max.endOf("day");
+    const startDateField = finalForm.getFieldValue("start_date");
+    const finalStartDate = startDate || startDateField;
+    return (
+      (current && current.endOf("day").isBefore(dayjs().startOf("day"))) ||
+      (finalStartDate &&
+        current &&
+        current.endOf("day").isBefore(finalStartDate.startOf("day")))
+    );
   };
 
   return (
     <Modal
-      title="Create New Task"
+      title={selectedTask ? "Edit Task" : "Create New Task"}
       open={visible}
       onCancel={onCancel}
+      width={700}
       footer={null}
-      centered
-      width={800}
       destroyOnClose
     >
       <Form
         form={finalForm}
-        layout="vertical"
         onFinish={onFormFinish}
-        initialValues={{
-          priority: "Medium",
-          status: "Incomplete",
-          created_by: "Test",
-          list_id: "123",
-        }}
-        validateTrigger="onBlur"
+        layout="vertical"
         requiredMark={false}
+        style={{ maxHeight: "70vh", overflowY: "auto", padding: "0 8px" }}
       >
         <Row gutter={16}>
-          <Col xs={24} md={12}>
+          <Col span={24}>
             <Form.Item
               name="title"
-              label={
-                <span className="input-label">
-                  Title <span style={{ color: "red" }}>*</span>
-                </span>
-              }
-              rules={[
-                { required: true, message: "Please enter task title" },
-                { max: 100, message: "Title cannot exceed 100 characters" },
-              ]}
+              label="Task Title"
+              rules={[{ required: true, message: "Please enter a title" }]}
             >
-              <Input placeholder="Enter title" className="form-input" />
+              <Input placeholder="Enter task title" />
             </Form.Item>
           </Col>
-          <Col xs={24} md={12}>
-            <Form.Item
-              name="created_by"
-              label={<span className="input-label">Created by</span>}
-            >
-              <Input placeholder="User ID" className="form-input" disabled />
-            </Form.Item>
-          </Col>
-          <Col xs={24} md={24}>
-            <Form.Item
-              name="description"
-              label={<span className="input-label">Description</span>}
-              rules={[
-                {
-                  max: 500,
-                  message: "Description cannot exceed 500 characters",
-                },
-              ]}
-            >
-              <Input.TextArea
-                rows={3}
-                placeholder="Enter description"
-                className="form-input"
-              />
-            </Form.Item>
-          </Col>
-          <Col xs={24} md={12}>
-            <Form.Item
-              name="list_id"
-              label={<span className="input-label">List ID</span>}
-            >
-              <Input
-                placeholder="Enter List ID"
-                className="form-input"
-                disabled
-              />
-            </Form.Item>
-          </Col>
-          <Col xs={24} md={12}>
-            <Form.Item
-              name="position"
-              label={<span className="input-label">Position</span>}
-              rules={[
-                { pattern: /^\d+$/, message: "Position must be a number" },
-              ]}
-            >
-              <Input placeholder="Sort Order" className="form-input" />
-            </Form.Item>
-          </Col>
+        </Row>
 
-          <Col xs={24} md={12}>
+        <Row gutter={16}>
+          <Col span={24}>
+            <Form.Item name="description" label="Description">
+              <Input.TextArea
+                placeholder="Enter task description"
+                autoSize={{ minRows: 3, maxRows: 6 }}
+              />
+            </Form.Item>
+          </Col>
+        </Row>
+
+        <Row gutter={16}>
+          <Col span={12}>
             <Form.Item
               name="start_date"
-              label={
-                <span className="input-label">
-                  Start Date <span style={{ color: "red" }}>*</span>
-                </span>
-              }
+              label="Start Date"
               rules={[
                 {
-                  required: true,
-                  message: "Please select start date",
+                  validator: async (_, value) => validateStartDate(value),
                 },
-                () => ({
-                  validator(_, value) {
-                    return validateStartDate(value);
-                  },
-                }),
               ]}
             >
               <DatePicker
-                className="date-picker-container form-input"
                 disabledDate={disableStartDate}
+                style={{ width: "100%" }}
+                placeholder="Select start date"
               />
             </Form.Item>
           </Col>
-
-          <Col xs={24} md={12}>
+          <Col span={12}>
             <Form.Item
               name="due_date"
-              label={
-                <span className="input-label">
-                  Due Date <span style={{ color: "red" }}>*</span>
-                </span>
-              }
-              dependencies={["start_date"]}
+              label="Due Date"
               rules={[
-                { required: true, message: "Please select due date" },
-                ({ getFieldValue }) => ({
-                  validator(_, value) {
-                    const startDate = getFieldValue("start_date");
-                    return validateDueDate(startDate, value);
-                  },
-                }),
+                {
+                  validator: async (_, value) =>
+                    validateDueDate(finalForm.getFieldValue("start_date"), value),
+                },
               ]}
             >
               <DatePicker
-                className="date-picker-container form-input"
-                disabledDate={(current) => {
-                  const startDate = finalForm.getFieldValue("start_date");
-                  return disableDueDate(startDate, current);
-                }}
+                disabledDate={(current) =>
+                  disableDueDate(finalForm.getFieldValue("start_date"), current)
+                }
+                style={{ width: "100%" }}
+                placeholder="Select due date"
               />
             </Form.Item>
           </Col>
+        </Row>
 
-          <Col xs={24} md={12}>
-            <Form.Item
-              name="priority"
-              label={
-                <span className="input-label">
-                  Priority <span style={{ color: "red" }}>*</span>
-                </span>
-              }
-              rules={[{ required: true, message: "Please select priority" }]}
-            >
-              <Select className="form-input">
+        <Row gutter={16}>
+          <Col span={12}>
+            <Form.Item name="priority" label="Priority">
+              <Select placeholder="Select priority">
                 <Option value="Low">Low</Option>
                 <Option value="Medium">Medium</Option>
                 <Option value="High">High</Option>
@@ -450,86 +422,91 @@ const TaskCardForm: React.FC<TaskCardFormProps> = ({
               </Select>
             </Form.Item>
           </Col>
-          <Col xs={24} md={12}>
-            <Form.Item
-              name="status"
-              label={
-                <span className="input-label">
-                  Status <span style={{ color: "red" }}>*</span>
-                </span>
-              }
-              rules={[{ required: true, message: "Please select status" }]}
-            >
-              <Select className="form-input">
+          <Col span={12}>
+            <Form.Item name="status" label="Status">
+              <Select placeholder="Select status">
                 <Option value="Incomplete">Incomplete</Option>
                 <Option value="Complete">Complete</Option>
               </Select>
             </Form.Item>
           </Col>
-          <Col xs={24}>
+        </Row>
+
+        <Row gutter={16}>
+          <Col span={24}>
+            <Form.Item name="status_id" label="List">
+              <Select placeholder="Select list">
+                {statusList?.map((status) => (
+                  <Option key={status._id} value={status._id}>
+                    {status.name}
+                  </Option>
+                ))}
+              </Select>
+            </Form.Item>
+          </Col>
+        </Row>
+
+        <Row gutter={16}>
+          <Col span={24}>
             <Form.Item
               name="attachments"
-              label={<span className="input-label">Attachments</span>}
+              label="Attachments"
               valuePropName="fileList"
               getValueFromEvent={normFile}
-              extra={`Max ${MAX_FILE_COUNT} files (${MAX_FILE_SIZE_MB}MB each)`}
             >
               <Upload
                 listType="picture-card"
+                fileList={fileList}
                 beforeUpload={beforeUpload}
-                customRequest={customUpload}
                 onChange={handleChange}
-                showUploadList={{
-                  showPreviewIcon: false,
-                  showRemoveIcon: false,
-                }}
-                multiple
-                itemRender={(originNode, file, _, actions) => (
+                customRequest={customUpload}
+                onPreview={handlePreview}
+                itemRender={(originNode, file, fileList, { remove }) => (
                   <CustomUploadItem
                     originNode={originNode}
                     file={file}
-                    actions={actions}
-                    handlePreview={handlePreview}
+                    remove={remove}
+                    getFileIcon={getFileIcon}
+                    handlePreview={() => handlePreview(file)}
                   />
                 )}
-                maxCount={MAX_FILE_COUNT}
-                fileList={fileList}
-                iconRender={(file) => getFileIcon(file)}
               >
-                {fileList.length >= MAX_FILE_COUNT ? null : uploadButton}
+                {fileList.length < MAX_FILE_COUNT && (
+                  <div>
+                    <PlusOutlined />
+                    <div style={{ marginTop: 8 }}>Upload</div>
+                  </div>
+                )}
               </Upload>
             </Form.Item>
-
-            <Modal
-              open={previewOpen}
-              title={previewTitle}
-              footer={null}
-              onCancel={() => setPreviewOpen(false)}
-            >
-              {previewContent}
-            </Modal>
+            {uploadFileError && (
+              <div style={{ color: "red", marginTop: -16, marginBottom: 16 }}>
+                {uploadFileError}
+              </div>
+            )}
           </Col>
         </Row>
-        {uploadFileError && (
-          <div className="error-container">{uploadFileError}</div>
-        )}
-        <Form.Item className="task-card-btn-container">
-          <Space>
-            <Button onClick={onCancel} className="button">
-              Cancel
-            </Button>
-            <Button
-              type="primary"
-              htmlType="submit"
-              className="button"
-              loading={loading}
-              disabled={loading}
-            >
-              Create
-            </Button>
-          </Space>
-        </Form.Item>
+
+        <Row gutter={16} justify="end">
+          <Col>
+            <Space>
+              <Button onClick={onCancel}>Cancel</Button>
+              <Button type="primary" htmlType="submit" loading={formLoading}>
+                {selectedTask ? "Update" : "Create"}
+              </Button>
+            </Space>
+          </Col>
+        </Row>
       </Form>
+
+      <Modal
+        open={previewOpen}
+        title={previewTitle}
+        footer={null}
+        onCancel={() => setPreviewOpen(false)}
+      >
+        {previewContent}
+      </Modal>
     </Modal>
   );
 };
