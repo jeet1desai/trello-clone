@@ -52,7 +52,7 @@ import {
   clearSelectedWorkspace,
   IUser,
 } from "../../store/slices/workspaceSlice";
-import "../../layout/styles/Workspaces.css";
+import "../../layout/styles/workspaces.css";
 import { generateGradient, SORT_OPTIONS } from "../../config";
 
 const { Title, Paragraph } = Typography;
