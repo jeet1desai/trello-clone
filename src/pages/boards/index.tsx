@@ -17,6 +17,7 @@ import {
   Checkbox,
   App,
   Alert,
+  Spin,
 } from "antd";
 import {
   PlusOutlined,
@@ -43,7 +44,7 @@ import {
   openBoardAddModal,
   clearSelectedBoard,
 } from "../../store/slices/boardSlice";
-import "../../layout/styles/boards.css";
+import "../../layout/styles/Boards.css";
 import { generateGradient, SORT_OPTIONS } from "../../config";
 import AddBoardForm from "./components/AddBoardForm";
 
@@ -51,7 +52,7 @@ const { Title, Paragraph } = Typography;
 
 const Boards: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const { boards, addError, editError } = useSelector(
+  const { boards, addError, editError, loading } = useSelector(
     (state: RootState) => state.board
   );
   const location = useLocation();
@@ -411,112 +412,116 @@ const Boards: React.FC = () => {
   ];
 
   return (
-    <div className="boards-container">
-      <div className="boards-header">
-        <div className="header-left">
-          <Title level={3} className="page-title">
-            Your Boards
-          </Title>
-        </div>
-        <div className="header-right">
-          <Space className="search-filter">
-            <Input
-              prefix={<SearchOutlined />}
-              placeholder="Search boards"
-              allowClear
-              value={searchText}
-              onChange={(e) => setSearchText(e.target.value)}
-              style={{ width: 220, marginTop: "8px" }}
-              className="form-input"
-            />
-            <Dropdown
-              menu={{ items: filterMenuItems }}
-              trigger={["click"]}
-              overlayClassName="filter-dropdown"
-            >
-              <Button
-                className="button"
-                type={filterCreators.length > 0 ? "primary" : "default"}
+    <>
+      <Spin spinning={loading} fullscreen />
+      <div className="boards-container">
+        <div className="boards-header">
+          <div className="header-left">
+            <Title level={3} className="page-title">
+              Your Boards
+            </Title>
+          </div>
+          <div className="header-right">
+            <Space className="search-filter">
+              <Input
+                prefix={<SearchOutlined />}
+                placeholder="Search boards"
+                allowClear
+                value={searchText}
+                onChange={(e) => setSearchText(e.target.value)}
+                style={{ width: 220, marginTop: "8px" }}
+                className="form-input"
+              />
+              <Dropdown
+                menu={{ items: filterMenuItems }}
+                trigger={["click"]}
+                overlayClassName="filter-dropdown"
               >
-                <Space>
-                  <FilterOutlined />
-                  Filter{" "}
-                  {filterCreators.length > 0 && `(${filterCreators.length})`}
-                </Space>
-              </Button>
-            </Dropdown>
-            <Dropdown
-              menu={{
-                items: sortMenuItems,
-                onClick: ({ key }) => setSortOption(key),
-                selectable: true,
-                defaultSelectedKeys: [sortOption],
-              }}
-              trigger={["click"]}
+                <Button
+                  className="button"
+                  type={filterCreators.length > 0 ? "primary" : "default"}
+                >
+                  <Space>
+                    <FilterOutlined />
+                    Filter{" "}
+                    {filterCreators.length > 0 && `(${filterCreators.length})`}
+                  </Space>
+                </Button>
+              </Dropdown>
+              <Dropdown
+                menu={{
+                  items: sortMenuItems,
+                  onClick: ({ key }) => setSortOption(key),
+                  selectable: true,
+                  defaultSelectedKeys: [sortOption],
+                }}
+                trigger={["click"]}
+              >
+                <Button type="default" className="button">
+                  <Space>
+                    <SortAscendingOutlined />
+                    Sort
+                  </Space>
+                </Button>
+              </Dropdown>
+            </Space>
+            <Button
+              type="primary"
+              icon={<PlusOutlined />}
+              onClick={showAddModal}
+              className="button"
             >
-              <Button type="default" className="button">
-                <Space>
-                  <SortAscendingOutlined />
-                  Sort
-                </Space>
-              </Button>
-            </Dropdown>
-          </Space>
-          <Button
-            type="primary"
-            icon={<PlusOutlined />}
-            onClick={showAddModal}
-            className="button"
-          >
-            Create New Board
-          </Button>
+              Create New Board
+            </Button>
+          </div>
         </div>
-      </div>
 
-      <div className="boards-content">{renderBoards(processedBoards)}</div>
+        <div className="boards-content">{renderBoards(processedBoards)}</div>
 
-      {/* Add/Edit Board Modal */}
-      <Modal
-        title={selectedBoard ? "Edit Board" : "Create New Board"}
-        open={isModalVisible || !!addError || !!editError}
-        onCancel={() => {
-          setIsModalVisible(false);
-          dispatch(openBoardAddModal());
-          form.resetFields();
-          setSelectedBoard(null);
-        }}
-        footer={null}
-      >
-        {addError && (
-          <Alert
-            message={addError}
-            type="error"
-            showIcon
-            style={{ marginBottom: 10 }}
-            icon={<ExclamationCircleOutlined />}
-          />
-        )}
-        {editError && (
-          <Alert
-            message={editError}
-            type="error"
-            showIcon
-            style={{ marginBottom: 10 }}
-            icon={<ExclamationCircleOutlined />}
-          />
-        )}
-        <AddBoardForm
-          form={form}
-          isEdit={selectedBoard}
+        {/* Add/Edit Board Modal */}
+        <Modal
+          title={selectedBoard ? "Edit Board" : "Create New Board"}
+          open={isModalVisible || !!addError || !!editError}
           onCancel={() => {
             setIsModalVisible(false);
+            dispatch(openBoardAddModal());
             form.resetFields();
             setSelectedBoard(null);
           }}
-          onFinish={handleAddOrEditBoard}
-        />
-      </Modal>
-    </div>
+          footer={null}
+        >
+          {addError && (
+            <Alert
+              message={addError}
+              type="error"
+              showIcon
+              style={{ marginBottom: 10 }}
+              icon={<ExclamationCircleOutlined />}
+            />
+          )}
+          {editError && (
+            <Alert
+              message={editError}
+              type="error"
+              showIcon
+              style={{ marginBottom: 10 }}
+              icon={<ExclamationCircleOutlined />}
+            />
+          )}
+          <AddBoardForm
+            form={form}
+            isEdit={selectedBoard}
+            loading={loading}
+            onCancel={() => {
+              setIsModalVisible(false);
+              form.resetFields();
+              setSelectedBoard(null);
+            }}
+            onFinish={handleAddOrEditBoard}
+          />
+        </Modal>
+      </div>
+    </>
   );
 };
 

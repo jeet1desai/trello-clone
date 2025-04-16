@@ -1,7 +1,6 @@
 import React from 'react';
 import { Typography, Space, Button } from 'antd';
 import { Link } from 'react-router-dom';
-import '../Pages.css';
 
 const { Title, Paragraph } = Typography;
 

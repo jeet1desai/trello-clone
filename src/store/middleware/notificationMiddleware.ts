@@ -9,6 +9,10 @@ export const notificationMiddleware =
     const [sliceName] = action.type.split("/");
     const sliceState = fullState[sliceName];
 
+    if (sliceName.includes("status") || sliceName.includes("task")) {
+      return result;
+    }
+
     if (isRejectedWithValue(action)) {
       const errorMessage =
         typeof action.payload === "string"

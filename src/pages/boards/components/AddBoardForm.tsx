@@ -7,6 +7,7 @@ interface IProps {
   form: FormInstance<any>;
   isEdit: any;
   defaultWorkspace?: string;
+  loading: boolean;
   onCancel: () => void;
   onFinish: any;
 }
@@ -15,6 +16,7 @@ const AddBoardForm = ({
   form,
   isEdit,
   defaultWorkspace,
+  loading,
   onCancel,
   onFinish,
 }: IProps) => {
@@ -98,7 +100,7 @@ const AddBoardForm = ({
           <Button type="default" className="button" onClick={onCancel}>
             Cancel
           </Button>
-          <Button type="primary" className="button" htmlType="submit">
+          <Button type="primary" className="button" htmlType="submit" loading={loading}>
             {isEdit ? "Update" : "Create"}
           </Button>
         </Space>

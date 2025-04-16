@@ -17,6 +17,7 @@ import {
   Tooltip,
   Checkbox,
   App,
+  Spin,
 } from "antd";
 import {
   PlusOutlined,
@@ -51,14 +52,14 @@ import {
   clearSelectedWorkspace,
   IUser,
 } from "../../store/slices/workspaceSlice";
-import "../../layout/styles/workspaces.css";
+import "../../layout/styles/Workspaces.css";
 import { generateGradient, SORT_OPTIONS } from "../../config";
 
 const { Title, Paragraph } = Typography;
 
 const Workspaces: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const { workspaces, addError, editError } = useSelector(
+  const { workspaces, addError, editError, loading } = useSelector(
     (state: RootState) => state.workspace
   );
   const location = useLocation();
@@ -531,187 +532,203 @@ const Workspaces: React.FC = () => {
   ];
 
   return (
-    <div className="workspaces-container">
-      <div className="workspaces-header">
-        <div className="header-left">
-          <Title level={3} className="page-title">
-            Your Workspaces
-          </Title>
-        </div>
-        <div className="header-right">
-          <Space className="search-filter">
-            <Input
-              prefix={<SearchOutlined />}
-              placeholder="Search workspaces"
-              allowClear
-              value={searchText}
-              onChange={(e) => setSearchText(e.target.value)}
-              style={{ width: 220, marginTop: "8px" }}
-              className="form-input"
-            />
-            <Dropdown
-              menu={{ items: filterMenuItems }}
-              trigger={["click"]}
-              overlayClassName="filter-dropdown"
-            >
-              <Button
-                className="button"
-                type={filterCreators.length > 0 ? "primary" : "default"}
+    <>
+      <Spin spinning={loading} fullscreen />
+      <div className="workspaces-container">
+        <div className="workspaces-header">
+          <div className="header-left">
+            <Title level={3} className="page-title">
+              Your Workspaces
+            </Title>
+          </div>
+          <div className="header-right">
+            <Space className="search-filter">
+              <Input
+                prefix={<SearchOutlined />}
+                placeholder="Search workspaces"
+                allowClear
+                value={searchText}
+                onChange={(e) => setSearchText(e.target.value)}
+                style={{ width: 220, marginTop: "8px" }}
+                className="form-input"
+              />
+              <Dropdown
+                menu={{ items: filterMenuItems }}
+                trigger={["click"]}
+                overlayClassName="filter-dropdown"
               >
-                <Space>
-                  <FilterOutlined />
-                  Filter{" "}
-                  {filterCreators.length > 0 && `(${filterCreators.length})`}
-                </Space>
-              </Button>
-            </Dropdown>
-            <Dropdown
-              menu={{
-                items: sortMenuItems,
-                onClick: ({ key }) => setSortOption(key),
-                selectable: true,
-                defaultSelectedKeys: [sortOption],
-              }}
-              trigger={["click"]}
-            >
-              <Button type="default" className="button">
-                <Space>
-                  <SortAscendingOutlined />
-                  Sort
-                </Space>
-              </Button>
-            </Dropdown>
-          </Space>
-          <Button
-            type="primary"
-            icon={<PlusOutlined />}
-            onClick={showAddModal}
-            className="button"
-          >
-            Create New Workspace
-          </Button>
-        </div>
-      </div>
-
-      <div className="workspaces-tabs-container">
-        <Tabs
-          activeKey={activeTab}
-          onChange={setActiveTab}
-          size="large"
-          className="workspaces-tabs"
-          items={[
-            {
-              key: "all-workspaces",
-              label: (
-                <span className="tab-label">
-                  All Workspaces ({processedWorkspaces.length})
-                </span>
-              ),
-            },
-            {
-              key: "starred",
-              label: (
-                <span className="tab-label">
-                  <StarFilled style={{ color: "#f8c135" }} /> Starred (
-                  {starredWorkspaces.length})
-                </span>
-              ),
-            },
-            {
-              key: "archived",
-              label: (
-                <span className="tab-label">
-                  <InboxOutlined /> Archived ({archivedWorkspaces.length})
-                </span>
-              ),
-            },
-            {
-              key: "recent",
-              label: (
-                <span className="tab-label">
-                  <ClockCircleOutlined /> Recent
-                </span>
-              ),
-            },
-          ]}
-        />
-      </div>
-
-      <div className="workspaces-content">
-        {activeTab === "all-workspaces" &&
-          renderWorkspaces(processedWorkspaces)}
-        {activeTab === "starred" && renderWorkspaces(starredWorkspaces)}
-        {activeTab === "recent" && renderWorkspaces(recentWorkspaces)}
-        {activeTab === "archived" && renderWorkspaces(archivedWorkspaces)}
-      </div>
-
-      {/* Add/Edit Workspace Modal */}
-      <Modal
-        title={editingWorkspace ? "Edit Workspace" : "Create New Workspace"}
-        open={isModalVisible}
-        onCancel={() => {
-          setIsModalVisible(false);
-          form.resetFields();
-          setEditingWorkspace(null);
-        }}
-        footer={null}
-      >
-        <Form
-          form={form}
-          layout="vertical"
-          onFinish={handleAddOrEditWorkspace}
-          className="workspace-form"
-          requiredMark={false}
-        >
-          <Form.Item
-            label={
-              <span className="input-label">
-                Workspace Name <span style={{ color: "red" }}>*</span>
-              </span>
-            }
-            name="name"
-            rules={[{ required: true, message: "Please enter workspace name" }]}
-          >
-            <Input placeholder="Enter workspace name" className="form-input" />
-          </Form.Item>
-          <Form.Item
-            label={
-              <span className="input-label">
-                Description <span style={{ color: "red" }}>*</span>
-              </span>
-            }
-            name="description"
-            rules={[
-              { required: true, message: "Please enter workspace description" },
-            ]}
-          >
-            <Input.TextArea
-              placeholder="Enter workspace description"
-              className="form-input"
-              rows={4}
-            />
-          </Form.Item>
-          <Form.Item className="form-actions">
-            <Space>
-              <Button
-                type="default"
-                className="button"
-                onClick={() => {
-                  setIsModalVisible(false);
-                  form.resetFields();
-                  setEditingWorkspace(null);
+                <Button
+                  className="button"
+                  type={filterCreators.length > 0 ? "primary" : "default"}
+                >
+                  <Space>
+                    <FilterOutlined />
+                    Filter{" "}
+                    {filterCreators.length > 0 && `(${filterCreators.length})`}
+                  </Space>
+                </Button>
+              </Dropdown>
+              <Dropdown
+                menu={{
+                  items: sortMenuItems,
+                  onClick: ({ key }) => setSortOption(key),
+                  selectable: true,
+                  defaultSelectedKeys: [sortOption],
                 }}
+                trigger={["click"]}
               >
-                Cancel
-              </Button>
-              <Button type="primary" className="button" htmlType="submit">
-                {editingWorkspace ? "Update" : "Create"}
-              </Button>
+                <Button type="default" className="button">
+                  <Space>
+                    <SortAscendingOutlined />
+                    Sort
+                  </Space>
+                </Button>
+              </Dropdown>
             </Space>
-          </Form.Item>
-        </Form>
-      </Modal>
-    </div>
+            <Button
+              type="primary"
+              icon={<PlusOutlined />}
+              onClick={showAddModal}
+              className="button"
+            >
+              Create New Workspace
+            </Button>
+          </div>
+        </div>
+
+        <div className="workspaces-tabs-container">
+          <Tabs
+            activeKey={activeTab}
+            onChange={setActiveTab}
+            size="large"
+            className="workspaces-tabs"
+            items={[
+              {
+                key: "all-workspaces",
+                label: (
+                  <span className="tab-label">
+                    All Workspaces ({processedWorkspaces.length})
+                  </span>
+                ),
+              },
+              {
+                key: "starred",
+                label: (
+                  <span className="tab-label">
+                    <StarFilled style={{ color: "#f8c135" }} /> Starred (
+                    {starredWorkspaces.length})
+                  </span>
+                ),
+              },
+              {
+                key: "archived",
+                label: (
+                  <span className="tab-label">
+                    <InboxOutlined /> Archived ({archivedWorkspaces.length})
+                  </span>
+                ),
+              },
+              {
+                key: "recent",
+                label: (
+                  <span className="tab-label">
+                    <ClockCircleOutlined /> Recent
+                  </span>
+                ),
+              },
+            ]}
+          />
+        </div>
+
+        <div className="workspaces-content">
+          {activeTab === "all-workspaces" &&
+            renderWorkspaces(processedWorkspaces)}
+          {activeTab === "starred" && renderWorkspaces(starredWorkspaces)}
+          {activeTab === "recent" && renderWorkspaces(recentWorkspaces)}
+          {activeTab === "archived" && renderWorkspaces(archivedWorkspaces)}
+        </div>
+
+        {/* Add/Edit Workspace Modal */}
+        <Modal
+          title={editingWorkspace ? "Edit Workspace" : "Create New Workspace"}
+          open={isModalVisible}
+          onCancel={() => {
+            setIsModalVisible(false);
+            form.resetFields();
+            setEditingWorkspace(null);
+          }}
+          footer={null}
+        >
+          <Form
+            form={form}
+            layout="vertical"
+            onFinish={handleAddOrEditWorkspace}
+            className="workspace-form"
+            requiredMark={false}
+          >
+            <Form.Item
+              label={
+                <span className="input-label">
+                  Workspace Name <span style={{ color: "red" }}>*</span>
+                </span>
+              }
+              name="name"
+              rules={[
+                { required: true, message: "Please enter workspace name" },
+              ]}
+            >
+              <Input
+                placeholder="Enter workspace name"
+                className="form-input"
+              />
+            </Form.Item>
+            <Form.Item
+              label={
+                <span className="input-label">
+                  Description <span style={{ color: "red" }}>*</span>
+                </span>
+              }
+              name="description"
+              rules={[
+                {
+                  required: true,
+                  message: "Please enter workspace description",
+                },
+              ]}
+            >
+              <Input.TextArea
+                placeholder="Enter workspace description"
+                className="form-input"
+                rows={4}
+              />
+            </Form.Item>
+            <Form.Item className="form-actions">
+              <Space>
+                <Button
+                  type="default"
+                  className="button"
+                  onClick={() => {
+                    setIsModalVisible(false);
+                    form.resetFields();
+                    setEditingWorkspace(null);
+                  }}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="primary"
+                  className="button"
+                  htmlType="submit"
+                  loading={loading}
+                >
+                  {editingWorkspace ? "Update" : "Create"}
+                </Button>
+              </Space>
+            </Form.Item>
+          </Form>
+        </Modal>
+      </div>
+    </>
   );
 };
 

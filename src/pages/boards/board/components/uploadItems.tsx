@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { UploadFile, Tooltip, Button } from "antd";
+import { Tooltip, Button } from "antd";
+import type { UploadFile } from "antd/es/upload/interface";
 import {
   EyeOutlined,
   DeleteOutlined,
@@ -9,16 +10,16 @@ import {
 interface CustomUploadItemProps {
   file: UploadFile;
   originNode: React.ReactElement;
-  actions: {
-    remove: (file: UploadFile) => void;
-  };
-  handlePreview: (file: UploadFile) => void;
+  remove: () => void;
+  getFileIcon: (file: UploadFile) => React.ReactNode;
+  handlePreview: () => void;
 }
 
 const CustomUploadItem: React.FC<CustomUploadItemProps> = ({
   file,
   originNode,
-  actions,
+  remove,
+  getFileIcon,
   handlePreview,
 }) => {
   const [hovered, setHovered] = useState<boolean>(false);
@@ -75,8 +76,11 @@ const CustomUploadItem: React.FC<CustomUploadItemProps> = ({
             <Tooltip title="Preview">
               <Button
                 tabIndex={0}
-                onClick={() => handlePreview(file)}
-                onKeyDown={handleKeyPress(() => handlePreview(file))}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handlePreview();
+                }}
+                onKeyDown={handleKeyPress(() => handlePreview())}
                 className="hover-btn"
               >
                 <EyeOutlined />
@@ -103,8 +107,11 @@ const CustomUploadItem: React.FC<CustomUploadItemProps> = ({
           <Tooltip title="Remove">
             <Button
               tabIndex={0}
-              onClick={() => actions.remove(file)}
-              onKeyDown={handleKeyPress(() => actions.remove(file))}
+              onClick={(e) => {
+                e.stopPropagation();
+                remove();
+              }}
+              onKeyDown={handleKeyPress(() => remove())}
               className="hover-btn"
             >
               <DeleteOutlined />
