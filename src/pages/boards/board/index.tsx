@@ -462,10 +462,10 @@ const BoardDetail: React.FC = () => {
         onFinish={handleTaskCardFormSubmit}
       />
 
-        <InviteBoard
-          isOpen={showInviteModal}
-          onClose={()=>setshowInviteModal(false)}
-        />
+      <InviteBoard
+        isOpen={showInviteModal}
+        onClose={()=>setshowInviteModal(false)}
+      />
     </Content>
   );
 };

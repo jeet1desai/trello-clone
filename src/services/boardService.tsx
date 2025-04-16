@@ -48,4 +48,11 @@ export const boardService = {
     );
     return response.data;
   },
+
+  async getBoardMemberListById(boardId: string) {
+    const response = await axiosInstance.get(
+      `${API_URL}/member/member-list/${boardId}`
+    );
+    return response.data;
+  },
 };

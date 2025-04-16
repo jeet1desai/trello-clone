@@ -131,6 +131,10 @@
   flex-direction: column;
 }
 
+.share-container .color-red {
+  color: #ff4d4f;
+}
+
 .share-container .link-icon {
   padding: 12px 8px;
   background-color: #f1f2f4;

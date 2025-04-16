@@ -96,6 +96,28 @@ export interface IBoardDetails {
   lists: IBoardList[];
 }
 
+interface MemberData {
+  _id: string;
+  memberId: {
+    _id: string;
+    first_name: string;
+    last_name: string;
+    email: string;
+  };
+  role: "ADMIN" | "MEMBER";
+  boardId: {
+    _id: string;
+    name: string;
+  };
+  workspaceId: {
+    _id: string;
+    name: string;
+  };
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
+}
+
 interface BoardState {
   boards: IBoard[];
   selectedBoard: IBoardDetails | null;
@@ -104,6 +126,7 @@ interface BoardState {
   success: string | null;
   addError: string | null;
   editError: string | null;
+  invitedMemeberList: MemberData[]
 }
 
 const initialState: BoardState = {
@@ -114,6 +137,7 @@ const initialState: BoardState = {
   success: null,
   addError: null,
   editError: null,
+  invitedMemeberList: []
 };
 
 export const getAllBoards = createAsyncThunk(
@@ -220,6 +244,20 @@ export const deleteBoard = createAsyncThunk(
     } catch (error: any) {
       return rejectWithValue(
         error.response?.data?.message || "Error while deleting board"
+      );
+    }
+  }
+);
+
+export const getBoardMemberListByID = createAsyncThunk(
+  "member/member-list",
+  async (_id: string, { rejectWithValue }) => {
+    try {
+      const response = await boardService.getBoardMemberListById(_id);
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message || "Error while fetching board details"
       );
     }
   }
@@ -399,6 +437,27 @@ const boardSlice = createSlice({
         state.success = null;
         state.error =
           (action.payload as string) || "Error while fetching board.";
+      })
+      
+      // Fetch board member list
+      .addCase(getBoardMemberListByID.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.success = null;
+      })
+      .addCase(getBoardMemberListByID.fulfilled, (state, action) => {
+        console.log('1111',action.payload)
+        state.invitedMemeberList = action.payload;
+        state.loading = false;
+        state.error = null;
+        state.success = "Board details fetched successfully.";
+      })
+      .addCase(getBoardMemberListByID.rejected, (state, action) => {
+        state.loading = false;
+        state.invitedMemeberList = [];
+        state.success = null;
+        state.error =
+          (action.payload as string) || "Error while fetching board details.";
       });
   },
 });

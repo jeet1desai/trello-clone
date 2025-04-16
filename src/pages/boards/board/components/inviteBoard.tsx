@@ -1,5 +1,11 @@
-import React, { useState } from 'react';
-import { Modal, Input, Select, Button, List, Avatar, Space, Typography, Divider } from 'antd';
+import React, { useState, useEffect } from 'react';
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "../../../../store";
+import { useParams } from "react-router";
+import {
+  getBoardMemberListByID,
+} from "../../../../store/slices/boardSlice";
+import { Modal, Select, Button, List, Avatar, Space, Typography, Divider } from 'antd';
 import { LinkOutlined, UserOutlined } from '@ant-design/icons';
 import '../../../../layout/styles/Board.css';
 
@@ -11,19 +17,49 @@ interface InviteBoardProps {
 }
 
 const InviteBoard: React.FC<InviteBoardProps> = ({ isOpen, onClose }) => {
-  const [email, setEmail] = useState('');
+  const [emails, setEmails] = useState<string[]>([]);
+  const [emailError, setEmailError] = useState<string>('');
   const [role, setRole] = useState('Member');
+  const { id } = useParams<{ id: string }>();
+  const dispatch = useDispatch<AppDispatch>();
+
+  const { invitedMemeberList } = useSelector((state: RootState) => state.board);
+
+  const validateEmail = (email: string): boolean => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  const handleEmailChange = (newEmails: string[]) => {
+    const lastEmail = newEmails[newEmails.length - 1];
+    
+    if (newEmails.length < emails.length) {
+      setEmails(newEmails);
+      return;
+    }
+    
+    if (lastEmail && validateEmail(lastEmail)) {
+      setEmailError('')
+      setEmails(newEmails);
+    } else {
+      if (lastEmail) {
+        setEmailError("Invalid Email address")
+      }
+    }
+  };
 
   const handleShare = () => {
-    // Handle share logic here
-    console.log('Sharing with:', email, 'as', role);
-    setEmail('');
+    console.log('Sharing with:', emails, 'as', role);
+    setEmails([]);
   };
 
   const handleCreateLink = () => {
-    // Handle create link logic here
     console.log('Creating share link');
   };
+
+  useEffect(() => {
+    if (id) (async () => await dispatch(getBoardMemberListByID(id)))();
+  }, [dispatch, id]);
 
   const mockMember = {
     name: 'tatva',
@@ -43,11 +79,25 @@ const InviteBoard: React.FC<InviteBoardProps> = ({ isOpen, onClose }) => {
     >
       <div className="share-container">
         <div className="share-input-group">
-          <Input
-            placeholder="Email address or name"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+          <Select
+            mode="tags"
             style={{ flex: 1 }}
+            placeholder="Email address"
+            value={emails}
+            onChange={handleEmailChange}
+            tokenSeparators={[',', ' ']}
+            open={false}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                const inputValue = (e.target as HTMLInputElement).value;
+                if (!validateEmail(inputValue)) {
+                  e.preventDefault();
+                  e.stopPropagation();
+                }
+              } else {
+                setEmailError('')
+              }
+            }}
           />
           <Select
             defaultValue="Member"
@@ -62,6 +112,7 @@ const InviteBoard: React.FC<InviteBoardProps> = ({ isOpen, onClose }) => {
             Share
           </Button>
         </div>
+        <span className="color-red">{emailError}</span>
 
         <div className="link-section">
           <Space align="center">
@@ -85,14 +136,14 @@ const InviteBoard: React.FC<InviteBoardProps> = ({ isOpen, onClose }) => {
 
           <List
             itemLayout="horizontal"
-            dataSource={[mockMember]}
+            dataSource={invitedMemeberList}
             renderItem={(item) => (
               <List.Item
                 extra={
                   <Select
                     defaultValue={item.role}
                     style={{ width: 120 }}
-                    disabled={item.isAdmin}
+                    disabled={item.role === "ADMIN"}
                   >
                     <Select.Option value="Member">Member</Select.Option>
                     <Select.Option value="Admin">Admin</Select.Option>
@@ -102,11 +153,11 @@ const InviteBoard: React.FC<InviteBoardProps> = ({ isOpen, onClose }) => {
                 <List.Item.Meta
                   avatar={
                     <Avatar icon={<UserOutlined />}>
-                      {item.name.charAt(0).toUpperCase()}
+                      {item.memberId.first_name.charAt(0).toUpperCase()}
                     </Avatar>
                   }
-                  title={item.name}
-                  description={item.email}
+                  title={`${item.memberId.first_name} ${item.memberId.last_name}`}
+                  description={item.memberId.email}
                 />
               </List.Item>
             )}
