@@ -39,8 +39,8 @@ const VerifyEmail: React.FC = () => {
         </Text>
 
         <Text type="secondary">
-          Verify your email to complete your signup. If you
-          don't see it, you may need to check{" "}
+          Verify your email to complete your signup. If you don't see it, you
+          may need to check{" "}
           <span style={{ fontWeight: 700 }}>your spam folder</span>.
         </Text>
       </div>

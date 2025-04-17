@@ -24,13 +24,13 @@ import "../../layout/styles/Profile.css";
 const { Title, Text } = Typography;
 
 const ProfilePage = () => {
+  const [form] = Form.useForm();
   const dispatch = useDispatch<AppDispatch>();
   const { profileDetails, error, loading } = useSelector(
     (state: RootState) => state.profile
   );
   const [editMode, setEditMode] = useState(false);
   const [resetPasswordFlag, setResetPasswordFlag] = useState(false);
-  const [form] = Form.useForm();
   const [previewImage, setPreviewImage] = useState<string | undefined>(
     profileDetails?.profile_image
   );

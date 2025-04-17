@@ -20,10 +20,9 @@ export const taskService = {
 
   async updateTask(
     taskId: string,
-    title: string,
-    description: string,
+    title?: string,
     status_list_id?: string,
-    newPosition?: string,
+    newPosition?: number,
     status?: string
   ) {
     const response = await axiosInstance.put(
@@ -31,7 +30,6 @@ export const taskService = {
       {
         taskId,
         title,
-        description,
         status_list_id,
         newPosition,
         status,

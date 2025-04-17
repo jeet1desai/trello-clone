@@ -4,7 +4,10 @@ import { CloseOutlined } from "@ant-design/icons";
 import { Input } from "../../../../components";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "../../../../store";
-import { createTask, getTasksByStatusId } from "../../../../store/slices/taskSlice";
+import {
+  createTask,
+  getTasksByStatusId,
+} from "../../../../store/slices/taskSlice";
 
 interface AddTaskFormProps {
   boardId: string;
@@ -79,6 +82,7 @@ const AddTaskForm: React.FC<AddTaskFormProps> = ({
             placeholder="Enter task title..."
             size="middle"
             autoComplete="off"
+            style={{ borderRadius: "4px" }}
           />
         </Form.Item>
         <div style={{ display: "flex", gap: 5 }}>
@@ -86,7 +90,7 @@ const AddTaskForm: React.FC<AddTaskFormProps> = ({
             type="primary"
             htmlType="submit"
             className="button"
-            style={{ marginTop: 0, height: 32 }}
+            style={{ marginTop: 0, height: 32, borderRadius: "4px" }}
             loading={loading}
           >
             Add

@@ -1,5 +1,4 @@
-import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { message } from "antd";
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { workspaceService } from "../../services/workspaceService";
 
 export interface IUser {
@@ -16,8 +15,6 @@ export interface IWorkspace {
   createdBy: IUser;
   createdAt: string;
   updatedAt: string;
-  starred: boolean;
-  archived: boolean;
 }
 
 export interface IWorkspaceBoard {
@@ -79,7 +76,7 @@ export const getAllWorkspaces = createAsyncThunk(
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message || "Error while fetching workspace"
+        error.response?.data?.message || "Error while fetching workspaces."
       );
     }
   }
@@ -94,7 +91,7 @@ export const getWorkspaceById = createAsyncThunk(
     } catch (error: any) {
       return rejectWithValue(
         error.response?.data?.message ||
-          "Error while fetching workspace details"
+          "Error while fetching workspace details."
       );
     }
   }
@@ -111,7 +108,7 @@ export const addNewWorkspace = createAsyncThunk(
       return response;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message || "Error while adding workspace"
+        error.response?.data?.message || "Error while adding workspace."
       );
     }
   }
@@ -136,7 +133,7 @@ export const editWorkspace = createAsyncThunk(
       return response;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message || "Error while updating workspace"
+        error.response?.data?.message || "Error while updating workspace."
       );
     }
   }
@@ -150,7 +147,7 @@ export const deleteWorkspace = createAsyncThunk(
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message || "Error while deleting workspace"
+        error.response?.data?.message || "Error while deleting workspace."
       );
     }
   }
@@ -164,7 +161,7 @@ export const getBoardsByWorkspaceId = createAsyncThunk(
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message || "Error while fetching boards"
+        error.response?.data?.message || "Error while fetching boards."
       );
     }
   }
@@ -177,47 +174,6 @@ const workspaceSlice = createSlice({
     openWorkspaceAddModal: (state) => {
       state.addError = null;
       state.loading = false;
-    },
-    toggleStarWorkspace: (state, action: PayloadAction<string>) => {
-      const _id = action.payload;
-      const index = state.workspaces.findIndex(
-        (workspace) => workspace._id === _id
-      );
-      if (index !== -1) {
-        const currentStarred = !!state.workspaces[index].starred;
-        state.workspaces[index].starred = !currentStarred;
-        message.success(
-          currentStarred
-            ? "Workspace removed from starred"
-            : "Workspace added to starred"
-        );
-      } else {
-        message.error("Workspace not found");
-      }
-    },
-    archiveWorkspace: (state, action: PayloadAction<string>) => {
-      const _id = action.payload;
-      const index = state.workspaces.findIndex(
-        (workspace) => workspace._id === _id
-      );
-      if (index !== -1) {
-        state.workspaces[index].archived = true;
-        message.success("Workspace archived successfully");
-      } else {
-        message.error("Workspace not found");
-      }
-    },
-    restoreWorkspace: (state, action: PayloadAction<string>) => {
-      const _id = action.payload;
-      const index = state.workspaces.findIndex(
-        (workspace) => workspace._id === _id
-      );
-      if (index !== -1) {
-        state.workspaces[index].archived = false;
-        message.success("Workspace restored successfully");
-      } else {
-        message.error("Workspace not found");
-      }
     },
     clearSelectedWorkspace: (state) => {
       state.selectedWorkspace = null;
@@ -278,16 +234,8 @@ const workspaceSlice = createSlice({
         state.error = null;
       })
       .addCase(addNewWorkspace.fulfilled, (state, action) => {
-        const {
-          _id,
-          name,
-          description,
-          createdBy,
-          createdAt,
-          updatedAt,
-          archived,
-          starred,
-        } = action.payload.data;
+        const { _id, name, description, createdBy, createdAt, updatedAt } =
+          action.payload.data;
         const currentWorkspace = {
           _id: _id,
           name,
@@ -295,8 +243,6 @@ const workspaceSlice = createSlice({
           createdBy,
           createdAt,
           updatedAt,
-          archived,
-          starred,
         };
         state.workspaces = [...state.workspaces, currentWorkspace];
         state.loading = false;
@@ -321,15 +267,12 @@ const workspaceSlice = createSlice({
         state.error = null;
       })
       .addCase(editWorkspace.fulfilled, (state, action) => {
-        const { _id, name, description, updatedAt, archived, starred } =
-          action.payload.data;
+        const { _id, name, description, updatedAt } = action.payload.data;
         const currentWorkspace = {
           _id,
           name,
           description,
           updatedAt,
-          archived,
-          starred,
         };
         const index = state.workspaces.findIndex(
           (workspace) => workspace._id === currentWorkspace._id
@@ -408,12 +351,7 @@ const workspaceSlice = createSlice({
   },
 });
 
-export const {
-  openWorkspaceAddModal,
-  toggleStarWorkspace,
-  archiveWorkspace,
-  restoreWorkspace,
-  clearSelectedWorkspace,
-} = workspaceSlice.actions;
+export const { openWorkspaceAddModal, clearSelectedWorkspace } =
+  workspaceSlice.actions;
 
 export default workspaceSlice.reducer;

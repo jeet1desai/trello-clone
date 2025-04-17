@@ -73,7 +73,7 @@ const AddBoardForm = ({
           showSearch
           placeholder="Select workspace"
           filterOption={(input, option) =>
-            (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+            (option?.label ?? "").toLowerCase().includes(input.toLowerCase())
           }
           className="form-input"
           defaultValue={defaultWorkspace}
@@ -100,7 +100,12 @@ const AddBoardForm = ({
           <Button type="default" className="button" onClick={onCancel}>
             Cancel
           </Button>
-          <Button type="primary" className="button" htmlType="submit" loading={loading}>
+          <Button
+            type="primary"
+            className="button"
+            htmlType="submit"
+            loading={loading}
+          >
             {isEdit ? "Update" : "Create"}
           </Button>
         </Space>
