@@ -51,19 +51,17 @@ import AddBoardForm from "./components/AddBoardForm";
 const { Title, Paragraph } = Typography;
 
 const Boards: React.FC = () => {
+  const [form] = Form.useForm();
+  const { modal } = App.useApp();
+  const location = useLocation();
   const dispatch = useDispatch<AppDispatch>();
   const { boards, addError, editError, loading } = useSelector(
     (state: RootState) => state.board
   );
-  const location = useLocation();
-  const { modal } = App.useApp();
 
   const [searchText, setSearchText] = useState("");
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [selectedBoard, setSelectedBoard] = useState<IBoard | null>(null);
-  const [form] = Form.useForm();
-
-  // Filter and sort state
   const [filterCreators, setFilterCreators] = useState<string[]>([]);
   const [sortOption, setSortOption] = useState<string>(SORT_OPTIONS.DEFAULT);
 
@@ -72,7 +70,7 @@ const Boards: React.FC = () => {
     const owner = board.members?.find((user) => user.role === "ADMIN")?.user;
     return owner;
   };
-
+  
   // Get all unique creators
   const allCreators = React.useMemo(() => {
     const creators = boards.map(
@@ -87,6 +85,17 @@ const Boards: React.FC = () => {
     form.resetFields();
     setIsModalVisible(true);
   }, [form, dispatch]);
+  
+  useEffect(() => {
+    (async () => {
+      await dispatch(getAllBoards());
+    })();
+
+    return () => {
+      dispatch(openBoardAddModal());
+      dispatch(clearSelectedBoard());
+    };
+  }, [dispatch]);
 
   // Check URL parameters for mode=create
   useEffect(() => {
@@ -213,17 +222,6 @@ const Boards: React.FC = () => {
     }
   };
 
-  useEffect(() => {
-    (async () => {
-      await dispatch(getAllBoards());
-    })();
-
-    return () => {
-      dispatch(openBoardAddModal());
-      dispatch(clearSelectedBoard());
-    };
-  }, [dispatch]);
-
   const renderBoardCard = (board: IBoard) => {
     const background = generateGradient(board.name);
     const moreMenu: MenuProps["items"] = [
@@ -330,7 +328,7 @@ const Boards: React.FC = () => {
           <Card hoverable className="create-board-card" onClick={showAddModal}>
             <div className="create-card-content">
               <PlusOutlined className="plus-icon" />
-              <div className="create-card-text button">Create New Board</div>
+              <div className="create-card-text">Create New Board</div>
             </div>
           </Card>
         </Col>

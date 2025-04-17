@@ -314,11 +314,12 @@ a:hover {
 
 /* Notification */
 .ant-notification-notice-wrapper {
-  border-radius: 12px !important;
+  border-radius: 4px !important;
 }
 
 .ant-notification-notice {
-  border-radius: 12px !important;
+  border-radius: 4px !important;
+  padding: 10px 16px !important;
 }
 
 .ant-notification-notice-success {
@@ -339,6 +340,10 @@ a:hover {
 
 .ant-notification-notice-message {
   margin-bottom: 0px !important;
+}
+
+.ant-notification-notice-close {
+  top: 11px !important;
 }
 
 /* Tag */

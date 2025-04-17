@@ -25,11 +25,11 @@ const Layout: React.FC = () => {
   const contentStyle = isBoardDetailPage
     ? {
         background: isDarkMode ? "#1D2125" : "#F0F2F5",
-        minHeight: "calc(100vh - 64px)",
+        minHeight: "calc(100vh - 72px)",
       }
     : {
         padding: "24px",
-        minHeight: "calc(100vh - 64px)",
+        minHeight: "calc(100vh - 72px)",
       };
 
   // Don't show footer on board detail pages
