@@ -89,7 +89,7 @@ export interface IBoardDetails {
   workspace: IBoardWorkspace[];
 }
 
-interface MemberData {
+export interface MemberData {
   _id: string;
   memberId: {
     _id: string;
@@ -242,7 +242,7 @@ export const deleteBoard = createAsyncThunk(
   }
 );
 
-export const getBoardMemberListByID = createAsyncThunk(
+export const getBoardMemberListById = createAsyncThunk(
   "member/member-list",
   async (_id: string, { rejectWithValue }) => {
     try {
@@ -251,6 +251,47 @@ export const getBoardMemberListByID = createAsyncThunk(
     } catch (error: any) {
       return rejectWithValue(
         error.response?.data?.message || "Error while fetching board details"
+      );
+    }
+  }
+);
+
+export const removeBoardMemberFromListById = createAsyncThunk(
+  "member/remove-member",
+  async ( {
+    _id,
+    memberId,
+  }: {
+    _id: string;
+    memberId: string
+  }, { rejectWithValue }) => {
+    try {
+      const response = await boardService.removeBoardMemberFromListById(_id, memberId);
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message || "Error while fetching board details"
+      );
+    }
+  }
+);
+
+export const inviteBoardMember = createAsyncThunk(
+  "invite/send-invitation",
+  async ({
+    _id,
+    members,
+  }: {
+    _id: string;
+    members: string[]
+  }, { rejectWithValue }
+  ) => {
+    try {
+      const response = await boardService.inviteBoardMember(_id, members);
+      return response.message;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message || "Error while sending invitation"
       );
     }
   }
@@ -433,24 +474,72 @@ const boardSlice = createSlice({
       })
       
       // Fetch board member list
-      .addCase(getBoardMemberListByID.pending, (state) => {
+      .addCase(getBoardMemberListById.pending, (state) => {
         state.loading = true;
         state.error = null;
         state.success = null;
       })
-      .addCase(getBoardMemberListByID.fulfilled, (state, action) => {
-        console.log('1111',action.payload)
+      .addCase(getBoardMemberListById.fulfilled, (state, action) => {
         state.invitedMemeberList = action.payload;
         state.loading = false;
         state.error = null;
         state.success = "Board details fetched successfully.";
       })
-      .addCase(getBoardMemberListByID.rejected, (state, action) => {
+      .addCase(getBoardMemberListById.rejected, (state, action) => {
         state.loading = false;
         state.invitedMemeberList = [];
         state.success = null;
         state.error =
           (action.payload as string) || "Error while fetching board details.";
+      })
+
+      // Delete invited member from board
+      .addCase(removeBoardMemberFromListById.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.success = null;
+      })
+      .addCase(removeBoardMemberFromListById.fulfilled, (state, action) => {
+        const { _id } = action.payload;
+        const index = state.boards.findIndex((invitedMemeberList) => invitedMemeberList._id === _id);
+        state.invitedMemeberList = state.invitedMemeberList.filter(
+          (item) => item._id !== _id
+        );
+        if (index !== -1) {
+          state.loading = false;
+          state.error = null;
+          state.success = "Member removed successfully.";
+        } else {
+          state.loading = false;
+          state.error = "Member not found.";
+        }
+      })
+      .addCase(removeBoardMemberFromListById.rejected, (state, action) => {
+        state.loading = false;
+        state.success = null;
+        state.error =
+          (action.payload as string) || "Error while fetching member.";
+      })
+
+      // send member invitation
+      .addCase(inviteBoardMember.pending, (state) => {
+        state.loading = true;
+        state.addError = null;
+        state.error = null;
+        state.success = null;
+      })
+      .addCase(inviteBoardMember.fulfilled, (state) => {
+        state.loading = false;
+        state.addError = null;
+        state.error = null;
+        state.success = "Invitation sent successfully.";
+      })
+      .addCase(inviteBoardMember.rejected, (state, action) => {
+        state.loading = false;
+        state.success = null;
+        state.addError =
+          (action.payload as string) || "Error while sending invitation.";
+        state.error = (action.payload as string) || "Error while sending invitation.";
       });
   },
 });

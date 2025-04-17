@@ -55,4 +55,21 @@ export const boardService = {
     );
     return response.data;
   },
+
+  async removeBoardMemberFromListById(boardId: string, memberId: string) {
+    const response = await axiosInstance.delete(
+      `${API_URL}/member/remove-member/${boardId}/${memberId}`
+    );
+    return response.data;
+  },
+
+  async inviteBoardMember(boardId: string, members: string[]) {
+    const response = await axiosInstance.post(
+      `${API_URL}/invite/send-invitation/${boardId}`,
+      {
+        members
+      }
+    );
+    return response.data;
+  },
 };
