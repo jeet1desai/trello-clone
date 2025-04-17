@@ -16,12 +16,12 @@ import "../../../layout/styles/Auth.css";
 const { Title, Text } = Typography;
 
 const Login: React.FC = () => {
+  const [form] = Form.useForm();
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
   const { loading, isAuthenticated } = useSelector(
     (state: RootState) => state.user
   );
-  const [form] = Form.useForm();
 
   useEffect(() => {
     // Clear any previous auth states

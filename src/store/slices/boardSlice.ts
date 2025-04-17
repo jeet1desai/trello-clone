@@ -119,7 +119,7 @@ interface BoardState {
   success: string | null;
   addError: string | null;
   editError: string | null;
-  invitedMemeberList: MemberData[]
+  invitedMemberList: MemberData[];
 }
 
 const initialState: BoardState = {
@@ -130,7 +130,7 @@ const initialState: BoardState = {
   success: null,
   addError: null,
   editError: null,
-  invitedMemeberList: []
+  invitedMemberList: [],
 };
 
 export const getAllBoards = createAsyncThunk(
@@ -141,7 +141,7 @@ export const getAllBoards = createAsyncThunk(
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message || "Error while fetching boards"
+        error.response?.data?.message || "Error while fetching boards."
       );
     }
   }
@@ -155,7 +155,7 @@ export const getBoardById = createAsyncThunk(
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message || "Error while fetching board details"
+        error.response?.data?.message || "Error while fetching board details."
       );
     }
   }
@@ -187,7 +187,7 @@ export const addNewBoard = createAsyncThunk(
       return response;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message || "Error while adding board"
+        error.response?.data?.message || "Error while adding board."
       );
     }
   }
@@ -222,7 +222,7 @@ export const editBoard = createAsyncThunk(
       return response;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message || "Error while updating board"
+        error.response?.data?.message || "Error while updating board."
       );
     }
   }
@@ -236,41 +236,47 @@ export const deleteBoard = createAsyncThunk(
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message || "Error while deleting board"
+        error.response?.data?.message || "Error while deleting board."
       );
     }
   }
 );
 
 export const getBoardMemberListById = createAsyncThunk(
-  "member/member-list",
+  "board/member-list",
   async (_id: string, { rejectWithValue }) => {
     try {
       const response = await boardService.getBoardMemberListById(_id);
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message || "Error while fetching board details"
+        error.response?.data?.message || "Error while fetching members"
       );
     }
   }
 );
 
 export const removeBoardMemberFromListById = createAsyncThunk(
-  "member/remove-member",
-  async ( {
-    _id,
-    memberId,
-  }: {
-    _id: string;
-    memberId: string
-  }, { rejectWithValue }) => {
+  "board/remove-member",
+  async (
+    {
+      _id,
+      memberId,
+    }: {
+      _id: string;
+      memberId: string;
+    },
+    { rejectWithValue }
+  ) => {
     try {
-      const response = await boardService.removeBoardMemberFromListById(_id, memberId);
+      const response = await boardService.removeBoardMemberFromListById(
+        _id,
+        memberId
+      );
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message || "Error while fetching board details"
+        error.response?.data?.message || "Error while removing members."
       );
     }
   }
@@ -278,20 +284,22 @@ export const removeBoardMemberFromListById = createAsyncThunk(
 
 export const inviteBoardMember = createAsyncThunk(
   "invite/send-invitation",
-  async ({
-    _id,
-    members,
-  }: {
-    _id: string;
-    members: string[]
-  }, { rejectWithValue }
+  async (
+    {
+      _id,
+      members,
+    }: {
+      _id: string;
+      members: string[];
+    },
+    { rejectWithValue }
   ) => {
     try {
       const response = await boardService.inviteBoardMember(_id, members);
       return response.message;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message || "Error while sending invitation"
+        error.response?.data?.message || "Error while sending invitation."
       );
     }
   }
@@ -472,7 +480,7 @@ const boardSlice = createSlice({
         state.error =
           (action.payload as string) || "Error while fetching board.";
       })
-      
+
       // Fetch board member list
       .addCase(getBoardMemberListById.pending, (state) => {
         state.loading = true;
@@ -480,17 +488,17 @@ const boardSlice = createSlice({
         state.success = null;
       })
       .addCase(getBoardMemberListById.fulfilled, (state, action) => {
-        state.invitedMemeberList = action.payload;
+        state.invitedMemberList = action.payload;
         state.loading = false;
         state.error = null;
         state.success = "Board details fetched successfully.";
       })
       .addCase(getBoardMemberListById.rejected, (state, action) => {
         state.loading = false;
-        state.invitedMemeberList = [];
+        state.invitedMemberList = [];
         state.success = null;
         state.error =
-          (action.payload as string) || "Error while fetching board details.";
+          (action.payload as string) || "Error while fetching members.";
       })
 
       // Delete invited member from board
@@ -501,8 +509,10 @@ const boardSlice = createSlice({
       })
       .addCase(removeBoardMemberFromListById.fulfilled, (state, action) => {
         const { _id } = action.payload;
-        const index = state.boards.findIndex((invitedMemeberList) => invitedMemeberList._id === _id);
-        state.invitedMemeberList = state.invitedMemeberList.filter(
+        const index = state.boards.findIndex(
+          (invitedMemberList) => invitedMemberList._id === _id
+        );
+        state.invitedMemberList = state.invitedMemberList.filter(
           (item) => item._id !== _id
         );
         if (index !== -1) {
@@ -518,28 +528,25 @@ const boardSlice = createSlice({
         state.loading = false;
         state.success = null;
         state.error =
-          (action.payload as string) || "Error while fetching member.";
+          (action.payload as string) || "Error while removing member.";
       })
 
       // send member invitation
       .addCase(inviteBoardMember.pending, (state) => {
         state.loading = true;
-        state.addError = null;
         state.error = null;
         state.success = null;
       })
       .addCase(inviteBoardMember.fulfilled, (state) => {
         state.loading = false;
-        state.addError = null;
         state.error = null;
         state.success = "Invitation sent successfully.";
       })
       .addCase(inviteBoardMember.rejected, (state, action) => {
         state.loading = false;
         state.success = null;
-        state.addError =
+        state.error =
           (action.payload as string) || "Error while sending invitation.";
-        state.error = (action.payload as string) || "Error while sending invitation.";
       });
   },
 });

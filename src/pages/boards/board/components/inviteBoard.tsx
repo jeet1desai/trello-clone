@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../../../store";
 import { useParams } from "react-router";
@@ -8,9 +8,19 @@ import {
   MemberData,
   inviteBoardMember,
 } from "../../../../store/slices/boardSlice";
-import { Modal, Select, Button, List, Avatar, Space, Typography, Divider } from 'antd';
-import { LinkOutlined, UserOutlined } from '@ant-design/icons';
-import '../../../../layout/styles/Board.css';
+import {
+  Modal,
+  Select,
+  Button,
+  List,
+  Avatar,
+  Space,
+  Typography,
+  Divider,
+  Spin,
+} from "antd";
+import { LinkOutlined, UserOutlined } from "@ant-design/icons";
+import "../../../../layout/styles/Board.css";
 
 const { Text } = Typography;
 
@@ -20,15 +30,18 @@ interface InviteBoardProps {
 }
 
 const InviteBoard: React.FC<InviteBoardProps> = ({ isOpen, onClose }) => {
-  const [emails, setEmails] = useState<string[]>([]);
-  const [emailError, setEmailError] = useState<string>('');
-  const [role, setRole] = useState('Member');
-  const [removeModalVisible, setRemoveModalVisible] = useState(false);
-  const [selectedMember, setSelectedMember] = useState<any>(null);
   const { id } = useParams<{ id: string }>();
   const dispatch = useDispatch<AppDispatch>();
+  const { invitedMemberList, loading: memberLoading } = useSelector(
+    (state: RootState) => state.board
+  );
 
-  const { invitedMemeberList, loading } = useSelector((state: RootState) => state.board);
+  const [loading, setLoading] = useState(false);
+  const [emails, setEmails] = useState<string[]>([]);
+  const [emailError, setEmailError] = useState<string>("");
+  const [role, setRole] = useState("Member");
+  const [removeModalVisible, setRemoveModalVisible] = useState(false);
+  const [selectedMember, setSelectedMember] = useState<any>(null);
 
   const validateEmail = (email: string): boolean => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -37,32 +50,37 @@ const InviteBoard: React.FC<InviteBoardProps> = ({ isOpen, onClose }) => {
 
   const handleEmailChange = (newEmails: string[]) => {
     const lastEmail = newEmails[newEmails.length - 1];
-    
+
     if (newEmails.length < emails.length) {
       setEmails(newEmails);
       return;
     }
-    
+
     if (lastEmail && validateEmail(lastEmail)) {
-      setEmailError('')
+      setEmailError("");
       setEmails(newEmails);
     } else {
       if (lastEmail) {
-        setEmailError("Invalid Email address")
+        setEmailError("Invalid Email address");
       }
     }
   };
 
   const handleShare = async () => {
-    if (id) await dispatch(inviteBoardMember({
-      _id: id,
-      members: emails
-    }))
+    setLoading(true);
+    if (id)
+      await dispatch(
+        inviteBoardMember({
+          _id: id,
+          members: emails,
+        })
+      );
+    setLoading(false);
     setEmails([]);
   };
 
   const handleCreateLink = () => {
-    console.log('Creating share link');
+    console.log("Creating share link");
   };
 
   const handleRemoveMember = (member: MemberData) => {
@@ -74,23 +92,20 @@ const InviteBoard: React.FC<InviteBoardProps> = ({ isOpen, onClose }) => {
     if (selectedMember) {
       setRemoveModalVisible(false);
       setSelectedMember(null);
-      if (id) await dispatch(removeBoardMemberFromListById({
-        _id: selectedMember.boardId._id,
-        memberId: selectedMember.memberId._id
-      }));
+      if (id)
+        await dispatch(
+          removeBoardMemberFromListById({
+            _id: selectedMember.boardId._id,
+            memberId: selectedMember.memberId._id,
+          })
+        );
     }
   };
 
   useEffect(() => {
-    if (id) (async () => await dispatch(getBoardMemberListById(id)))();
-  }, [dispatch, id]);
-
-  const mockMember = {
-    name: 'tatva',
-    email: '@tatva1590',
-    role: 'Admin',
-    isAdmin: true,
-  };
+    if (id && isOpen)
+      (async () => await dispatch(getBoardMemberListById(id)))();
+  }, [dispatch, id, isOpen]);
 
   return (
     <>
@@ -105,26 +120,28 @@ const InviteBoard: React.FC<InviteBoardProps> = ({ isOpen, onClose }) => {
         <div className="share-container">
           <div className="share-input-group">
             <Select
+              className="form-input"
               mode="tags"
               style={{ flex: 1 }}
               placeholder="Email address"
               value={emails}
               onChange={handleEmailChange}
-              tokenSeparators={[',', ' ']}
+              tokenSeparators={[",", " "]}
               open={false}
               onKeyDown={(e) => {
-                if (e.key === 'Enter') {
+                if (e.key === "Enter") {
                   const inputValue = (e.target as HTMLInputElement).value;
                   if (!validateEmail(inputValue)) {
                     e.preventDefault();
                     e.stopPropagation();
                   }
                 } else {
-                  setEmailError('')
+                  setEmailError("");
                 }
               }}
             />
             <Select
+              className="form-input"
               defaultValue="Member"
               value={role}
               onChange={(value) => setRole(value)}
@@ -132,7 +149,13 @@ const InviteBoard: React.FC<InviteBoardProps> = ({ isOpen, onClose }) => {
             >
               <Select.Option value="Member">Member</Select.Option>
             </Select>
-            <Button loading={loading} type="primary" onClick={handleShare}>
+            <Button
+              loading={loading}
+              type="primary"
+              className="button"
+              style={{ marginTop: 0 }}
+              onClick={handleShare}
+            >
               Share
             </Button>
           </div>
@@ -153,51 +176,72 @@ const InviteBoard: React.FC<InviteBoardProps> = ({ isOpen, onClose }) => {
               </div>
             </Space>
           </div>
-
-          <Divider style={{ margin: '12px 0' }} />
-
           <div className="members-section">
             <div className="member-count">
               <Text strong>Board members</Text>
-              <Text type="secondary">{invitedMemeberList.length}</Text>
-            </div>
-
-            <List
-              itemLayout="horizontal"
-              dataSource={invitedMemeberList}
-              renderItem={(item) => (
-                <List.Item
-                  extra={
-                    <Select
-                      value={item.role}
-                      style={{ width: 150 }}
-                      disabled={item.role === "ADMIN"}
-                      onChange={(value: "MEMBER" | "ADMIN" | "REMOVE") => {
-                        if (value === 'REMOVE') {
-                          handleRemoveMember(item);
-                        } else {
-                          console.log('Role changed to:', value);
-                        }
-                      }}
-                    >
-                      <Select.Option value="MEMBER">Member</Select.Option>
-                      <Select.Option disabled={item.role === "MEMBER"} value="ADMIN">Admin</Select.Option>
-                      <Select.Option value="REMOVE">Remove Member</Select.Option>
-                    </Select>
-                  }
+              {!memberLoading && (
+                <Text
+                  style={{
+                    padding: "0 5px",
+                    fontSize: "12px",
+                    borderRadius: "50%",
+                    background: "grey",
+                    color: "white",
+                  }}
                 >
-                  <List.Item.Meta
-                    avatar={
-                      <Avatar icon={<UserOutlined />}>
-                        {item.memberId.first_name.charAt(0).toUpperCase()}
-                      </Avatar>
-                    }
-                    title={`${item.memberId.first_name} ${item.memberId.last_name}`}
-                    description={item.memberId.email}
-                  />
-                </List.Item>
+                  {invitedMemberList?.length}
+                </Text>
               )}
-            />
+            </div>
+            <Divider style={{ margin: "12px 0" }} />
+            {memberLoading ? (
+              <Spin spinning={memberLoading} style={{ display: "flow" }} />
+            ) : (
+              <List
+                itemLayout="horizontal"
+                dataSource={invitedMemberList}
+                renderItem={(item) => (
+                  <List.Item
+                    extra={
+                      <Select
+                        className="form-input"
+                        value={item.role}
+                        style={{ width: 150 }}
+                        disabled={item.role === "ADMIN"}
+                        onChange={(value: "MEMBER" | "ADMIN" | "REMOVE") => {
+                          if (value === "REMOVE") {
+                            handleRemoveMember(item);
+                          } else {
+                            console.log("Role changed to:", value);
+                          }
+                        }}
+                      >
+                        <Select.Option value="MEMBER">Member</Select.Option>
+                        <Select.Option
+                          disabled={item.role === "MEMBER"}
+                          value="ADMIN"
+                        >
+                          Admin
+                        </Select.Option>
+                        <Select.Option value="REMOVE">
+                          Remove Member
+                        </Select.Option>
+                      </Select>
+                    }
+                  >
+                    <List.Item.Meta
+                      avatar={
+                        <Avatar icon={<UserOutlined />}>
+                          {item.memberId.first_name.charAt(0).toUpperCase()}
+                        </Avatar>
+                      }
+                      title={`${item.memberId.first_name} ${item.memberId.last_name}`}
+                      description={item.memberId.email}
+                    />
+                  </List.Item>
+                )}
+              />
+            )}
           </div>
         </div>
       </Modal>
@@ -209,9 +253,9 @@ const InviteBoard: React.FC<InviteBoardProps> = ({ isOpen, onClose }) => {
           setRemoveModalVisible(false);
           setSelectedMember(null);
         }}
-          footer={[
-          <Button 
-            key="cancel" 
+        footer={[
+          <Button
+            key="cancel"
             onClick={() => {
               setRemoveModalVisible(false);
               setSelectedMember(null);
@@ -219,20 +263,20 @@ const InviteBoard: React.FC<InviteBoardProps> = ({ isOpen, onClose }) => {
           >
             Cancel
           </Button>,
-          <Button 
-            key="remove" 
-            danger 
-            type="primary" 
+          <Button
+            key="remove"
+            danger
+            type="primary"
             onClick={confirmRemoveMember}
           >
             Remove
-          </Button>
+          </Button>,
         ]}
       >
         <p>
-          {selectedMember ? 
-            `${selectedMember.memberId.first_name} ${selectedMember.memberId.last_name} will be removed from all cards on this board.` 
-            : 'Member will be removed from all cards on this board.'}
+          {selectedMember
+            ? `${selectedMember.memberId.first_name} ${selectedMember.memberId.last_name} will be removed from all cards on this board.`
+            : "Member will be removed from all cards on this board."}
         </p>
       </Modal>
     </>
