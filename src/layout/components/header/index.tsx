@@ -1,22 +1,8 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  Layout,
-  Button,
-  Avatar,
-  Input,
-  Dropdown,
-  MenuProps,
-  Space,
-} from "antd";
-import {
-  SearchOutlined,
-  BellOutlined,
-  UserOutlined,
-  LogoutOutlined,
-  SettingOutlined,
-} from "@ant-design/icons";
+import { Layout, Button, Avatar, Input, Dropdown, MenuProps, Space, Popover } from "antd";
+import { SearchOutlined, BellOutlined, UserOutlined, LogoutOutlined, SettingOutlined, EyeInvisibleOutlined } from "@ant-design/icons";
 import { AppDispatch, RootState } from "../../../store";
 import { logoutUser } from "../../../store/slices/userSlice";
 import { ThemeToggle } from "../../../components/ui";
@@ -29,9 +15,7 @@ const Header: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const location = useLocation();
-  const { currentUser, isAuthenticated } = useSelector(
-    (state: RootState) => state.user
-  );
+  const { currentUser, isAuthenticated } = useSelector((state: RootState) => state.user);
   const [searchText, setSearchText] = useState("");
   const { theme } = useTheme();
 
@@ -106,10 +90,7 @@ const Header: React.FC = () => {
             >
               <Link to="/register">Sign Up</Link>
             </Button>
-            <Button
-              type="primary"
-              style={{ borderRadius: "50px", padding: "18px" }}
-            >
+            <Button type="primary" style={{ borderRadius: "50px", padding: "18px" }}>
               <Link to="/login" style={{ color: "inherit" }}>
                 Log In
               </Link>
@@ -144,9 +125,7 @@ const Header: React.FC = () => {
             type="text"
             style={{
               padding: 0,
-              color: location.pathname.includes("workspaces")
-                ? "#40A9FF"
-                : "inherit",
+              color: location.pathname.includes("workspaces") ? "#40A9FF" : "inherit",
               fontWeight: location.pathname.includes("workspaces") ? 600 : 400,
             }}
             onClick={() => navigate("/workspaces")}
@@ -157,9 +136,7 @@ const Header: React.FC = () => {
             type="text"
             style={{
               padding: 0,
-              color: location.pathname.includes("boards")
-                ? "#40A9FF"
-                : "inherit",
+              color: location.pathname.includes("boards") ? "#40A9FF" : "inherit",
               fontWeight: location.pathname.includes("boards") ? 600 : 400,
             }}
             onClick={() => navigate("/boards")}
@@ -179,11 +156,39 @@ const Header: React.FC = () => {
           style={{ width: 250 }}
           className="form-input"
         />
-        <Button
-          type="text"
-          icon={<BellOutlined />}
-          style={{ color: isDarkMode ? "white" : "inherit" }}
-        />
+
+        <Popover
+          content={
+            <div style={{ width: "350px", display: "flex", flexDirection: "column", gap: "4px" }}>
+              <div
+                style={{
+                  background: isDarkMode ? "#181818" : "#efefef",
+                  padding: "10px",
+                  borderRadius: "4px",
+                  display: "flex",
+                  justifyContent: "space-between",
+                }}
+              >
+                <div style={{ display: "flex", alignItems: "flex-start", gap: 8 }}>
+                  <Avatar />
+                  <div style={{ display: "flex", flexDirection: "column", gap: 4, maxWidth: "250px" }}>
+                    <p style={{ margin: 0 }}>
+                      <b>h5. Ant Design </b>5. Ant Design 5. Ant Design 5. Ant Design 5. Ant Design5.
+                    </p>
+                    <span style={{ color: isDarkMode ? "#727272" : "#727272" }}>Date</span>
+                  </div>
+                </div>
+                <Button type="text" icon={<EyeInvisibleOutlined />} style={{ color: isDarkMode ? "white" : "inherit" }} />
+              </div>
+              <div style={{ background: isDarkMode ? "#181818" : "#efefef", padding: "10px", borderRadius: "4px" }}>d</div>
+            </div>
+          }
+          title="Notification"
+          trigger="click"
+          placement="bottomRight"
+        >
+          <Button type="text" icon={<BellOutlined />} style={{ color: isDarkMode ? "white" : "inherit" }} />
+        </Popover>
 
         <ThemeToggle style={{ marginRight: 8 }} />
 
