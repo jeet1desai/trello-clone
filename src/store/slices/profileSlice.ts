@@ -25,7 +25,7 @@ export const getProfileData = createAsyncThunk(
       return response;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message || "Error while fetching profile details"
+        error.response?.data?.message || "Error while fetching profile details."
       );
     }
   }
@@ -48,7 +48,7 @@ export const updateProfile = createAsyncThunk(
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message || "Error while updating profile details"
+        error.response?.data?.message || "Error while updating profile details."
       );
     }
   }
@@ -68,7 +68,7 @@ export const resetPassword = createAsyncThunk(
       return response.message;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message || "Error while updating password"
+        error.response?.data?.message || "Error while updating password."
       );
     }
   }

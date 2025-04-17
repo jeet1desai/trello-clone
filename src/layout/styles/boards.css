@@ -34,10 +34,6 @@
   align-items: center;
 }
 
-.boards-tabs-container {
-  margin-bottom: 24px;
-}
-
 /* Improved Filter Dropdown */
 .filter-dropdown {
   min-width: 220px !important;
@@ -71,20 +67,6 @@
 .board-card:hover {
   transform: translateY(-3px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
-
-.board-card.archived::after {
-  content: "ARCHIVED";
-  position: absolute;
-  top: 20px;
-  right: -25px;
-  background-color: #1890ff;
-  color: white;
-  font-size: 10px;
-  font-weight: bold;
-  padding: 2px 30px;
-  transform: rotate(45deg);
-  z-index: 10;
 }
 
 .board-card-color-bar {

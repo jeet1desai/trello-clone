@@ -14,11 +14,12 @@ import "../../../layout/styles/Auth.css";
 const { Title, Text } = Typography;
 
 const ForgotPassword: React.FC = () => {
+  const [form] = Form.useForm();
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
-  const { loading, passwordChangeRequested } =
-    useSelector((state: RootState) => state.user);
-  const [form] = Form.useForm();
+  const { loading, passwordChangeRequested } = useSelector(
+    (state: RootState) => state.user
+  );
 
   useEffect(() => {
     // Clear any previous auth states

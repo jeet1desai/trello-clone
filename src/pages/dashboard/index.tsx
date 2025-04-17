@@ -19,16 +19,14 @@ import "../../layout/styles/Dashboard.css";
 const { Title, Paragraph } = Typography;
 
 const Dashboard: React.FC = () => {
+  const totalTasks = 35;
+  const completedTasks = 15;
   const { currentUser } = useSelector((state: RootState) => state.user);
   const { workspaces } = useSelector((state: RootState) => state.workspace);
   const { boards } = useSelector((state: RootState) => state.board);
 
   // Analytics timeframe state
   const [timeframe, setTimeframe] = useState<string | number>("week");
-
-  // Calculate total tasks (this would come from a real tasks reducer)
-  const totalTasks = 35;
-  const completedTasks = 15;
 
   return (
     <div>

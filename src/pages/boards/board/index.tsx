@@ -1,24 +1,21 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
-  Layout,
   Typography,
   Button,
-  Input,
   Avatar,
   Space,
   Card,
-  Badge,
   Tooltip,
+  Spin,
+  App,
 } from "antd";
 import {
   PlusOutlined,
-  EllipsisOutlined,
   FilterOutlined,
-  ClockCircleOutlined,
-  PaperClipOutlined,
-  MessageOutlined,
   CloseOutlined,
   UserAddOutlined,
+  DeleteOutlined,
+  ExclamationCircleOutlined,
 } from "@ant-design/icons";
 import type {
   DraggableProvided,
@@ -30,18 +27,27 @@ import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../../store";
 import { useParams } from "react-router";
-import {
-  IBoardDetails,
-  IBoardList,
-  IBoardUser,
-  ICard,
-  ICardLabel,
-  getBoardById,
-} from "../../../store/slices/boardSlice";
+import { IBoardDetails, getBoardById } from "../../../store/slices/boardSlice";
 import TaskCardForm from "./components/taskCardForm";
 import "../../../layout/styles/Board.css";
+import {
+  IStatusList,
+  createNewStatus,
+  deleteStatus,
+  getStatusListByBoardId,
+  updateStatus,
+} from "../../../store/slices/statusSlice";
+import Paragraph from "antd/es/typography/Paragraph";
+import { Input } from "../../../components";
+import AddTaskForm from "./components/addTaskForm";
+import {
+  ITask,
+  deleteTask,
+  getTasksByStatusId,
+  setSelectedTask,
+  updateTask,
+} from "../../../store/slices/taskSlice";
 
-const { Content } = Layout;
 const { Title, Text } = Typography;
 
 export interface Attachment {
@@ -64,20 +70,106 @@ export interface TaskPayload {
 }
 
 const BoardDetail: React.FC = () => {
+  const { modal } = App.useApp();
   const { id } = useParams<{ id: string }>();
+  const wrapperRef = useRef<HTMLDivElement>(null);
+
   const dispatch = useDispatch<AppDispatch>();
-  const { selectedBoard } = useSelector((state: RootState) => state.board);
+  const { selectedBoard, loading } = useSelector(
+    (state: RootState) => state.board
+  );
+  const { statusList, loading: statusLoading } = useSelector(
+    (state: RootState) => state.status
+  );
+  const { tasksByStatus, loading: taskLoading } = useSelector(
+    (state: RootState) => state.task
+  );
   const [boardData, setBoardData] = useState(
     selectedBoard || ({} as IBoardDetails)
   );
-  const [newListTitle, setNewListTitle] = useState<string>("");
+  const [isEditStatus, setIsEditStatus] = useState<{
+    [key: string]: boolean;
+  }>({});
+  const [newStatusTitle, setNewStatusTitle] = useState<string>("");
   const [showAddList, setShowAddList] = useState<boolean>(false);
+  const [showAddTaskMap, setShowAddTaskMap] = useState<{
+    [key: string]: boolean;
+  }>({});
   const [visibleTaskCardForm, setVisibleTaskCardForm] =
     useState<boolean>(false);
+  const [hoveredTaskId, setHoveredTaskId] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function handleClickOutside(event: MouseEvent) {
+      if (
+        wrapperRef.current &&
+        !wrapperRef.current.contains(event.target as Node) &&
+        Object.keys(isEditStatus).length > 0 &&
+        id
+      ) {
+        await dispatch(
+          updateStatus({
+            statusId: Object.keys(isEditStatus)[0],
+            name: newStatusTitle,
+          })
+        );
+        await dispatch(getStatusListByBoardId(id));
+        setIsEditStatus({});
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [dispatch, isEditStatus, newStatusTitle, id]);
+
+  useEffect(() => {
+    if (id) {
+      dispatch(getBoardById(id));
+      dispatch(getStatusListByBoardId(id));
+    }
+  }, [dispatch, id]);
+
+  useEffect(() => {
+    if (statusList.length > 0) {
+      statusList.forEach((status) => {
+        if (status?._id) {
+          dispatch(getTasksByStatusId(status._id));
+        }
+      });
+    }
+  }, [dispatch, statusList]);
+
+  useEffect(() => {
+    if (selectedBoard) {
+      setBoardData(selectedBoard);
+    }
+  }, [selectedBoard]);
+
+  const handleKeyDown = async (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter" && id) {
+      setIsEditStatus({});
+      await dispatch(
+        updateStatus({
+          statusId: Object.keys(isEditStatus)[0],
+          name: newStatusTitle,
+        })
+      );
+      await dispatch(getStatusListByBoardId(id));
+    }
+  };
+
+  const toggleStatusName = (statusId: string, name: string, show?: boolean) => {
+    setNewStatusTitle(name);
+    setIsEditStatus((prev) => ({
+      [statusId]: show !== undefined ? show : !prev[statusId],
+    }));
+  };
 
   // Handle drag and drop
-  const handleDragEnd = (result: DropResult) => {
-    const { destination, source, type } = result;
+  const handleDragEnd = async (result: DropResult) => {
+    const { destination, source, type, draggableId } = result;
 
     // Dropped outside the list
     if (!destination) {
@@ -94,86 +186,117 @@ const BoardDetail: React.FC = () => {
 
     // Moving lists
     if (type === "list") {
-      const newLists = Array.from(boardData?.lists || []);
+      const newLists = Array.from(statusList || []);
       const [movedList] = newLists.splice(source.index, 1);
       newLists.splice(destination.index, 0, movedList);
 
-      setBoardData({
-        ...boardData,
-        lists: newLists as IBoardList[],
-      });
       return;
     }
 
     // Moving cards
-    const sourceList = boardData?.lists?.find(
-      (list: IBoardList) => list._id === source.droppableId
+    const sourceList = statusList?.find(
+      (list: IStatusList) => list._id === source.droppableId
     );
-    const destList = boardData?.lists?.find(
-      (list: IBoardList) => list._id === destination.droppableId
+    const destList = statusList?.find(
+      (list: IStatusList) => list._id === destination.droppableId
     );
 
     if (!sourceList || !destList) return;
 
     if (source.droppableId === destination.droppableId) {
       // Same list movement
-      const newCards = Array.from(sourceList?.cards);
-      const [movedCard] = newCards?.splice(source.index, 1);
-      newCards.splice(destination.index, 0, movedCard);
-
-      const newLists = boardData?.lists?.map((list: IBoardList) =>
-        list._id === sourceList._id ? { ...list, cards: newCards } : list
+      await dispatch(
+        updateTask({
+          taskId: draggableId,
+          newPosition: destination.index + 1,
+        })
       );
-
-      setBoardData({
-        ...boardData,
-        lists: newLists as IBoardList[],
-      });
+      dispatch(getTasksByStatusId(source.droppableId));
     } else {
       // Different list movement
-      const sourceCards = Array.from(sourceList.cards);
-      const [movedCard] = sourceCards.splice(source.index, 1);
-      const destCards = Array.from(destList.cards);
-      destCards.splice(destination.index, 0, movedCard);
-
-      const newLists = boardData?.lists?.map((list) => {
-        if (list._id === source.droppableId) {
-          return { ...list, cards: sourceCards };
-        }
-        if (list._id === destination.droppableId) {
-          return { ...list, cards: destCards };
-        }
-        return list;
-      });
-
-      setBoardData({
-        ...boardData,
-        lists: newLists,
-      });
+      await dispatch(
+        updateTask({
+          taskId: draggableId,
+          status_list_id: destination.droppableId,
+          newPosition: destination.index + 1,
+        })
+      );
+      dispatch(getTasksByStatusId(source.droppableId));
+      dispatch(getTasksByStatusId(destination.droppableId));
     }
   };
 
-  const handleAddList = () => {
-    if (!newListTitle.trim()) return;
-
-    const newList: IBoardList = {
-      _id: `list-${Date.now()}`,
-      title: newListTitle,
-      cards: [],
-    };
-
-    setBoardData({
-      ...boardData,
-      lists: [newList],
-    });
-
-    setNewListTitle("");
-    setShowAddList(false);
+  const handleAddStatus = async () => {
+    if (!newStatusTitle.trim()) return;
+    if (id) {
+      await dispatch(
+        createNewStatus({
+          boardId: id,
+          name: newStatusTitle,
+        })
+      );
+      await dispatch(getStatusListByBoardId(id));
+      setNewStatusTitle("");
+      setShowAddList(false);
+    }
   };
 
-  // Render card component
-  const renderCard = (card: ICard, index: number) => (
-    <Draggable key={card._id} draggableId={card._id} index={index}>
+  const toggleAddTask = (statusId: string, show?: boolean) => {
+    setShowAddTaskMap((prev) => ({
+      ...prev,
+      [statusId]: show !== undefined ? show : !prev[statusId],
+    }));
+  };
+
+  const handleTaskClick = (task: ITask) => {
+    dispatch(setSelectedTask(task));
+    setVisibleTaskCardForm(true);
+  };
+
+  const handleDeleteTask = (
+    event: React.MouseEvent<HTMLElement, MouseEvent>,
+    taskId: string
+  ) => {
+    event.stopPropagation();
+    dispatch(deleteTask(taskId));
+  };
+
+  const handleTaskCardFormSubmit = (values: TaskPayload) => {
+    setVisibleTaskCardForm(false);
+    if (id) {
+      dispatch(getStatusListByBoardId(id));
+    }
+  };
+
+  // Filter tasks for each status
+  const getTasksByStatus = (statusId: string) => {
+    return tasksByStatus[statusId] || [];
+  };
+
+  const handleDelete = (list: IStatusList) => {
+    modal.confirm({
+      title: `Are you sure you want to delete "${list.name}" list?`,
+      icon: <ExclamationCircleOutlined />,
+      content:
+        "This action cannot be undone. All data will be permanently deleted.",
+      okText: "Delete",
+      okType: "danger",
+      cancelText: "Cancel",
+      okButtonProps: {
+        className: "button",
+      },
+      cancelButtonProps: {
+        className: "button",
+      },
+      onOk() {
+        dispatch(deleteStatus(list._id));
+      },
+    });
+  };
+
+  // Render task card component
+  const renderTaskCard = (task: ITask, index: number) => (
+    <Draggable key={task._id} draggableId={task._id} index={index}>
       {(provided: DraggableProvided, snapshot: DraggableStateSnapshot) => (
         <div
           ref={provided.innerRef}
@@ -184,6 +307,10 @@ const BoardDetail: React.FC = () => {
             marginBottom: 8,
             opacity: snapshot.isDragging ? 0.8 : 1,
           }}
+          onClick={() => handleTaskClick(task)}
+          onMouseDown={() => dispatch(setSelectedTask(task))}
+          onMouseEnter={() => setHoveredTaskId(task._id)}
+          onMouseLeave={() => setHoveredTaskId(null)}
         >
           <Card
             size="small"
@@ -193,68 +320,23 @@ const BoardDetail: React.FC = () => {
             }}
             bodyStyle={{ padding: "8px 12px" }}
           >
-            <div style={{ marginBottom: 8 }}>
-              {card?.labels?.map((label: ICardLabel) => (
-                <div
-                  key={label._id}
-                  style={{
-                    backgroundColor: label.color,
-                    display: "inline-block",
-                    height: 8,
-                    width: 40,
-                    borderRadius: 4,
-                    marginRight: 4,
-                    marginBottom: 4,
-                  }}
-                  title={label.text}
+            <div style={{ marginBottom: 8 }}>{/* Labels would go here */}</div>
+            <div style={{ display: "flex", justifyContent: "space-between" }}>
+              <Paragraph
+                ellipsis={{ rows: 2 }}
+                style={{ marginBottom: 8, fontWeight: 500 }}
+              >
+                {task.title}
+              </Paragraph>
+              {hoveredTaskId === task._id && (
+                <Button
+                  type="text"
+                  size="small"
+                  danger
+                  icon={<DeleteOutlined />}
+                  onClick={(e) => handleDeleteTask(e, task._id)}
                 />
-              ))}
-            </div>
-            <div style={{ marginBottom: 8 }}>
-              <Text strong>{card.title}</Text>
-            </div>
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-              }}
-            >
-              <Space size="small">
-                {card.dueDate && (
-                  <Tooltip title={`Due ${card.dueDate}`}>
-                    <Badge
-                      count={
-                        <ClockCircleOutlined style={{ color: "#ff4d4f" }} />
-                      }
-                      style={{ marginRight: "8px" }}
-                    />
-                  </Tooltip>
-                )}
-                {card.attachments > 0 && (
-                  <Tooltip title={`${card.attachments} attachments`}>
-                    <Badge
-                      count={<PaperClipOutlined style={{ color: "#8c8c8c" }} />}
-                      style={{ marginRight: "8px" }}
-                    />
-                  </Tooltip>
-                )}
-                {card.comments > 0 && (
-                  <Tooltip title={`${card.comments} comments`}>
-                    <Badge
-                      count={<MessageOutlined style={{ color: "#8c8c8c" }} />}
-                      style={{ marginRight: "8px" }}
-                    />
-                  </Tooltip>
-                )}
-              </Space>
-              <Avatar.Group size="small" maxCount={2}>
-                {card?.members?.map((member: IBoardUser, i: number) => (
-                  <Tooltip key={i} title={member.email}>
-                    <Avatar src={member.profile_image} size="small" />
-                  </Tooltip>
-                ))}
-              </Avatar.Group>
+              )}
             </div>
           </Card>
         </div>
@@ -262,36 +344,28 @@ const BoardDetail: React.FC = () => {
     </Draggable>
   );
 
-  useEffect(() => {
-    if (id) (async () => await dispatch(getBoardById(id)))();
-  }, [dispatch, id]);
-
-  const handleTaskCardFormSubmit = (values: TaskPayload) => {
-    console.log("Submitted values:", values);
-    setVisibleTaskCardForm(false);
-  };
-
-  console.log("sss", boardData.members);
-
   return (
-    <Content>
+    <>
+      <Spin spinning={loading || statusLoading || taskLoading} fullscreen />
       <div className="board-header">
         <div>
           <Space size={16}>
             <Title level={4} className="board-title">
-              {selectedBoard?.name}
+              {boardData?.name}
             </Title>
           </Space>
-          <Title level={5} className="board-title">
+          <Paragraph className="board-title" style={{ color: "inherit" }}>
             {selectedBoard?.description}
-          </Title>
+          </Paragraph>
         </div>
         <div>
           <Space size={16}>
             <Avatar.Group maxCount={3}>
               {boardData?.members?.map((member) => {
                 return (
-                  <Tooltip title={member?.user?.email}>
+                  <Tooltip
+                    title={`${member?.user?.first_name} ${member?.user?.last_name} (${member?.user?.email})`}
+                  >
                     <Avatar src={member?.user?.profile_image} />
                   </Tooltip>
                 );
@@ -322,135 +396,195 @@ const BoardDetail: React.FC = () => {
                 ref={provided.innerRef}
                 style={{ display: "flex", gap: "16px" }}
               >
-                {boardData?.lists?.map((list: IBoardList, index: number) => (
+                {statusList?.map((list: IStatusList, index: number) => (
                   <Draggable
                     key={list._id}
                     draggableId={list._id}
                     index={index}
                   >
-                    {(
-                      provided: DraggableProvided,
-                      snapshot: DraggableStateSnapshot
-                    ) => (
+                    {(provided: DraggableProvided) => (
                       <div
                         ref={provided.innerRef}
                         {...provided.draggableProps}
+                        {...provided.dragHandleProps}
                         style={{
+                          minWidth: 280,
                           ...provided.draggableProps.style,
-                          opacity: snapshot.isDragging ? 0.8 : 1,
                         }}
-                        className="list-container"
                       >
                         <div
-                          className="list-header"
-                          {...provided.dragHandleProps}
+                          style={{
+                            backgroundColor: "#80808026",
+                            borderRadius: 6,
+                            padding: "8px 8px 0 8px",
+                            height: "100%",
+                          }}
                         >
-                          <Text strong>{list.title}</Text>
-                          <Button
-                            type="text"
-                            size="small"
-                            icon={<EllipsisOutlined />}
-                          />
-                        </div>
-                        <Droppable droppableId={list._id} type="card">
-                          {(provided: DroppableProvided) => (
-                            <div
-                              ref={provided.innerRef}
-                              {...provided.droppableProps}
-                              style={{
-                                padding: "8px",
-                                backgroundColor: "rgba(0, 0, 0, 0.03)",
-                                borderBottomLeftRadius: "6px",
-                                borderBottomRightRadius: "6px",
-                                minHeight: "50px",
-                                width: "280px",
-                                maxHeight: "calc(100vh - 240px)",
-                                overflowY: "auto",
-                              }}
-                            >
-                              {list?.cards?.map((card: ICard, index: number) =>
-                                renderCard(card, index)
-                              )}
-                              {provided.placeholder}
-                              <Button
-                                type="text"
-                                className="button"
-                                icon={<PlusOutlined />}
-                                block
-                                onClick={() => setVisibleTaskCardForm(true)}
+                          <div
+                            style={{
+                              display: "flex",
+                              justifyContent: "space-between",
+                              alignItems: "center",
+                            }}
+                            ref={wrapperRef}
+                          >
+                            {isEditStatus[list._id] ? (
+                              <Input
+                                defaultValue={newStatusTitle}
+                                className="form-input"
+                                style={{
+                                  marginRight: "8px",
+                                  borderRadius: "4px",
+                                  margin: "8px 8px 8px 0",
+                                }}
+                                autoFocus
+                                onChange={(e) =>
+                                  setNewStatusTitle(e.target.value)
+                                }
+                                onKeyDown={handleKeyDown}
+                              />
+                            ) : (
+                              <Text
+                                strong
+                                style={{ fontSize: "16px", margin: "8px" }}
+                                onClick={() =>
+                                  toggleStatusName(list._id, list.name, true)
+                                }
                               >
-                                Add a card
-                              </Button>
-                            </div>
+                                {list.name}
+                              </Text>
+                            )}
+                            <Button
+                              type="text"
+                              size="small"
+                              danger
+                              icon={<DeleteOutlined />}
+                              onClick={() => handleDelete(list)}
+                            />
+                          </div>
+
+                          <Droppable droppableId={list._id} type="card">
+                            {(
+                              provided: DroppableProvided,
+                              snapshot: { isDraggingOver: boolean }
+                            ) => {
+                              const statusTasks = getTasksByStatus(list._id);
+                              return (
+                                <div
+                                  ref={provided.innerRef}
+                                  {...provided.droppableProps}
+                                  style={{
+                                    borderRadius: 6,
+                                    minHeight: 10,
+                                  }}
+                                >
+                                  {statusTasks.map((task, index) =>
+                                    renderTaskCard(task, index)
+                                  )}
+                                  {provided.placeholder}
+                                </div>
+                              );
+                            }}
+                          </Droppable>
+
+                          {showAddTaskMap[list._id] ? (
+                            <AddTaskForm
+                              boardId={id || ""}
+                              statusId={list._id}
+                              onCancel={() => toggleAddTask(list._id, false)}
+                              onSuccess={() => toggleAddTask(list._id, false)}
+                            />
+                          ) : (
+                            <Button
+                              type="text"
+                              className="button"
+                              icon={<PlusOutlined />}
+                              block
+                              style={{ borderRadius: "4px" }}
+                              onClick={() => toggleAddTask(list._id, true)}
+                            >
+                              Add a card
+                            </Button>
                           )}
-                        </Droppable>
+                        </div>
                       </div>
                     )}
                   </Draggable>
                 ))}
                 {provided.placeholder}
-
-                {/* Add new list button/form */}
-                <div style={{ width: "280px", flexShrink: 0 }}>
-                  {showAddList ? (
-                    <div
-                      style={{
-                        backgroundColor: "rgba(0, 0, 0, 0.03)",
-                        padding: "12px",
-                        borderRadius: "6px",
-                      }}
-                    >
-                      <Input
-                        placeholder="Enter list title..."
-                        value={newListTitle}
-                        onChange={(e) => setNewListTitle(e.target.value)}
-                        onPressEnter={handleAddList}
-                        autoFocus
-                      />
-                      <div
-                        style={{
-                          marginTop: "8px",
-                          display: "flex",
-                          gap: "8px",
-                        }}
-                      >
-                        <Button
-                          type="primary"
-                          onClick={handleAddList}
-                          size="small"
-                        >
-                          Add List
-                        </Button>
-                        <Button
-                          icon={<CloseOutlined />}
-                          size="small"
-                          onClick={() => {
-                            setShowAddList(false);
-                            setNewListTitle("");
-                          }}
-                        />
-                      </div>
-                    </div>
-                  ) : (
-                    <Button
-                      type="text"
-                      icon={<PlusOutlined />}
-                      block
-                      onClick={() => setShowAddList(true)}
-                      style={{
-                        textAlign: "left",
-                        backgroundColor: "rgba(0, 0, 0, 0.03)",
-                        height: "auto",
-                        padding: "12px",
-                      }}
-                    >
-                      Add another list
-                    </Button>
-                  )}
-                </div>
               </div>
             )}
           </Droppable>
+
+          <div style={{ minWidth: 280 }}>
+            {showAddList ? (
+              <div
+                style={{
+                  borderRadius: 6,
+                  padding: "8px 16px",
+                }}
+              >
+                <Input
+                  placeholder="Enter list title..."
+                  className="form-input"
+                  style={{ borderRadius: "4px" }}
+                  value={newStatusTitle}
+                  onChange={(e) => setNewStatusTitle(e.target.value)}
+                  onPressEnter={handleAddStatus}
+                  autoFocus
+                />
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    marginTop: 8,
+                    gap: 5,
+                  }}
+                >
+                  <Button
+                    type="primary"
+                    size="small"
+                    className="button"
+                    onClick={handleAddStatus}
+                    style={{ height: 32, marginTop: 0, borderRadius: "4px" }}
+                  >
+                    Add List
+                  </Button>
+                  <Button
+                    type="text"
+                    size="small"
+                    icon={<CloseOutlined />}
+                    onClick={() => {
+                      setShowAddList(false);
+                      setNewStatusTitle("");
+                    }}
+                  />
+                </div>
+              </div>
+            ) : (
+              <div
+                style={{
+                  borderRadius: 6,
+                  padding: "8px 16px",
+                  opacity: 0.8,
+                }}
+              >
+                <Button
+                  type="text"
+                  block
+                  className="button"
+                  style={{ marginTop: 0, borderRadius: "4px" }}
+                  icon={<PlusOutlined />}
+                  onClick={() => {
+                    setNewStatusTitle("");
+                    setShowAddList(true);
+                  }}
+                >
+                  Add another list
+                </Button>
+              </div>
+            )}
+          </div>
         </DragDropContext>
       </div>
 
@@ -459,7 +593,7 @@ const BoardDetail: React.FC = () => {
         onCancel={() => setVisibleTaskCardForm(false)}
         onFinish={handleTaskCardFormSubmit}
       />
-    </Content>
+    </>
   );
 };
 

@@ -59,12 +59,6 @@ export interface IBoardWorkspace {
   };
 }
 
-export interface IBoardList {
-  _id: string;
-  title: string;
-  cards: ICard[];
-}
-
 export interface ICardLabel {
   _id: string;
   text: string;
@@ -93,7 +87,6 @@ export interface IBoardDetails {
   boardOwner: IBoardOwner;
   members: IBoardMember[];
   workspace: IBoardWorkspace[];
-  lists: IBoardList[];
 }
 
 interface BoardState {
@@ -124,7 +117,7 @@ export const getAllBoards = createAsyncThunk(
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message || "Error while fetching boards"
+        error.response?.data?.message || "Error while fetching boards."
       );
     }
   }
@@ -138,7 +131,7 @@ export const getBoardById = createAsyncThunk(
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message || "Error while fetching board details"
+        error.response?.data?.message || "Error while fetching board details."
       );
     }
   }
@@ -170,7 +163,7 @@ export const addNewBoard = createAsyncThunk(
       return response;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message || "Error while adding board"
+        error.response?.data?.message || "Error while adding board."
       );
     }
   }
@@ -205,7 +198,7 @@ export const editBoard = createAsyncThunk(
       return response;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message || "Error while updating board"
+        error.response?.data?.message || "Error while updating board."
       );
     }
   }
@@ -219,7 +212,7 @@ export const deleteBoard = createAsyncThunk(
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message || "Error while deleting board"
+        error.response?.data?.message || "Error while deleting board."
       );
     }
   }
@@ -398,7 +391,7 @@ const boardSlice = createSlice({
         state.loading = false;
         state.success = null;
         state.error =
-          (action.payload as string) || "Error while fetching board.";
+          (action.payload as string) || "Error while deleting board.";
       });
   },
 });
