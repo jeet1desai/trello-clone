@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { profileService } from "../../services/profileService";
-import { User } from "./userSlice";
+import { User, updateImage } from "./userSlice";
 
 interface UserState {
   loading: boolean;
@@ -41,10 +41,11 @@ export const updateProfile = createAsyncThunk(
       email: string;
       profile_image: any;
     },
-    { rejectWithValue }
+    { rejectWithValue, dispatch }
   ) => {
     try {
       const response = await profileService.updateProfile(profileData);
+      dispatch(updateImage(response.data.profile_image))
       return response.data;
     } catch (error: any) {
       return rejectWithValue(

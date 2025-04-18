@@ -173,6 +173,14 @@ const userSlice = createSlice({
   name: "user",
   initialState,
   reducers: {
+    updateImage: (state, action) => {
+      state.currentUser = state.currentUser
+        ? {
+            ...state.currentUser,
+            profile_image: action.payload,
+          }
+        : null;
+    },
     clearAuthState: (state) => {
       state.success = null;
       state.error = null;
@@ -340,6 +348,6 @@ const userSlice = createSlice({
   },
 });
 
-export const { clearAuthState } = userSlice.actions;
+export const { updateImage, clearAuthState } = userSlice.actions;
 
 export default userSlice.reducer;

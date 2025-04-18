@@ -27,6 +27,9 @@ const ProfilePage = () => {
   const [profileForm] = Form.useForm();
   const [passwordForm] = Form.useForm();
   const dispatch = useDispatch<AppDispatch>();
+  const { currentUser } = useSelector(
+    (state: RootState) => state.user
+  );
   const { profileDetails, loading } = useSelector(
     (state: RootState) => state.profile
   );
@@ -83,7 +86,7 @@ const ProfilePage = () => {
             profileDetails
               ? profileDetails
               : {
-                  profile_image: "",
+                  profile_image: currentUser?.profile_image,
                   first_name: "",
                   middle_name: "",
                   last_name: "",
@@ -114,7 +117,7 @@ const ProfilePage = () => {
                     <div className="avatar-upload-wrapper">
                       <Avatar
                         size={80}
-                        src={previewImage}
+                        src={previewImage || profileDetails?.profile_image?.url}
                         icon={<UserOutlined />}
                       />
                       {editMode && (
