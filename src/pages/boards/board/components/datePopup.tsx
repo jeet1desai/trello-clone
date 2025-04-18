@@ -13,10 +13,9 @@ const DatePickerPopup: React.FC = () => {
   const handleSave = async () => {
     try {
       const values = await form.validateFields();
-      console.log("Selected dates:", values);
       setVisible(false);
     } catch (error) {
-      console.log("Validation Failed:", error);
+      console.error("Validation Failed:", error);
     }
   };
 

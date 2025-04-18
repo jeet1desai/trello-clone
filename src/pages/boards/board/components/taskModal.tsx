@@ -40,7 +40,14 @@ import Search from "antd/es/transfer/search";
 import LabelPopup from "./labelPopup";
 import DatePickerPopup from "./datePopup";
 import FileUploadModal from "./uploadAttachment";
+import {
+  addNewTaskComment,
+  deleteTaskComment,
+  getTaskCommentById,
+} from "../../../../store/slices/taskCommentSlice";
+import { RcFile } from "antd/es/upload";
 import { Input } from "../../../../components";
+import CommentCard from "./commentList";
 
 const { Text } = Typography;
 const { Option } = Select;
@@ -141,6 +148,9 @@ const TaskModal: React.FC<TaskModalProps> = ({ visible, onClose }) => {
   const { selectedTask, loading } = useSelector(
     (state: RootState) => state.task
   );
+  const { taskComments, taskLoading } = useSelector(
+    (state: RootState) => state.taskComment
+  );
   const [isEditTitle, setIsEditTitle] = useState(false);
   const [msg, setMsg] = useState("");
   const [taskDetails, setTaskDetails] = useState<ITask | null>(null);
@@ -204,6 +214,7 @@ const TaskModal: React.FC<TaskModalProps> = ({ visible, onClose }) => {
 
   useEffect(() => {
     if (selectedTask && visible) {
+      dispatch(getTaskCommentById(selectedTask?._id));
       setTaskDetails((prevState) => {
         if (!selectedTask?.status_list_id?._id) return prevState;
 
@@ -242,11 +253,27 @@ const TaskModal: React.FC<TaskModalProps> = ({ visible, onClose }) => {
     }
   };
 
+  const toNativeFile = (rcFile: RcFile): File =>
+    new File([rcFile], rcFile.name, {
+      type: rcFile.type,
+      lastModified: rcFile.lastModified,
+    });
+
   const sendMessage = () => {
     if (msg.trim() || fileList.length > 0) {
-      // You can replace this with your API logic
-      message.success(`Message sent: ${msg || "[Media only]"}`);
-      console.log("Images:", fileList);
+      const files: File[] = fileList
+        .map((f) => f.originFileObj)
+        .filter((f): f is RcFile => !!f)
+        .map(toNativeFile); // ✅ native File[]
+
+      dispatch(
+        addNewTaskComment({
+          taskId: selectedTask?._id ?? "",
+          comment: msg,
+          attachments: files,
+        })
+      );
+
       setMsg("");
       setFileList([]);
     }
@@ -279,6 +306,9 @@ const TaskModal: React.FC<TaskModalProps> = ({ visible, onClose }) => {
       })
     );
   };
+
+  const taskCommentDelete = (commentId: string) =>
+    dispatch(deleteTaskComment(commentId));
 
   useEffect(() => {
     async function handleClickOutside(event: MouseEvent) {
@@ -317,7 +347,7 @@ const TaskModal: React.FC<TaskModalProps> = ({ visible, onClose }) => {
       className="task-modal"
       width={768}
     >
-      <Spin spinning={loading} fullscreen />
+      <Spin spinning={loading || taskLoading} fullscreen />
       <div className="task-header">
         <Radio
           checked={taskDetails?.status === TaskStatus.COMPLETED}
@@ -469,7 +499,7 @@ const TaskModal: React.FC<TaskModalProps> = ({ visible, onClose }) => {
           <div style={{ flex: 1 }}>
             <div className="task-section">
               <div className="task-section-title-desc">
-                <FileTextOutlined />
+                <FileTextOutlined color="inherit" />
                 <Text strong>Description</Text>
               </div>
 
@@ -620,6 +650,16 @@ const TaskModal: React.FC<TaskModalProps> = ({ visible, onClose }) => {
                   Save
                 </Button>
               </div>
+              {taskComments.map((taskComment) => (
+                <CommentCard
+                  key={taskComment._id}
+                  commentedBy={taskComment.commented_by}
+                  comment={taskComment.comment}
+                  createdAt={taskComment.createdAt}
+                  attachments={taskComment.attachment}
+                  onDelete={taskCommentDelete}
+                />
+              ))}
             </div>
           </div>
 

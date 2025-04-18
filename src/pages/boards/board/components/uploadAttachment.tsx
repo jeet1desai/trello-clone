@@ -236,10 +236,19 @@ const FileUploadModal = () => {
             justifyContent: "center",
           }}
         >
-          <Button className="button small-btn" onClick={() => setShowUploadModal(false)} type="primary">
+          <Button
+            className="button small-btn"
+            onClick={() => setShowUploadModal(false)}
+            type="primary"
+          >
             Save
           </Button>
-          <Button className="button small-btn" onClick={() => setShowUploadModal(false)}>Cancel</Button>
+          <Button
+            className="button small-btn"
+            onClick={() => setShowUploadModal(false)}
+          >
+            Cancel
+          </Button>
         </div>
       </Modal>
 
