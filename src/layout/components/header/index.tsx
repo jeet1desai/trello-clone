@@ -148,6 +148,7 @@ const Header: React.FC = () => {
             style={{
               backgroundColor: "#1890ff",
               cursor: "pointer",
+              padding: "15px"
             }}
           >
             {currentUser?.first_name?.[0]?.toUpperCase() ?? <UserOutlined />}

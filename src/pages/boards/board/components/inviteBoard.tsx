@@ -120,7 +120,6 @@ const InviteBoard: React.FC<InviteBoardProps> = ({ isOpen, onClose }) => {
         <div className="share-container">
           <div className="share-input-group">
             <Select
-              className="form-input"
               mode="tags"
               style={{ flex: 1 }}
               placeholder="Email address"

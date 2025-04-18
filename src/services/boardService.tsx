@@ -72,4 +72,19 @@ export const boardService = {
     );
     return response.data;
   },
+
+  async getInvitationDetailsById(inviteId: string) {
+    const response = await axiosInstance.get(
+      `${API_URL}/invite/invite-details/${inviteId}`
+    );
+    return response.data;
+  },
+
+  async updateInvitationDetailsById(inviteId: string, data: { status: string }) {
+    const response = await axiosInstance.put(
+      `${API_URL}/invite/update-invitation/${inviteId}`,
+      data
+    );
+    return response.data;
+  },
 };
