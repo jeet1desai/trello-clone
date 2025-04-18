@@ -368,6 +368,7 @@ const BoardDetail: React.FC = () => {
               {invitedMemberList?.map((member) => {
                 return (
                   <Tooltip
+                    key={member._id}
                     title={`${member?.memberId?.first_name} ${member?.memberId?.last_name} (${member?.memberId?.email})`}
                   >
                     <Avatar>{`${member?.memberId?.first_name[0]?.toUpperCase()}${member?.memberId?.last_name[0]?.toUpperCase()}`}</Avatar>
@@ -599,6 +600,11 @@ const BoardDetail: React.FC = () => {
       <TaskModal
         visible={visibleTaskCardForm}
         onClose={() => setVisibleTaskCardForm(false)}
+      />
+
+      <InviteBoard
+        isOpen={showInviteModal}
+        onClose={() => setShowInviteModal(false)}
       />
 
       <InviteBoard
