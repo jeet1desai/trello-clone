@@ -209,14 +209,17 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
 
       <div style={{ display: "flex", gap: "10px" }}>
         <Button
-          variant="solid"
-          color="primary"
-          className="ant-btn-primary"
+          type="primary"
+          className="button small-btn"
           onClick={() => onSave(value)}
         >
           Save
         </Button>
-        <Button variant="text" color="primary" onClick={onCancel}>
+        <Button
+          color="primary"
+          className="button small-btn"
+          onClick={onCancel}
+        >
           Cancel
         </Button>
       </div>

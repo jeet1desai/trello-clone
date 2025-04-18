@@ -14,7 +14,6 @@ import {
   Tag,
   Empty,
   Tooltip,
-  Checkbox,
   App,
   Spin,
 } from "antd";
@@ -24,7 +23,6 @@ import {
   UserOutlined,
   EllipsisOutlined,
   SearchOutlined,
-  FilterOutlined,
   SortAscendingOutlined,
   CheckOutlined,
   DeleteOutlined,
@@ -42,7 +40,6 @@ import {
   openWorkspaceAddModal,
   getAllWorkspaces,
   clearSelectedWorkspace,
-  IUser,
 } from "../../store/slices/workspaceSlice";
 import "../../layout/styles/workspaces.css";
 import { generateGradient, SORT_OPTIONS } from "../../config";
@@ -63,16 +60,7 @@ const Workspaces: React.FC = () => {
   const [editingWorkspace, setEditingWorkspace] = useState<IWorkspace | null>(
     null
   );
-  const [filterCreators, setFilterCreators] = useState<string[]>([]);
   const [sortOption, setSortOption] = useState<string>(SORT_OPTIONS.DEFAULT);
-
-  // Get all unique creators
-  const allCreators = React.useMemo(() => {
-    const creators = workspaces.map(
-      (workspace: { createdBy: IUser }) => workspace.createdBy.email
-    );
-    return Array.from(new Set(creators));
-  }, [workspaces]);
 
   const showAddModal = useCallback(() => {
     dispatch(openWorkspaceAddModal());
@@ -109,12 +97,7 @@ const Workspaces: React.FC = () => {
           .includes(searchText.toLowerCase());
         const textMatch = nameMatch || descMatch;
 
-        // Filter by creator
-        const creatorMatch =
-          filterCreators.length === 0 ||
-          filterCreators.includes(workspace.createdBy.email);
-
-        return textMatch && creatorMatch;
+        return textMatch;
       })
       .sort((a, b) => {
         if (sortOption === SORT_OPTIONS.NAME_ASC) {
@@ -132,11 +115,7 @@ const Workspaces: React.FC = () => {
         }
         return 0;
       });
-  }, [workspaces, searchText, filterCreators, sortOption]);
-
-  const handleFilterReset = () => {
-    setFilterCreators([]);
-  };
+  }, [workspaces, searchText, sortOption]);
 
   const handleAddOrEditWorkspace = async (values: any) => {
     if (editingWorkspace) {
@@ -367,47 +346,6 @@ const Workspaces: React.FC = () => {
     },
   ];
 
-  // Filter menu items - creators
-  const filterMenuItems: MenuProps["items"] = [
-    {
-      key: "creators",
-      label: (
-        <Title level={5} style={{ margin: 0 }}>
-          Filter by Creator
-        </Title>
-      ),
-      type: "group",
-      children: allCreators.map((creator) => ({
-        key: creator,
-        label: (
-          <Checkbox
-            checked={filterCreators.includes(creator)}
-            onChange={(e) => {
-              if (e.target.checked) {
-                setFilterCreators([...filterCreators, creator]);
-              } else {
-                setFilterCreators(filterCreators.filter((c) => c !== creator));
-              }
-            }}
-          >
-            {creator}
-          </Checkbox>
-        ),
-      })),
-    },
-    {
-      type: "divider",
-    },
-    {
-      key: "reset",
-      label: (
-        <div className="filter-reset" onClick={handleFilterReset}>
-          Reset Filters
-        </div>
-      ),
-    },
-  ];
-
   return (
     <>
       <Spin spinning={loading} fullscreen />
@@ -429,22 +367,6 @@ const Workspaces: React.FC = () => {
                 style={{ width: 220, marginTop: "8px" }}
                 className="form-input"
               />
-              <Dropdown
-                menu={{ items: filterMenuItems }}
-                trigger={["click"]}
-                overlayClassName="filter-dropdown"
-              >
-                <Button
-                  className="button"
-                  type={filterCreators.length > 0 ? "primary" : "default"}
-                >
-                  <Space>
-                    <FilterOutlined />
-                    Filter{" "}
-                    {filterCreators.length > 0 && `(${filterCreators.length})`}
-                  </Space>
-                </Button>
-              </Dropdown>
               <Dropdown
                 menu={{
                   items: sortMenuItems,

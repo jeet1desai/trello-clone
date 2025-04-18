@@ -2,7 +2,6 @@ import React, { useState, useEffect, JSX } from "react";
 import {
   Modal,
   Button,
-  Input,
   Avatar,
   Typography,
   Image,
@@ -14,23 +13,14 @@ import {
   Tooltip,
   List,
   Select,
+  Row,
+  Col,
 } from "antd";
 import {
-  UserOutlined,
-  TagOutlined,
-  CheckSquareOutlined,
-  CalendarOutlined,
+  PlusOutlined,
   PaperClipOutlined,
-  EnvironmentOutlined,
   PictureOutlined,
-  SettingOutlined,
   EllipsisOutlined,
-  ArrowRightOutlined,
-  CopyOutlined,
-  DeleteOutlined,
-  ShareAltOutlined,
-  TagsOutlined,
-  SendOutlined,
   DiffOutlined,
   CloseCircleFilled,
   CloseOutlined,
@@ -44,20 +34,15 @@ import TaskDescriptionEditor from "../../../../components/ui/Editor";
 import type { RadioChangeEvent, UploadFile } from "antd";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../../../store";
-import {
-  IAttachment,
-  ITask,
-  updateTask,
-} from "../../../../store/slices/taskSlice";
+import { ITask, updateTask } from "../../../../store/slices/taskSlice";
 import { Priority, TaskStatus } from "../../../../utils/enums/Task";
 import Search from "antd/es/transfer/search";
 import LabelPopup from "./labelPopup";
 import DatePickerPopup from "./datePopup";
 import FileUploadModal from "./uploadAttachment";
+import { Input } from "../../../../components";
 
-const { TextArea } = Input;
 const { Text } = Typography;
-
 const { Option } = Select;
 
 interface TaskModalProps {
@@ -152,10 +137,11 @@ export const getFileTypeFromName = (fileName: string): string => {
 
 const TaskModal: React.FC<TaskModalProps> = ({ visible, onClose }) => {
   const dispatch = useDispatch<AppDispatch>();
+  const { currentUser } = useSelector((state: RootState) => state.user);
   const { selectedTask, loading } = useSelector(
     (state: RootState) => state.task
   );
-  const [isFocused, setIsFocused] = useState(false);
+  const [isEditTitle, setIsEditTitle] = useState(false);
   const [msg, setMsg] = useState("");
   const [taskDetails, setTaskDetails] = useState<ITask | null>(null);
   const [fileList, setFileList] = useState<UploadFile[]>([]);
@@ -163,25 +149,16 @@ const TaskModal: React.FC<TaskModalProps> = ({ visible, onClose }) => {
   const [memberVisible, setMemberVisible] = useState(false);
   const [labelVisible, setLabelVisible] = useState(false);
   const [showEditor, setShowEditor] = useState(false);
-  const [searchText, setSearchText] = useState("");
-  const [showFileList, setShowFileList] = useState<IAttachment[]>([]);
   const [priority, setPriority] = useState<Priority>(Priority.MEDIUM);
 
   const handleRemove = (id: number) => {
     setMembers((prev) => prev.filter((member) => member.id !== id));
   };
 
-  const handleSearch = (value: string) => {
-    setSearchText(value);
-  };
-
   const memberContent = (
     <div style={{ width: 250 }}>
       <div style={{ fontWeight: 600, marginBottom: 8 }}>Members</div>
-      <Search
-        placeholder="Search members"
-        onChange={(e) => handleSearch(e.target.value)}
-      />
+      <Search placeholder="Search members" />
       <div
         style={{
           fontSize: 12,
@@ -244,7 +221,6 @@ const TaskModal: React.FC<TaskModalProps> = ({ visible, onClose }) => {
       });
 
       if (selectedTask.attachment && selectedTask.attachment.length > 0) {
-        setShowFileList(selectedTask.attachment);
       } else {
         setFileList([]);
       }
@@ -283,31 +259,6 @@ const TaskModal: React.FC<TaskModalProps> = ({ visible, onClose }) => {
   const handleRemoveImage = (uid: string) => {
     setFileList((prev) => prev.filter((file) => file.uid !== uid));
   };
-  {
-    /* If Want UI Like Trello */
-  }
-
-  const sidebarMenu = [
-    { key: "members", icon: <UserOutlined />, label: "Members" },
-    { key: "labels", icon: <TagOutlined />, label: "Labels" },
-    { key: "checklist", icon: <CheckSquareOutlined />, label: "Checklist" },
-    { key: "dates", icon: <CalendarOutlined />, label: "Dates" },
-    { key: "attachment", icon: <PaperClipOutlined />, label: "Attachment" },
-    { key: "location", icon: <EnvironmentOutlined />, label: "Location" },
-    { key: "cover", icon: <PictureOutlined />, label: "Cover" },
-    { key: "customFields", icon: <SettingOutlined />, label: "Custom Fields" },
-  ];
-
-  const actionsMenu = [
-    { key: "move", icon: <ArrowRightOutlined />, label: "Move" },
-    { key: "copy", icon: <CopyOutlined />, label: "Copy" },
-    { key: "delete", icon: <DeleteOutlined />, label: "Archive" },
-    { key: "share", icon: <ShareAltOutlined />, label: "Share" },
-  ];
-
-  {
-    /* If Want UI Like Trello */
-  }
 
   const handleSave = (content: string) => {
     dispatch(
@@ -329,11 +280,39 @@ const TaskModal: React.FC<TaskModalProps> = ({ visible, onClose }) => {
     );
   };
 
+  useEffect(() => {
+    async function handleClickOutside(event: MouseEvent) {
+      setIsEditTitle(false);
+      if (isEditTitle && selectedTask?.title !== taskDetails?.title) {
+        dispatch(
+          updateTask({
+            taskId: taskDetails?._id ?? "",
+            title: taskDetails?.title,
+          })
+        );
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [dispatch, isEditTitle, taskDetails, selectedTask]);
+
   return (
     <Modal
       title={null}
       open={visible}
-      onCancel={onClose}
+      onCancel={() => {
+        onClose();
+        setTaskDetails(null);
+        setFileList([]);
+        setMsg("");
+        setIsEditTitle(false);
+        setShowEditor(false);
+        setMemberVisible(false);
+        setLabelVisible(false);
+      }}
       footer={null}
       className="task-modal"
       width={768}
@@ -344,77 +323,154 @@ const TaskModal: React.FC<TaskModalProps> = ({ visible, onClose }) => {
           checked={taskDetails?.status === TaskStatus.COMPLETED}
           onChange={handleChange}
         />
-        <Input
-          value={taskDetails?.title}
-          onChange={(e) => updateTaskName(e.target.value)}
-          onFocus={() => setIsFocused(true)}
-          onBlur={() => {
-            setIsFocused(false);
-            if (selectedTask?.title === taskDetails?.title) return;
-            dispatch(
-              updateTask({
-                taskId: taskDetails?._id ?? "",
-                title: taskDetails?.title,
-              })
-            );
-          }}
-          style={{
-            borderColor: isFocused ? "#1890ff" : "transparent",
-            color: "inherit",
-            padding: "8px",
-            borderRadius: "4px",
-            transition: "all 0.3s ease",
-            width: "calc(100% - 55px)",
-          }}
-        />
-      </div>
-      <div
-        style={{ display: "flex", gap: "10px", marginTop: "4px" }}
-        className="task-body-margin-left"
-      >
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <Avatar.Group max={{ count: 3 }}>
-            {members?.map((member, index) => {
-              const user = member.initials;
-
-              return (
-                <Tooltip key={member?.name || index} title={member.name}>
-                  <Avatar src={user}>{user}</Avatar>
-                </Tooltip>
-              );
-            })}
-          </Avatar.Group>
-          <Popover
-            content={memberContent}
-            title={null}
-            trigger="click"
-            open={memberVisible}
-            onOpenChange={setMemberVisible}
-            placement="bottomLeft"
+        {isEditTitle ? (
+          <Input
+            value={taskDetails?.title}
+            className="form-input"
+            style={{
+              marginRight: "8px",
+              borderRadius: "4px",
+              margin: "8px 8px 8px 0",
+              width: "calc(100% - 55px)",
+            }}
+            autoFocus
+            onChange={(e) => updateTaskName(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                setIsEditTitle(false);
+                if (selectedTask?.title === taskDetails?.title) return;
+                dispatch(
+                  updateTask({
+                    taskId: taskDetails?._id ?? "",
+                    title: taskDetails?.title,
+                  })
+                );
+              }
+            }}
+          />
+        ) : (
+          <Text
+            strong
+            style={{ fontSize: "16px", margin: "8px" }}
+            onClick={() => setIsEditTitle(true)}
           >
-            <Button shape="circle" icon={<UserOutlined />} />
-          </Popover>
-        </div>
-        <DatePickerPopup />
-        <Popover
-          content={<LabelPopup />}
-          title={null}
-          trigger="click"
-          open={labelVisible}
-          onOpenChange={(newOpen) => setLabelVisible(newOpen)}
-          placement="bottom"
-        >
-          <Button icon={<TagsOutlined />} />
-        </Popover>
-        <PrioritySelect value={priority} onChange={setPriority} />
+            {taskDetails?.title}
+          </Text>
+        )}
       </div>
+      <Row>
+        <Col xs={24} sm={12} md={8}>
+          <Text strong style={{ fontSize: "12px", color: "#44546f" }}>
+            Members
+          </Text>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 4,
+              marginTop: "4px",
+            }}
+          >
+            <Avatar.Group max={{ count: 3 }}>
+              {members?.map((member, index) => {
+                const user = member.initials;
+
+                return (
+                  <Tooltip key={member?.name || index} title={member.name}>
+                    <Avatar src={user} style={{ background: "#177ddc" }}>
+                      {user}
+                    </Avatar>
+                  </Tooltip>
+                );
+              })}
+            </Avatar.Group>
+            <Popover
+              content={memberContent}
+              title={null}
+              trigger="click"
+              open={memberVisible}
+              onOpenChange={setMemberVisible}
+              placement="bottomLeft"
+            >
+              <Button
+                shape="circle"
+                icon={<PlusOutlined />}
+                className="button small-btn"
+              />
+            </Popover>
+          </div>
+        </Col>
+        <Col xs={24} sm={12} md={8}>
+          <Text strong style={{ fontSize: "12px", color: "#44546f" }}>
+            Dates
+          </Text>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              marginTop: "4px",
+            }}
+          >
+            <DatePickerPopup />
+          </div>
+        </Col>
+        <Col xs={24} sm={12} md={8}>
+          <Text strong style={{ fontSize: "12px", color: "#44546f" }}>
+            Priority
+          </Text>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 4,
+              marginTop: "4px",
+            }}
+          >
+            <PrioritySelect value={priority} onChange={setPriority} />
+          </div>
+        </Col>
+        <Col xs={24} sm={24} md={24} style={{ marginTop: "6px" }}>
+          <Text strong style={{ fontSize: "12px", color: "#44546f" }}>
+            Labels
+          </Text>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 4,
+              marginTop: "0px",
+            }}
+          >
+            <Popover
+              content={<LabelPopup />}
+              title={null}
+              trigger="click"
+              open={labelVisible}
+              onOpenChange={(newOpen) => setLabelVisible(newOpen)}
+              placement="bottomLeft"
+            >
+              <Button
+                icon={<PlusOutlined />}
+                size="small"
+                className="button small-btn"
+                style={{
+                  fontSize: "12px",
+                  marginTop: 4,
+                }}
+              >
+                Add Label
+              </Button>
+            </Popover>
+          </div>
+        </Col>
+      </Row>
       <div className="task-content task-body-margin-left">
         <div style={{ display: "flex", gap: "24px" }}>
           <div style={{ flex: 1 }}>
             <div className="task-section">
               <div className="task-section-title-desc">
                 <FileTextOutlined />
-                <Text>Description</Text>
+                <Text strong>Description</Text>
               </div>
 
               {showEditor ? (
@@ -436,7 +492,7 @@ const TaskModal: React.FC<TaskModalProps> = ({ visible, onClose }) => {
               <div className="task-section-title">
                 <div>
                   <PaperClipOutlined />
-                  <Text>Attachments</Text>
+                  <Text strong>Attachments</Text>
                 </div>
                 <FileUploadModal />
               </div>
@@ -468,13 +524,13 @@ const TaskModal: React.FC<TaskModalProps> = ({ visible, onClose }) => {
               <div className="task-section-title">
                 <div>
                   <DiffOutlined />
-                  <Text>Activity</Text>
+                  <Text strong>Comments</Text>
                 </div>
-                <Button type="text" size="small">
+                <Button type="text" className="button small-btn" size="small">
                   Show details
                 </Button>
               </div>
-              <div style={{ width: "100%", maxWidth: 600 }}>
+              <div style={{ marginLeft: "-22px" }}>
                 {/* Image Previews */}
                 {fileList.length > 0 && (
                   <div
@@ -483,6 +539,7 @@ const TaskModal: React.FC<TaskModalProps> = ({ visible, onClose }) => {
                       gap: 8,
                       flexWrap: "wrap",
                       marginBottom: 8,
+                      marginLeft: "40px",
                     }}
                   >
                     {fileList.map((file) => (
@@ -518,33 +575,50 @@ const TaskModal: React.FC<TaskModalProps> = ({ visible, onClose }) => {
                     alignItems: "flex-end",
                   }}
                 >
-                  <Upload
-                    beforeUpload={() => false} // Prevent auto upload
-                    fileList={fileList}
-                    multiple
-                    accept="image/*"
-                    onChange={handleUploadChange}
-                    showUploadList={false}
-                  >
-                    <Button icon={<PictureOutlined />} />
-                  </Upload>
-
-                  <TextArea
-                    value={msg}
-                    onChange={(e) => setMsg(e.target.value)}
-                    onKeyDown={handleKeyDown}
-                    placeholder="Type a message..."
-                    autoSize={{ minRows: 1, maxRows: 4 }}
-                    style={{ flex: 1 }}
-                  />
-
-                  <Button
-                    type="primary"
-                    icon={<SendOutlined />}
-                    onClick={sendMessage}
-                    disabled={!msg.trim() && fileList.length === 0}
-                  />
+                  <Avatar src={currentUser?.profile_image.url}>
+                    {currentUser?.first_name[0].toUpperCase()}
+                    {currentUser?.last_name?.[0]?.toUpperCase()}
+                  </Avatar>
+                  <div style={{ position: "relative", width: "100%" }}>
+                    <Input.TextArea
+                      className="form-input"
+                      value={msg}
+                      onChange={(e) => setMsg(e.target.value)}
+                      onKeyDown={handleKeyDown}
+                      placeholder="Write a comment..."
+                      autoSize={{ minRows: 1, maxRows: 4 }}
+                      style={{ flex: 1, borderRadius: "4px" }}
+                    />
+                    <Upload
+                      beforeUpload={() => false} // Prevent auto upload
+                      fileList={fileList}
+                      multiple
+                      accept="image/*"
+                      onChange={handleUploadChange}
+                      showUploadList={false}
+                    >
+                      <PictureOutlined
+                        style={{
+                          position: "absolute",
+                          right: 10,
+                          top: "50%",
+                          transform: "translateY(-50%)",
+                          cursor: "pointer",
+                          color: "#888",
+                        }}
+                      />
+                    </Upload>
+                  </div>
                 </div>
+                <Button
+                  type="primary"
+                  className="button small-btn"
+                  style={{ marginLeft: "38px", marginTop: "10px" }}
+                  onClick={sendMessage}
+                  disabled={!msg.trim() && fileList.length === 0}
+                >
+                  Save
+                </Button>
               </div>
             </div>
           </div>

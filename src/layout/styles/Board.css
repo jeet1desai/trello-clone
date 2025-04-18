@@ -107,10 +107,6 @@
   min-width: 768px;
 }
 
-.task-modal .ant-modal-close {
-  margin-top: 10px;
-}
-
 .task-header {
   display: flex;
   gap: 4px;
@@ -148,8 +144,8 @@
   gap: 8px;
   color: #ffffff;
   margin-bottom: 12px;
-  margin-top: 12px;
-  margin-left: -25px;
+  margin-top: 20px;
+  margin-left: -22px;
 }
 
 .task-section-title {
@@ -160,7 +156,7 @@
   margin-bottom: 12px;
   margin-top: 12px;
   justify-content: space-between;
-  margin-left: -25px;
+  margin-left: -22px;
 }
 
 .task-section-title > div {
@@ -247,4 +243,61 @@
   background-color: #22272b;
   color: #ffffff;
   border: none;
+}
+
+/* Invite Board Modal Styles */
+.invite-modal .ant-modal-content {
+  border-radius: 8px;
+}
+
+.share-container .share-header {
+  margin-bottom: 16px;
+}
+
+.share-container .share-input-group {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.share-container .link-section {
+  margin: 16px 0;
+  padding: 8px 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-direction: column;
+}
+
+.share-container .link-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.share-container .color-red {
+  color: #ff4d4f;
+}
+
+.share-container .display-start {
+  margin: 0;
+  cursor: pointer;
+  color:#1677ff;
+}
+
+.share-container .members-section {
+  margin-top: 16px;
+}
+
+.share-container .member-count {
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.small-btn {
+  margin-top: 0;
+  height: 30px;
+  font-size: 14px;
+  border-radius: 4px; 
 }

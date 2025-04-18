@@ -166,20 +166,13 @@
 
 .user-avatar {
   background: var(--primary-color);
-  color: var(--text-color-inverse);
   cursor: pointer;
-  width: 40px;
-  height: 40px;
-  border-radius: 8px;
+  width: 46px;
+  height: 38px;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: all 0.3s ease;
-}
-
-.user-avatar:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(24, 144, 255, 0.2);
 }
 
 .auth-buttons {

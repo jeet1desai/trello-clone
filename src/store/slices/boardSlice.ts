@@ -89,6 +89,28 @@ export interface IBoardDetails {
   workspace: IBoardWorkspace[];
 }
 
+export interface MemberData {
+  _id: string;
+  memberId: {
+    _id: string;
+    first_name: string;
+    last_name: string;
+    email: string;
+  };
+  role: "ADMIN" | "MEMBER";
+  boardId: {
+    _id: string;
+    name: string;
+  };
+  workspaceId: {
+    _id: string;
+    name: string;
+  };
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
+}
+
 interface BoardState {
   boards: IBoard[];
   selectedBoard: IBoardDetails | null;
@@ -97,6 +119,7 @@ interface BoardState {
   success: string | null;
   addError: string | null;
   editError: string | null;
+  invitedMemberList: MemberData[];
 }
 
 const initialState: BoardState = {
@@ -107,6 +130,7 @@ const initialState: BoardState = {
   success: null,
   addError: null,
   editError: null,
+  invitedMemberList: [],
 };
 
 export const getAllBoards = createAsyncThunk(
@@ -213,6 +237,69 @@ export const deleteBoard = createAsyncThunk(
     } catch (error: any) {
       return rejectWithValue(
         error.response?.data?.message || "Error while deleting board."
+      );
+    }
+  }
+);
+
+export const getBoardMemberListById = createAsyncThunk(
+  "status/member-list",
+  async (_id: string, { rejectWithValue }) => {
+    try {
+      const response = await boardService.getBoardMemberListById(_id);
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message || "Error while fetching members"
+      );
+    }
+  }
+);
+
+export const removeBoardMemberFromListById = createAsyncThunk(
+  "status/remove-member",
+  async (
+    {
+      _id,
+      memberId,
+    }: {
+      _id: string;
+      memberId: string;
+    },
+    { rejectWithValue }
+  ) => {
+    try {
+      const response = await boardService.removeBoardMemberFromListById(
+        _id,
+        memberId
+      );
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message || "Error while removing members."
+      );
+    }
+  }
+);
+
+export const inviteBoardMember = createAsyncThunk(
+  "invite/send-invitation",
+  async (
+    {
+      _id,
+      members,
+    }: {
+      _id: string;
+      members: string[];
+    },
+    { rejectWithValue }
+  ) => {
+    try {
+      const response = await boardService.inviteBoardMember(_id, members);
+      return response.message;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message || "Error while sending invitation."
       );
     }
   }
@@ -391,7 +478,75 @@ const boardSlice = createSlice({
         state.loading = false;
         state.success = null;
         state.error =
-          (action.payload as string) || "Error while deleting board.";
+          (action.payload as string) || "Error while fetching board.";
+      })
+
+      // Fetch board member list
+      .addCase(getBoardMemberListById.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.success = null;
+      })
+      .addCase(getBoardMemberListById.fulfilled, (state, action) => {
+        state.invitedMemberList = action.payload;
+        state.loading = false;
+        state.error = null;
+        state.success = "Members fetched successfully.";
+      })
+      .addCase(getBoardMemberListById.rejected, (state, action) => {
+        state.loading = false;
+        state.invitedMemberList = [];
+        state.success = null;
+        state.error =
+          (action.payload as string) || "Error while fetching members.";
+      })
+
+      // Delete invited member from board
+      .addCase(removeBoardMemberFromListById.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.success = null;
+      })
+      .addCase(removeBoardMemberFromListById.fulfilled, (state, action) => {
+        const { _id } = action.payload;
+        const index = state.boards.findIndex(
+          (invitedMemberList) => invitedMemberList._id === _id
+        );
+        state.invitedMemberList = state.invitedMemberList.filter(
+          (item) => item._id !== _id
+        );
+        if (index !== -1) {
+          state.loading = false;
+          state.error = null;
+          state.success = "Member removed successfully.";
+        } else {
+          state.loading = false;
+          state.error = "Member not found.";
+        }
+      })
+      .addCase(removeBoardMemberFromListById.rejected, (state, action) => {
+        state.loading = false;
+        state.success = null;
+        state.error =
+          (action.payload as string) || "Error while removing member.";
+      })
+
+      // send member invitation
+      .addCase(inviteBoardMember.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.success = null;
+      })
+      .addCase(inviteBoardMember.fulfilled, (state) => {
+        state.loading = false;
+        state.error = null;
+        state.success = "Invitation sent successfully.";
+      })
+      .addCase(inviteBoardMember.rejected, (state, action) => {
+        state.loading = false;
+        state.success = null;
+        state.error =
+          (action.payload as string) || "Error while sending invitation.";
       });
   },
 });

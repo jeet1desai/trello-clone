@@ -179,6 +179,7 @@ const FileUploadModal = () => {
       <Button
         type="primary"
         size="small"
+        className="button small-btn"
         onClick={() => setShowUploadModal(true)}
       >
         Add
@@ -193,7 +194,6 @@ const FileUploadModal = () => {
       >
         <Form.Item
           name="attachments"
-          label="Attachments"
           valuePropName="fileList"
           getValueFromEvent={normFile}
         >
@@ -236,10 +236,10 @@ const FileUploadModal = () => {
             justifyContent: "center",
           }}
         >
-          <Button onClick={() => setShowUploadModal(false)} type="primary">
+          <Button className="button small-btn" onClick={() => setShowUploadModal(false)} type="primary">
             Save
           </Button>
-          <Button onClick={() => setShowUploadModal(false)}>Cancel</Button>
+          <Button className="button small-btn" onClick={() => setShowUploadModal(false)}>Cancel</Button>
         </div>
       </Modal>
 

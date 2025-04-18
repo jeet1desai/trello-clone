@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { Form, DatePicker, Row, Col, Button, Popover } from "antd";
 import dayjs, { Dayjs } from "dayjs";
-import { CalendarOutlined } from "@ant-design/icons";
+import { PlusOutlined } from "@ant-design/icons";
+
 const DatePickerPopup: React.FC = () => {
   const [visible, setVisible] = useState(false);
   const [form] = Form.useForm();
@@ -115,12 +116,16 @@ const DatePickerPopup: React.FC = () => {
     <>
       <Button
         key="dates"
+        icon={<PlusOutlined />}
+        size="small"
+        className="button small-btn"
+        style={{
+          fontSize: "12px",
+          marginTop: 4,
+        }}
         onClick={showModal}
-        icon={<CalendarOutlined />}
-        block
-        style={{ textAlign: "left", width: "max-content" }}
       >
-        {"Dates"}
+        Add Dates
       </Button>
       <Popover
         content={popoverContent}
