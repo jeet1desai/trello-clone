@@ -220,34 +220,6 @@ const taskSlice = createSlice({
         state.success = null;
       })
       .addCase(updateTask.fulfilled, (state, action) => {
-        const updatedTask = action.payload.data;
-        const newStatusId = updatedTask.status_list_id._id;
-        let oldStatusId: string | null = null;
-        for (const [statusId, tasks] of Object.entries(state.tasksByStatus)) {
-          if (tasks.some((task) => task._id === updatedTask._id)) {
-            oldStatusId = statusId;
-            break;
-          }
-        }
-        if (oldStatusId && oldStatusId !== newStatusId) {
-          // Remove from old status list
-          state.tasksByStatus[oldStatusId] = state.tasksByStatus[oldStatusId]
-          .filter((task) => task._id !== updatedTask._id);
-
-          // Add to new status list
-          if (!state.tasksByStatus[newStatusId]) {
-            state.tasksByStatus[newStatusId] = [];
-          }
-          state.tasksByStatus[newStatusId].push(updatedTask);
-        } else if (oldStatusId) {
-          // Update in the same status list
-          state.tasksByStatus[oldStatusId] = state.tasksByStatus[
-            oldStatusId
-          ].map((task) => (task._id === updatedTask._id ? updatedTask : task));
-        }
-        if (state.selectedTask && state.selectedTask._id === updatedTask._id) {
-          state.selectedTask = updatedTask;
-        }
         state.loading = false;
         state.error = null;
         state.success = "Task updated successfully.";

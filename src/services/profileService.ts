@@ -12,7 +12,7 @@ export const profileService = {
     middle_name: string;
     last_name: string;
     email: string;
-    profile_image: string;
+    profile_image: any;
   }) {
     const formData = new FormData();
     formData.append("first_name", data.first_name);
@@ -33,10 +33,13 @@ export const profileService = {
   },
 
   async resetPassword(data: { old_password: string; new_password: string }) {
-    const response = await axiosInstance.post(`${API_URL}/auth/reset-password`, {
-      old_password: data.old_password,
-      new_password: data.new_password,
-    });
+    const response = await axiosInstance.post(
+      `${API_URL}/auth/reset-password`,
+      {
+        old_password: data.old_password,
+        new_password: data.new_password,
+      }
+    );
     return response.data;
   },
 };

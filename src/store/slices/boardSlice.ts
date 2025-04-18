@@ -243,7 +243,7 @@ export const deleteBoard = createAsyncThunk(
 );
 
 export const getBoardMemberListById = createAsyncThunk(
-  "board/member-list",
+  "status/member-list",
   async (_id: string, { rejectWithValue }) => {
     try {
       const response = await boardService.getBoardMemberListById(_id);
@@ -257,7 +257,7 @@ export const getBoardMemberListById = createAsyncThunk(
 );
 
 export const removeBoardMemberFromListById = createAsyncThunk(
-  "board/remove-member",
+  "status/remove-member",
   async (
     {
       _id,
@@ -491,7 +491,7 @@ const boardSlice = createSlice({
         state.invitedMemberList = action.payload;
         state.loading = false;
         state.error = null;
-        state.success = "Board details fetched successfully.";
+        state.success = "Members fetched successfully.";
       })
       .addCase(getBoardMemberListById.rejected, (state, action) => {
         state.loading = false;
