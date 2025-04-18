@@ -44,7 +44,7 @@ import {
   openBoardAddModal,
   clearSelectedBoard,
 } from "../../store/slices/boardSlice";
-import "../../layout/styles/Boards.css";
+import "../../layout/styles/boards.css";
 import { generateGradient, SORT_OPTIONS } from "../../config";
 import AddBoardForm from "./components/AddBoardForm";
 
