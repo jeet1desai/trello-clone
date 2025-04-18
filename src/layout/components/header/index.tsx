@@ -3,13 +3,14 @@ import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { Layout, Button, Avatar, Dropdown, MenuProps, Space } from "antd";
 import { BellOutlined, UserOutlined, LogoutOutlined } from "@ant-design/icons";
-import { AppDispatch, RootState } from "../../../store";
+import { AppDispatch, RootState, persistor } from "../../../store";
 import { logoutUser } from "../../../store/slices/userSlice";
 import { ThemeToggle } from "../../../components/ui";
 import { useTheme } from "../../../contexts/ThemeContext";
 import "../../styles/Layout.css";
 import NavigationLinks from "./NavigationLink";
 import SearchBox from "./SearchBox";
+import { RESET_APP } from "../../../config";
 
 const { Header: AntHeader } = Layout;
 
@@ -25,7 +26,8 @@ const Header: React.FC = () => {
 
   const handleLogout = async () => {
     await dispatch(logoutUser());
-    localStorage.removeItem("token");
+    dispatch({ type: RESET_APP });
+    await persistor.purge();
     navigate("/login");
   };
 
@@ -130,10 +132,7 @@ const Header: React.FC = () => {
         <ThemeToggle style={{ marginRight: 8 }} />
 
         <Dropdown menu={{ items: userMenuItems }} placement="bottomRight" arrow>
-          <Avatar
-            className="user-avatar"
-            src={currentUser?.profile_image?.url}
-          >
+          <Avatar className="user-avatar" src={currentUser?.profile_image?.url}>
             {currentUser?.first_name?.[0]?.toUpperCase()}
           </Avatar>
         </Dropdown>
