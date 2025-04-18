@@ -101,3 +101,150 @@
   padding: 0px;
   border: none;
 }
+
+/* Update Task Modal */
+.task-modal {
+  min-width: 768px;
+}
+
+.task-modal .ant-modal-close {
+  margin-top: 10px;
+}
+
+.task-header {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 10px;
+}
+
+.task-title {
+  color: #ffffff;
+  margin-bottom: 0;
+}
+
+.task-section {
+  margin-bottom: 24px;
+}
+
+.task-description-btn {
+  box-sizing: border-box;
+  width: 100%;
+  margin: 0;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 3px;
+  color: inherit;
+  font-weight: 500;
+  text-align: left;
+  display: flex;
+  height: 60px;
+  justify-content: flex-start;
+  align-items: flex-start;
+}
+
+.task-section-title-desc {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #ffffff;
+  margin-bottom: 12px;
+  margin-top: 12px;
+  margin-left: -25px;
+}
+
+.task-section-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #ffffff;
+  margin-bottom: 12px;
+  margin-top: 12px;
+  justify-content: space-between;
+  margin-left: -25px;
+}
+
+.task-section-title > div {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.task-body-margin-left {
+  margin-left: 25px;
+}
+
+.task-description {
+  border: none;
+  color: #ffffff;
+  border-radius: 4px;
+  padding: 12px;
+  width: 100%;
+  min-height: 80px;
+}
+
+.task-attachments {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.attachment-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-radius: 4px;
+}
+
+.attachment-icon {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: grey;
+  border-radius: 4px;
+}
+
+.attachment-info {
+  flex: 1;
+}
+
+.attachment-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.activity-section {
+  margin-top: 24px;
+}
+
+.comment-input {
+  margin-bottom: 16px;
+}
+
+.sidebar-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sidebar-section {
+  margin-bottom: 16px;
+}
+
+.sidebar-section-title {
+  color: #9fadbc;
+  margin-bottom: 8px;
+}
+
+.members-list {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.watching-tag {
+  background-color: #22272b;
+  color: #ffffff;
+  border: none;
+}

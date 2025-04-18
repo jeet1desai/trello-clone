@@ -28,7 +28,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../../store";
 import { useParams } from "react-router";
 import { IBoardDetails, getBoardById } from "../../../store/slices/boardSlice";
-import TaskCardForm from "./components/taskCardForm";
 import "../../../layout/styles/Board.css";
 import {
   IStatusList,
@@ -47,6 +46,7 @@ import {
   setSelectedTask,
   updateTask,
 } from "../../../store/slices/taskSlice";
+import TaskModal from "./components/taskModal";
 
 const { Title, Text } = Typography;
 
@@ -261,14 +261,6 @@ const BoardDetail: React.FC = () => {
     dispatch(deleteTask(taskId));
   };
 
-  const handleTaskCardFormSubmit = (values: TaskPayload) => {
-    setVisibleTaskCardForm(false);
-    if (id) {
-      dispatch(getStatusListByBoardId(id));
-    }
-  };
-
-  // Filter tasks for each status
   const getTasksByStatus = (statusId: string) => {
     return tasksByStatus[statusId] || [];
   };
@@ -360,10 +352,11 @@ const BoardDetail: React.FC = () => {
         </div>
         <div>
           <Space size={16}>
-            <Avatar.Group maxCount={3}>
+            <Avatar.Group max={{ count: 3 }}>
               {boardData?.members?.map((member) => {
                 return (
                   <Tooltip
+                    key={member.memberId}
                     title={`${member?.user?.first_name} ${member?.user?.last_name} (${member?.user?.email})`}
                   >
                     <Avatar src={member?.user?.profile_image} />
@@ -588,10 +581,9 @@ const BoardDetail: React.FC = () => {
         </DragDropContext>
       </div>
 
-      <TaskCardForm
+      <TaskModal
         visible={visibleTaskCardForm}
-        onCancel={() => setVisibleTaskCardForm(false)}
-        onFinish={handleTaskCardFormSubmit}
+        onClose={() => setVisibleTaskCardForm(false)}
       />
     </>
   );

@@ -31,7 +31,7 @@ import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
 import { Input } from "../../../../components";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../../../store";
-import { updateTask } from "../../../../store/slices/taskSlice";
+import { IAttachment, updateTask } from "../../../../store/slices/taskSlice";
 import { getStatusListByBoardId } from "../../../../store/slices/statusSlice";
 
 dayjs.extend(isSameOrAfter);
@@ -87,6 +87,7 @@ const TaskCardForm: React.FC<TaskCardFormProps> = ({
   const [previewOpen, setPreviewOpen] = useState<boolean>(false);
   const [previewTitle, setPreviewTitle] = useState<string>("");
   const [fileList, setFileList] = useState<UploadFile[]>([]);
+  const [showFileList, setShowFileList] = useState<IAttachment[]>([]);
   const [formLoading, setFormLoading] = useState<boolean>(false);
   const [previewContent, setPreviewContent] = useState<React.ReactNode>(null);
   const [uploadFileError, setUploadFileError] = useState<string>("");
@@ -106,21 +107,13 @@ const TaskCardForm: React.FC<TaskCardFormProps> = ({
 
       // Initialize attachments if available
       if (selectedTask.attachment && selectedTask.attachment.length > 0) {
-        const files = selectedTask.attachment.map((attachment, index) => ({
-          uid: `-${index}`,
-          name: attachment.name,
-          status: "done",
-          url: attachment.url,
-          type: attachment.type,
-          size: attachment.size,
-        }));
-        setFileList(files as UploadFile[]);
+        setShowFileList(selectedTask.attachment);
       } else {
-        setFileList([]);
+        setShowFileList([]);
       }
     } else {
       finalForm.resetFields();
-      setFileList([]);
+      setShowFileList([]);
     }
   }, [selectedTask, visible, finalForm]);
 

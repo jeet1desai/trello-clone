@@ -1,6 +1,12 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { taskService } from "../../services/taskService";
 
+export interface IAttachment {
+  imageName: string;
+  imageId: string;
+  url: string;
+  _id: string;
+}
 export interface ITask {
   _id: string;
   title: string;
@@ -9,12 +15,7 @@ export interface ITask {
   created_by: string;
   priority?: string;
   status?: string;
-  attachment?: Array<{
-    name: string;
-    url?: string;
-    type?: string;
-    size?: number;
-  }>;
+  attachment: IAttachment[];
   status_list_id: {
     _id: string;
     name: string;
@@ -96,12 +97,14 @@ export const updateTask = createAsyncThunk(
       status_list_id,
       newPosition,
       status,
+      description,
     }: {
       taskId: string;
       title?: string;
       status_list_id?: string;
       newPosition?: number;
       status?: string;
+      description?: string;
     },
     { rejectWithValue }
   ) => {
@@ -111,7 +114,8 @@ export const updateTask = createAsyncThunk(
         title,
         status_list_id,
         newPosition,
-        status
+        status,
+        description
       );
       return response;
     } catch (error: any) {
@@ -223,6 +227,8 @@ const taskSlice = createSlice({
         const updatedTask = action.payload.data;
         const newStatusId = updatedTask.status_list_id._id;
         let oldStatusId: string | null = null;
+
+        debugger;
         for (const [statusId, tasks] of Object.entries(state.tasksByStatus)) {
           if (tasks.some((task) => task._id === updatedTask._id)) {
             oldStatusId = statusId;
@@ -231,8 +237,9 @@ const taskSlice = createSlice({
         }
         if (oldStatusId && oldStatusId !== newStatusId) {
           // Remove from old status list
-          state.tasksByStatus[oldStatusId] = state.tasksByStatus[oldStatusId]
-          .filter((task) => task._id !== updatedTask._id);
+          state.tasksByStatus[oldStatusId] = state.tasksByStatus[
+            oldStatusId
+          ].filter((task) => task._id !== updatedTask._id);
 
           // Add to new status list
           if (!state.tasksByStatus[newStatusId]) {
