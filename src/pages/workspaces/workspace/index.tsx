@@ -42,7 +42,7 @@ import {
   deleteBoard,
   editBoard,
 } from "../../../store/slices/boardSlice";
-import "../../../layout/styles/WorkspaceDetail.css";
+import "../../../layout/styles/workspaceDetail.css";
 import { generateGradient } from "../../../config";
 import AddBoardForm from "../../boards/components/AddBoardForm";
 

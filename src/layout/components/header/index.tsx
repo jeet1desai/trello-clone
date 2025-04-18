@@ -1,17 +1,8 @@
-import React, { useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import React from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
+import { Layout, Button, Avatar, Dropdown, MenuProps, Space } from "antd";
 import {
-  Layout,
-  Button,
-  Avatar,
-  Input,
-  Dropdown,
-  MenuProps,
-  Space,
-} from "antd";
-import {
-  SearchOutlined,
   BellOutlined,
   UserOutlined,
   LogoutOutlined,
@@ -22,17 +13,17 @@ import { logoutUser } from "../../../store/slices/userSlice";
 import { ThemeToggle } from "../../../components/ui";
 import { useTheme } from "../../../contexts/ThemeContext";
 import "../../styles/Layout.css";
+import NavigationLinks from "./NavigationLink";
+import SearchBox from "./SearchBox";
 
 const { Header: AntHeader } = Layout;
 
 const Header: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
-  const location = useLocation();
   const { currentUser, isAuthenticated } = useSelector(
     (state: RootState) => state.user
   );
-  const [searchText, setSearchText] = useState("");
   const { theme } = useTheme();
 
   const isDarkMode = theme === "dark";
@@ -139,46 +130,11 @@ const Header: React.FC = () => {
           </Link>
         </div>
 
-        <div style={{ display: "flex", gap: 10 }}>
-          <Button
-            type="text"
-            style={{
-              padding: 0,
-              color: location.pathname.includes("workspaces")
-                ? "#40A9FF"
-                : "inherit",
-              fontWeight: location.pathname.includes("workspaces") ? 600 : 400,
-            }}
-            onClick={() => navigate("/workspaces")}
-          >
-            Workspaces
-          </Button>
-          <Button
-            type="text"
-            style={{
-              padding: 0,
-              color: location.pathname.includes("boards")
-                ? "#40A9FF"
-                : "inherit",
-              fontWeight: location.pathname.includes("boards") ? 600 : 400,
-            }}
-            onClick={() => navigate("/boards")}
-          >
-            Boards
-          </Button>
-        </div>
+        <NavigationLinks />
       </div>
 
       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-        <Input
-          prefix={<SearchOutlined />}
-          placeholder="Search"
-          allowClear
-          value={searchText}
-          onChange={(e) => setSearchText(e.target.value)}
-          style={{ width: 250 }}
-          className="form-input"
-        />
+        <SearchBox />
         <Button
           type="text"
           icon={<BellOutlined />}
@@ -194,7 +150,7 @@ const Header: React.FC = () => {
               cursor: "pointer",
             }}
           >
-            {currentUser?.first_name?.[0]?.toUpperCase() || <UserOutlined />}
+            {currentUser?.first_name?.[0]?.toUpperCase() ?? <UserOutlined />}
           </Avatar>
         </Dropdown>
       </div>
