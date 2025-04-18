@@ -25,11 +25,11 @@ export interface ITask {
       description: string;
     };
   };
-  position: 1;
+  position?: number;
 }
 
 interface TaskState {
-  tasks: ITask[];
+  tasksByStatus: { [statusId: string]: ITask[] };
   selectedTask: ITask | null;
   loading: boolean;
   error: string | null;
@@ -37,7 +37,7 @@ interface TaskState {
 }
 
 const initialState: TaskState = {
-  tasks: [],
+  tasksByStatus: {},
   selectedTask: null,
   loading: false,
   error: null,
@@ -81,7 +81,7 @@ export const createTask = createAsyncThunk(
       return response;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message || "Error while creating task"
+        error.response?.data?.message || "Error while creating task."
       );
     }
   }
@@ -93,16 +93,14 @@ export const updateTask = createAsyncThunk(
     {
       taskId,
       title,
-      description,
       status_list_id,
       newPosition,
       status,
     }: {
       taskId: string;
-      title: string;
-      description: string;
+      title?: string;
       status_list_id?: string;
-      newPosition?: string;
+      newPosition?: number;
       status?: string;
     },
     { rejectWithValue }
@@ -111,7 +109,6 @@ export const updateTask = createAsyncThunk(
       const response = await taskService.updateTask(
         taskId,
         title,
-        description,
         status_list_id,
         newPosition,
         status
@@ -119,7 +116,7 @@ export const updateTask = createAsyncThunk(
       return response;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message || "Error while updating task"
+        error.response?.data?.message || "Error while updating task."
       );
     }
   }
@@ -133,7 +130,7 @@ export const deleteTask = createAsyncThunk(
       return { taskId, ...response };
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message || "Error while deleting task"
+        error.response?.data?.message || "Error while deleting task."
       );
     }
   }
@@ -147,7 +144,7 @@ export const getTaskById = createAsyncThunk(
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message || "Error while fetching task"
+        error.response?.data?.message || "Error while fetching task."
       );
     }
   }
@@ -158,6 +155,8 @@ const taskSlice = createSlice({
   initialState,
   reducers: {
     clearTaskState: (state) => {
+      state.tasksByStatus = {};
+      state.selectedTask = null;
       state.loading = false;
       state.error = null;
       state.success = null;
@@ -178,7 +177,8 @@ const taskSlice = createSlice({
         state.success = null;
       })
       .addCase(getTasksByStatusId.fulfilled, (state, action) => {
-        state.tasks = action.payload;
+        const statusId = action.meta.arg;
+        state.tasksByStatus[statusId] = action.payload;
         state.loading = false;
         state.error = null;
         state.success = "Tasks fetched successfully.";
@@ -192,12 +192,16 @@ const taskSlice = createSlice({
 
       // Create task
       .addCase(createTask.pending, (state) => {
-        state.loading = true;
         state.error = null;
         state.success = null;
       })
       .addCase(createTask.fulfilled, (state, action) => {
-        state.tasks.push(action.payload.data);
+        const newTask = action.payload.data;
+        const statusId = newTask.status_list_id._id;
+        if (!state.tasksByStatus[statusId]) {
+          state.tasksByStatus[statusId] = [];
+        }
+        state.tasksByStatus[statusId].push(newTask);
         state.loading = false;
         state.error = null;
         state.success = "Task created successfully.";
@@ -216,13 +220,6 @@ const taskSlice = createSlice({
         state.success = null;
       })
       .addCase(updateTask.fulfilled, (state, action) => {
-        const updatedTask = action.payload.data;
-        state.tasks = state.tasks.map((task) =>
-          task._id === updatedTask._id ? updatedTask : task
-        );
-        if (state.selectedTask && state.selectedTask._id === updatedTask._id) {
-          state.selectedTask = updatedTask;
-        }
         state.loading = false;
         state.error = null;
         state.success = "Task updated successfully.";
@@ -236,18 +233,19 @@ const taskSlice = createSlice({
 
       // Delete task
       .addCase(deleteTask.pending, (state) => {
-        state.loading = true;
         state.error = null;
         state.success = null;
       })
       .addCase(deleteTask.fulfilled, (state, action) => {
-        state.tasks = state.tasks.filter(
-          (task) => task._id !== action.payload.taskId
-        );
-        if (
-          state.selectedTask &&
-          state.selectedTask._id === action.payload.taskId
-        ) {
+        const { taskId } = action.payload;
+
+        // Remove from tasksByStatus map
+        for (const statusId in state.tasksByStatus) {
+          state.tasksByStatus[statusId] = state.tasksByStatus[statusId].filter(
+            (task) => task._id !== taskId
+          );
+        }
+        if (state.selectedTask && state.selectedTask._id === taskId) {
           state.selectedTask = null;
         }
         state.loading = false;
@@ -263,7 +261,6 @@ const taskSlice = createSlice({
 
       // Get task by ID
       .addCase(getTaskById.pending, (state) => {
-        state.loading = true;
         state.error = null;
         state.success = null;
       })

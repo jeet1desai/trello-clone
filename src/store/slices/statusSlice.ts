@@ -29,6 +29,7 @@ export interface IStatusList {
 
 interface StatusState {
   statusList: IStatusList[];
+  selectedStatus: IStatusList | null;
   loading: boolean;
   error: string | null;
   success: string | null;
@@ -36,6 +37,7 @@ interface StatusState {
 
 const initialState: StatusState = {
   statusList: [],
+  selectedStatus: null,
   loading: false,
   error: null,
   success: null,
@@ -49,14 +51,14 @@ export const getStatusListByBoardId = createAsyncThunk(
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message || "Error while fetching status"
+        error.response?.data?.message || "Error while fetching status."
       );
     }
   }
 );
 
 export const createNewStatus = createAsyncThunk(
-  "status/add",
+  "list/add",
   async (
     {
       boardId,
@@ -69,10 +71,10 @@ export const createNewStatus = createAsyncThunk(
   ) => {
     try {
       const response = await statusService.createNewStatus(boardId, name);
-      return response;
+      return response.message;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message || "Error while adding status"
+        error.response?.data?.message || "Error while adding status."
       );
     }
   }
@@ -87,7 +89,7 @@ export const updateStatus = createAsyncThunk(
       newPosition,
     }: {
       statusId: string;
-      name: string;
+      name?: string;
       newPosition?: number;
     },
     { rejectWithValue }
@@ -101,21 +103,21 @@ export const updateStatus = createAsyncThunk(
       return response;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message || "Error while updating status"
+        error.response?.data?.message || "Error while updating status."
       );
     }
   }
 );
 
 export const deleteStatus = createAsyncThunk(
-  "status/delete",
+  "list/delete",
   async (_id: string, { rejectWithValue }) => {
     try {
       const response = await statusService.deleteStatus(_id);
-      return response.data;
+      return response.message;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message || "Error while deleting status"
+        error.response?.data?.message || "Error while deleting status."
       );
     }
   }
@@ -125,7 +127,11 @@ const statusSlice = createSlice({
   name: "status",
   initialState,
   reducers: {
+    setSelectedStatus: (state, action) => {
+      state.selectedStatus = action.payload;
+    },
     clearStatusState: (state) => {
+      state.statusList = [];
       state.loading = false;
       state.error = null;
       state.success = null;
@@ -157,19 +163,7 @@ const statusSlice = createSlice({
         state.error = null;
         state.success = null;
       })
-      .addCase(createNewStatus.fulfilled, (state, action) => {
-        const {
-          _id,
-          name,
-          description,
-          createdBy,
-          workspace,
-          createdAt,
-          updatedAt,
-          members,
-        } = action.payload.data;
-
-        // state.statusList = [...state.statusList, currentWorkspace];
+      .addCase(createNewStatus.fulfilled, (state) => {
         state.loading = false;
         state.error = null;
         state.success = "Status added successfully.";
@@ -228,6 +222,6 @@ const statusSlice = createSlice({
   },
 });
 
-export const { clearStatusState } = statusSlice.actions;
+export const { setSelectedStatus, clearStatusState } = statusSlice.actions;
 
 export default statusSlice.reducer;

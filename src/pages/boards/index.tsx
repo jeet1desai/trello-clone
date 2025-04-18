@@ -14,7 +14,6 @@ import {
   Tag,
   Empty,
   Tooltip,
-  Checkbox,
   App,
   Alert,
   Spin,
@@ -24,7 +23,6 @@ import {
   UserOutlined,
   EllipsisOutlined,
   SearchOutlined,
-  FilterOutlined,
   SortAscendingOutlined,
   CheckOutlined,
   DeleteOutlined,
@@ -44,27 +42,24 @@ import {
   openBoardAddModal,
   clearSelectedBoard,
 } from "../../store/slices/boardSlice";
-import "../../layout/styles/Boards.css";
+import "../../layout/styles/boards.css";
 import { generateGradient, SORT_OPTIONS } from "../../config";
 import AddBoardForm from "./components/AddBoardForm";
 
 const { Title, Paragraph } = Typography;
 
 const Boards: React.FC = () => {
+  const [form] = Form.useForm();
+  const { modal } = App.useApp();
+  const location = useLocation();
   const dispatch = useDispatch<AppDispatch>();
   const { boards, addError, editError, loading } = useSelector(
     (state: RootState) => state.board
   );
-  const location = useLocation();
-  const { modal } = App.useApp();
 
   const [searchText, setSearchText] = useState("");
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [selectedBoard, setSelectedBoard] = useState<IBoard | null>(null);
-  const [form] = Form.useForm();
-
-  // Filter and sort state
-  const [filterCreators, setFilterCreators] = useState<string[]>([]);
   const [sortOption, setSortOption] = useState<string>(SORT_OPTIONS.DEFAULT);
 
   // Get owner details
@@ -73,20 +68,23 @@ const Boards: React.FC = () => {
     return owner;
   };
 
-  // Get all unique creators
-  const allCreators = React.useMemo(() => {
-    const creators = boards.map(
-      (board: { createdBy: string }) => board.createdBy
-    );
-    return Array.from(new Set(creators));
-  }, [boards]);
-
   const showAddModal = useCallback(() => {
     dispatch(openBoardAddModal());
     setSelectedBoard(null);
     form.resetFields();
     setIsModalVisible(true);
   }, [form, dispatch]);
+
+  useEffect(() => {
+    (async () => {
+      await dispatch(getAllBoards());
+    })();
+
+    return () => {
+      dispatch(openBoardAddModal());
+      dispatch(clearSelectedBoard());
+    };
+  }, [dispatch]);
 
   // Check URL parameters for mode=create
   useEffect(() => {
@@ -109,12 +107,7 @@ const Boards: React.FC = () => {
           .includes(searchText.toLowerCase());
         const textMatch = nameMatch || descMatch;
 
-        // Filter by creator
-        const creatorMatch =
-          filterCreators.length === 0 ||
-          filterCreators.includes(board.createdBy);
-
-        return textMatch && creatorMatch;
+        return textMatch;
       })
       .sort((a, b) => {
         if (sortOption === SORT_OPTIONS.NAME_ASC) {
@@ -132,11 +125,7 @@ const Boards: React.FC = () => {
         }
         return 0;
       });
-  }, [boards, searchText, filterCreators, sortOption]);
-
-  const handleFilterReset = () => {
-    setFilterCreators([]);
-  };
+  }, [boards, searchText, sortOption]);
 
   const handleAddOrEditBoard = async (values: any) => {
     if (selectedBoard) {
@@ -212,17 +201,6 @@ const Boards: React.FC = () => {
         break;
     }
   };
-
-  useEffect(() => {
-    (async () => {
-      await dispatch(getAllBoards());
-    })();
-
-    return () => {
-      dispatch(openBoardAddModal());
-      dispatch(clearSelectedBoard());
-    };
-  }, [dispatch]);
 
   const renderBoardCard = (board: IBoard) => {
     const background = generateGradient(board.name);
@@ -330,7 +308,7 @@ const Boards: React.FC = () => {
           <Card hoverable className="create-board-card" onClick={showAddModal}>
             <div className="create-card-content">
               <PlusOutlined className="plus-icon" />
-              <div className="create-card-text button">Create New Board</div>
+              <div className="create-card-text">Create New Board</div>
             </div>
           </Card>
         </Col>
@@ -370,47 +348,6 @@ const Boards: React.FC = () => {
     },
   ];
 
-  // Filter menu items - creators
-  const filterMenuItems: MenuProps["items"] = [
-    {
-      key: "creators",
-      label: (
-        <Title level={5} style={{ margin: 0 }}>
-          Filter by Creator
-        </Title>
-      ),
-      type: "group",
-      children: allCreators.map((creator) => ({
-        key: creator,
-        label: (
-          <Checkbox
-            checked={filterCreators.includes(creator)}
-            onChange={(e) => {
-              if (e.target.checked) {
-                setFilterCreators([...filterCreators, creator]);
-              } else {
-                setFilterCreators(filterCreators.filter((c) => c !== creator));
-              }
-            }}
-          >
-            {creator}
-          </Checkbox>
-        ),
-      })),
-    },
-    {
-      type: "divider",
-    },
-    {
-      key: "reset",
-      label: (
-        <div className="filter-reset" onClick={handleFilterReset}>
-          Reset Filters
-        </div>
-      ),
-    },
-  ];
-
   return (
     <>
       <Spin spinning={loading} fullscreen />
@@ -432,22 +369,6 @@ const Boards: React.FC = () => {
                 style={{ width: 220, marginTop: "8px" }}
                 className="form-input"
               />
-              <Dropdown
-                menu={{ items: filterMenuItems }}
-                trigger={["click"]}
-                overlayClassName="filter-dropdown"
-              >
-                <Button
-                  className="button"
-                  type={filterCreators.length > 0 ? "primary" : "default"}
-                >
-                  <Space>
-                    <FilterOutlined />
-                    Filter{" "}
-                    {filterCreators.length > 0 && `(${filterCreators.length})`}
-                  </Space>
-                </Button>
-              </Dropdown>
               <Dropdown
                 menu={{
                   items: sortMenuItems,

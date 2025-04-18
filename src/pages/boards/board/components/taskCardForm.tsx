@@ -109,7 +109,7 @@ const TaskCardForm: React.FC<TaskCardFormProps> = ({
         const files = selectedTask.attachment.map((attachment, index) => ({
           uid: `-${index}`,
           name: attachment.name,
-          status: 'done',
+          status: "done",
           url: attachment.url,
           type: attachment.type,
           size: attachment.size,
@@ -242,20 +242,18 @@ const TaskCardForm: React.FC<TaskCardFormProps> = ({
     setFormLoading(true);
     try {
       // Convert attachments
-      const attachments = fileList.map(file => ({
+      const attachments = fileList.map((file) => ({
         name: file.name,
-        url: file.url || '',
-        type: file.type || '',
+        url: file.url || "",
+        type: file.type || "",
         size: file.size || 0,
       }));
 
       // Format payload
       const payload: any = {
         title: values.title,
-        description: values.description || '',
         status_list_id: values.status_list_id,
       };
-
 
       if (values.status) {
         payload.status = values.status;
@@ -263,34 +261,36 @@ const TaskCardForm: React.FC<TaskCardFormProps> = ({
 
       if (selectedTask) {
         // Update existing task
-        await dispatch(updateTask({
-          taskId: selectedTask._id,
-          ...payload
-        }));
-        
+        await dispatch(
+          updateTask({
+            taskId: selectedTask._id,
+            ...payload,
+          })
+        );
+
         // Reload board data
         if (selectedTask.board_id) {
           await dispatch(getStatusListByBoardId(selectedTask.board_id));
         }
       }
-      
+
       // Format the final payload for the onFinish callback
       const taskPayload: TaskPayload = {
         title: payload.title,
         description: payload.description,
         list_id: payload.status_id,
-        created_by: selectedTask?.created_by || '',
-        start_date: payload.start_date || '',
-        due_date: payload.due_date || '',
-        priority: payload.priority || 'Medium',
-        status: payload.status || 'Incomplete',
+        created_by: selectedTask?.created_by || "",
+        start_date: payload.start_date || "",
+        due_date: payload.due_date || "",
+        priority: payload.priority || "Medium",
+        status: payload.status || "Incomplete",
         attachments: attachments || [],
       };
-      
+
       onFinish(taskPayload);
     } catch (error) {
-      console.error('Error saving task:', error);
-      message.error('Failed to save task');
+      console.error("Error saving task:", error);
+      message.error("Failed to save task");
     } finally {
       setFormLoading(false);
     }
@@ -396,7 +396,10 @@ const TaskCardForm: React.FC<TaskCardFormProps> = ({
               rules={[
                 {
                   validator: async (_, value) =>
-                    validateDueDate(finalForm.getFieldValue("start_date"), value),
+                    validateDueDate(
+                      finalForm.getFieldValue("start_date"),
+                      value
+                    ),
                 },
               ]}
             >

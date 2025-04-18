@@ -1,29 +1,33 @@
-import React, { useEffect, useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import React from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { Layout, Button, Avatar, Input, Dropdown, MenuProps, Space, Popover } from "antd";
-import { SearchOutlined, BellOutlined, UserOutlined, LogoutOutlined, SettingOutlined, EyeInvisibleOutlined } from "@ant-design/icons";
-import { AppDispatch, RootState } from "../../../store";
+import { AppDispatch, RootState, persistor } from "../../../store";
+import { Layout, Button, Avatar, Dropdown, MenuProps, Space, Popover } from "antd";
+import { BellOutlined, UserOutlined, LogoutOutlined, EyeInvisibleOutlined } from "@ant-design/icons";
 import { logoutUser } from "../../../store/slices/userSlice";
 import { ThemeToggle } from "../../../components/ui";
 import { useTheme } from "../../../contexts/ThemeContext";
 import "../../styles/Layout.css";
+import NavigationLinks from "./NavigationLink";
+import SearchBox from "./SearchBox";
+import { RESET_APP } from "../../../config";
 
 const { Header: AntHeader } = Layout;
 
 const Header: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
-  const location = useLocation();
-  const { currentUser, isAuthenticated } = useSelector((state: RootState) => state.user);
-  const [searchText, setSearchText] = useState("");
+  const { currentUser, isAuthenticated } = useSelector(
+    (state: RootState) => state.user
+  );
   const { theme } = useTheme();
 
   const isDarkMode = theme === "dark";
 
   const handleLogout = async () => {
     await dispatch(logoutUser());
-    localStorage.removeItem("token");
+    dispatch({ type: RESET_APP });
+    await persistor.purge();
     navigate("/login");
   };
 
@@ -35,18 +39,9 @@ const Header: React.FC = () => {
       onClick: () => navigate("/profile"),
     },
     {
-      key: "settings",
-      label: <span>Settings</span>,
-      icon: <SettingOutlined />,
-      onClick: () => navigate("/settings"),
-    },
-    {
-      type: "divider",
-    },
-    {
       key: "logout",
-      label: <span>Log Out</span>,
-      icon: <LogoutOutlined />,
+      label: <span style={{ color: "red" }}>Log Out</span>,
+      icon: <LogoutOutlined style={{ color: "red" }} />,
       onClick: handleLogout,
     },
   ];
@@ -120,43 +115,11 @@ const Header: React.FC = () => {
           </Link>
         </div>
 
-        <div style={{ display: "flex", gap: 10 }}>
-          <Button
-            type="text"
-            style={{
-              padding: 0,
-              color: location.pathname.includes("workspaces") ? "#40A9FF" : "inherit",
-              fontWeight: location.pathname.includes("workspaces") ? 600 : 400,
-            }}
-            onClick={() => navigate("/workspaces")}
-          >
-            Workspaces
-          </Button>
-          <Button
-            type="text"
-            style={{
-              padding: 0,
-              color: location.pathname.includes("boards") ? "#40A9FF" : "inherit",
-              fontWeight: location.pathname.includes("boards") ? 600 : 400,
-            }}
-            onClick={() => navigate("/boards")}
-          >
-            Boards
-          </Button>
-        </div>
+        <NavigationLinks />
       </div>
 
       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-        <Input
-          prefix={<SearchOutlined />}
-          placeholder="Search"
-          allowClear
-          value={searchText}
-          onChange={(e) => setSearchText(e.target.value)}
-          style={{ width: 250 }}
-          className="form-input"
-        />
-
+        <SearchBox />
         <Popover
           content={
             <div style={{ width: "350px", display: "flex", flexDirection: "column", gap: "4px" }}>
@@ -193,13 +156,8 @@ const Header: React.FC = () => {
         <ThemeToggle style={{ marginRight: 8 }} />
 
         <Dropdown menu={{ items: userMenuItems }} placement="bottomRight" arrow>
-          <Avatar
-            style={{
-              backgroundColor: "#1890ff",
-              cursor: "pointer",
-            }}
-          >
-            {currentUser?.first_name?.[0]?.toUpperCase() || <UserOutlined />}
+          <Avatar className="user-avatar" src={currentUser?.profile_image?.url}>
+            {currentUser?.first_name?.[0]?.toUpperCase()}
           </Avatar>
         </Dropdown>
       </div>

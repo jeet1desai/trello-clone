@@ -24,15 +24,19 @@ import "../../layout/styles/Profile.css";
 const { Title, Text } = Typography;
 
 const ProfilePage = () => {
+  const [profileForm] = Form.useForm();
+  const [passwordForm] = Form.useForm();
   const dispatch = useDispatch<AppDispatch>();
-  const { profileDetails, error, loading } = useSelector(
+  const { currentUser } = useSelector(
+    (state: RootState) => state.user
+  );
+  const { profileDetails, loading } = useSelector(
     (state: RootState) => state.profile
   );
   const [editMode, setEditMode] = useState(false);
   const [resetPasswordFlag, setResetPasswordFlag] = useState(false);
-  const [form] = Form.useForm();
   const [previewImage, setPreviewImage] = useState<string | undefined>(
-    profileDetails?.profile_image
+    profileDetails?.profile_image?.url
   );
 
   useEffect(() => {
@@ -44,10 +48,13 @@ const ProfilePage = () => {
     middle_name: string;
     last_name: string;
     email: string;
-    profile_image: string;
+    profile_image: any;
   }) => {
     await dispatch(
-      updateProfile({ ...values, profile_image: previewImage || "" })
+      updateProfile({
+        ...values,
+        profile_image: values.profile_image.file,
+      })
     );
     setEditMode(false);
   };
@@ -57,7 +64,8 @@ const ProfilePage = () => {
     new_password: string;
   }) => {
     await dispatch(resetPassword(values));
-    if (!error) setResetPasswordFlag(false);
+    passwordForm.resetFields();
+    setResetPasswordFlag(false);
   };
 
   return (
@@ -71,69 +79,70 @@ const ProfilePage = () => {
           <Text type="secondary">Today, {new Date().toDateString()}</Text>
         </div>
 
-        <Card className="profile-card">
-          <div className="profile-top-section">
-            <div className="profile-name">
-              <Upload
-                showUploadList={false}
-                accept="image/*"
-                disabled={!editMode}
-                beforeUpload={(file) => {
-                  const reader = new FileReader();
-                  reader.onload = () => {
-                    const imageUrl = reader.result as string;
-                    setPreviewImage(imageUrl);
-                  };
-                  reader.readAsDataURL(file);
-                  return false;
-                }}
-              >
-                <div className="avatar-upload-wrapper">
-                  <Avatar
-                    size={80}
-                    src={previewImage}
-                    icon={<UserOutlined />}
-                  />
-                  {editMode && (
-                    <div className="camera-overlay">
-                      <CameraOutlined className="camera-icon" />
+        <Form
+          form={profileForm}
+          name="profile"
+          initialValues={
+            profileDetails
+              ? profileDetails
+              : {
+                  profile_image: currentUser?.profile_image,
+                  first_name: "",
+                  middle_name: "",
+                  last_name: "",
+                  email: "",
+                  phone: "",
+                }
+          }
+          onFinish={handleUpdate}
+          layout="vertical"
+          requiredMark={false}
+        >
+          <Card className="profile-card">
+            <div className="profile-top-section">
+              <div className="profile-name">
+                <Form.Item name="profile_image">
+                  <Upload
+                    showUploadList={false}
+                    accept="image/*"
+                    disabled={!editMode}
+                    beforeUpload={(file) => {
+                      const reader = new FileReader();
+                      reader.onload = () =>
+                        setPreviewImage(reader.result as string);
+                      reader.readAsDataURL(file);
+                      return false;
+                    }}
+                  >
+                    <div className="avatar-upload-wrapper">
+                      <Avatar
+                        size={80}
+                        src={previewImage || profileDetails?.profile_image?.url}
+                        icon={<UserOutlined />}
+                      />
+                      {editMode && (
+                        <div className="camera-overlay">
+                          <CameraOutlined className="camera-icon" />
+                        </div>
+                      )}
                     </div>
-                  )}
+                  </Upload>
+                </Form.Item>
+                <div className="profile-name-wrapper">
+                  <Title level={4} className="profile-name-text">
+                    {`${profileDetails?.first_name} ${profileDetails?.middle_name} ${profileDetails?.last_name}`}
+                  </Title>
+                  <Text type="secondary">{profileDetails?.email}</Text>
                 </div>
-              </Upload>
-              <div className="profile-name-wrapper">
-                <Title level={4} className="profile-name-text">
-                  {`${profileDetails?.first_name} ${profileDetails?.middle_name} ${profileDetails?.last_name}`}
-                </Title>
-                <Text type="secondary">{profileDetails?.email}</Text>
               </div>
+              <Button
+                type={editMode ? "default" : "primary"}
+                className="button"
+                onClick={() => setEditMode(!editMode)}
+              >
+                {editMode ? "Cancel" : "Edit"}
+              </Button>
             </div>
-            <Button
-              type={editMode ? "default" : "primary"}
-              className="button"
-              onClick={() => setEditMode(!editMode)}
-            >
-              {editMode ? "Cancel" : "Edit"}
-            </Button>
-          </div>
-          <Form
-            form={form}
-            name="profile"
-            initialValues={
-              profileDetails
-                ? profileDetails
-                : {
-                    first_name: "",
-                    middle_name: "",
-                    last_name: "",
-                    email: "",
-                    phone: "",
-                  }
-            }
-            onFinish={handleUpdate}
-            layout="vertical"
-            requiredMark={false}
-          >
             <Row gutter={16}>
               <Col span={8}>
                 <Form.Item
@@ -243,13 +252,18 @@ const ProfilePage = () => {
 
             {editMode && (
               <Form.Item>
-                <Button type="primary" htmlType="submit" className="button" loading={loading}>
+                <Button
+                  type="primary"
+                  htmlType="submit"
+                  className="button"
+                  loading={loading}
+                >
                   Save Changes
                 </Button>
               </Form.Item>
             )}
-          </Form>
-        </Card>
+          </Card>
+        </Form>
 
         <Card className="profile-card" style={{ marginTop: 20 }}>
           <Title level={4} className="profile-name-text">
@@ -265,7 +279,7 @@ const ProfilePage = () => {
             </Button>
           ) : (
             <Form
-              form={form}
+              form={passwordForm}
               name="password"
               initialValues={{
                 old_password: "",
@@ -373,7 +387,12 @@ const ProfilePage = () => {
                     </Button>
                   </Form.Item>
                   <Form.Item>
-                    <Button type="dashed" htmlType="submit" className="button" loading={loading}>
+                    <Button
+                      type="dashed"
+                      htmlType="submit"
+                      className="button"
+                      loading={loading}
+                    >
                       Save Changes
                     </Button>
                   </Form.Item>

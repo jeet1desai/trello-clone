@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { profileService } from "../../services/profileService";
-import { User } from "./userSlice";
+import { User, updateImage } from "./userSlice";
 
 interface UserState {
   loading: boolean;
@@ -25,7 +25,7 @@ export const getProfileData = createAsyncThunk(
       return response;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message || "Error while fetching profile details"
+        error.response?.data?.message || "Error while fetching profile details."
       );
     }
   }
@@ -39,16 +39,17 @@ export const updateProfile = createAsyncThunk(
       middle_name: string;
       last_name: string;
       email: string;
-      profile_image: string;
+      profile_image: any;
     },
-    { rejectWithValue }
+    { rejectWithValue, dispatch }
   ) => {
     try {
       const response = await profileService.updateProfile(profileData);
+      dispatch(updateImage(response.data.profile_image))
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message || "Error while updating profile details"
+        error.response?.data?.message || "Error while updating profile details."
       );
     }
   }
@@ -68,7 +69,7 @@ export const resetPassword = createAsyncThunk(
       return response.message;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message || "Error while updating password"
+        error.response?.data?.message || "Error while updating password."
       );
     }
   }

@@ -1,10 +1,6 @@
 import React, { useEffect } from "react";
 import { Form, Input, Button, Typography } from "antd";
-import {
-  UserOutlined,
-  LockOutlined,
-  MailOutlined,
-} from "@ant-design/icons";
+import { UserOutlined, LockOutlined, MailOutlined } from "@ant-design/icons";
 import { Link, useNavigate } from "react-router-dom";
 import { AppDispatch } from "../../../store";
 import { useDispatch, useSelector } from "react-redux";
@@ -15,10 +11,12 @@ import "../../../layout/styles/Auth.css";
 const { Title, Text } = Typography;
 
 const Register: React.FC = () => {
+  const [form] = Form.useForm();
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
-  const { loading, registrationSuccess } = useSelector((state: RootState) => state.user);
-  const [form] = Form.useForm();
+  const { loading, registrationSuccess } = useSelector(
+    (state: RootState) => state.user
+  );
 
   useEffect(() => {
     // Clear any previous auth states

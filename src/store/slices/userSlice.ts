@@ -7,7 +7,11 @@ export interface User {
   middle_name: string;
   last_name: string;
   email: string;
-  profile_image: string;
+  profile_image: {
+    imageId: string;
+    imageName: string;
+    url: string;
+  };
 }
 
 interface UserState {
@@ -47,7 +51,7 @@ export const loginUser = createAsyncThunk(
       const response = await authService.login(email, password);
       return response.user;
     } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || "Login failed");
+      return rejectWithValue(error.response?.data?.message || "Login failed.");
     }
   }
 );
@@ -81,7 +85,7 @@ export const registerUser = createAsyncThunk(
       return response;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message || "Registration failed"
+        error.response?.data?.message || "Registration failed."
       );
     }
   }
@@ -95,7 +99,7 @@ export const verifyUser = createAsyncThunk(
       return response;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message || "Verification failed"
+        error.response?.data?.message || "Verification failed."
       );
     }
   }
@@ -109,7 +113,7 @@ export const requestPasswordReset = createAsyncThunk(
       return response;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message || "Password reset request failed"
+        error.response?.data?.message || "Password reset request failed."
       );
     }
   }
@@ -130,7 +134,7 @@ export const changePassword = createAsyncThunk(
       return response;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message || "Password reset failed"
+        error.response?.data?.message || "Password reset failed."
       );
     }
   }
@@ -147,7 +151,7 @@ export const resetPassword = createAsyncThunk(
       return response;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message || "Password reset failed"
+        error.response?.data?.message || "Password reset failed."
       );
     }
   }
@@ -160,7 +164,7 @@ export const logoutUser = createAsyncThunk(
       const response = await authService.logout();
       return response;
     } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || "Logout failed");
+      return rejectWithValue(error.response?.data?.message || "Logout failed.");
     }
   }
 );
@@ -169,6 +173,14 @@ const userSlice = createSlice({
   name: "user",
   initialState,
   reducers: {
+    updateImage: (state, action) => {
+      state.currentUser = state.currentUser
+        ? {
+            ...state.currentUser,
+            profile_image: action.payload,
+          }
+        : null;
+    },
     clearAuthState: (state) => {
       state.success = null;
       state.error = null;
@@ -336,6 +348,6 @@ const userSlice = createSlice({
   },
 });
 
-export const { clearAuthState } = userSlice.actions;
+export const { updateImage, clearAuthState } = userSlice.actions;
 
 export default userSlice.reducer;

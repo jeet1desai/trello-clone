@@ -8,14 +8,12 @@ import {
   Button,
   Input,
   Space,
-  Tabs,
   Dropdown,
   Modal,
   Form,
   Tag,
   Empty,
   Tooltip,
-  Checkbox,
   App,
   Spin,
 } from "antd";
@@ -25,15 +23,10 @@ import {
   UserOutlined,
   EllipsisOutlined,
   SearchOutlined,
-  FilterOutlined,
   SortAscendingOutlined,
   CheckOutlined,
   DeleteOutlined,
   ExclamationCircleOutlined,
-  StarOutlined,
-  StarFilled,
-  InboxOutlined,
-  UndoOutlined,
   EditOutlined,
 } from "@ant-design/icons";
 import type { MenuProps } from "antd";
@@ -43,47 +36,31 @@ import {
   IWorkspace,
   editWorkspace,
   deleteWorkspace,
-  toggleStarWorkspace,
-  archiveWorkspace,
-  restoreWorkspace,
   addNewWorkspace,
   openWorkspaceAddModal,
   getAllWorkspaces,
   clearSelectedWorkspace,
-  IUser,
 } from "../../store/slices/workspaceSlice";
-import "../../layout/styles/Workspaces.css";
+import "../../layout/styles/workspaces.css";
 import { generateGradient, SORT_OPTIONS } from "../../config";
 
 const { Title, Paragraph } = Typography;
 
 const Workspaces: React.FC = () => {
+  const { modal } = App.useApp();
+  const [form] = Form.useForm();
+  const location = useLocation();
   const dispatch = useDispatch<AppDispatch>();
   const { workspaces, addError, editError, loading } = useSelector(
     (state: RootState) => state.workspace
   );
-  const location = useLocation();
-  const { modal } = App.useApp();
 
   const [searchText, setSearchText] = useState("");
-  const [activeTab, setActiveTab] = useState("all-workspaces");
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingWorkspace, setEditingWorkspace] = useState<IWorkspace | null>(
     null
   );
-  const [form] = Form.useForm();
-
-  // Filter and sort state
-  const [filterCreators, setFilterCreators] = useState<string[]>([]);
   const [sortOption, setSortOption] = useState<string>(SORT_OPTIONS.DEFAULT);
-
-  // Get all unique creators
-  const allCreators = React.useMemo(() => {
-    const creators = workspaces.map(
-      (workspace: { createdBy: IUser }) => workspace.createdBy.email
-    );
-    return Array.from(new Set(creators));
-  }, [workspaces]);
 
   const showAddModal = useCallback(() => {
     dispatch(openWorkspaceAddModal());
@@ -100,6 +77,13 @@ const Workspaces: React.FC = () => {
     }
   }, [location, showAddModal]);
 
+  useEffect(() => {
+    (async () => await dispatch(getAllWorkspaces()))();
+    return () => {
+      dispatch(clearSelectedWorkspace());
+    };
+  }, [dispatch]);
+
   // Calculate processed workspaces
   const processedWorkspaces = React.useMemo(() => {
     return workspaces
@@ -113,15 +97,7 @@ const Workspaces: React.FC = () => {
           .includes(searchText.toLowerCase());
         const textMatch = nameMatch || descMatch;
 
-        // Filter by creator
-        const creatorMatch =
-          filterCreators.length === 0 ||
-          filterCreators.includes(workspace.createdBy.email);
-
-        // Filter out archived workspaces
-        const notArchived = !workspace.archived;
-
-        return textMatch && creatorMatch && notArchived;
+        return textMatch;
       })
       .sort((a, b) => {
         if (sortOption === SORT_OPTIONS.NAME_ASC) {
@@ -139,48 +115,7 @@ const Workspaces: React.FC = () => {
         }
         return 0;
       });
-  }, [workspaces, searchText, filterCreators, sortOption]);
-
-  // Calculate starred workspaces
-  const starredWorkspaces = React.useMemo(() => {
-    return processedWorkspaces.filter((workspace) => workspace.starred);
-  }, [processedWorkspaces]);
-
-  // Calculate recent workspaces (just use last 5 by created date)
-  const recentWorkspaces = React.useMemo(() => {
-    return [...processedWorkspaces]
-      .sort(
-        (a, b) =>
-          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-      )
-      .slice(0, 5);
-  }, [processedWorkspaces]);
-
-  // Calculate archived workspaces
-  const archivedWorkspaces = React.useMemo(() => {
-    return workspaces
-      .filter((workspace) => workspace.archived)
-      .sort((a, b) => {
-        if (sortOption === SORT_OPTIONS.NAME_ASC) {
-          return a.name.localeCompare(b.name);
-        } else if (sortOption === SORT_OPTIONS.NAME_DESC) {
-          return b.name.localeCompare(a.name);
-        } else if (sortOption === SORT_OPTIONS.CREATED_ASC) {
-          return (
-            new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
-          );
-        } else if (sortOption === SORT_OPTIONS.CREATED_DESC) {
-          return (
-            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-          );
-        }
-        return 0;
-      });
-  }, [workspaces, sortOption]);
-
-  const handleFilterReset = () => {
-    setFilterCreators([]);
-  };
+  }, [workspaces, searchText, sortOption]);
 
   const handleAddOrEditWorkspace = async (values: any) => {
     if (editingWorkspace) {
@@ -235,20 +170,10 @@ const Workspaces: React.FC = () => {
     });
   };
 
-  const handleToggleStar = (id: string) => {
-    dispatch(toggleStarWorkspace(id));
-  };
-
   const handleMenuClick = (key: string, workspace: IWorkspace) => {
     switch (key) {
       case "edit":
         showEditModal(workspace);
-        break;
-      case "archive":
-        dispatch(archiveWorkspace(workspace._id));
-        break;
-      case "restore":
-        dispatch(restoreWorkspace(workspace._id));
         break;
       case "delete":
         handleDelete(workspace._id, workspace.name);
@@ -258,65 +183,26 @@ const Workspaces: React.FC = () => {
     }
   };
 
-  useEffect(() => {
-    (async () => await dispatch(getAllWorkspaces()))();
-
-    return () => {
-      dispatch(clearSelectedWorkspace());
-    };
-  }, [dispatch]);
-
   const renderWorkspaceCard = (workspace: IWorkspace) => {
     const background = generateGradient(workspace.name);
-    let moreMenu: MenuProps["items"] = [];
-
-    if (workspace.archived) {
-      // Menu items for archived workspaces
-      moreMenu = [
-        {
-          key: "restore",
-          label: "Restore",
-          icon: <UndoOutlined />,
-        },
-        {
-          type: "divider",
-        },
-        {
-          key: "delete",
-          label: "Delete Permanently",
-          icon: <DeleteOutlined />,
-          danger: true,
-        },
-      ];
-    } else {
-      // Menu items for non-archived workspaces
-      moreMenu = [
-        {
-          key: "edit",
-          icon: <EditOutlined />,
-          label: "Edit",
-        },
-        {
-          key: "archive",
-          icon: <InboxOutlined />,
-          label: "Archive",
-        },
-        {
-          type: "divider",
-        },
-        {
-          key: "delete",
-          label: "Delete",
-          icon: <DeleteOutlined />,
-          danger: true,
-        },
-      ];
-    }
+    let moreMenu: MenuProps["items"] = [
+      {
+        key: "edit",
+        icon: <EditOutlined />,
+        label: "Edit",
+      },
+      {
+        key: "delete",
+        label: "Delete",
+        icon: <DeleteOutlined />,
+        danger: true,
+      },
+    ];
 
     return (
       <Card
         hoverable
-        className={`workspace-card ${workspace.archived ? "archived" : ""}`}
+        className="workspace-card"
         headStyle={{ background, padding: 0 }}
       >
         <div className="workspace-card-color-bar" style={{ background }} />
@@ -331,18 +217,6 @@ const Workspaces: React.FC = () => {
                   {workspace.name}
                 </Title>
               </Link>
-              {!workspace.archived && (
-                <div
-                  style={{ marginTop: "auto" }}
-                  onClick={() => handleToggleStar(workspace._id)}
-                >
-                  {workspace.starred ? (
-                    <StarFilled className="star-icon star-filled" />
-                  ) : (
-                    <StarOutlined className="star-icon" />
-                  )}
-                </div>
-              )}
             </div>
             <div className="workspace-card-actions">
               <Dropdown
@@ -398,34 +272,20 @@ const Workspaces: React.FC = () => {
 
   const renderWorkspaces = (workspaces: IWorkspace[]) => {
     if (workspaces.length === 0) {
-      let emptyMessage = "No workspaces found";
-      if (activeTab === "starred") {
-        emptyMessage =
-          "No starred workspaces. Star your favorite workspaces to see them here!";
-      } else if (activeTab === "recent") {
-        emptyMessage =
-          "No recent workspaces. Start using workspaces to see your recent activity!";
-      } else if (activeTab === "archived") {
-        emptyMessage =
-          "No archived workspaces. Archive workspaces you no longer need to see them here.";
-      }
-
       return (
         <div className="empty-state">
           <Empty
             image={Empty.PRESENTED_IMAGE_SIMPLE}
-            description={emptyMessage}
+            description="No workspaces found"
           >
-            {activeTab === "all-workspaces" && (
-              <Button
-                type="primary"
-                className="button"
-                icon={<PlusOutlined />}
-                onClick={showAddModal}
-              >
-                Create New Workspace
-              </Button>
-            )}
+            <Button
+              type="primary"
+              className="button"
+              icon={<PlusOutlined />}
+              onClick={showAddModal}
+            >
+              Create New Workspace
+            </Button>
           </Empty>
         </div>
       );
@@ -438,22 +298,18 @@ const Workspaces: React.FC = () => {
             {renderWorkspaceCard(workspace)}
           </Col>
         ))}
-        {activeTab === "all-workspaces" && (
-          <Col xs={24} sm={12} md={8} lg={6}>
-            <Card
-              hoverable
-              className="create-workspace-card"
-              onClick={showAddModal}
-            >
-              <div className="create-card-content">
-                <PlusOutlined className="plus-icon" />
-                <div className="create-card-text button">
-                  Create New Workspace
-                </div>
-              </div>
-            </Card>
-          </Col>
-        )}
+        <Col xs={24} sm={12} md={8} lg={6}>
+          <Card
+            hoverable
+            className="create-workspace-card"
+            onClick={showAddModal}
+          >
+            <div className="create-card-content">
+              <PlusOutlined className="plus-icon" />
+              <div className="create-card-text">Create New Workspace</div>
+            </div>
+          </Card>
+        </Col>
       </Row>
     );
   };
@@ -490,47 +346,6 @@ const Workspaces: React.FC = () => {
     },
   ];
 
-  // Filter menu items - creators
-  const filterMenuItems: MenuProps["items"] = [
-    {
-      key: "creators",
-      label: (
-        <Title level={5} style={{ margin: 0 }}>
-          Filter by Creator
-        </Title>
-      ),
-      type: "group",
-      children: allCreators.map((creator) => ({
-        key: creator,
-        label: (
-          <Checkbox
-            checked={filterCreators.includes(creator)}
-            onChange={(e) => {
-              if (e.target.checked) {
-                setFilterCreators([...filterCreators, creator]);
-              } else {
-                setFilterCreators(filterCreators.filter((c) => c !== creator));
-              }
-            }}
-          >
-            {creator}
-          </Checkbox>
-        ),
-      })),
-    },
-    {
-      type: "divider",
-    },
-    {
-      key: "reset",
-      label: (
-        <div className="filter-reset" onClick={handleFilterReset}>
-          Reset Filters
-        </div>
-      ),
-    },
-  ];
-
   return (
     <>
       <Spin spinning={loading} fullscreen />
@@ -552,22 +367,6 @@ const Workspaces: React.FC = () => {
                 style={{ width: 220, marginTop: "8px" }}
                 className="form-input"
               />
-              <Dropdown
-                menu={{ items: filterMenuItems }}
-                trigger={["click"]}
-                overlayClassName="filter-dropdown"
-              >
-                <Button
-                  className="button"
-                  type={filterCreators.length > 0 ? "primary" : "default"}
-                >
-                  <Space>
-                    <FilterOutlined />
-                    Filter{" "}
-                    {filterCreators.length > 0 && `(${filterCreators.length})`}
-                  </Space>
-                </Button>
-              </Dropdown>
               <Dropdown
                 menu={{
                   items: sortMenuItems,
@@ -596,56 +395,8 @@ const Workspaces: React.FC = () => {
           </div>
         </div>
 
-        <div className="workspaces-tabs-container">
-          <Tabs
-            activeKey={activeTab}
-            onChange={setActiveTab}
-            size="large"
-            className="workspaces-tabs"
-            items={[
-              {
-                key: "all-workspaces",
-                label: (
-                  <span className="tab-label">
-                    All Workspaces ({processedWorkspaces.length})
-                  </span>
-                ),
-              },
-              {
-                key: "starred",
-                label: (
-                  <span className="tab-label">
-                    <StarFilled style={{ color: "#f8c135" }} /> Starred (
-                    {starredWorkspaces.length})
-                  </span>
-                ),
-              },
-              {
-                key: "archived",
-                label: (
-                  <span className="tab-label">
-                    <InboxOutlined /> Archived ({archivedWorkspaces.length})
-                  </span>
-                ),
-              },
-              {
-                key: "recent",
-                label: (
-                  <span className="tab-label">
-                    <ClockCircleOutlined /> Recent
-                  </span>
-                ),
-              },
-            ]}
-          />
-        </div>
-
         <div className="workspaces-content">
-          {activeTab === "all-workspaces" &&
-            renderWorkspaces(processedWorkspaces)}
-          {activeTab === "starred" && renderWorkspaces(starredWorkspaces)}
-          {activeTab === "recent" && renderWorkspaces(recentWorkspaces)}
-          {activeTab === "archived" && renderWorkspaces(archivedWorkspaces)}
+          {renderWorkspaces(processedWorkspaces)}
         </div>
 
         {/* Add/Edit Workspace Modal */}

@@ -41,17 +41,6 @@
   gap: 8px;
 }
 
-.workspaces-tabs-container {
-  margin-bottom: 24px;
-}
-
-.tab-label {
-  font-size: 15px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
 /* Improved Filter Dropdown */
 .filter-dropdown {
   min-width: 220px !important;
@@ -86,60 +75,11 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
-.workspace-card.archived::after {
-  content: "ARCHIVED";
-  position: absolute;
-  top: 20px;
-  right: -25px;
-  background-color: #1890ff;
-  color: white;
-  font-size: 10px;
-  font-weight: bold;
-  padding: 2px 30px;
-  transform: rotate(45deg);
-  z-index: 10;
-}
-
 .workspace-card-color-bar {
   height: 12px;
   border-radius: 4px;
   width: 100%;
   position: relative;
-}
-
-.workspace-card-star {
-  position: absolute;
-  right: 8px;
-  top: 8px;
-  z-index: 10;
-  width: 28px;
-  height: 28px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.workspace-card-star:hover {
-  transform: scale(1.1);
-}
-
-.star-icon {
-  font-size: 20px;
-  color: #f8c135;
-  cursor: pointer;
-  transition: all 0.2s;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
-}
-
-.star-icon:hover {
-  color: #f8c135;
-  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
-}
-
-.star-filled {
-  color: #f8c135;
 }
 
 .workspace-card-content {
