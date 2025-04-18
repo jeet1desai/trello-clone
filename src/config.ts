@@ -1,5 +1,7 @@
 export const API_URL =
   process.env.REACT_APP_API_URL || "http://localhost:3001/v1/api";
+export const RESET_APP = "app/reset";
+
 export const SORT_OPTIONS = {
   DEFAULT: "default",
   NAME_ASC: "name_asc",
