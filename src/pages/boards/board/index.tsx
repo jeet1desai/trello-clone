@@ -11,7 +11,6 @@ import {
 } from "antd";
 import {
   PlusOutlined,
-  FilterOutlined,
   CloseOutlined,
   UserAddOutlined,
   DeleteOutlined,
@@ -27,7 +26,11 @@ import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../../store";
 import { useParams } from "react-router";
-import { IBoardDetails, getBoardById } from "../../../store/slices/boardSlice";
+import {
+  IBoardDetails,
+  getBoardById,
+  getBoardMemberListById,
+} from "../../../store/slices/boardSlice";
 import TaskCardForm from "./components/taskCardForm";
 import InviteBoard from "./components/inviteBoard";
 import "../../../layout/styles/Board.css";
@@ -36,6 +39,7 @@ import {
   createNewStatus,
   deleteStatus,
   getStatusListByBoardId,
+  setSelectedStatus,
   updateStatus,
 } from "../../../store/slices/statusSlice";
 import Paragraph from "antd/es/typography/Paragraph";
@@ -76,12 +80,14 @@ const BoardDetail: React.FC = () => {
   const wrapperRef = useRef<HTMLDivElement>(null);
 
   const dispatch = useDispatch<AppDispatch>();
-  const { selectedBoard, loading } = useSelector(
+  const { selectedBoard, invitedMemberList, loading } = useSelector(
     (state: RootState) => state.board
   );
-  const { statusList, loading: statusLoading } = useSelector(
-    (state: RootState) => state.status
-  );
+  const {
+    statusList,
+    selectedStatus,
+    loading: statusLoading,
+  } = useSelector((state: RootState) => state.status);
   const { tasksByStatus, loading: taskLoading } = useSelector(
     (state: RootState) => state.task
   );
@@ -130,6 +136,7 @@ const BoardDetail: React.FC = () => {
     if (id) {
       dispatch(getBoardById(id));
       dispatch(getStatusListByBoardId(id));
+      dispatch(getBoardMemberListById(id));
     }
   }, [dispatch, id]);
 
@@ -187,11 +194,14 @@ const BoardDetail: React.FC = () => {
     }
 
     // Moving lists
-    if (type === "list") {
-      const newLists = Array.from(statusList || []);
-      const [movedList] = newLists.splice(source.index, 1);
-      newLists.splice(destination.index, 0, movedList);
-
+    if (type === "list" && selectedStatus) {
+      await dispatch(
+        updateStatus({
+          statusId: selectedStatus._id,
+          newPosition: destination.index + 1,
+        })
+      );
+      dispatch(getStatusListByBoardId(destination.droppableId));
       return;
     }
 
@@ -363,12 +373,12 @@ const BoardDetail: React.FC = () => {
         <div>
           <Space size={16}>
             <Avatar.Group maxCount={3}>
-              {boardData?.members?.map((member) => {
+              {invitedMemberList?.map((member) => {
                 return (
                   <Tooltip
-                    title={`${member?.user?.first_name} ${member?.user?.last_name} (${member?.user?.email})`}
+                    title={`${member?.memberId?.first_name} ${member?.memberId?.last_name} (${member?.memberId?.email})`}
                   >
-                    <Avatar src={member?.user?.profile_image} />
+                    <Avatar>{`${member?.memberId?.first_name[0]?.toUpperCase()}${member?.memberId?.last_name[0]?.toUpperCase()}`}</Avatar>
                   </Tooltip>
                 );
               })}
@@ -384,19 +394,17 @@ const BoardDetail: React.FC = () => {
                 Invite
               </Space>
             </Button>
-            <Button className="button" type="default" style={{ marginTop: 0 }}>
-              <Space>
-                <FilterOutlined />
-                Filter
-              </Space>
-            </Button>
           </Space>
         </div>
       </div>
 
       <div className="board-content">
         <DragDropContext onDragEnd={handleDragEnd}>
-          <Droppable droppableId="all-lists" direction="horizontal" type="list">
+          <Droppable
+            droppableId={id ? id : "all-lists"}
+            direction="horizontal"
+            type="list"
+          >
             {(provided: DroppableProvided) => (
               <div
                 {...provided.droppableProps}
@@ -418,6 +426,7 @@ const BoardDetail: React.FC = () => {
                           minWidth: 280,
                           ...provided.draggableProps.style,
                         }}
+                        onMouseDown={() => dispatch(setSelectedStatus(list))}
                       >
                         <div
                           style={{

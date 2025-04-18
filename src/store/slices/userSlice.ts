@@ -7,7 +7,11 @@ export interface User {
   middle_name: string;
   last_name: string;
   email: string;
-  profile_image: string;
+  profile_image: {
+    imageId: string;
+    imageName: string;
+    url: string;
+  };
 }
 
 interface UserState {
