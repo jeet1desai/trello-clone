@@ -17,6 +17,7 @@ const WorkspaceDetail = React.lazy(() => import('../pages/workspaces/workspace')
 const ForgotPassword = React.lazy(() => import('../pages/auth/forgotPassword'));
 const VerifyEmail = React.lazy(() => import('../pages/auth/verifyEmail'));
 const ProfilePage = React.lazy(() => import('../pages/profile'));
+const InviteMember = React.lazy(() => import('../pages/boards/invite-member'));
 
 interface RouteProps {
   element: React.ReactNode;
@@ -88,6 +89,10 @@ const router = createBrowserRouter([
       {
         path: 'profile',
         element: <PrivateRoute element={<ProfilePage />} />,
+      },
+      {
+        path: 'invitation/:id',
+        element: <PrivateRoute element={<InviteMember />} />,
       },
       {
         path: '*',
