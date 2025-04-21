@@ -111,6 +111,31 @@ export interface MemberData {
   __v: number;
 }
 
+export interface InvitationMember {
+  _id: string;
+  email: string;
+  boardId: {
+    _id: string;
+    name: string;
+  };
+  invitedBy: {
+    _id: string;
+    first_name: string;
+    last_name: string;
+    email: string;
+  };
+  workspaceId: {
+    _id: string;
+    name: string;
+  };
+  status: 'PENDING' | 'ACCEPTED' | 'REJECTED';
+  role: 'MEMBER' | 'ADMIN';
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
+}
+
+
 interface BoardState {
   boards: IBoard[];
   selectedBoard: IBoardDetails | null;
@@ -120,6 +145,7 @@ interface BoardState {
   addError: string | null;
   editError: string | null;
   invitedMemberList: MemberData[];
+  invitedMemberDetail: InvitationMember | null
 }
 
 const initialState: BoardState = {
@@ -131,6 +157,7 @@ const initialState: BoardState = {
   addError: null,
   editError: null,
   invitedMemberList: [],
+  invitedMemberDetail: null
 };
 
 export const getAllBoards = createAsyncThunk(
@@ -300,6 +327,43 @@ export const inviteBoardMember = createAsyncThunk(
     } catch (error: any) {
       return rejectWithValue(
         error.response?.data?.message || "Error while sending invitation."
+      );
+    }
+  }
+);
+
+export const getInvitationDetailsById = createAsyncThunk(
+  "invite/invite-details",
+  async (_id: string, { rejectWithValue }) => {
+    try {
+      const response = await boardService.getInvitationDetailsById(_id);
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message || "Error while fetching members"
+      );
+    }
+  }
+);
+
+export const updateInvitationMemberById = createAsyncThunk(
+  "invite/update-invitation",
+  async (
+    {
+      _id,
+      status
+    }: {
+      _id: string;
+      status: string;
+    },
+    { rejectWithValue }
+  ) => {
+    try {
+      const response = await boardService.updateInvitationDetailsById(_id, { status });
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message || "Error while fetching members"
       );
     }
   }
@@ -481,7 +545,7 @@ const boardSlice = createSlice({
           (action.payload as string) || "Error while fetching board.";
       })
 
-      // Fetch board member list
+      // Get board member list
       .addCase(getBoardMemberListById.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -547,6 +611,48 @@ const boardSlice = createSlice({
         state.success = null;
         state.error =
           (action.payload as string) || "Error while sending invitation.";
+      })
+      
+      // Get invited member details
+      .addCase(getInvitationDetailsById.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.success = null;
+      })
+      .addCase(getInvitationDetailsById.fulfilled, (state, action) => {
+        state.invitedMemberDetail = action.payload;
+        state.loading = false;
+        state.error = null;
+        state.success = "Invitation details fetched successfully.";
+      })
+      .addCase(getInvitationDetailsById.rejected, (state, action) => {
+        state.loading = false;
+        state.invitedMemberDetail = null;
+        state.success = null;
+        state.error =
+          (action.payload as string) || "Error while fetching invitation detail.";
+      })
+      
+      // update invitation
+      .addCase(updateInvitationMemberById.pending, (state) => {
+        state.loading = true;
+        state.editError = null;
+        state.error = null;
+        state.success = null;
+      })
+      .addCase(updateInvitationMemberById.fulfilled, (state, action) => {
+        const { _id } = action.payload;
+        state.loading = false;
+        state.error = null;
+        state.success = "Invitation accepted successfully.";
+      })
+      .addCase(updateInvitationMemberById.rejected, (state, action) => {
+        state.loading = false;
+        state.success = null;
+        state.editError =
+          (action.payload as string) || "Error while accepting invitation.";
+        state.error =
+          (action.payload as string) || "Error while accepting invitation.";
       });
   },
 });

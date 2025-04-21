@@ -296,6 +296,53 @@
   gap: 8px;
 }
 
+/* Invite Member Page Styles */
+.invite-member-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 80vh;
+  background-color: #f0f2f5;
+  padding: 20px;
+}
+
+.invite-member-card {
+  background-color: #ffffff;
+  padding: 24px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  max-width: 450px;
+  width: 100%;
+  border: 1px solid #dfe1e6;
+}
+
+.invite-member-card .ant-typography {
+  color: #172b4d;
+}
+
+.invite-member-card .ant-typography strong {
+  font-weight: 600;
+}
+
+.invite-member-card .ant-space-item:first-child .ant-typography {
+  margin-left: 8px;
+}
+
+.invite-member-card .ant-btn-primary {
+  background-color: #0079bf;
+  border-color: #0079bf;
+}
+
+.invite-member-card .ant-btn-lg {
+  height: 40px;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.invite-member-card .ant-space .ant-btn {
+  flex: 1;
+}
+
 .small-btn {
   margin-top: 0;
   height: 30px;

@@ -169,6 +169,7 @@
   cursor: pointer;
   width: 46px;
   height: 38px;
+  padding: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
