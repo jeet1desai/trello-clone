@@ -405,3 +405,62 @@
   background-color: rgba(255, 255, 255, 0.1);
   color: var(--primary-color);
 }
+
+/* Editor styles */
+
+.editor-css {
+  height: 200px;
+  margin-bottom: 20px;
+}
+
+.editor-error {
+  color: #ff4d4f;
+  margin-bottom: 10px;
+}
+
+.editor-btn-container {
+  display: flex;
+  gap: 10px;
+}
+
+.show-upload-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.show-upload-modal-container {
+  background: #fff;
+  padding: 30px;
+  border-radius: 8px;
+  width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
+  text-align: center;
+}
+
+.editor-preview-container {
+  margin-top: 20px;
+}
+
+.show-upload-modal-btn-container {
+  margin-top: 20px;
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+.media-main-container {
+  margin-bottom: 10px;
+}
+
+.media-main-container-cross {
+  margin-left: 10px;
+}

@@ -36,4 +36,37 @@ export const taskCommentService = {
     );
     return response.data;
   },
+
+  async updateTaskComment(
+    taskId: string,
+    updateTask: {
+      comment: string;
+      newAttachments: File[];
+      removedAttachments: string[];
+    }
+  ) {
+    const formData = new FormData();
+    formData.append("comment", updateTask.comment);
+    if (updateTask.newAttachments.length > 0)
+      updateTask.newAttachments.map((newAttachment) =>
+        formData.append("attachment", newAttachment)
+      );
+    if (updateTask.removedAttachments.length > 0) {
+      formData.append(
+        "deletedAttachments",
+        JSON.stringify(updateTask.removedAttachments)
+      );
+    }
+
+    const response = await axiosInstance.put(
+      `${API_URL}/comment/update/${taskId}`,
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+    return response.data;
+  },
 };

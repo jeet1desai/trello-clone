@@ -6,7 +6,6 @@ import {
   Typography,
   Image,
   Upload,
-  message,
   Spin,
   Radio,
   Popover,
@@ -44,6 +43,7 @@ import {
   addNewTaskComment,
   deleteTaskComment,
   getTaskCommentById,
+  updateTaskComment,
 } from "../../../../store/slices/taskCommentSlice";
 import { RcFile } from "antd/es/upload";
 import { Input } from "../../../../components";
@@ -230,11 +230,6 @@ const TaskModal: React.FC<TaskModalProps> = ({ visible, onClose }) => {
           due_date: "",
         };
       });
-
-      if (selectedTask.attachment && selectedTask.attachment.length > 0) {
-      } else {
-        setFileList([]);
-      }
     }
   }, [selectedTask, visible]);
 
@@ -260,7 +255,7 @@ const TaskModal: React.FC<TaskModalProps> = ({ visible, onClose }) => {
     });
 
   const sendMessage = () => {
-    if (msg.trim() || fileList.length > 0) {
+    if (msg.trim()) {
       const files: File[] = fileList
         .map((f) => f.originFileObj)
         .filter((f): f is RcFile => !!f)
@@ -309,6 +304,15 @@ const TaskModal: React.FC<TaskModalProps> = ({ visible, onClose }) => {
 
   const taskCommentDelete = (commentId: string) =>
     dispatch(deleteTaskComment(commentId));
+
+  const taskCommentUpdate = (
+    commentId: string,
+    updateTask: {
+      comment: string;
+      newAttachments: File[];
+      removedAttachments: string[];
+    }
+  ) => dispatch(updateTaskComment({ taskId: commentId, updateTask }));
 
   useEffect(() => {
     async function handleClickOutside(event: MouseEvent) {
@@ -645,21 +649,27 @@ const TaskModal: React.FC<TaskModalProps> = ({ visible, onClose }) => {
                   className="button small-btn"
                   style={{ marginLeft: "38px", marginTop: "10px" }}
                   onClick={sendMessage}
-                  disabled={!msg.trim() && fileList.length === 0}
+                  disabled={!msg.trim()}
                 >
                   Save
                 </Button>
               </div>
-              {taskComments.map((taskComment) => (
-                <CommentCard
-                  key={taskComment._id}
-                  commentedBy={taskComment.commented_by}
-                  comment={taskComment.comment}
-                  createdAt={taskComment.createdAt}
-                  attachments={taskComment.attachment}
-                  onDelete={taskCommentDelete}
-                />
-              ))}
+
+              {[...taskComments].length > 0 &&
+                [...taskComments]
+                  ?.reverse()
+                  .map((taskComment) => (
+                    <CommentCard
+                      key={taskComment._id}
+                      commentId={taskComment._id}
+                      commentedBy={taskComment.commented_by}
+                      comment={taskComment.comment}
+                      createdAt={taskComment.createdAt}
+                      attachments={taskComment.attachment}
+                      onDelete={taskCommentDelete}
+                      onUpdate={taskCommentUpdate}
+                    />
+                  ))}
             </div>
           </div>
 

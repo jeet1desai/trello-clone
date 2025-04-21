@@ -70,7 +70,7 @@ const DatePickerPopup: React.FC = () => {
           >
             <DatePicker
               disabledDate={disableStartDate}
-              style={{ width: "100%" }}
+              className="date-picker-container"
               placeholder="Select start date"
             />
           </Form.Item>
@@ -90,7 +90,7 @@ const DatePickerPopup: React.FC = () => {
               disabledDate={(current) =>
                 disableDueDate(form.getFieldValue("start_date"), current)
               }
-              style={{ width: "100%" }}
+              className="date-picker-container"
               placeholder="Select due date"
             />
           </Form.Item>
@@ -117,11 +117,7 @@ const DatePickerPopup: React.FC = () => {
         key="dates"
         icon={<PlusOutlined />}
         size="small"
-        className="button small-btn"
-        style={{
-          fontSize: "12px",
-          marginTop: 4,
-        }}
+        className="button small-btn dates-btn"
         onClick={showModal}
       >
         Add Dates

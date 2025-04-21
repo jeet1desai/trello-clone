@@ -200,14 +200,12 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
         modules={modules}
         formats={formats}
         placeholder="Write your content..."
-        style={{ height: "200px", marginBottom: "20px" }}
+        className="editor-css"
       />
 
-      {error && (
-        <div style={{ color: "red", marginBottom: "10px" }}>{error}</div>
-      )}
+      {error && <div className="editor-error">{error}</div>}
 
-      <div style={{ display: "flex", gap: "10px" }}>
+      <div className="editor-btn-container">
         <Button
           type="primary"
           className="button small-btn"
@@ -215,41 +213,14 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
         >
           Save
         </Button>
-        <Button
-          color="primary"
-          className="button small-btn"
-          onClick={onCancel}
-        >
+        <Button color="primary" className="button small-btn" onClick={onCancel}>
           Cancel
         </Button>
       </div>
 
       {showUploadModal && (
-        <div
-          style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: "rgba(0,0,0,0.5)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            zIndex: 9999,
-          }}
-        >
-          <div
-            style={{
-              background: "#fff",
-              padding: "30px",
-              borderRadius: "8px",
-              width: "500px",
-              maxHeight: "90vh",
-              overflowY: "auto",
-              textAlign: "center",
-            }}
-          >
+        <div className="show-upload-modal">
+          <div className="show-upload-modal-container">
             <h3>Upload Attachments</h3>
             <input
               type="file"
@@ -257,7 +228,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
               accept="image/*,application/pdf,video/*"
               onChange={handleFileChange}
             />
-            <div style={{ marginTop: "20px" }}>
+            <div className="editor-preview-container">
               {previews.map((url, idx) => {
                 const file = files[idx];
                 const isImage = file.type.startsWith("image/");
@@ -289,12 +260,12 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
                 return (
                   <div
                     key={`${file.name}-${url}`}
-                    style={{ marginBottom: "10px" }}
+                    className="media-main-container"
                   >
                     {mediaElement}
                     <button
                       onClick={() => removeFile(idx)}
-                      style={{ marginLeft: 10 }}
+                      className="media-main-container-cross"
                     >
                       ❌
                     </button>
@@ -302,14 +273,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
                 );
               })}
             </div>
-            <div
-              style={{
-                marginTop: "20px",
-                display: "flex",
-                gap: "10px",
-                justifyContent: "center",
-              }}
-            >
+            <div className="show-upload-modal-btn-container">
               <button onClick={insertFilesToEditor}>Insert</button>
               <button
                 onClick={() => {

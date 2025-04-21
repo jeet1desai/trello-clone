@@ -60,7 +60,8 @@
   margin-top: 8px;
 }
 
-.date-picker-container {
+.date-picker-container,
+.attachment-width {
   width: 100%;
 }
 
@@ -281,7 +282,7 @@
 .share-container .display-start {
   margin: 0;
   cursor: pointer;
-  color:#1677ff;
+  color: #1677ff;
 }
 
 .share-container .members-section {
@@ -299,5 +300,150 @@
   margin-top: 0;
   height: 30px;
   font-size: 14px;
-  border-radius: 4px; 
+  border-radius: 4px;
+}
+
+.dates-btn {
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+/* Comment list style */
+
+.comment-list-container {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  margin-left: -22px;
+  margin-top: 10px;
+}
+
+.comment-container {
+  display: flex;
+  gap: 8px;
+  flex-direction: column;
+}
+
+.commenter-container {
+  flex: 1;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.commenter-name {
+  margin-right: 10px;
+}
+
+.commenter-time {
+  font-size: 12px;
+}
+
+.comment-detail-container {
+  align-items: flex-start;
+  width: 100%;
+  flex-direction: column;
+}
+
+.comment-attachment-container {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.comment-attachment-img {
+  width: 100px !important;
+  height: 100px !important;
+  object-fit: cover;
+  border-radius: 4px;
+}
+
+.delete-comment-btn {
+  align-self: flex-start;
+  padding: 0px;
+}
+
+.edit-container {
+  margin-left: 18px;
+  width: calc(100% - 18px);
+  margin-top: 15px;
+}
+
+.edit-preview-container {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+
+.exist-image-container {
+  position: relative;
+}
+
+.edit-preview-img {
+  width: 80px !important;
+  height: 80px !important;
+  object-fit: cover;
+  border-radius: 6px;
+}
+
+.edit-img-remove-icon {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  color: red;
+  cursor: pointer;
+  background: white;
+  border-radius: 50%;
+}
+
+.edit-btn-container {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.edit-comment-container {
+  display: flex;
+  gap: 8px;
+  align-items: flex-end;
+}
+
+.edit-comment-box {
+  position: relative;
+  width: 100%;
+}
+
+.edit-text-box {
+  flex: 1;
+  border-radius: 4px;
+}
+
+.edit-file-upload-icon {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  color: #888;
+}
+
+.show-edit-btn-container {
+  margin-left: -15px;
+  margin-top: -8px;
+}
+
+/* Upload Attachment style */
+
+.attachment-action-btn {
+  margin-top: 20px;
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+.upload-attachment-error {
+  color: ff4d4f;
+  margin-top: -16px;
+  margin-bottom: 16px;
 }

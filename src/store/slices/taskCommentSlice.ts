@@ -63,7 +63,7 @@ const initialState: WorkspaceState = {
 };
 
 export const getTaskCommentById = createAsyncThunk(
-  "comment/get-comment-by-task-id",
+  "taskComment/get-comment-by-task-id",
   async (_id: string, { rejectWithValue }) => {
     try {
       const response = await taskCommentService.getCommentsById(_id);
@@ -71,14 +71,14 @@ export const getTaskCommentById = createAsyncThunk(
     } catch (error: any) {
       return rejectWithValue(
         error.response?.data?.message ||
-          "Error while fetching workspace details."
+          "Error while fetching task comment details."
       );
     }
   }
 );
 
 export const addNewTaskComment = createAsyncThunk(
-  "comment/add-to-task",
+  "taskComment/add-to-task",
   async (
     {
       taskId,
@@ -96,28 +96,58 @@ export const addNewTaskComment = createAsyncThunk(
       return response;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message || "Error while adding workspace."
+        error.response?.data?.message || "Error while adding task comment."
+      );
+    }
+  }
+);
+
+export const updateTaskComment = createAsyncThunk(
+  "taskComment/update-to-task",
+  async (
+    {
+      taskId,
+      updateTask,
+    }: {
+      taskId: string;
+      updateTask: {
+        comment: string;
+        newAttachments: File[];
+        removedAttachments: string[];
+      };
+    },
+    { rejectWithValue }
+  ) => {
+    try {
+      const response = await taskCommentService.updateTaskComment(
+        taskId,
+        updateTask
+      );
+      return response;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message || "Error while adding task comment."
       );
     }
   }
 );
 
 export const deleteTaskComment = createAsyncThunk(
-  "comment/delete-to-task",
+  "taskComment/delete-to-task",
   async (_id: string, { rejectWithValue }) => {
     try {
       const response = await taskCommentService.deleteTaskComment(_id);
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message || "Error while deleting workspace."
+        error.response?.data?.message || "Error while deleting task comment."
       );
     }
   }
 );
 
 const taskCommentSlice = createSlice({
-  name: "workspace",
+  name: "taskComment",
   initialState,
   reducers: {
     addTaskComment: (state) => {
@@ -152,7 +182,7 @@ const taskCommentSlice = createSlice({
           "Error while fetching task comment details.";
       })
 
-      // Add workspace
+      // Add task comment
       .addCase(addNewTaskComment.pending, (state) => {
         state.taskLoading = true;
         state.addError = null;
@@ -175,7 +205,34 @@ const taskCommentSlice = createSlice({
           (action.payload as string) || "Error while adding task comment.";
       })
 
-      // Delete workspace
+      // Update task comment
+      .addCase(updateTaskComment.pending, (state) => {
+        state.taskLoading = true;
+        state.addError = null;
+        state.success = null;
+        state.error = null;
+      })
+      .addCase(updateTaskComment.fulfilled, (state, action) => {
+        state.taskComments = state.taskComments.map((comment) =>
+          comment._id === action.payload.data._id
+            ? action.payload.data
+            : comment
+        );
+        state.taskLoading = false;
+        state.addError = null;
+        state.error = null;
+        state.success = "Task comment updated successfully.";
+      })
+      .addCase(updateTaskComment.rejected, (state, action) => {
+        state.taskLoading = false;
+        state.success = null;
+        state.addError =
+          (action.payload as string) || "Error while updating task comment.";
+        state.error =
+          (action.payload as string) || "Error while updating task comment.";
+      })
+
+      // Delete task comment
       .addCase(deleteTaskComment.pending, (state) => {
         state.taskLoading = true;
         state.error = null;

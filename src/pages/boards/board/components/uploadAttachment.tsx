@@ -66,14 +66,13 @@ const FileUploadModal = () => {
           alt="preview"
           className="img-preview-container"
           src={file.url ?? file.preview}
-          style={{ width: "100%" }}
         />
       );
     } else if (file.type?.startsWith("video/")) {
       setPreviewContent(
         <video
           controls
-          style={{ width: "100%" }}
+          className="attachment-width"
           src={file.url ?? (file.preview as string)}
         >
           <track
@@ -217,25 +216,16 @@ const FileUploadModal = () => {
             {fileList.length < MAX_FILE_COUNT && (
               <div>
                 <PlusOutlined />
-                <div style={{ marginTop: 8 }}>Upload</div>
+                <div className="upload-btn-text">Upload</div>
               </div>
             )}
           </Upload>
           {uploadFileError && (
-            <div style={{ color: "red", marginTop: -16, marginBottom: 16 }}>
-              {uploadFileError}
-            </div>
+            <div className="upload-attachment-error">{uploadFileError}</div>
           )}
         </Form.Item>
 
-        <div
-          style={{
-            marginTop: "20px",
-            display: "flex",
-            gap: "10px",
-            justifyContent: "center",
-          }}
-        >
+        <div className="attachment-action-btn">
           <Button
             className="button small-btn"
             onClick={() => setShowUploadModal(false)}
