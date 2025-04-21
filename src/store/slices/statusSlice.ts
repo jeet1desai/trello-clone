@@ -29,6 +29,7 @@ export interface IStatusList {
 
 interface StatusState {
   statusList: IStatusList[];
+  selectedStatus: IStatusList | null;
   loading: boolean;
   error: string | null;
   success: string | null;
@@ -36,6 +37,7 @@ interface StatusState {
 
 const initialState: StatusState = {
   statusList: [],
+  selectedStatus: null,
   loading: false,
   error: null,
   success: null,
@@ -56,7 +58,7 @@ export const getStatusListByBoardId = createAsyncThunk(
 );
 
 export const createNewStatus = createAsyncThunk(
-  "status/add",
+  "list/add",
   async (
     {
       boardId,
@@ -69,7 +71,7 @@ export const createNewStatus = createAsyncThunk(
   ) => {
     try {
       const response = await statusService.createNewStatus(boardId, name);
-      return response;
+      return response.message;
     } catch (error: any) {
       return rejectWithValue(
         error.response?.data?.message || "Error while adding status."
@@ -87,7 +89,7 @@ export const updateStatus = createAsyncThunk(
       newPosition,
     }: {
       statusId: string;
-      name: string;
+      name?: string;
       newPosition?: number;
     },
     { rejectWithValue }
@@ -108,11 +110,11 @@ export const updateStatus = createAsyncThunk(
 );
 
 export const deleteStatus = createAsyncThunk(
-  "status/delete",
+  "list/delete",
   async (_id: string, { rejectWithValue }) => {
     try {
       const response = await statusService.deleteStatus(_id);
-      return response.data;
+      return response.message;
     } catch (error: any) {
       return rejectWithValue(
         error.response?.data?.message || "Error while deleting status."
@@ -125,6 +127,9 @@ const statusSlice = createSlice({
   name: "status",
   initialState,
   reducers: {
+    setSelectedStatus: (state, action) => {
+      state.selectedStatus = action.payload;
+    },
     clearStatusState: (state) => {
       state.statusList = [];
       state.loading = false;
@@ -217,6 +222,6 @@ const statusSlice = createSlice({
   },
 });
 
-export const { clearStatusState } = statusSlice.actions;
+export const { setSelectedStatus, clearStatusState } = statusSlice.actions;
 
 export default statusSlice.reducer;
