@@ -46,7 +46,7 @@ const InviteMemberPage: React.FC = () => {
           status: "REJECTED",
         })
       );
-      navigate("/")
+      navigate("/dashboard")
   };
 
   const handleRegister = () => {

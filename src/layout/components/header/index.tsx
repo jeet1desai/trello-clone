@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState, persistor } from "../../../store";
@@ -11,11 +11,15 @@ import "../../styles/Layout.css";
 import NavigationLinks from "./NavigationLink";
 import SearchBox from "./SearchBox";
 import { RESET_APP } from "../../../config";
+import socketService from "../../../services/socketService";
 
 const { Header: AntHeader } = Layout;
 
 const Header: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
+  const { allNotification, loading: memberLoading } = useSelector(
+      (state: RootState) => state.board
+    );
   const navigate = useNavigate();
   const { currentUser, isAuthenticated } = useSelector(
     (state: RootState) => state.user
@@ -30,6 +34,24 @@ const Header: React.FC = () => {
     await persistor.purge();
     navigate("/login");
   };
+
+  // useEffect(() => {
+    // console.log('1111 every render')
+    // debugger;
+    // socketService.on("receive_notification", (data:any)=>{console.log('1111 final header',data)});
+
+  // })
+
+  useEffect(() => {
+    socketService.on('receive_notification', (payload) => {
+      console.log('1111 Notification received:', payload);
+    });
+  
+    return () => {
+      socketService.off('receive_notification');
+    };
+  });
+  
 
   const userMenuItems: MenuProps["items"] = [
     {
@@ -122,28 +144,33 @@ const Header: React.FC = () => {
         <SearchBox />
         <Popover
           content={
-            <div style={{ width: "350px", display: "flex", flexDirection: "column", gap: "4px" }}>
-              <div
-                style={{
-                  background: isDarkMode ? "#181818" : "#efefef",
-                  padding: "10px",
-                  borderRadius: "4px",
-                  display: "flex",
-                  justifyContent: "space-between",
-                }}
-              >
-                <div style={{ display: "flex", alignItems: "flex-start", gap: 8 }}>
-                  <Avatar />
-                  <div style={{ display: "flex", flexDirection: "column", gap: 4, maxWidth: "250px" }}>
-                    <p style={{ margin: 0 }}>
-                      <b>h5. Ant Design </b>5. Ant Design 5. Ant Design 5. Ant Design 5. Ant Design5.
-                    </p>
-                    <span style={{ color: isDarkMode ? "#727272" : "#727272" }}>Date</span>
+            <div style={{ width: "350px", display: "flex", flexDirection: "column", gap: "4px", height: 400, overflow: 'auto', scrollbarWidth: 'none' }}>
+              {allNotification.map((iten)=>{
+                return(
+                  <div
+                  key={iten._id}
+                  style={{
+                    background: isDarkMode ? "#181818" : "#efefef",
+                    padding: "10px",
+                    borderRadius: "4px",
+                    display: "flex",
+                    justifyContent: "space-between",
+                  }}
+                >
+                  <div style={{ display: "flex", alignItems: "flex-start", gap: 8 }}>
+                    <Avatar />
+                    <div style={{ display: "flex", flexDirection: "column", gap: 4, maxWidth: "250px" }}>
+                      <p style={{ margin: 0 }}>
+                        <b>h5. Ant Design </b>5. Ant Design 5. Ant Design 5. Ant Design 5. Ant Design5.
+                      </p>
+                      <span style={{ color: isDarkMode ? "#727272" : "#727272" }}>Date</span>
+                    </div>
                   </div>
+                  <Button type="text" icon={<EyeInvisibleOutlined />} style={{ color: isDarkMode ? "white" : "inherit" }} />
                 </div>
-                <Button type="text" icon={<EyeInvisibleOutlined />} style={{ color: isDarkMode ? "white" : "inherit" }} />
-              </div>
-              <div style={{ background: isDarkMode ? "#181818" : "#efefef", padding: "10px", borderRadius: "4px" }}>d</div>
+                )
+              })}
+              {/* <div style={{ background: isDarkMode ? "#181818" : "#efefef", padding: "10px", borderRadius: "4px" }}>d</div> */}
             </div>
           }
           title="Notification"

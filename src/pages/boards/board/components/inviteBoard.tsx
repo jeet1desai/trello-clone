@@ -24,6 +24,7 @@ import {
   ExclamationCircleOutlined,
 } from "@ant-design/icons";
 import "../../../../layout/styles/Board.css";
+import socketService from "../../../../services/socketService";
 
 const { Text } = Typography;
 
@@ -106,6 +107,7 @@ const InviteBoard: React.FC<InviteBoardProps> = ({ isOpen, onClose }) => {
               memberId: member.memberId._id,
             })
           );
+          socketService.on("receive_notification", (data:any)=>{console.log('1111 remove member',data)});
         }
       },
     });
