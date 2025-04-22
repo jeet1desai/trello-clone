@@ -1,6 +1,5 @@
 import React from "react";
 import {
-  Card,
   Avatar,
   Typography,
   Space,
@@ -72,7 +71,7 @@ const CommentCard: React.FC<CommentCardProps> = ({
               {dayjs(createdAt).fromNow()}
             </Text>
           </div>
-          <Card>
+          <div className="comment-wrapper">
             <Space className="comment-detail-container">
               <div>
                 <Text>{comment}</Text>
@@ -90,21 +89,26 @@ const CommentCard: React.FC<CommentCardProps> = ({
                 </div>
               )}
             </Space>
-          </Card>
+          </div>
           <div className="show-edit-btn-container">
-            <Button type="text" onClick={() => setIsEditing(true)}>
+            <span
+              style={{
+                fontSize: "12px",
+                padding: "0 8px 0 15px",
+                cursor: "pointer",
+              }}
+              onClick={() => setIsEditing(true)}
+            >
               Edit
-            </Button>
+            </span>
 
             {onDelete && (
-              <Button
-                type="text"
-                danger
+              <span
                 className="delete-comment-btn"
                 onClick={() => onDelete(commentId)}
               >
                 Delete
-              </Button>
+              </span>
             )}
           </div>
         </div>

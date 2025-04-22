@@ -7,7 +7,6 @@ import {
   Image,
   Upload,
   Spin,
-  Radio,
   Popover,
   Tooltip,
   List,
@@ -16,6 +15,7 @@ import {
   Col,
   Dropdown,
   Menu,
+  Checkbox,
 } from "antd";
 import {
   PlusOutlined,
@@ -37,7 +37,7 @@ import {
   DownloadOutlined,
 } from "@ant-design/icons";
 import TaskDescriptionEditor from "../../../../components/ui/Editor";
-import type { RadioChangeEvent, UploadFile } from "antd";
+import type { UploadFile } from "antd";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../../../store";
 import { ITask, updateTask } from "../../../../store/slices/taskSlice";
@@ -61,28 +61,21 @@ import {
   IAttachment,
 } from "../../../../store/slices/taskAttachmentSlice";
 import { handleDownload } from "../../../../services/downloadService";
+import {
+  addMemberInTask,
+  getLabelsByTaskId,
+  getMembersByTaskId,
+  removeMemberFromTask,
+} from "../../../../store/slices/boardSlice";
 
 const { Text } = Typography;
 const { Option } = Select;
 
 interface TaskModalProps {
+  boardId: string;
   visible: boolean;
   onClose: () => void;
 }
-
-interface Member {
-  id: number;
-  name: string;
-  initials: string;
-}
-
-const initialMembers: Member[] = [
-  { id: 1, name: "Dhruvik Patel", initials: "DP" },
-  { id: 2, name: "Test User", initials: "TU" },
-  { id: 3, name: "User Test", initials: "UT" },
-  { id: 4, name: "Test User1", initials: "T1" },
-  { id: 5, name: "User Test1", initials: "U1" },
-];
 
 const priorityMeta: Record<
   Priority,
@@ -205,7 +198,7 @@ const handleOpenFile = (fileUrl: string, fileName: string) => {
   }
 };
 
-const TaskModal: React.FC<TaskModalProps> = ({ visible, onClose }) => {
+const TaskModal: React.FC<TaskModalProps> = ({ boardId, visible, onClose }) => {
   const dispatch = useDispatch<AppDispatch>();
   const { currentUser } = useSelector((state: RootState) => state.user);
 
@@ -218,19 +211,34 @@ const TaskModal: React.FC<TaskModalProps> = ({ visible, onClose }) => {
   const { taskAttachments, taskAttachmentLoading } = useSelector(
     (state: RootState) => state.taskAttachment
   );
+  const { selectedTaskLabels, selectedTaskMembers, invitedMemberList } =
+    useSelector((state: RootState) => state.board);
   const [isEditTitle, setIsEditTitle] = useState(false);
   const [msg, setMsg] = useState("");
   const [taskDetails, setTaskDetails] = useState<ITask | null>(null);
   const [fileList, setFileList] = useState<UploadFile[]>([]);
-  const [members, setMembers] = useState<Member[]>(initialMembers);
   const [memberVisible, setMemberVisible] = useState(false);
   const [labelVisible, setLabelVisible] = useState(false);
   const [showEditor, setShowEditor] = useState(false);
   const [priority, setPriority] = useState<Priority>(Priority.MEDIUM);
   const [showAll, setShowAll] = useState(false);
+  const [isCompleted, setIsCompleted] = useState(
+    taskDetails?.status === TaskStatus.COMPLETED
+  );
 
-  const handleRemove = (id: number) => {
-    setMembers((prev) => prev.filter((member) => member.id !== id));
+  const handleAddMemberToTask = (member_id: string) => {
+    if (selectedTask) {
+      dispatch(
+        addMemberInTask({
+          task_id: selectedTask._id,
+          member_id,
+        })
+      );
+    }
+  };
+
+  const handleRemove = (id: string) => {
+    dispatch(removeMemberFromTask(id));
   };
 
   const AttachmentActions = ({ attachment }: { attachment: IAttachment }) => {
@@ -275,54 +283,132 @@ const TaskModal: React.FC<TaskModalProps> = ({ visible, onClose }) => {
   const memberContent = (
     <div style={{ width: 250 }}>
       <div style={{ fontWeight: 600, marginBottom: 8 }}>Members</div>
-      <Search placeholder="Search members" />
-      <div
-        style={{
-          fontSize: 12,
-          fontWeight: 600,
-          color: "#ccc",
-          marginBottom: 4,
-        }}
-      >
-        Card members
-      </div>
-      <List
-        dataSource={members}
-        renderItem={(member) => (
-          <List.Item
+      <Search
+        prefixCls="form-input form-input-small"
+        placeholder="Search members"
+      />
+      {selectedTaskMembers?.length > 0 ? (
+        <>
+          <div
             style={{
-              padding: "6px 10px",
-              borderRadius: 4,
-              marginBottom: 4,
-              color: "inherit",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
+              fontSize: 12,
+              fontWeight: 600,
+              color: "#ccc",
+              marginTop: 10,
             }}
           >
-            <div style={{ display: "flex", alignItems: "center" }}>
-              <Avatar style={{ backgroundColor: "#f56a00", marginRight: 8 }}>
-                {member.initials}
-              </Avatar>
-              <span style={{ color: "inherit" }}>{member.name}</span>
-            </div>
-            <Button
-              type="text"
-              icon={<CloseOutlined />}
-              size="small"
-              onClick={() => handleRemove(member.id)}
-              style={{ color: "inherit" }}
-            />
-          </List.Item>
-        )}
-      />
+            Card members
+          </div>
+          <List
+            dataSource={invitedMemberList.filter(
+              (addedMember) =>
+                !selectedTaskMembers.some(
+                  (member) => member._id !== addedMember.memberId._id
+                )
+            )}
+            renderItem={(member) => (
+              <List.Item
+                style={{
+                  padding: "6px 0px",
+                  borderRadius: 4,
+                  marginBottom: 4,
+                  color: "inherit",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                }}
+              >
+                <div style={{ display: "flex", alignItems: "center" }}>
+                  <Avatar
+                    style={{ backgroundColor: "#f56a00", marginRight: 8 }}
+                  >
+                    {member.memberId.first_name[0].toUpperCase() +
+                      member.memberId.last_name[0].toUpperCase()}
+                  </Avatar>
+                  <span style={{ color: "inherit" }}>
+                    {member.memberId.first_name +
+                      " " +
+                      member.memberId.last_name}
+                  </span>
+                </div>
+                <Button
+                  type="text"
+                  icon={<CloseOutlined />}
+                  size="small"
+                  onClick={() => handleRemove(member._id)}
+                  style={{ color: "inherit" }}
+                />
+              </List.Item>
+            )}
+          />
+        </>
+      ) : null}
+
+      {invitedMemberList.filter(
+        (addedMember) =>
+          !selectedTaskMembers.some(
+            (member) => member._id === addedMember.memberId._id
+          )
+      ).length > 0 ? (
+        <>
+          <div
+            style={{
+              fontSize: 12,
+              fontWeight: 600,
+              color: "#ccc",
+              marginTop: 10,
+            }}
+          >
+            Board members
+          </div>
+          <List
+            dataSource={invitedMemberList.filter(
+              (addedMember) =>
+                !selectedTaskMembers.some(
+                  (member) => member._id !== addedMember.memberId._id
+                )
+            )}
+            renderItem={(member) => (
+              <List.Item
+                style={{
+                  padding: "6px 0px",
+                  borderRadius: 4,
+                  marginBottom: 4,
+                  color: "inherit",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  cursor: "pointer",
+                }}
+                onClick={() => handleAddMemberToTask(member.memberId._id)}
+              >
+                <div style={{ display: "flex", alignItems: "center" }}>
+                  <Avatar
+                    style={{ backgroundColor: "#f56a00", marginRight: 8 }}
+                  >
+                    {member.memberId.first_name[0].toUpperCase() +
+                      member.memberId.last_name[0].toUpperCase()}
+                  </Avatar>
+                  <span style={{ color: "inherit" }}>
+                    {member.memberId.first_name +
+                      " " +
+                      member.memberId.last_name}
+                  </span>
+                </div>
+              </List.Item>
+            )}
+          />
+        </>
+      ) : null}
     </div>
   );
 
   useEffect(() => {
     if (selectedTask && visible) {
+      dispatch(getMembersByTaskId(selectedTask?._id));
       dispatch(getTaskCommentById(selectedTask?._id));
       dispatch(getTaskAttachmentById(selectedTask._id));
+      dispatch(getLabelsByTaskId(selectedTask?._id));
       setTaskDetails((prevState) => {
         if (!selectedTask?.status_list_id?._id) return prevState;
 
@@ -339,7 +425,11 @@ const TaskModal: React.FC<TaskModalProps> = ({ visible, onClose }) => {
         };
       });
     }
-  }, [selectedTask, visible]);
+  }, [selectedTask, visible, dispatch]);
+
+  useEffect(() => {
+    setIsCompleted(taskDetails?.status === TaskStatus.COMPLETED);
+  }, [taskDetails]);
 
   const updateTaskName = (taskName: string) =>
     setTaskDetails((prevState) => {
@@ -394,14 +484,14 @@ const TaskModal: React.FC<TaskModalProps> = ({ visible, onClose }) => {
     setShowEditor(false);
   };
 
-  const handleChange = (e: RadioChangeEvent) => {
-    const isChecked = e.target.checked;
+  const handleChange = () => {
     dispatch(
       updateTask({
         taskId: taskDetails?._id ?? "",
-        status: isChecked ? TaskStatus.COMPLETED : TaskStatus.INCOMPLETE,
+        status: !isCompleted ? TaskStatus.COMPLETED : TaskStatus.INCOMPLETE,
       })
     );
+    setIsCompleted((prev) => !prev);
   };
 
   const taskCommentDelete = (commentId: string) =>
@@ -449,6 +539,16 @@ const TaskModal: React.FC<TaskModalProps> = ({ visible, onClose }) => {
         setMemberVisible(false);
         setLabelVisible(false);
       }}
+      onClose={() => {
+        onClose();
+        setTaskDetails(null);
+        setFileList([]);
+        setMsg("");
+        setIsEditTitle(false);
+        setShowEditor(false);
+        setMemberVisible(false);
+        setLabelVisible(false);
+      }}
       footer={null}
       className="task-modal"
       width={768}
@@ -458,9 +558,10 @@ const TaskModal: React.FC<TaskModalProps> = ({ visible, onClose }) => {
         fullscreen
       />
       <div className="task-header">
-        <Radio
-          checked={taskDetails?.status === TaskStatus.COMPLETED}
+        <Checkbox
+          checked={isCompleted}
           onChange={handleChange}
+          prefixCls="status-checkbox"
         />
         {isEditTitle ? (
           <Input
@@ -511,14 +612,17 @@ const TaskModal: React.FC<TaskModalProps> = ({ visible, onClose }) => {
             }}
           >
             <Avatar.Group max={{ count: 3 }}>
-              {members?.map((member, index) => {
-                const user = member.initials;
+              {selectedTaskMembers?.map((member, index) => {
+                const user =
+                  member.first_name[0].toUpperCase() +
+                  member.last_name[0].toUpperCase();
 
                 return (
-                  <Tooltip key={member?.name || index} title={member.name}>
-                    <Avatar src={user} style={{ background: "#177ddc" }}>
-                      {user}
-                    </Avatar>
+                  <Tooltip
+                    key={member.email || index}
+                    title={member.first_name + " " + member.last_name}
+                  >
+                    <Avatar style={{ background: "#177ddc" }}>{user}</Avatar>
                   </Tooltip>
                 );
               })}
@@ -577,11 +681,29 @@ const TaskModal: React.FC<TaskModalProps> = ({ visible, onClose }) => {
               display: "flex",
               alignItems: "center",
               gap: 4,
-              marginTop: "0px",
+              marginTop: "4px",
             }}
           >
+            {selectedTaskLabels?.map((label) => (
+              <div
+                style={{
+                  background: label.backgroundColor,
+                  color: label.textColor,
+                  padding: "4px 8px",
+                  width: "max-content",
+                  borderRadius: "4px",
+                }}
+              >
+                {label.name}
+              </div>
+            ))}
             <Popover
-              content={<LabelPopup />}
+              content={
+                <LabelPopup
+                  boardId={boardId}
+                  selectedTaskId={selectedTask ? selectedTask._id : ""}
+                />
+              }
               title={null}
               trigger="click"
               open={labelVisible}
@@ -594,7 +716,6 @@ const TaskModal: React.FC<TaskModalProps> = ({ visible, onClose }) => {
                 className="button small-btn"
                 style={{
                   fontSize: "12px",
-                  marginTop: 4,
                 }}
               >
                 Add Label

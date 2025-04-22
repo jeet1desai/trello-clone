@@ -7,6 +7,14 @@ export interface IAttachment {
   url: string;
   _id: string;
 }
+
+interface ILabels {
+  _id: string;
+  name: string;
+  backgroundColor: string;
+  textColor: string;
+  boardId: string;
+}
 export interface ITask {
   _id: string;
   title: string;
@@ -16,6 +24,8 @@ export interface ITask {
   priority?: string;
   status?: string;
   attachment: IAttachment[];
+  labels: ILabels[];
+  comments: number;
   status_list_id: {
     _id: string;
     name: string;

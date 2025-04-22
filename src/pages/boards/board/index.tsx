@@ -15,6 +15,8 @@ import {
   UserAddOutlined,
   DeleteOutlined,
   ExclamationCircleOutlined,
+  MessageOutlined,
+  PaperClipOutlined,
 } from "@ant-design/icons";
 import type {
   DraggableProvided,
@@ -28,6 +30,7 @@ import { AppDispatch, RootState } from "../../../store";
 import { useParams } from "react-router";
 import {
   IBoardDetails,
+  getAllLabels,
   getBoardById,
   getBoardMemberListById,
 } from "../../../store/slices/boardSlice";
@@ -137,6 +140,7 @@ const BoardDetail: React.FC = () => {
       dispatch(getBoardById(id));
       dispatch(getStatusListByBoardId(id));
       dispatch(getBoardMemberListById(id));
+      dispatch(getAllLabels(id));
     }
   }, [dispatch, id]);
 
@@ -324,14 +328,61 @@ const BoardDetail: React.FC = () => {
             }}
             bodyStyle={{ padding: "8px 12px" }}
           >
-            <div style={{ marginBottom: 8 }}>{/* Labels would go here */}</div>
+            <div style={{ marginBottom: 8, display: "flex", gap: 6 }}>
+              {task.labels.map((label) => {
+                return (
+                  <Tooltip key={label._id} title={label.name}>
+                    <div
+                      style={{
+                        background: label.backgroundColor,
+                        height: "10px",
+                        width: "50px",
+                        borderRadius: "8px",
+                      }}
+                    />
+                  </Tooltip>
+                );
+              })}
+            </div>
             <div style={{ display: "flex", justifyContent: "space-between" }}>
-              <Paragraph
-                ellipsis={{ rows: 2 }}
-                style={{ marginBottom: 8, fontWeight: 500 }}
-              >
-                {task.title}
-              </Paragraph>
+              <div>
+                <Paragraph
+                  ellipsis={{ rows: 2 }}
+                  style={{ marginBottom: 4, fontWeight: 500 }}
+                >
+                  {task.title}
+                </Paragraph>
+                <div style={{ display: "flex", gap: 8 }}>
+                  {task.comments > 0 ? (
+                    <Paragraph
+                      style={{
+                        marginBottom: 0,
+                        display: "flex",
+                        gap: 4,
+                        alignItems: "center",
+                        fontSize: "12px",
+                      }}
+                    >
+                      <MessageOutlined />
+                      {task.comments}
+                    </Paragraph>
+                  ) : null}
+                  {task.attachment.length > 0 ? (
+                    <Paragraph
+                      style={{
+                        marginBottom: 0,
+                        display: "flex",
+                        gap: 4,
+                        alignItems: "center",
+                        fontSize: "12px",
+                      }}
+                    >
+                      <PaperClipOutlined />
+                      {task.attachment.length}
+                    </Paragraph>
+                  ) : null}
+                </div>
+              </div>
               {hoveredTaskId === task._id && (
                 <Button
                   type="text"
@@ -598,6 +649,7 @@ const BoardDetail: React.FC = () => {
       </div>
 
       <TaskModal
+        boardId={id ? id : ""}
         visible={visibleTaskCardForm}
         onClose={() => setVisibleTaskCardForm(false)}
       />

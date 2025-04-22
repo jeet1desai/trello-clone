@@ -280,6 +280,12 @@ a:hover {
   font-size: 16px;
 }
 
+.form-input-small {
+  height: 32px;
+  font-size: 14px;
+  border-radius: 4px;
+}
+
 .form-input:hover,
 .form-input:focus {
   border-color: var(--primary-color);
@@ -312,8 +318,12 @@ a:hover {
   margin-bottom: 20px !important;
 }
 
-/* Radio */
-.ant-radio-inner {
+/* Checkbox */
+.status-checkbox-inner {
+  border-radius: 30px !important;
+}
+
+.status-checkbox-checked .status-checkbox-inner {
   border-color: #4bce97 !important;
   background-color: #4bce97 !important;
 }
