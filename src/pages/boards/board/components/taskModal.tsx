@@ -14,6 +14,8 @@ import {
   Select,
   Row,
   Col,
+  Dropdown,
+  Menu,
 } from "antd";
 import {
   PlusOutlined,
@@ -28,6 +30,11 @@ import {
   FlagOutlined,
   WarningOutlined,
   FileTextOutlined,
+  FilePdfOutlined,
+  FileOutlined,
+  RiseOutlined,
+  DeleteOutlined,
+  DownloadOutlined,
 } from "@ant-design/icons";
 import TaskDescriptionEditor from "../../../../components/ui/Editor";
 import type { RadioChangeEvent, UploadFile } from "antd";
@@ -48,6 +55,12 @@ import {
 import { RcFile } from "antd/es/upload";
 import { Input } from "../../../../components";
 import CommentCard from "./commentList";
+import {
+  deleteTaskAttachment,
+  getTaskAttachmentById,
+  IAttachment,
+} from "../../../../store/slices/taskAttachmentSlice";
+import { handleDownload } from "../../../../services/downloadService";
 
 const { Text } = Typography;
 const { Option } = Select;
@@ -132,6 +145,12 @@ const PrioritySelect = ({
   </Select>
 );
 
+export const toNativeFile = (rcFile: RcFile): File =>
+  new File([rcFile], rcFile.name, {
+    type: rcFile.type,
+    lastModified: rcFile.lastModified,
+  });
+
 export const getFileTypeFromName = (fileName: string): string => {
   const ext = fileName.split(".").pop()?.toLowerCase();
   if (!ext) return "";
@@ -142,14 +161,62 @@ export const getFileTypeFromName = (fileName: string): string => {
   return "application/octet-stream";
 };
 
+const renderPreview = (taskAttach: IAttachment) => {
+  const fileType = getFileTypeFromName(taskAttach.imageName);
+
+  if (fileType.startsWith("image/")) {
+    return (
+      <img
+        src={taskAttach.url}
+        alt={taskAttach.imageName}
+        style={{ width: 40, height: 40, objectFit: "cover", borderRadius: 4 }}
+      />
+    );
+  } else if (fileType === "application/pdf") {
+    return <FilePdfOutlined style={{ fontSize: 24, color: "#f5222d" }} />;
+  } else {
+    return <FileOutlined style={{ fontSize: 24 }} />;
+  }
+};
+
+const isPreviewable = (fileName: string): boolean => {
+  const ext = fileName.split(".").pop()?.toLowerCase();
+  return [
+    "jpg",
+    "jpeg",
+    "png",
+    "gif",
+    "bmp",
+    "webp",
+    "pdf",
+    "mp4",
+    "webm",
+    "ogg",
+    "jfif",
+  ].includes(ext || "");
+};
+
+const handleOpenFile = (fileUrl: string, fileName: string) => {
+  if (isPreviewable(fileName)) {
+    // Open in new tab for previewable files
+    window.open(fileUrl, "_blank");
+  } else {
+    handleDownload(fileUrl, fileName);
+  }
+};
+
 const TaskModal: React.FC<TaskModalProps> = ({ visible, onClose }) => {
   const dispatch = useDispatch<AppDispatch>();
   const { currentUser } = useSelector((state: RootState) => state.user);
+
   const { selectedTask, loading } = useSelector(
     (state: RootState) => state.task
   );
   const { taskComments, taskLoading } = useSelector(
     (state: RootState) => state.taskComment
+  );
+  const { taskAttachments, taskAttachmentLoading } = useSelector(
+    (state: RootState) => state.taskAttachment
   );
   const [isEditTitle, setIsEditTitle] = useState(false);
   const [msg, setMsg] = useState("");
@@ -160,9 +227,49 @@ const TaskModal: React.FC<TaskModalProps> = ({ visible, onClose }) => {
   const [labelVisible, setLabelVisible] = useState(false);
   const [showEditor, setShowEditor] = useState(false);
   const [priority, setPriority] = useState<Priority>(Priority.MEDIUM);
+  const [showAll, setShowAll] = useState(false);
 
   const handleRemove = (id: number) => {
     setMembers((prev) => prev.filter((member) => member.id !== id));
+  };
+
+  const AttachmentActions = ({ attachment }: { attachment: IAttachment }) => {
+    const menu = (
+      <Menu
+        onClick={({ key }) => handleMenuClick(key, attachment)}
+        items={[
+          {
+            key: "download",
+            label: "Download",
+            icon: <DownloadOutlined />,
+          },
+          {
+            key: "delete",
+            label: "Delete",
+            icon: <DeleteOutlined />,
+          },
+        ]}
+      />
+    );
+
+    return (
+      <Dropdown overlay={menu} trigger={["click"]} placement="bottomRight">
+        <Button type="text" icon={<EllipsisOutlined />} />
+      </Dropdown>
+    );
+  };
+
+  const handleMenuClick = (key: string, attachment: IAttachment) => {
+    if (key === "download") {
+      handleDownload(attachment.url, attachment.imageName);
+    } else if (key === "delete") {
+      dispatch(
+        deleteTaskAttachment({
+          _id: attachment._id,
+          taskId: selectedTask?._id ?? "",
+        })
+      );
+    }
   };
 
   const memberContent = (
@@ -215,6 +322,7 @@ const TaskModal: React.FC<TaskModalProps> = ({ visible, onClose }) => {
   useEffect(() => {
     if (selectedTask && visible) {
       dispatch(getTaskCommentById(selectedTask?._id));
+      dispatch(getTaskAttachmentById(selectedTask._id));
       setTaskDetails((prevState) => {
         if (!selectedTask?.status_list_id?._id) return prevState;
 
@@ -247,12 +355,6 @@ const TaskModal: React.FC<TaskModalProps> = ({ visible, onClose }) => {
       sendMessage();
     }
   };
-
-  const toNativeFile = (rcFile: RcFile): File =>
-    new File([rcFile], rcFile.name, {
-      type: rcFile.type,
-      lastModified: rcFile.lastModified,
-    });
 
   const sendMessage = () => {
     if (msg.trim()) {
@@ -351,7 +453,10 @@ const TaskModal: React.FC<TaskModalProps> = ({ visible, onClose }) => {
       className="task-modal"
       width={768}
     >
-      <Spin spinning={loading || taskLoading} fullscreen />
+      <Spin
+        spinning={loading || taskLoading || taskAttachmentLoading}
+        fullscreen
+      />
       <div className="task-header">
         <Radio
           checked={taskDetails?.status === TaskStatus.COMPLETED}
@@ -531,26 +636,48 @@ const TaskModal: React.FC<TaskModalProps> = ({ visible, onClose }) => {
                 <FileUploadModal />
               </div>
               <div className="task-attachments">
-                <div className="attachment-item">
-                  <div className="attachment-icon">JFIF</div>
-                  <div className="attachment-info">
-                    <div>userimage.jfif</div>
-                    <Text type="secondary">Added Apr 16, 2025, 6:02 PM</Text>
-                  </div>
-                  <div className="attachment-actions">
-                    <Button type="text" icon={<EllipsisOutlined />} />
-                  </div>
-                </div>
-                <div className="attachment-item">
-                  <div className="attachment-icon">PDF</div>
-                  <div className="attachment-info">
-                    <div>dummy.pdf</div>
-                    <Text type="secondary">Added Apr 16, 2025, 6:01 PM</Text>
-                  </div>
-                  <div className="attachment-actions">
-                    <Button type="text" icon={<EllipsisOutlined />} />
-                  </div>
-                </div>
+                {taskAttachments.length > 0 && (
+                  <>
+                    {taskAttachments
+                      .slice(0, showAll ? taskAttachments.length : 3)
+                      .map((taskAttach) => (
+                        <div className="attachment-item">
+                          <div className="attachment-icon">
+                            {renderPreview(taskAttach)}
+                          </div>
+                          <div className="attachment-info">
+                            <div>{taskAttach.imageName}</div>
+                            <Text type="secondary">Added</Text>
+                          </div>
+                          <div className="attachment-actions">
+                            <RiseOutlined
+                              onClick={() =>
+                                handleOpenFile(
+                                  taskAttach.url,
+                                  taskAttach.imageName
+                                )
+                              }
+                            />
+                            <AttachmentActions attachment={taskAttach} />
+                          </div>
+                        </div>
+                      ))}
+
+                    {taskAttachments.length > 3 && (
+                      <Button
+                        type="primary"
+                        style={{ width: "fit-content" }}
+                        onClick={() => setShowAll(!showAll)}
+                      >
+                        {!showAll
+                          ? `View all attachments (${
+                              taskAttachments.length - 3
+                            } hidden)`
+                          : "Show fewer attachments"}
+                      </Button>
+                    )}
+                  </>
+                )}
               </div>
             </div>
 

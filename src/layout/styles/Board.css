@@ -97,6 +97,7 @@
 .hover-btn {
   color: #fff;
   cursor: pointer;
+  background-color: transparent;
   width: fit-content;
   height: 12px;
   padding: 0px;

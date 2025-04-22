@@ -1,32 +1,28 @@
-import axios, {
-    AxiosError,
-    AxiosResponse,
-  } from "axios";
-  import { API_URL } from "../config";
-  // You can import your auth slice actions later
-  // import { logout } from '../store/slices/userSlice';
-  
-  const axiosInstance = axios.create({
-    baseURL: API_URL,
-    headers: {
-      "Content-Type": "application/json",
-    },
-    withCredentials: true,
-  });
-  
-  axiosInstance.interceptors.response.use(
-    (response: AxiosResponse) => {
-      return response;
-    },
-    (error: AxiosError) => {
-      if (error.response && error.response.status === 401) {
-        // Token expired or invalid
-        // dispatch(logout());
-        localStorage.removeItem("token");
-      }
-      return Promise.reject(error);
+import axios, { AxiosError, AxiosResponse } from "axios";
+import { API_URL } from "../config";
+// You can import your auth slice actions later
+// import { logout } from '../store/slices/userSlice';
+
+const axiosInstance = axios.create({
+  baseURL: API_URL,
+  headers: {
+    "Content-Type": "application/json",
+  },
+  withCredentials: true,
+});
+
+axiosInstance.interceptors.response.use(
+  (response: AxiosResponse) => {
+    return response;
+  },
+  (error: AxiosError) => {
+    if (error.response && error.response.status === 401) {
+      // Token expired or invalid
+      // dispatch(logout());
+      localStorage.removeItem("token");
     }
-  );
-  
-  export default axiosInstance;
-  
+    return Promise.reject(error);
+  }
+);
+
+export default axiosInstance;
