@@ -7,9 +7,8 @@ import {
   GithubOutlined,
 } from "@ant-design/icons";
 import { Link, useNavigate } from "react-router-dom";
-import { RootState } from "../../../store";
+import { AppDispatch, RootState } from "../../../store";
 import { clearAuthState, loginUser } from "../../../store/slices/userSlice";
-import { AppDispatch } from "../../../store";
 import { useDispatch, useSelector } from "react-redux";
 import "../../../layout/styles/Auth.css";
 

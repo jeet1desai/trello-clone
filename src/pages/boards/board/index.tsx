@@ -31,7 +31,6 @@ import {
   getBoardById,
   getBoardMemberListById,
 } from "../../../store/slices/boardSlice";
-import TaskCardForm from "./components/taskCardForm";
 import InviteBoard from "./components/inviteBoard";
 import "../../../layout/styles/Board.css";
 import {
@@ -52,6 +51,7 @@ import {
   setSelectedTask,
   updateTask,
 } from "../../../store/slices/taskSlice";
+import TaskModal from "./components/taskModal";
 
 const { Title, Text } = Typography;
 
@@ -273,14 +273,6 @@ const BoardDetail: React.FC = () => {
     dispatch(deleteTask(taskId));
   };
 
-  const handleTaskCardFormSubmit = (values: TaskPayload) => {
-    setVisibleTaskCardForm(false);
-    if (id) {
-      dispatch(getStatusListByBoardId(id));
-    }
-  };
-
-  // Filter tasks for each status
   const getTasksByStatus = (statusId: string) => {
     return tasksByStatus[statusId] || [];
   };
@@ -376,6 +368,7 @@ const BoardDetail: React.FC = () => {
               {invitedMemberList?.map((member) => {
                 return (
                   <Tooltip
+                    key={member._id}
                     title={`${member?.memberId?.first_name} ${member?.memberId?.last_name} (${member?.memberId?.email})`}
                   >
                     <Avatar>{`${member?.memberId?.first_name[0]?.toUpperCase()}${member?.memberId?.last_name[0]?.toUpperCase()}`}</Avatar>
@@ -604,10 +597,14 @@ const BoardDetail: React.FC = () => {
         </DragDropContext>
       </div>
 
-      <TaskCardForm
+      <TaskModal
         visible={visibleTaskCardForm}
-        onCancel={() => setVisibleTaskCardForm(false)}
-        onFinish={handleTaskCardFormSubmit}
+        onClose={() => setVisibleTaskCardForm(false)}
+      />
+
+      <InviteBoard
+        isOpen={showInviteModal}
+        onClose={() => setShowInviteModal(false)}
       />
 
       <InviteBoard

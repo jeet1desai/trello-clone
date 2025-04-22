@@ -1,6 +1,12 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { taskService } from "../../services/taskService";
 
+export interface IAttachment {
+  imageName: string;
+  imageId: string;
+  url: string;
+  _id: string;
+}
 export interface ITask {
   _id: string;
   title: string;
@@ -9,12 +15,7 @@ export interface ITask {
   created_by: string;
   priority?: string;
   status?: string;
-  attachment?: Array<{
-    name: string;
-    url?: string;
-    type?: string;
-    size?: number;
-  }>;
+  attachment: IAttachment[];
   status_list_id: {
     _id: string;
     name: string;
@@ -96,12 +97,14 @@ export const updateTask = createAsyncThunk(
       status_list_id,
       newPosition,
       status,
+      description,
     }: {
       taskId: string;
       title?: string;
       status_list_id?: string;
       newPosition?: number;
       status?: string;
+      description?: string;
     },
     { rejectWithValue }
   ) => {
@@ -111,7 +114,8 @@ export const updateTask = createAsyncThunk(
         title,
         status_list_id,
         newPosition,
-        status
+        status,
+        description
       );
       return response;
     } catch (error: any) {
