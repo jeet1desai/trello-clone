@@ -12,13 +12,17 @@ import NavigationLinks from "./NavigationLink";
 import SearchBox from "./SearchBox";
 import { RESET_APP } from "../../../config";
 import socketService from "../../../services/socketService";
-
+import dayjs from 'dayjs'
+import relativeTime from "dayjs/plugin/relativeTime";
+import { addNewNotification, readNotificationById } from "../../../store/slices/notificationSlice";
+import { Notification } from "../../../store/slices/notificationSlice";
+dayjs.extend(relativeTime);
 const { Header: AntHeader } = Layout;
 
 const Header: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { allNotification, loading: memberLoading } = useSelector(
-      (state: RootState) => state.board
+      (state: RootState) => state.notification
     );
   const navigate = useNavigate();
   const { currentUser, isAuthenticated } = useSelector(
@@ -35,16 +39,17 @@ const Header: React.FC = () => {
     navigate("/login");
   };
 
-  // useEffect(() => {
-    // console.log('1111 every render')
-    // debugger;
-    // socketService.on("receive_notification", (data:any)=>{console.log('1111 final header',data)});
-
-  // })
+  const handleReadNotification = async (id: string)  => {
+    if (id)
+          await dispatch(
+            readNotificationById(id)
+          );
+  }
 
   useEffect(() => {
     socketService.on('receive_notification', (payload) => {
-      console.log('1111 Notification received:', payload);
+      console.log('notification data',payload)
+      dispatch(addNewNotification(payload));
     });
   
     return () => {
@@ -144,33 +149,32 @@ const Header: React.FC = () => {
         <SearchBox />
         <Popover
           content={
-            <div style={{ width: "350px", display: "flex", flexDirection: "column", gap: "4px", height: 400, overflow: 'auto', scrollbarWidth: 'none' }}>
-              {allNotification.map((iten)=>{
-                return(
+            <div style={{ width: "350px", display: "flex", flexDirection: "column", gap: "6px", height: 400, overflow: 'auto', scrollbarWidth: 'none' }}>
+              {allNotification.map((item: Notification) => {
+                return (
                   <div
-                  key={iten._id}
-                  style={{
-                    background: isDarkMode ? "#181818" : "#efefef",
-                    padding: "10px",
-                    borderRadius: "4px",
-                    display: "flex",
-                    justifyContent: "space-between",
-                  }}
-                >
-                  <div style={{ display: "flex", alignItems: "flex-start", gap: 8 }}>
-                    <Avatar />
-                    <div style={{ display: "flex", flexDirection: "column", gap: 4, maxWidth: "250px" }}>
-                      <p style={{ margin: 0 }}>
-                        <b>h5. Ant Design </b>5. Ant Design 5. Ant Design 5. Ant Design 5. Ant Design5.
-                      </p>
-                      <span style={{ color: isDarkMode ? "#727272" : "#727272" }}>Date</span>
+                    key={item._id}
+                    style={{
+                      background: isDarkMode ? "#181818" : "#efefef",
+                      padding: "10px",
+                      borderRadius: "4px",
+                      display: "flex",
+                      justifyContent: "space-between",
+                    }}
+                  >
+                    <div style={{ display: "flex", alignItems: "flex-start", gap: 8 }}>
+                      <Avatar />
+                      <div style={{ display: "flex", flexDirection: "column", gap: 4, maxWidth: "250px" }}>
+                        <p style={{ margin: 0 }}>
+                          {item.message}
+                        </p>
+                        <span style={{ color: isDarkMode ? "#727272" : "#727272" }}>{dayjs(item.createdAt).fromNow()}</span>
+                      </div>
                     </div>
+                    <Button type="text" icon={<EyeInvisibleOutlined />} onClick={() => handleReadNotification(item._id)} style={{ color: isDarkMode ? "white" : "inherit" }} />
                   </div>
-                  <Button type="text" icon={<EyeInvisibleOutlined />} style={{ color: isDarkMode ? "white" : "inherit" }} />
-                </div>
-                )
+                );
               })}
-              {/* <div style={{ background: isDarkMode ? "#181818" : "#efefef", padding: "10px", borderRadius: "4px" }}>d</div> */}
             </div>
           }
           title="Notification"

@@ -15,7 +15,7 @@ import {
   RecentActivity,
 } from "../../components";
 import "../../layout/styles/Dashboard.css";
-import { getAllNotification } from "../../store/slices/boardSlice";
+import { getAllNotification } from "../../store/slices/notificationSlice";
 
 const { Title, Paragraph } = Typography;
 

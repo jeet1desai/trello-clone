@@ -136,7 +136,6 @@ const BoardDetail: React.FC = () => {
     if (id) {
       dispatch(getBoardById(id));
       dispatch(getStatusListByBoardId(id));
-      dispatch(getBoardMemberListById(id));
     }
   }, [dispatch, id]);
 
@@ -350,7 +349,7 @@ const BoardDetail: React.FC = () => {
 
   return (
     <>
-      <Spin spinning={loading || statusLoading || taskLoading} fullscreen />
+      <Spin spinning={statusLoading || taskLoading} fullscreen />
       <div className="board-header">
         <div>
           <Space size={16}>
@@ -607,10 +606,10 @@ const BoardDetail: React.FC = () => {
         onClose={() => setShowInviteModal(false)}
       />
 
-      <InviteBoard
+      {/* <InviteBoard
         isOpen={showInviteModal}
         onClose={() => setShowInviteModal(false)}
-      />
+      /> */}
     </>
   );
 };

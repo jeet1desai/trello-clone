@@ -162,8 +162,7 @@ interface BoardState {
   addError: string | null;
   editError: string | null;
   invitedMemberList: MemberData[];
-  invitedMemberDetail: InvitationMember | null
-  allNotification: Notification[]
+  invitedMemberDetail: InvitationMember | null;
 }
 
 const initialState: BoardState = {
@@ -176,7 +175,6 @@ const initialState: BoardState = {
   editError: null,
   invitedMemberList: [],
   invitedMemberDetail: null,
-  allNotification: []
 };
 
 export const getAllBoards = createAsyncThunk(
@@ -379,20 +377,6 @@ export const updateInvitationMemberById = createAsyncThunk(
   ) => {
     try {
       const response = await boardService.updateInvitationDetailsById(_id, { status });
-      return response.data;
-    } catch (error: any) {
-      return rejectWithValue(
-        error.response?.data?.message || "Error while fetching members"
-      );
-    }
-  }
-);
-
-export const getAllNotification = createAsyncThunk(
-  "notification/notification-list",
-  async (_, { rejectWithValue }) => {
-    try {
-      const response = await boardService.getAllNotification();
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
@@ -686,26 +670,6 @@ const boardSlice = createSlice({
           (action.payload as string) || "Error while accepting invitation.";
         state.error =
           (action.payload as string) || "Error while accepting invitation.";
-      })
-      
-      // Get notification
-      .addCase(getAllNotification.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-        state.success = null;
-      })
-      .addCase(getAllNotification.fulfilled, (state, action) => {
-        state.allNotification = action.payload;
-        state.loading = false;
-        state.error = null;
-        state.success = "Notification fetched successfully.";
-      })
-      .addCase(getAllNotification.rejected, (state, action) => {
-        state.loading = false;
-        state.allNotification = [];
-        state.success = null;
-        state.error =
-          (action.payload as string) || "Error while fetching invitation detail.";
       });
   },
 });

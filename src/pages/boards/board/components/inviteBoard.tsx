@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../../../store";
 import { useParams } from "react-router";
@@ -6,6 +6,7 @@ import {
   removeBoardMemberFromListById,
   MemberData,
   inviteBoardMember,
+  getBoardMemberListById
 } from "../../../../store/slices/boardSlice";
 import {
   Modal,
@@ -17,6 +18,7 @@ import {
   Typography,
   Divider,
   App,
+  Spin,
 } from "antd";
 import {
   LinkOutlined,
@@ -24,7 +26,6 @@ import {
   ExclamationCircleOutlined,
 } from "@ant-design/icons";
 import "../../../../layout/styles/Board.css";
-import socketService from "../../../../services/socketService";
 
 const { Text } = Typography;
 
@@ -38,10 +39,10 @@ const InviteBoard: React.FC<InviteBoardProps> = ({ isOpen, onClose }) => {
 
   const { id } = useParams<{ id: string }>();
   const dispatch = useDispatch<AppDispatch>();
-  const { invitedMemberList, loading } = useSelector(
+  const { invitedMemberList, loading: memberLoading } = useSelector(
     (state: RootState) => state.board
   );
-
+  const [loading, setLoading] = useState(false);
   const [emails, setEmails] = useState<string[]>([]);
   const [emailError, setEmailError] = useState<string>("");
   const [role, setRole] = useState("Member");
@@ -70,6 +71,7 @@ const InviteBoard: React.FC<InviteBoardProps> = ({ isOpen, onClose }) => {
   };
 
   const handleShare = async () => {
+    setLoading(true);
     if (id)
       await dispatch(
         inviteBoardMember({
@@ -77,6 +79,7 @@ const InviteBoard: React.FC<InviteBoardProps> = ({ isOpen, onClose }) => {
           members: emails,
         })
       );
+    setLoading(false);
     setEmails([]);
   };
 
@@ -107,11 +110,15 @@ const InviteBoard: React.FC<InviteBoardProps> = ({ isOpen, onClose }) => {
               memberId: member.memberId._id,
             })
           );
-          socketService.on("receive_notification", (data:any)=>{console.log('1111 remove member',data)});
         }
       },
     });
   };
+
+  useEffect(() => {
+    if (id && isOpen)
+      (async () => await dispatch(getBoardMemberListById(id)))();
+  }, [dispatch, id, isOpen]);
 
   return (
     <Modal
@@ -193,6 +200,9 @@ const InviteBoard: React.FC<InviteBoardProps> = ({ isOpen, onClose }) => {
             </Text>
           </div>
           <Divider style={{ margin: "12px 0" }} />
+          {memberLoading ? (
+              <Spin spinning={memberLoading} style={{ display: "flow" }} />
+            ) : (
           <List
             itemLayout="horizontal"
             dataSource={invitedMemberList}
@@ -207,8 +217,6 @@ const InviteBoard: React.FC<InviteBoardProps> = ({ isOpen, onClose }) => {
                     onChange={(value: "MEMBER" | "ADMIN" | "REMOVE") => {
                       if (value === "REMOVE") {
                         handleRemoveMember(item);
-                      } else {
-                        console.log("Role changed to:", value);
                       }
                     }}
                   >
@@ -237,6 +245,7 @@ const InviteBoard: React.FC<InviteBoardProps> = ({ isOpen, onClose }) => {
               </List.Item>
             )}
           />
+            )}
         </div>
       </div>
     </Modal>

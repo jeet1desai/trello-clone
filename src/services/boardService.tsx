@@ -87,11 +87,4 @@ export const boardService = {
     );
     return response.data;
   },
-
-  async getAllNotification() {
-    const response = await axiosInstance.get(
-      `${API_URL}/notification/notification-list/`
-    );
-    return response.data;
-  },
 };
