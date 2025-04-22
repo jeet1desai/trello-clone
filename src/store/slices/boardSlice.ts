@@ -1,5 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { boardService } from "../../services/boardService";
+import { updateWorkspaceBoards } from "./workspaceSlice";
 
 export interface IMember {
   _id: string;
@@ -128,16 +129,35 @@ export interface InvitationMember {
     _id: string;
     name: string;
   };
-  status: 'PENDING' | 'ACCEPTED' | 'REJECTED';
-  role: 'MEMBER' | 'ADMIN';
+  status: "PENDING" | "ACCEPTED" | "REJECTED";
+  role: "MEMBER" | "ADMIN";
   createdAt: string;
   updatedAt: string;
   __v: number;
 }
 
+export interface ILabel {
+  _id: string;
+  name: string;
+  backgroundColor: string;
+  textColor: string;
+  boardId: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+interface ITaskMember {
+  _id: string;
+  first_name: string;
+  last_name: string;
+  email: string;
+}
 
 interface BoardState {
   boards: IBoard[];
+  boardLabels: ILabel[];
+  selectedTaskMembers: ITaskMember[];
+  selectedTaskLabels: ILabel[];
   selectedBoard: IBoardDetails | null;
   loading: boolean;
   error: string | null;
@@ -145,11 +165,14 @@ interface BoardState {
   addError: string | null;
   editError: string | null;
   invitedMemberList: MemberData[];
-  invitedMemberDetail: InvitationMember | null
+  invitedMemberDetail: InvitationMember | null;
 }
 
 const initialState: BoardState = {
   boards: [],
+  boardLabels: [],
+  selectedTaskMembers: [],
+  selectedTaskLabels: [],
   selectedBoard: null,
   loading: false,
   error: null,
@@ -157,7 +180,7 @@ const initialState: BoardState = {
   addError: null,
   editError: null,
   invitedMemberList: [],
-  invitedMemberDetail: null
+  invitedMemberDetail: null,
 };
 
 export const getAllBoards = createAsyncThunk(
@@ -257,9 +280,10 @@ export const editBoard = createAsyncThunk(
 
 export const deleteBoard = createAsyncThunk(
   "board/delete",
-  async (_id: string, { rejectWithValue }) => {
+  async (_id: string, { rejectWithValue, dispatch }) => {
     try {
       const response = await boardService.deleteBoard(_id);
+      dispatch(updateWorkspaceBoards(response.data));
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
@@ -351,7 +375,7 @@ export const updateInvitationMemberById = createAsyncThunk(
   async (
     {
       _id,
-      status
+      status,
     }: {
       _id: string;
       status: string;
@@ -359,11 +383,228 @@ export const updateInvitationMemberById = createAsyncThunk(
     { rejectWithValue }
   ) => {
     try {
-      const response = await boardService.updateInvitationDetailsById(_id, { status });
+      const response = await boardService.updateInvitationDetailsById(_id, {
+        status,
+      });
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
         error.response?.data?.message || "Error while fetching members"
+      );
+    }
+  }
+);
+
+export const getAllLabels = createAsyncThunk(
+  "task/get-all-labels",
+  async (_id: string, { rejectWithValue }) => {
+    try {
+      const response = await boardService.getAllLabelsById(_id);
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message || "Error while fetching labels."
+      );
+    }
+  }
+);
+
+export const addNewLabel = createAsyncThunk(
+  "task/add-label",
+  async (
+    {
+      name,
+      board,
+      background_color,
+      text_color,
+    }: {
+      name: string;
+      board: string;
+      background_color: string;
+      text_color: string;
+    },
+    { rejectWithValue }
+  ) => {
+    try {
+      const response = await boardService.addNewLabel(
+        name,
+        board,
+        background_color,
+        text_color
+      );
+      return response;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message || "Error while adding label."
+      );
+    }
+  }
+);
+
+export const editLabel = createAsyncThunk(
+  "task/edit-label",
+  async (
+    {
+      _id,
+      name,
+      background_color,
+      text_color,
+    }: {
+      _id: string;
+      name?: string;
+      background_color?: string;
+      text_color?: string;
+    },
+    { rejectWithValue }
+  ) => {
+    try {
+      const response = await boardService.editLabel(
+        _id,
+        name,
+        background_color,
+        text_color
+      );
+      return response;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message || "Error while updating label."
+      );
+    }
+  }
+);
+
+export const deleteLabel = createAsyncThunk(
+  "task/delete-label",
+  async (_id: string, { rejectWithValue }) => {
+    try {
+      const response = await boardService.deleteLabel(_id);
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message || "Error while deleting label."
+      );
+    }
+  }
+);
+
+export const getLabelsByTaskId = createAsyncThunk(
+  "task/get-labels-by-task",
+  async (_id: string, { rejectWithValue }) => {
+    try {
+      const response = await boardService.getLabelsByTaskId(_id);
+      return response.data?.map(
+        (labels: { label_id: string }) => labels.label_id
+      );
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message || "Error while fetching labels."
+      );
+    }
+  }
+);
+
+export const addLabelInTask = createAsyncThunk(
+  "task/add-label-in-task",
+  async (
+    {
+      task_id,
+      label_id,
+    }: {
+      task_id: string;
+      label_id: string;
+    },
+    { rejectWithValue }
+  ) => {
+    try {
+      const response = await boardService.addLabelInTask(task_id, label_id);
+      return response;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message || "Error while adding label."
+      );
+    }
+  }
+);
+
+export const removeLabelFromTask = createAsyncThunk(
+  "task/remove-label-from-task",
+  async (
+    { taskId, labelId }: { taskId: string; labelId: string },
+    { rejectWithValue }
+  ) => {
+    try {
+      const response = await boardService.removeLabelFromTask(taskId, labelId);
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message || "Error while removing label."
+      );
+    }
+  }
+);
+
+export const getMembersByTaskId = createAsyncThunk(
+  "task/get-members-by-task",
+  async (_id: string, { rejectWithValue }) => {
+    try {
+      const response = await boardService.getMembersByTaskId(_id);
+      return response.data?.map(
+        (members: {
+          member_id: {
+            _id: string;
+            first_name: string;
+            last_name: string;
+            email: string;
+          };
+        }) => {
+          return {
+            _id: members.member_id._id,
+            first_name: members.member_id.first_name,
+            last_name: members.member_id.last_name,
+            email: members.member_id.email,
+          };
+        }
+      );
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message || "Error while fetching members."
+      );
+    }
+  }
+);
+
+export const addMemberInTask = createAsyncThunk(
+  "task/add-member-in-task",
+  async (
+    {
+      task_id,
+      member_id,
+    }: {
+      task_id: string;
+      member_id: string;
+    },
+    { rejectWithValue }
+  ) => {
+    try {
+      const response = await boardService.addMemberInTask(task_id, member_id);
+      return response;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message || "Error while adding member."
+      );
+    }
+  }
+);
+
+export const removeMemberFromTask = createAsyncThunk(
+  "task/remove-member-from-task",
+  async (_id: string, { rejectWithValue }) => {
+    try {
+      const response = await boardService.removeMemberFromTask(_id);
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message || "Error while removing member."
       );
     }
   }
@@ -542,7 +783,7 @@ const boardSlice = createSlice({
         state.loading = false;
         state.success = null;
         state.error =
-          (action.payload as string) || "Error while fetching board.";
+          (action.payload as string) || "Error while deleting board.";
       })
 
       // Get board member list
@@ -612,7 +853,7 @@ const boardSlice = createSlice({
         state.error =
           (action.payload as string) || "Error while sending invitation.";
       })
-      
+
       // Get invited member details
       .addCase(getInvitationDetailsById.pending, (state) => {
         state.loading = true;
@@ -630,9 +871,10 @@ const boardSlice = createSlice({
         state.invitedMemberDetail = null;
         state.success = null;
         state.error =
-          (action.payload as string) || "Error while fetching invitation detail.";
+          (action.payload as string) ||
+          "Error while fetching invitation detail.";
       })
-      
+
       // update invitation
       .addCase(updateInvitationMemberById.pending, (state) => {
         state.loading = true;
@@ -641,7 +883,6 @@ const boardSlice = createSlice({
         state.success = null;
       })
       .addCase(updateInvitationMemberById.fulfilled, (state, action) => {
-        const { _id } = action.payload;
         state.loading = false;
         state.error = null;
         state.success = "Invitation accepted successfully.";
@@ -653,6 +894,282 @@ const boardSlice = createSlice({
           (action.payload as string) || "Error while accepting invitation.";
         state.error =
           (action.payload as string) || "Error while accepting invitation.";
+      })
+
+      // Get All Labels
+      .addCase(getAllLabels.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.success = null;
+      })
+      .addCase(getAllLabels.fulfilled, (state, action) => {
+        state.boardLabels = action.payload;
+        state.loading = false;
+        state.error = null;
+        state.success = "Labels fetched successfully.";
+      })
+      .addCase(getAllLabels.rejected, (state, action) => {
+        state.loading = false;
+        state.boards = [];
+        state.success = null;
+        state.error =
+          (action.payload as string) || "Error while fetching labels.";
+      })
+
+      // Add New Label
+      .addCase(addNewLabel.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.success = null;
+      })
+      .addCase(addNewLabel.fulfilled, (state, action) => {
+        const {
+          _id,
+          name,
+          backgroundColor,
+          textColor,
+          createdBy,
+          boardId,
+          createdAt,
+          updatedAt,
+        } = action.payload.data;
+        const currentLabel = {
+          _id,
+          name,
+          backgroundColor,
+          textColor,
+          createdBy,
+          boardId,
+          createdAt,
+          updatedAt,
+        };
+        state.boardLabels = [...state.boardLabels, currentLabel];
+        state.loading = false;
+        state.error = null;
+        state.success = "Label added successfully.";
+      })
+      .addCase(addNewLabel.rejected, (state, action) => {
+        state.loading = false;
+        state.success = null;
+        state.error = (action.payload as string) || "Error while adding label.";
+      })
+
+      // Edit label
+      .addCase(editLabel.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.success = null;
+      })
+      .addCase(editLabel.fulfilled, (state, action) => {
+        const { _id, name, backgroundColor, textColor } = action.payload.data;
+        const currentLabel = {
+          _id,
+          name,
+          backgroundColor,
+          textColor,
+        };
+        const index = state.boardLabels.findIndex(
+          (label) => label._id === currentLabel._id
+        );
+        if (index !== -1) {
+          state.loading = false;
+          state.boardLabels[index] = {
+            ...state.boardLabels[index],
+            ...currentLabel,
+          };
+          state.error = null;
+          state.success = "Label updated successfully.";
+        } else {
+          state.loading = false;
+          state.error = "Label not found.";
+        }
+      })
+      .addCase(editLabel.rejected, (state, action) => {
+        state.loading = false;
+        state.success = null;
+        state.error =
+          (action.payload as string) || "Error while updating label.";
+      })
+
+      // Delete label
+      .addCase(deleteLabel.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.success = null;
+      })
+      .addCase(deleteLabel.fulfilled, (state, action) => {
+        const { _id } = action.payload;
+        const index = state.boardLabels.findIndex((label) => label._id === _id);
+        if (index !== -1) {
+          state.loading = false;
+          state.error = null;
+          state.boardLabels.splice(index, 1);
+          state.success = "Label deleted successfully.";
+        } else {
+          state.loading = false;
+          state.error = "Label not found.";
+        }
+      })
+      .addCase(deleteLabel.rejected, (state, action) => {
+        state.loading = false;
+        state.success = null;
+        state.error =
+          (action.payload as string) || "Error while deleting label.";
+      })
+
+      // Get labels for task
+      .addCase(getLabelsByTaskId.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.success = null;
+      })
+      .addCase(getLabelsByTaskId.fulfilled, (state, action) => {
+        state.selectedTaskLabels = action.payload;
+        state.loading = false;
+        state.error = null;
+        state.success = "Labels fetched successfully.";
+      })
+      .addCase(getLabelsByTaskId.rejected, (state, action) => {
+        state.loading = false;
+        state.boards = [];
+        state.success = null;
+        state.error =
+          (action.payload as string) || "Error while fetching labels.";
+      })
+
+      // Add label into task
+      .addCase(addLabelInTask.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.success = null;
+      })
+      .addCase(addLabelInTask.fulfilled, (state, action) => {
+        const { _id, name, backgroundColor, textColor, boardId } =
+          action.payload.data.label_id;
+        const { createdAt, updatedAt } = action.payload.data;
+        const currentLabel = {
+          _id,
+          name,
+          backgroundColor,
+          textColor,
+          boardId,
+          createdAt,
+          updatedAt,
+        };
+        state.selectedTaskLabels = [...state.selectedTaskLabels, currentLabel];
+        state.loading = false;
+        state.error = null;
+        state.success = "Label added successfully.";
+      })
+      .addCase(addLabelInTask.rejected, (state, action) => {
+        state.loading = false;
+        state.success = null;
+        state.error = (action.payload as string) || "Error while adding label.";
+      })
+
+      // remove label from task
+      .addCase(removeLabelFromTask.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.success = null;
+      })
+      .addCase(removeLabelFromTask.fulfilled, (state, action) => {
+        const { label_id } = action.payload;
+        const index = state.selectedTaskLabels.findIndex(
+          (label) => label._id === label_id
+        );
+        if (index !== -1) {
+          state.loading = false;
+          state.error = null;
+          state.selectedTaskLabels.splice(index, 1);
+          state.success = "Label removed successfully.";
+        } else {
+          state.loading = false;
+          state.error = "Label not found.";
+        }
+      })
+      .addCase(removeLabelFromTask.rejected, (state, action) => {
+        state.loading = false;
+        state.success = null;
+        state.error =
+          (action.payload as string) || "Error while removing label.";
+      })
+
+      // Get members for task
+      .addCase(getMembersByTaskId.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.success = null;
+      })
+      .addCase(getMembersByTaskId.fulfilled, (state, action) => {
+        state.selectedTaskMembers = action.payload;
+        state.loading = false;
+        state.error = null;
+        state.success = "Members fetched successfully.";
+      })
+      .addCase(getMembersByTaskId.rejected, (state, action) => {
+        state.loading = false;
+        state.boards = [];
+        state.success = null;
+        state.error =
+          (action.payload as string) || "Error while fetching members.";
+      })
+
+      // Add member into task
+      .addCase(addMemberInTask.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.success = null;
+      })
+      .addCase(addMemberInTask.fulfilled, (state, action) => {
+        const { _id, first_name, last_name, email } = action.payload.data.member_id;
+        const currentMember = {
+          _id,
+          first_name,
+          last_name,
+          email,
+        };
+        state.selectedTaskMembers = [
+          ...state.selectedTaskMembers,
+          currentMember,
+        ];
+        state.loading = false;
+        state.error = null;
+        state.success = "Member added successfully.";
+      })
+      .addCase(addMemberInTask.rejected, (state, action) => {
+        state.loading = false;
+        state.success = null;
+        state.error =
+          (action.payload as string) || "Error while adding member.";
+      })
+
+      // remove member from task
+      .addCase(removeMemberFromTask.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.success = null;
+      })
+      .addCase(removeMemberFromTask.fulfilled, (state, action) => {
+        const { _id } = action.payload;
+        const index = state.selectedTaskMembers.findIndex(
+          (member) => member._id === _id
+        );
+        if (index !== -1) {
+          state.loading = false;
+          state.error = null;
+          state.selectedTaskMembers.splice(index, 1);
+          state.success = "Member removed successfully.";
+        } else {
+          state.loading = false;
+          state.error = "Member not found.";
+        }
+      })
+      .addCase(removeMemberFromTask.rejected, (state, action) => {
+        state.loading = false;
+        state.success = null;
+        state.error =
+          (action.payload as string) || "Error while removing member.";
       });
   },
 });

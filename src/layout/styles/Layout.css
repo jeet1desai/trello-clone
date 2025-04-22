@@ -167,9 +167,8 @@
 .user-avatar {
   background: var(--primary-color);
   cursor: pointer;
-  width: 46px;
+  width: 54px;
   height: 38px;
-  padding: 10px;
   display: flex;
   align-items: center;
   justify-content: center;

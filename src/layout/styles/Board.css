@@ -125,6 +125,7 @@
 }
 
 .task-description-btn {
+  background: #80808024;
   box-sizing: border-box;
   width: 100%;
   margin: 0;
@@ -367,6 +368,7 @@
 }
 
 .comment-container {
+  width: 100%;
   display: flex;
   gap: 8px;
   flex-direction: column;
@@ -385,6 +387,12 @@
 
 .commenter-time {
   font-size: 12px;
+}
+
+.comment-wrapper {
+  background: #80808024;
+  padding: 4px 8px;
+  border-radius: 4px;
 }
 
 .comment-detail-container {
@@ -409,6 +417,9 @@
 .delete-comment-btn {
   align-self: flex-start;
   padding: 0px;
+  font-size: 12px;
+  cursor: pointer;
+  color: red;
 }
 
 .edit-container {

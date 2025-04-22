@@ -27,9 +27,7 @@ const ProfilePage = () => {
   const [profileForm] = Form.useForm();
   const [passwordForm] = Form.useForm();
   const dispatch = useDispatch<AppDispatch>();
-  const { currentUser } = useSelector(
-    (state: RootState) => state.user
-  );
+  const { currentUser } = useSelector((state: RootState) => state.user);
   const { profileDetails, loading } = useSelector(
     (state: RootState) => state.profile
   );
@@ -51,10 +49,14 @@ const ProfilePage = () => {
     profile_image: any;
   }) => {
     await dispatch(
-      updateProfile({
-        ...values,
-        profile_image: values.profile_image.file,
-      })
+      updateProfile(
+        values.profile_image
+          ? {
+              ...values,
+              profile_image: values?.profile_image?.file,
+            }
+          : values
+      )
     );
     setEditMode(false);
   };

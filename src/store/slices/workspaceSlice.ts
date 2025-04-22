@@ -171,6 +171,15 @@ const workspaceSlice = createSlice({
   name: "workspace",
   initialState,
   reducers: {
+    updateWorkspaceBoards: (state, action) => {
+      const { _id } = action.payload;
+      const index = state.workspaceBoards.findIndex(
+        (board) => board._id === _id
+      );
+      if (index !== -1) {
+        state.workspaceBoards.splice(index, 1);
+      }
+    },
     openWorkspaceAddModal: (state) => {
       state.addError = null;
       state.loading = false;
@@ -351,7 +360,10 @@ const workspaceSlice = createSlice({
   },
 });
 
-export const { openWorkspaceAddModal, clearSelectedWorkspace } =
-  workspaceSlice.actions;
+export const {
+  updateWorkspaceBoards,
+  openWorkspaceAddModal,
+  clearSelectedWorkspace,
+} = workspaceSlice.actions;
 
 export default workspaceSlice.reducer;
