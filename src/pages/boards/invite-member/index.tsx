@@ -18,10 +18,10 @@ const InviteMemberPage: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
 
-  const { invitedMemberDetail, loading: memberLoading } = useSelector(
+  const { invitedMemberDetail } = useSelector(
     (state: RootState) => state.board
   );
-  const { currentUser, isAuthenticated } = useSelector(
+  const { currentUser } = useSelector(
     (state: RootState) => state.user
   );
 
@@ -56,13 +56,13 @@ const InviteMemberPage: React.FC = () => {
   useEffect(() => {
     if (id)
       (async () => await dispatch(getInvitationDetailsById(id)))();
-  }, [dispatch]);
+  }, [dispatch, id]);
 
   useEffect(() => {
     if (invitedMemberDetails && invitedMemberDetail) {
       setInvitedMemberDetails(invitedMemberDetail);
     }
-  }, [invitedMemberDetails]);
+  }, [invitedMemberDetails, invitedMemberDetail]);
 
   return (
     <div className="invite-member-container">

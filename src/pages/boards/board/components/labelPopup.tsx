@@ -1,93 +1,217 @@
-import { Input, Checkbox, Button, List, Tooltip } from "antd";
-import { EditOutlined } from "@ant-design/icons";
 import React, { useState } from "react";
+import { EditOutlined } from "@ant-design/icons";
+import { Checkbox, Button, List, Typography } from "antd";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "../../../../store";
+import { Input } from "../../../../components";
+import ColorPicker from "./colorPicker";
+import {
+  addLabelInTask,
+  addNewLabel,
+  deleteLabel,
+  editLabel,
+  removeLabelFromTask,
+} from "../../../../store/slices/boardSlice";
 
-const labelsData = [
-  { id: "1", name: "", color: "#007b5a" },
-  { id: "2", name: "", color: "#d9a900" },
-  { id: "3", name: "", color: "#d9822b" },
-  { id: "4", name: "", color: "#cb3c2e" },
-  { id: "5", name: "", color: "#6558c3" },
-  { id: "6", name: "", color: "#0052cc" },
-  { id: "7", name: "hello", color: "#4a4a4a" },
-];
+const { Title } = Typography;
 
-const LabelPopup: React.FC = () => {
-  const [selectedLabels, setSelectedLabels] = useState<string[]>([]);
+interface IProps {
+  boardId: string;
+  selectedTaskId: string;
+}
+
+const LabelPopup = ({ boardId, selectedTaskId }: IProps) => {
+  const dispatch = useDispatch<AppDispatch>();
+  const { boardLabels, selectedTaskLabels } = useSelector(
+    (state: RootState) => state.board
+  );
   const [search, setSearch] = useState("");
+  const [title, setTitle] = useState("");
+  const [selectedColor, setSelectedColor] = useState("black");
+  const [isAddFlag, setIsAddFlag] = useState(false);
+  const [selectedLabelId, setSelectedLabelId] = useState("");
 
   const toggleLabel = (id: string) => {
-    setSelectedLabels((prev) =>
-      prev.includes(id)
-        ? prev.filter((labelId) => labelId !== id)
-        : [...prev, id]
-    );
+    if (selectedTaskLabels.map((label) => label._id).includes(id)) {
+      dispatch(removeLabelFromTask({ taskId: selectedTaskId, labelId: id }));
+    } else {
+      dispatch(addLabelInTask({ task_id: selectedTaskId, label_id: id }));
+    }
   };
 
-  const filteredLabels = labelsData.filter((label) =>
+  const filteredLabels = boardLabels.filter((label) =>
     label.name.toLowerCase().includes(search.toLowerCase())
   );
+
+  const handleCreateUpdateLabel = () => {
+    selectedLabelId
+      ? dispatch(
+          editLabel({
+            _id: selectedLabelId,
+            name: title,
+            background_color: selectedColor,
+            text_color: "#FFFFFF",
+          })
+        )
+      : dispatch(
+          addNewLabel({
+            name: title,
+            background_color: selectedColor,
+            text_color: "#FFFFFF",
+            board: boardId,
+          })
+        );
+    setIsAddFlag(false);
+  };
+
+  const handleDeleteLabel = () => {
+    dispatch(deleteLabel(selectedLabelId));
+    setIsAddFlag(false);
+  };
 
   return (
     <div
       style={{
         width: 300,
-        padding: 16,
         borderRadius: 8,
         color: "#fff",
       }}
     >
-      <h4 style={{ color: "#fff" }}>Labels</h4>
-      <Input
-        placeholder="Search labels..."
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        style={{ marginBottom: 16 }}
-      />
-
-      <List
-        dataSource={filteredLabels}
-        renderItem={(label) => (
-          <List.Item style={{ padding: "8px 0" }}>
-            <Checkbox
-              checked={selectedLabels.includes(label.id)}
-              onChange={() => toggleLabel(label.id)}
-              style={{
-                width: 20,
-                marginRight: 8,
-              }}
-            />
+      {isAddFlag ? (
+        <>
+          <Title style={{ marginTop: 0, fontSize: "16px" }}>Create Label</Title>
+          <div
+            style={{ minHeight: "30px", background: "black", padding: "20px" }}
+          >
             <div
               style={{
-                backgroundColor: label.color,
-                flex: 1,
-                height: 28,
-                borderRadius: 4,
-                display: "flex",
-                alignItems: "center",
-                padding: "0 8px",
-                color: "#fff",
+                background: `${selectedColor}`,
+                padding: "4px",
+                borderRadius: "4px",
               }}
             >
-              {label.name || <span style={{ flex: 1 }} />}
+              {title}
             </div>
-            <Tooltip title="Edit label">
+          </div>
+          <Input
+            className="form-input"
+            placeholder="Enter label title"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            style={{ marginTop: 12, marginBottom: 12, borderRadius: "4px" }}
+          />
+          <ColorPicker value={selectedColor} onChange={setSelectedColor} />
+          <div style={{ display: "flex", gap: "8px" }}>
+            {selectedLabelId ? (
               <Button
-                icon={<EditOutlined />}
-                size="small"
-                style={{ marginLeft: 8 }}
-              />
-            </Tooltip>
-          </List.Item>
-        )}
-      />
-
-      <Button block style={{ marginTop: 16 }}>
-        Create a new label
-      </Button>
-      <Button block type="default" style={{ marginTop: 8 }}>
-        Enable colorblind friendly mode
-      </Button>
+                className="button small-btn"
+                block
+                danger
+                style={{ marginTop: 16 }}
+                onClick={handleDeleteLabel}
+              >
+                Delete
+              </Button>
+            ) : (
+              <Button
+                className="button small-btn"
+                block
+                style={{ marginTop: 16 }}
+                onClick={() => {
+                  setSelectedLabelId("");
+                  setTitle("");
+                  setSelectedColor("black");
+                  setSearch("");
+                  setIsAddFlag(false);
+                }}
+              >
+                Cancel
+              </Button>
+            )}
+            <Button
+              className="button small-btn"
+              type="primary"
+              block
+              disabled={!title}
+              style={{ marginTop: 16 }}
+              onClick={handleCreateUpdateLabel}
+            >
+              {selectedLabelId ? "Update" : "Create"}
+            </Button>
+          </div>
+        </>
+      ) : (
+        <>
+          <Title style={{ marginTop: 0, fontSize: "16px" }}>Labels</Title>
+          <Input
+            className="form-input"
+            placeholder="Search labels..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            style={{ marginBottom: 12, borderRadius: "4px" }}
+          />
+          <List
+            style={{ minHeight: "250px", overflowX: "auto" }}
+            dataSource={filteredLabels}
+            renderItem={(label) => (
+              <List.Item
+                style={{ padding: "4px 0", borderBlockEnd: "initial" }}
+              >
+                <Checkbox
+                  checked={selectedTaskLabels
+                    .map((label) => label._id)
+                    .includes(label._id)}
+                  style={{
+                    width: 20,
+                    marginRight: 8,
+                  }}
+                  onChange={() => toggleLabel(label._id)}
+                />
+                <div
+                  style={{
+                    backgroundColor: label.backgroundColor,
+                    flex: 1,
+                    height: 30,
+                    borderRadius: 4,
+                    display: "flex",
+                    alignItems: "center",
+                    padding: "0 8px",
+                    color: label.textColor,
+                  }}
+                >
+                  {label.name || <span style={{ flex: 1 }} />}
+                </div>
+                <Button
+                  className="button small-btn"
+                  icon={<EditOutlined />}
+                  size="small"
+                  style={{ marginLeft: 8 }}
+                  onClick={() => {
+                    setSelectedLabelId(label._id);
+                    setTitle(label.name);
+                    setSelectedColor(label.backgroundColor);
+                    setIsAddFlag(true);
+                  }}
+                />
+              </List.Item>
+            )}
+          />
+          <Button
+            className="button small-btn"
+            block
+            style={{ marginTop: 16 }}
+            onClick={() => {
+              setSelectedLabelId("");
+              setTitle("");
+              setSelectedColor("black");
+              setSearch("");
+              setIsAddFlag(true);
+            }}
+          >
+            Create a new label
+          </Button>
+        </>
+      )}
     </div>
   );
 };

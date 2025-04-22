@@ -50,7 +50,7 @@ const CustomUploadItem: React.FC<CustomUploadItemProps> = ({
     document.body.removeChild(link);
 
     if (file.originFileObj instanceof File && !file.url && !file.preview) {
-      setTimeout(() => URL.revokeObjectURL(downloadUrl!), 1000);
+      setTimeout(() => URL.revokeObjectURL(downloadUrl!), 100);
     }
   };
 

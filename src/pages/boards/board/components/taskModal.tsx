@@ -7,13 +7,15 @@ import {
   Image,
   Upload,
   Spin,
-  Radio,
   Popover,
   Tooltip,
   List,
   Select,
   Row,
   Col,
+  Dropdown,
+  Menu,
+  Checkbox,
 } from "antd";
 import {
   PlusOutlined,
@@ -28,9 +30,14 @@ import {
   FlagOutlined,
   WarningOutlined,
   FileTextOutlined,
+  FilePdfOutlined,
+  FileOutlined,
+  RiseOutlined,
+  DeleteOutlined,
+  DownloadOutlined,
 } from "@ant-design/icons";
 import TaskDescriptionEditor from "../../../../components/ui/Editor";
-import type { RadioChangeEvent, UploadFile } from "antd";
+import type { UploadFile } from "antd";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../../../store";
 import { ITask, updateTask } from "../../../../store/slices/taskSlice";
@@ -48,28 +55,27 @@ import {
 import { RcFile } from "antd/es/upload";
 import { Input } from "../../../../components";
 import CommentCard from "./commentList";
+import {
+  deleteTaskAttachment,
+  getTaskAttachmentById,
+  IAttachment,
+} from "../../../../store/slices/taskAttachmentSlice";
+import { handleDownload } from "../../../../services/downloadService";
+import {
+  addMemberInTask,
+  getLabelsByTaskId,
+  getMembersByTaskId,
+  removeMemberFromTask,
+} from "../../../../store/slices/boardSlice";
 
 const { Text } = Typography;
 const { Option } = Select;
 
 interface TaskModalProps {
+  boardId: string;
   visible: boolean;
   onClose: () => void;
 }
-
-interface Member {
-  id: number;
-  name: string;
-  initials: string;
-}
-
-const initialMembers: Member[] = [
-  { id: 1, name: "Dhruvik Patel", initials: "DP" },
-  { id: 2, name: "Test User", initials: "TU" },
-  { id: 3, name: "User Test", initials: "UT" },
-  { id: 4, name: "Test User1", initials: "T1" },
-  { id: 5, name: "User Test1", initials: "U1" },
-];
 
 const priorityMeta: Record<
   Priority,
@@ -132,6 +138,12 @@ const PrioritySelect = ({
   </Select>
 );
 
+export const toNativeFile = (rcFile: RcFile): File =>
+  new File([rcFile], rcFile.name, {
+    type: rcFile.type,
+    lastModified: rcFile.lastModified,
+  });
+
 export const getFileTypeFromName = (fileName: string): string => {
   const ext = fileName.split(".").pop()?.toLowerCase();
   if (!ext) return "";
@@ -142,79 +154,261 @@ export const getFileTypeFromName = (fileName: string): string => {
   return "application/octet-stream";
 };
 
-const TaskModal: React.FC<TaskModalProps> = ({ visible, onClose }) => {
+const renderPreview = (taskAttach: IAttachment) => {
+  const fileType = getFileTypeFromName(taskAttach.imageName);
+
+  if (fileType.startsWith("image/")) {
+    return (
+      <img
+        src={taskAttach.url}
+        alt={taskAttach.imageName}
+        style={{ width: 40, height: 40, objectFit: "cover", borderRadius: 4 }}
+      />
+    );
+  } else if (fileType === "application/pdf") {
+    return <FilePdfOutlined style={{ fontSize: 24, color: "#f5222d" }} />;
+  } else {
+    return <FileOutlined style={{ fontSize: 24 }} />;
+  }
+};
+
+const isPreviewable = (fileName: string): boolean => {
+  const ext = fileName.split(".").pop()?.toLowerCase();
+  return [
+    "jpg",
+    "jpeg",
+    "png",
+    "gif",
+    "bmp",
+    "webp",
+    "pdf",
+    "mp4",
+    "webm",
+    "ogg",
+    "jfif",
+  ].includes(ext || "");
+};
+
+const handleOpenFile = (fileUrl: string, fileName: string) => {
+  if (isPreviewable(fileName)) {
+    // Open in new tab for previewable files
+    window.open(fileUrl, "_blank");
+  } else {
+    handleDownload(fileUrl, fileName);
+  }
+};
+
+const TaskModal: React.FC<TaskModalProps> = ({ boardId, visible, onClose }) => {
   const dispatch = useDispatch<AppDispatch>();
   const { currentUser } = useSelector((state: RootState) => state.user);
+
   const { selectedTask, loading } = useSelector(
     (state: RootState) => state.task
   );
   const { taskComments, taskLoading } = useSelector(
     (state: RootState) => state.taskComment
   );
+  const { taskAttachments, taskAttachmentLoading } = useSelector(
+    (state: RootState) => state.taskAttachment
+  );
+  const { selectedTaskLabels, selectedTaskMembers, invitedMemberList } =
+    useSelector((state: RootState) => state.board);
   const [isEditTitle, setIsEditTitle] = useState(false);
   const [msg, setMsg] = useState("");
   const [taskDetails, setTaskDetails] = useState<ITask | null>(null);
   const [fileList, setFileList] = useState<UploadFile[]>([]);
-  const [members, setMembers] = useState<Member[]>(initialMembers);
   const [memberVisible, setMemberVisible] = useState(false);
   const [labelVisible, setLabelVisible] = useState(false);
   const [showEditor, setShowEditor] = useState(false);
   const [priority, setPriority] = useState<Priority>(Priority.MEDIUM);
+  const [showAll, setShowAll] = useState(false);
+  const [isCompleted, setIsCompleted] = useState(
+    taskDetails?.status === TaskStatus.COMPLETED
+  );
 
-  const handleRemove = (id: number) => {
-    setMembers((prev) => prev.filter((member) => member.id !== id));
+  const handleAddMemberToTask = (member_id: string) => {
+    if (selectedTask) {
+      dispatch(
+        addMemberInTask({
+          task_id: selectedTask._id,
+          member_id,
+        })
+      );
+    }
+  };
+
+  const handleRemove = (id: string) => {
+    dispatch(removeMemberFromTask(id));
+  };
+
+  const AttachmentActions = ({ attachment }: { attachment: IAttachment }) => {
+    const menu = (
+      <Menu
+        onClick={({ key }) => handleMenuClick(key, attachment)}
+        items={[
+          {
+            key: "download",
+            label: "Download",
+            icon: <DownloadOutlined />,
+          },
+          {
+            key: "delete",
+            label: "Delete",
+            icon: <DeleteOutlined />,
+          },
+        ]}
+      />
+    );
+
+    return (
+      <Dropdown overlay={menu} trigger={["click"]} placement="bottomRight">
+        <Button type="text" icon={<EllipsisOutlined />} />
+      </Dropdown>
+    );
+  };
+
+  const handleMenuClick = (key: string, attachment: IAttachment) => {
+    if (key === "download") {
+      handleDownload(attachment.url, attachment.imageName);
+    } else if (key === "delete") {
+      dispatch(
+        deleteTaskAttachment({
+          _id: attachment._id,
+          taskId: selectedTask?._id ?? "",
+        })
+      );
+    }
   };
 
   const memberContent = (
     <div style={{ width: 250 }}>
       <div style={{ fontWeight: 600, marginBottom: 8 }}>Members</div>
-      <Search placeholder="Search members" />
-      <div
-        style={{
-          fontSize: 12,
-          fontWeight: 600,
-          color: "#ccc",
-          marginBottom: 4,
-        }}
-      >
-        Card members
-      </div>
-      <List
-        dataSource={members}
-        renderItem={(member) => (
-          <List.Item
+      <Search
+        prefixCls="form-input form-input-small"
+        placeholder="Search members"
+      />
+      {selectedTaskMembers?.length > 0 ? (
+        <>
+          <div
             style={{
-              padding: "6px 10px",
-              borderRadius: 4,
-              marginBottom: 4,
-              color: "inherit",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
+              fontSize: 12,
+              fontWeight: 600,
+              color: "#ccc",
+              marginTop: 10,
             }}
           >
-            <div style={{ display: "flex", alignItems: "center" }}>
-              <Avatar style={{ backgroundColor: "#f56a00", marginRight: 8 }}>
-                {member.initials}
-              </Avatar>
-              <span style={{ color: "inherit" }}>{member.name}</span>
-            </div>
-            <Button
-              type="text"
-              icon={<CloseOutlined />}
-              size="small"
-              onClick={() => handleRemove(member.id)}
-              style={{ color: "inherit" }}
-            />
-          </List.Item>
-        )}
-      />
+            Card members
+          </div>
+          <List
+            dataSource={invitedMemberList.filter(
+              (addedMember) =>
+                !selectedTaskMembers.some(
+                  (member) => member._id !== addedMember.memberId._id
+                )
+            )}
+            renderItem={(member) => (
+              <List.Item
+                style={{
+                  padding: "6px 0px",
+                  borderRadius: 4,
+                  marginBottom: 4,
+                  color: "inherit",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                }}
+              >
+                <div style={{ display: "flex", alignItems: "center" }}>
+                  <Avatar
+                    style={{ backgroundColor: "#f56a00", marginRight: 8 }}
+                  >
+                    {member.memberId.first_name[0].toUpperCase() +
+                      member.memberId.last_name[0].toUpperCase()}
+                  </Avatar>
+                  <span style={{ color: "inherit" }}>
+                    {member.memberId.first_name +
+                      " " +
+                      member.memberId.last_name}
+                  </span>
+                </div>
+                <Button
+                  type="text"
+                  icon={<CloseOutlined />}
+                  size="small"
+                  onClick={() => handleRemove(member._id)}
+                  style={{ color: "inherit" }}
+                />
+              </List.Item>
+            )}
+          />
+        </>
+      ) : null}
+
+      {invitedMemberList.filter(
+        (addedMember) =>
+          !selectedTaskMembers.some(
+            (member) => member._id === addedMember.memberId._id
+          )
+      ).length > 0 ? (
+        <>
+          <div
+            style={{
+              fontSize: 12,
+              fontWeight: 600,
+              color: "#ccc",
+              marginTop: 10,
+            }}
+          >
+            Board members
+          </div>
+          <List
+            dataSource={invitedMemberList.filter(
+              (addedMember) =>
+                !selectedTaskMembers.some(
+                  (member) => member._id !== addedMember.memberId._id
+                )
+            )}
+            renderItem={(member) => (
+              <List.Item
+                style={{
+                  padding: "6px 0px",
+                  borderRadius: 4,
+                  marginBottom: 4,
+                  color: "inherit",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  cursor: "pointer",
+                }}
+                onClick={() => handleAddMemberToTask(member.memberId._id)}
+              >
+                <div style={{ display: "flex", alignItems: "center" }}>
+                  <Avatar
+                    style={{ backgroundColor: "#f56a00", marginRight: 8 }}
+                  >
+                    {member.memberId.first_name[0].toUpperCase() +
+                      member.memberId.last_name[0].toUpperCase()}
+                  </Avatar>
+                  <span style={{ color: "inherit" }}>
+                    {member.memberId.first_name +
+                      " " +
+                      member.memberId.last_name}
+                  </span>
+                </div>
+              </List.Item>
+            )}
+          />
+        </>
+      ) : null}
     </div>
   );
 
   useEffect(() => {
     if (selectedTask && visible) {
+      dispatch(getMembersByTaskId(selectedTask?._id));
       dispatch(getTaskCommentById(selectedTask?._id));
+      dispatch(getTaskAttachmentById(selectedTask._id));
+      dispatch(getLabelsByTaskId(selectedTask?._id));
       setTaskDetails((prevState) => {
         if (!selectedTask?.status_list_id?._id) return prevState;
 
@@ -231,7 +425,11 @@ const TaskModal: React.FC<TaskModalProps> = ({ visible, onClose }) => {
         };
       });
     }
-  }, [selectedTask, visible]);
+  }, [selectedTask, visible, dispatch]);
+
+  useEffect(() => {
+    setIsCompleted(taskDetails?.status === TaskStatus.COMPLETED);
+  }, [taskDetails]);
 
   const updateTaskName = (taskName: string) =>
     setTaskDetails((prevState) => {
@@ -247,12 +445,6 @@ const TaskModal: React.FC<TaskModalProps> = ({ visible, onClose }) => {
       sendMessage();
     }
   };
-
-  const toNativeFile = (rcFile: RcFile): File =>
-    new File([rcFile], rcFile.name, {
-      type: rcFile.type,
-      lastModified: rcFile.lastModified,
-    });
 
   const sendMessage = () => {
     if (msg.trim()) {
@@ -292,14 +484,14 @@ const TaskModal: React.FC<TaskModalProps> = ({ visible, onClose }) => {
     setShowEditor(false);
   };
 
-  const handleChange = (e: RadioChangeEvent) => {
-    const isChecked = e.target.checked;
+  const handleChange = () => {
     dispatch(
       updateTask({
         taskId: taskDetails?._id ?? "",
-        status: isChecked ? TaskStatus.COMPLETED : TaskStatus.INCOMPLETE,
+        status: !isCompleted ? TaskStatus.COMPLETED : TaskStatus.INCOMPLETE,
       })
     );
+    setIsCompleted((prev) => !prev);
   };
 
   const taskCommentDelete = (commentId: string) =>
@@ -347,15 +539,29 @@ const TaskModal: React.FC<TaskModalProps> = ({ visible, onClose }) => {
         setMemberVisible(false);
         setLabelVisible(false);
       }}
+      onClose={() => {
+        onClose();
+        setTaskDetails(null);
+        setFileList([]);
+        setMsg("");
+        setIsEditTitle(false);
+        setShowEditor(false);
+        setMemberVisible(false);
+        setLabelVisible(false);
+      }}
       footer={null}
       className="task-modal"
       width={768}
     >
-      <Spin spinning={loading || taskLoading} fullscreen />
+      <Spin
+        spinning={loading || taskLoading || taskAttachmentLoading}
+        fullscreen
+      />
       <div className="task-header">
-        <Radio
-          checked={taskDetails?.status === TaskStatus.COMPLETED}
+        <Checkbox
+          checked={isCompleted}
           onChange={handleChange}
+          prefixCls="status-checkbox"
         />
         {isEditTitle ? (
           <Input
@@ -406,14 +612,17 @@ const TaskModal: React.FC<TaskModalProps> = ({ visible, onClose }) => {
             }}
           >
             <Avatar.Group max={{ count: 3 }}>
-              {members?.map((member, index) => {
-                const user = member.initials;
+              {selectedTaskMembers?.map((member, index) => {
+                const user =
+                  member.first_name[0].toUpperCase() +
+                  member.last_name[0].toUpperCase();
 
                 return (
-                  <Tooltip key={member?.name || index} title={member.name}>
-                    <Avatar src={user} style={{ background: "#177ddc" }}>
-                      {user}
-                    </Avatar>
+                  <Tooltip
+                    key={member.email || index}
+                    title={member.first_name + " " + member.last_name}
+                  >
+                    <Avatar style={{ background: "#177ddc" }}>{user}</Avatar>
                   </Tooltip>
                 );
               })}
@@ -472,11 +681,29 @@ const TaskModal: React.FC<TaskModalProps> = ({ visible, onClose }) => {
               display: "flex",
               alignItems: "center",
               gap: 4,
-              marginTop: "0px",
+              marginTop: "4px",
             }}
           >
+            {selectedTaskLabels?.map((label) => (
+              <div
+                style={{
+                  background: label.backgroundColor,
+                  color: label.textColor,
+                  padding: "4px 8px",
+                  width: "max-content",
+                  borderRadius: "4px",
+                }}
+              >
+                {label.name}
+              </div>
+            ))}
             <Popover
-              content={<LabelPopup />}
+              content={
+                <LabelPopup
+                  boardId={boardId}
+                  selectedTaskId={selectedTask ? selectedTask._id : ""}
+                />
+              }
               title={null}
               trigger="click"
               open={labelVisible}
@@ -489,7 +716,6 @@ const TaskModal: React.FC<TaskModalProps> = ({ visible, onClose }) => {
                 className="button small-btn"
                 style={{
                   fontSize: "12px",
-                  marginTop: 4,
                 }}
               >
                 Add Label
@@ -531,26 +757,48 @@ const TaskModal: React.FC<TaskModalProps> = ({ visible, onClose }) => {
                 <FileUploadModal />
               </div>
               <div className="task-attachments">
-                <div className="attachment-item">
-                  <div className="attachment-icon">JFIF</div>
-                  <div className="attachment-info">
-                    <div>userimage.jfif</div>
-                    <Text type="secondary">Added Apr 16, 2025, 6:02 PM</Text>
-                  </div>
-                  <div className="attachment-actions">
-                    <Button type="text" icon={<EllipsisOutlined />} />
-                  </div>
-                </div>
-                <div className="attachment-item">
-                  <div className="attachment-icon">PDF</div>
-                  <div className="attachment-info">
-                    <div>dummy.pdf</div>
-                    <Text type="secondary">Added Apr 16, 2025, 6:01 PM</Text>
-                  </div>
-                  <div className="attachment-actions">
-                    <Button type="text" icon={<EllipsisOutlined />} />
-                  </div>
-                </div>
+                {taskAttachments.length > 0 && (
+                  <>
+                    {taskAttachments
+                      .slice(0, showAll ? taskAttachments.length : 3)
+                      .map((taskAttach) => (
+                        <div className="attachment-item">
+                          <div className="attachment-icon">
+                            {renderPreview(taskAttach)}
+                          </div>
+                          <div className="attachment-info">
+                            <div>{taskAttach.imageName}</div>
+                            <Text type="secondary">Added</Text>
+                          </div>
+                          <div className="attachment-actions">
+                            <RiseOutlined
+                              onClick={() =>
+                                handleOpenFile(
+                                  taskAttach.url,
+                                  taskAttach.imageName
+                                )
+                              }
+                            />
+                            <AttachmentActions attachment={taskAttach} />
+                          </div>
+                        </div>
+                      ))}
+
+                    {taskAttachments.length > 3 && (
+                      <Button
+                        type="primary"
+                        style={{ width: "fit-content" }}
+                        onClick={() => setShowAll(!showAll)}
+                      >
+                        {!showAll
+                          ? `View all attachments (${
+                              taskAttachments.length - 3
+                            } hidden)`
+                          : "Show fewer attachments"}
+                      </Button>
+                    )}
+                  </>
+                )}
               </div>
             </div>
 

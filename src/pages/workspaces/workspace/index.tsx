@@ -168,6 +168,12 @@ const WorkspaceDetail: React.FC = () => {
         "This action cannot be undone. All board data will be permanently deleted.",
       okText: "Delete",
       okType: "danger",
+      okButtonProps: {
+        className: "button",
+      },
+      cancelButtonProps: {
+        className: "button",
+      },
       onOk() {
         dispatch(deleteBoard(boardId));
       },

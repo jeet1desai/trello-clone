@@ -167,7 +167,7 @@
 .user-avatar {
   background: var(--primary-color);
   cursor: pointer;
-  width: 50px;
+  width: 54px;
   height: 38px;
   display: flex;
   align-items: center;
