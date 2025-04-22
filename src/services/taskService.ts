@@ -23,18 +23,17 @@ export const taskService = {
     title?: string,
     status_list_id?: string,
     newPosition?: number,
-    status?: string
+    status?: string,
+    description?: string
   ) {
-    const response = await axiosInstance.put(
-      `${API_URL}/task/update-task`,
-      {
-        taskId,
-        title,
-        status_list_id,
-        newPosition,
-        status,
-      }
-    );
+    const response = await axiosInstance.put(`${API_URL}/task/update-task`, {
+      taskId,
+      title,
+      status_list_id,
+      newPosition,
+      status,
+      description,
+    });
     return response.data;
   },
 

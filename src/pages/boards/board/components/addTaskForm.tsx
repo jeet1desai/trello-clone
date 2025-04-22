@@ -80,6 +80,7 @@ const AddTaskForm: React.FC<AddTaskFormProps> = ({
           <Input
             className="form-input"
             placeholder="Enter task title..."
+            autoFocus
             size="middle"
             autoComplete="off"
             style={{ borderRadius: "4px" }}

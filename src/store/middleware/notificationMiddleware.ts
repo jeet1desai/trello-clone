@@ -1,23 +1,35 @@
-import { isRejectedWithValue, isFulfilled } from "@reduxjs/toolkit";
+import {
+  Dispatch,
+  Middleware,
+  MiddlewareAPI,
+  UnknownAction,
+  isFulfilled,
+  isRejectedWithValue,
+} from "@reduxjs/toolkit";
+import { RootState } from "..";
 import { openNotification } from "../../services/notificationService";
 
-export const notificationMiddleware =
-  (storeAPI: any) => (next: any) => (action: any) => {
+export const notificationMiddleware: Middleware<
+  {},
+  RootState,
+  Dispatch<UnknownAction>
+> =
+  (storeAPI: MiddlewareAPI<Dispatch<UnknownAction>, RootState>) =>
+  (next: any) =>
+  (action: any) => {
     const result = next(action);
 
     const fullState = storeAPI.getState();
     const [sliceName] = action.type.split("/");
-    const sliceState = fullState[sliceName];
+    const sliceState = fullState[sliceName as keyof RootState];
 
-    if (sliceName.includes("status") || sliceName.includes("task")) {
-      return result;
-    }
+    if (sliceName.includes("status") || sliceName.includes("task")) return;
 
     if (isRejectedWithValue(action)) {
       const errorMessage =
         typeof action.payload === "string"
           ? action.payload
-          : sliceState?.error || "Something went wrong.";
+          : sliceState?.error ?? "Something went wrong.";
 
       openNotification({
         type: "error",
@@ -31,7 +43,8 @@ export const notificationMiddleware =
       const successMessage =
         typeof action.payload === "string"
           ? action.payload
-          : sliceState?.success || "Action performed successfully.";
+          : sliceState?.success ?? "Action performed successfully.";
+
       openNotification({
         type: "success",
         message: successMessage,

@@ -312,6 +312,12 @@ a:hover {
   margin-bottom: 20px !important;
 }
 
+/* Radio */
+.ant-radio-inner {
+  border-color: #4bce97 !important;
+  background-color: #4bce97 !important;
+}
+
 /* Notification */
 .ant-notification-notice-wrapper {
   border-radius: 4px !important;
