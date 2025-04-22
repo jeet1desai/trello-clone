@@ -10,6 +10,10 @@ import {
 import { RcFile } from "antd/es/upload";
 import type { UploadRequestOption as RcCustomRequestOptions } from "rc-upload/lib/interface";
 import CustomUploadItem from "./uploadItems";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "../../../../store";
+import { addNewTaskAttachment } from "../../../../store/slices/taskAttachmentSlice";
+import { toNativeFile } from "./taskModal";
 
 const allowedTypes = [
   "image/jpeg",
@@ -42,6 +46,9 @@ const getBase64 = (file: RcFile): Promise<string> =>
   });
 
 const FileUploadModal = () => {
+  const dispatch = useDispatch<AppDispatch>();
+  const { selectedTask } = useSelector((state: RootState) => state.task);
+
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [previewOpen, setPreviewOpen] = useState<boolean>(false);
   const [previewTitle, setPreviewTitle] = useState<string>("");
@@ -133,7 +140,7 @@ const FileUploadModal = () => {
     const { onSuccess, onError, file } = options;
 
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      await new Promise((resolve) => setTimeout(resolve, 100));
       if (onSuccess) onSuccess("ok", file);
     } catch (err) {
       if (onError) onError(err as Error);
@@ -173,6 +180,34 @@ const FileUploadModal = () => {
     return <FilePdfOutlined className={iconClass} />;
   };
 
+  const handleClose = () => {
+    setShowUploadModal(false);
+    setFileList([]);
+  };
+
+  const handleAdd = () => {
+    const isUploading = fileList.some((file) => file.status === "uploading");
+
+    if (isUploading) {
+      setUploadFileError("Please wait until all files are uploaded.");
+      return;
+    }
+
+    const files: File[] = fileList
+      .map((f) => f.originFileObj)
+      .filter((f): f is RcFile => !!f)
+      .map(toNativeFile); // ✅ native File[]
+    if (selectedTask?._id) {
+      dispatch(
+        addNewTaskAttachment({
+          taskId: selectedTask?._id ?? "",
+          attachments: files,
+        })
+      );
+      handleClose();
+    }
+  };
+
   return (
     <>
       <Button
@@ -187,7 +222,7 @@ const FileUploadModal = () => {
       <Modal
         title="Upload Attachments"
         open={showUploadModal}
-        onCancel={() => setShowUploadModal(false)}
+        onCancel={() => handleClose()}
         footer={null}
         width={500}
       >
@@ -203,6 +238,11 @@ const FileUploadModal = () => {
             onChange={handleChange}
             customRequest={customUpload}
             onPreview={handlePreview}
+            multiple
+            showUploadList={{
+              showPreviewIcon: false,
+              showRemoveIcon: false,
+            }}
             itemRender={(originNode, file, fileList, { remove }) => (
               <CustomUploadItem
                 originNode={originNode}
@@ -228,15 +268,12 @@ const FileUploadModal = () => {
         <div className="attachment-action-btn">
           <Button
             className="button small-btn"
-            onClick={() => setShowUploadModal(false)}
+            onClick={() => handleAdd()}
             type="primary"
           >
             Save
           </Button>
-          <Button
-            className="button small-btn"
-            onClick={() => setShowUploadModal(false)}
-          >
+          <Button className="button small-btn" onClick={() => handleClose()}>
             Cancel
           </Button>
         </div>
