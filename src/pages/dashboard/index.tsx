@@ -5,7 +5,6 @@ import {
   ProjectOutlined,
   TeamOutlined,
   CheckCircleOutlined,
-  ClockCircleOutlined,
 } from "@ant-design/icons";
 import { RootState, AppDispatch } from "../../store";
 import {
@@ -16,17 +15,28 @@ import {
 } from "../../components";
 import "../../layout/styles/Dashboard.css";
 import { getAllNotification } from "../../store/slices/notificationSlice";
+import { getDashboardAnalytics, getDashboardCount } from "../../store/slices/dashboardSlice";
 
 const { Title, Paragraph } = Typography;
 
 const Dashboard: React.FC = () => {
-  const totalTasks = 35;
-  const completedTasks = 15;
+  const { dashboardCount } = useSelector((state: RootState) => state.dashboard);
   const { currentUser } = useSelector((state: RootState) => state.user);
-  const { workspaces } = useSelector((state: RootState) => state.workspace);
-  const { boards } = useSelector((state: RootState) => state.board);
 
   const dispatch = useDispatch<AppDispatch>();
+
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        await dispatch(getDashboardCount());
+        await dispatch(getDashboardAnalytics());
+      } catch (error) {
+        console.error('Error fetching dashboard data:', error);
+      }
+    };
+
+    fetchDashboardData();
+  }, [dispatch]);
 
   useEffect(() => {
     (async () => await dispatch(getAllNotification()))();
@@ -41,7 +51,7 @@ const Dashboard: React.FC = () => {
       <Card className="dashboard-welcome">
         <div className="dashboard-welcome-content">
           <Title level={2} className="welcome-title">
-            Welcome back, {currentUser?.first_name || "User"}!
+            Welcome, {currentUser?.first_name || "User"}!
           </Title>
           <Paragraph className="welcome-subtitle">
             Here's what's happening with your projects today.
@@ -52,40 +62,28 @@ const Dashboard: React.FC = () => {
       {/* Stats Cards */}
       <div className="dashboard-section">
         <Row gutter={[16, 16]}>
-          <Col xs={24} sm={12} lg={6}>
+          <Col xs={24} sm={8} lg={8}>
             <StatCard
               title="Total Workspaces"
-              value={workspaces.length}
+              value={dashboardCount?.workspace ?? 0}
               icon={<TeamOutlined className="font-24" />}
               color="#1890ff"
-              trend={{ value: 12, type: "up" }}
             />
           </Col>
-          <Col xs={24} sm={12} lg={6}>
+          <Col xs={24} sm={8} lg={8}>
             <StatCard
               title="Total Boards"
-              value={boards.length}
+              value={dashboardCount?.board ?? 0}
               icon={<ProjectOutlined className="font-24" />}
               color="#52c41a"
-              trend={{ value: 5, type: "up" }}
             />
           </Col>
-          <Col xs={24} sm={12} lg={6}>
+          <Col xs={24} sm={8} lg={8}>
             <StatCard
               title="Completed Tasks"
-              value={`${completedTasks}/${totalTasks}`}
+              value={`${dashboardCount?.task ?? 0}/${dashboardCount?.totalTask ?? 0}`}
               icon={<CheckCircleOutlined className="font-24" />}
               color="#fa8c16"
-              trend={{ value: 8, type: "up" }}
-            />
-          </Col>
-          <Col xs={24} sm={12} lg={6}>
-            <StatCard
-              title="Tasks Due Soon"
-              value={7}
-              icon={<ClockCircleOutlined className="font-24" />}
-              color="#eb2f96"
-              trend={{ value: 2, type: "down" }}
             />
           </Col>
         </Row>
@@ -107,8 +105,6 @@ const Dashboard: React.FC = () => {
             <Segmented
               options={[
                 { label: "Week", value: "week" },
-                { label: "Month", value: "month" },
-                { label: "Year", value: "year" },
               ]}
               value={timeframe}
               onChange={setTimeframe}
