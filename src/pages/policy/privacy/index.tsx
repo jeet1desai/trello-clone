@@ -127,7 +127,15 @@ const PrivacyPolicy = () => {
   };
   return (
     <Layout style={{ minHeight: "100vh" }}>
-      <Sider width={300} style={{ background: "#fff", padding: "24px" }}>
+      <Sider
+        width={300}
+        breakpoint="lg"
+        collapsedWidth="0"
+        onBreakpoint={(broken) => {
+          console.log("Sider collapsed due to breakpoint:", broken);
+        }}
+        style={{ background: "#fff", padding: "24px" }}
+      >
         <Title level={4}>Privacy Policy</Title>
         <Menu mode="inline" selectedKeys={[activeKey]} onClick={handleClick}>
           {sections.map((section) => (
@@ -137,7 +145,7 @@ const PrivacyPolicy = () => {
           ))}
         </Menu>
       </Sider>
-      <Layout style={{ padding: "24px" }}>
+      <Layout style={{ padding: "24px", overflowX: "hidden" }}>
         <Title level={2} style={{ marginTop: "-10px", marginBottom: "0px" }}>
           Privacy Policy
         </Title>
