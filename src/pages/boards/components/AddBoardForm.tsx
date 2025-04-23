@@ -34,7 +34,7 @@ const AddBoardForm = ({
       <Form.Item
         label={
           <span className="input-label">
-            Board Name <span style={{ color: "red" }}>*</span>
+            Board Name <span className="require-mark">*</span>
           </span>
         }
         name="name"
@@ -45,7 +45,7 @@ const AddBoardForm = ({
       <Form.Item
         label={
           <span className="input-label">
-            Description <span style={{ color: "red" }}>*</span>
+            Description <span className="require-mark">*</span>
           </span>
         }
         name="description"
@@ -53,17 +53,16 @@ const AddBoardForm = ({
       >
         <Input.TextArea
           placeholder="Enter board description"
-          className="form-input"
+          className="form-input description"
           rows={4}
           showCount
           maxLength={100}
-          style={{ height: 100, resize: "none" }}
         />
       </Form.Item>
       <Form.Item
         label={
           <span className="input-label">
-            Workspace <span style={{ color: "red" }}>*</span>
+            Workspace <span className="require-mark">*</span>
           </span>
         }
         name="workspace"

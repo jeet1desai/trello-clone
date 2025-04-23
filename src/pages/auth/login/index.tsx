@@ -67,7 +67,7 @@ const Login: React.FC = () => {
           <Form.Item
             label={
               <span className="input-label">
-                Email <span style={{ color: "red" }}>*</span>
+                Email <span className="require-mark">*</span>
               </span>
             }
             name="email"
@@ -87,7 +87,7 @@ const Login: React.FC = () => {
           <Form.Item
             label={
               <span className="input-label">
-                Password <span style={{ color: "red" }}>*</span>
+                Password <span className="require-mark">*</span>
               </span>
             }
             name="password"

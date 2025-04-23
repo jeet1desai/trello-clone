@@ -67,6 +67,7 @@ import {
   getMembersByTaskId,
   removeMemberFromTask,
 } from "../../../../store/slices/boardSlice";
+import { getRandomColor } from "../../../../utils";
 
 const { Text } = Typography;
 const { Option } = Select;
@@ -94,7 +95,7 @@ const priorityMeta: Record<
     description: "High priority – important tasks",
   },
   [Priority.CRITICAL]: {
-    icon: <WarningOutlined style={{ color: "red" }} />,
+    icon: <WarningOutlined className="require-mark" />,
     description: "Critical – requires immediate attention",
   },
 };
@@ -238,7 +239,14 @@ const TaskModal: React.FC<TaskModalProps> = ({ boardId, visible, onClose }) => {
   };
 
   const handleRemove = (id: string) => {
-    dispatch(removeMemberFromTask(id));
+    if (selectedTask) {
+      dispatch(
+        removeMemberFromTask({
+          taskId: selectedTask?._id,
+          memberId: id,
+        })
+      );
+    }
   };
 
   const AttachmentActions = ({ attachment }: { attachment: IAttachment }) => {
@@ -255,6 +263,7 @@ const TaskModal: React.FC<TaskModalProps> = ({ boardId, visible, onClose }) => {
             key: "delete",
             label: "Delete",
             icon: <DeleteOutlined />,
+            danger: true,
           },
         ]}
       />
@@ -289,16 +298,7 @@ const TaskModal: React.FC<TaskModalProps> = ({ boardId, visible, onClose }) => {
       />
       {selectedTaskMembers?.length > 0 ? (
         <>
-          <div
-            style={{
-              fontSize: 12,
-              fontWeight: 600,
-              color: "#ccc",
-              marginTop: 10,
-            }}
-          >
-            Card members
-          </div>
+          <div className="member-title">Card members</div>
           <List
             dataSource={invitedMemberList.filter(
               (addedMember) =>
@@ -307,25 +307,18 @@ const TaskModal: React.FC<TaskModalProps> = ({ boardId, visible, onClose }) => {
                 )
             )}
             renderItem={(member) => (
-              <List.Item
-                style={{
-                  padding: "6px 0px",
-                  borderRadius: 4,
-                  marginBottom: 4,
-                  color: "inherit",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                }}
-              >
+              <List.Item className="members-list">
                 <div style={{ display: "flex", alignItems: "center" }}>
                   <Avatar
-                    style={{ backgroundColor: "#f56a00", marginRight: 8 }}
+                    style={{
+                      backgroundColor: getRandomColor(member.memberId._id),
+                      marginRight: 8,
+                    }}
                   >
                     {member.memberId.first_name[0].toUpperCase() +
                       member.memberId.last_name[0].toUpperCase()}
                   </Avatar>
-                  <span style={{ color: "inherit" }}>
+                  <span className="color-inherit">
                     {member.memberId.first_name +
                       " " +
                       member.memberId.last_name}
@@ -336,7 +329,7 @@ const TaskModal: React.FC<TaskModalProps> = ({ boardId, visible, onClose }) => {
                   icon={<CloseOutlined />}
                   size="small"
                   onClick={() => handleRemove(member._id)}
-                  style={{ color: "inherit" }}
+                  className="color-inherit"
                 />
               </List.Item>
             )}
@@ -351,16 +344,7 @@ const TaskModal: React.FC<TaskModalProps> = ({ boardId, visible, onClose }) => {
           )
       ).length > 0 ? (
         <>
-          <div
-            style={{
-              fontSize: 12,
-              fontWeight: 600,
-              color: "#ccc",
-              marginTop: 10,
-            }}
-          >
-            Board members
-          </div>
+          <div className="member-title">Board members</div>
           <List
             dataSource={invitedMemberList.filter(
               (addedMember) =>
@@ -370,26 +354,21 @@ const TaskModal: React.FC<TaskModalProps> = ({ boardId, visible, onClose }) => {
             )}
             renderItem={(member) => (
               <List.Item
-                style={{
-                  padding: "6px 0px",
-                  borderRadius: 4,
-                  marginBottom: 4,
-                  color: "inherit",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  cursor: "pointer",
-                }}
+                className="members-list"
+                style={{ cursor: "pointer" }}
                 onClick={() => handleAddMemberToTask(member.memberId._id)}
               >
                 <div style={{ display: "flex", alignItems: "center" }}>
                   <Avatar
-                    style={{ backgroundColor: "#f56a00", marginRight: 8 }}
+                    style={{
+                      backgroundColor: getRandomColor(member.memberId._id),
+                      marginRight: 8,
+                    }}
                   >
                     {member.memberId.first_name[0].toUpperCase() +
                       member.memberId.last_name[0].toUpperCase()}
                   </Avatar>
-                  <span style={{ color: "inherit" }}>
+                  <span className="color-inherit">
                     {member.memberId.first_name +
                       " " +
                       member.memberId.last_name}
@@ -622,7 +601,9 @@ const TaskModal: React.FC<TaskModalProps> = ({ boardId, visible, onClose }) => {
                     key={member.email || index}
                     title={member.first_name + " " + member.last_name}
                   >
-                    <Avatar style={{ background: "#177ddc" }}>{user}</Avatar>
+                    <Avatar style={{ background: getRandomColor(member._id) }}>
+                      {user}
+                    </Avatar>
                   </Tooltip>
                 );
               })}
@@ -687,14 +668,14 @@ const TaskModal: React.FC<TaskModalProps> = ({ boardId, visible, onClose }) => {
             {selectedTaskLabels?.map((label) => (
               <div
                 style={{
-                  background: label.backgroundColor,
-                  color: label.textColor,
+                  background: label?.backgroundColor,
+                  color: label?.textColor,
                   padding: "4px 8px",
                   width: "max-content",
                   borderRadius: "4px",
                 }}
               >
-                {label.name}
+                {label?.name}
               </div>
             ))}
             <Popover
@@ -729,7 +710,7 @@ const TaskModal: React.FC<TaskModalProps> = ({ boardId, visible, onClose }) => {
           <div style={{ flex: 1 }}>
             <div className="task-section">
               <div className="task-section-title-desc">
-                <FileTextOutlined color="inherit" />
+                <FileTextOutlined />
                 <Text strong>Description</Text>
               </div>
 
@@ -834,11 +815,11 @@ const TaskModal: React.FC<TaskModalProps> = ({ boardId, visible, onClose }) => {
                         />
                         <CloseCircleFilled
                           onClick={() => handleRemoveImage(file.uid)}
+                          className="require-mark"
                           style={{
                             position: "absolute",
                             top: -6,
                             right: -6,
-                            color: "red",
                             cursor: "pointer",
                             background: "white",
                             borderRadius: "50%",
@@ -920,38 +901,6 @@ const TaskModal: React.FC<TaskModalProps> = ({ boardId, visible, onClose }) => {
                   ))}
             </div>
           </div>
-
-          {/* <div style={{ width: "200px" }}>
-            <div className="sidebar-menu">
-              <div className="sidebar-section">
-                <Text className="sidebar-section-title">Add to card</Text>
-                {sidebarMenu.map((item) => (
-                  <Button
-                    key={item.key}
-                    icon={item.icon}
-                    block
-                    style={{ textAlign: "left" }}
-                  >
-                    {item.label}
-                  </Button>
-                ))}
-              </div>
-
-              <div className="sidebar-section">
-                <Text className="sidebar-section-title">Actions</Text>
-                {actionsMenu.map((item) => (
-                  <Button
-                    key={item.key}
-                    icon={item.icon}
-                    block
-                    style={{ textAlign: "left" }}
-                  >
-                    {item.label}
-                  </Button>
-                ))}
-              </div>
-            </div>
-          </div> */}
         </div>
       </div>
     </Modal>

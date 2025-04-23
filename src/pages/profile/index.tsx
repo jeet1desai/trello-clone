@@ -150,7 +150,7 @@ const ProfilePage = () => {
                 <Form.Item
                   label={
                     <span className="input-label">
-                      First Name <span style={{ color: "red" }}>*</span>
+                      First Name <span className="require-mark">*</span>
                     </span>
                   }
                   name="first_name"
@@ -178,7 +178,7 @@ const ProfilePage = () => {
                 <Form.Item
                   label={
                     <span className="input-label">
-                      Middle Name <span style={{ color: "red" }}>*</span>
+                      Middle Name <span className="require-mark">*</span>
                     </span>
                   }
                   name="middle_name"
@@ -206,7 +206,7 @@ const ProfilePage = () => {
                 <Form.Item
                   label={
                     <span className="input-label">
-                      Last Name <span style={{ color: "red" }}>*</span>
+                      Last Name <span className="require-mark">*</span>
                     </span>
                   }
                   name="last_name"
@@ -234,7 +234,7 @@ const ProfilePage = () => {
                 <Form.Item
                   label={
                     <span className="input-label">
-                      Email <span style={{ color: "red" }}>*</span>
+                      Email <span className="require-mark">*</span>
                     </span>
                   }
                   name="email"
@@ -267,7 +267,7 @@ const ProfilePage = () => {
           </Card>
         </Form>
 
-        <Card className="profile-card" style={{ marginTop: 20 }}>
+        <Card className="profile-card margintop-20">
           <Title level={4} className="profile-name-text">
             Password Settings
           </Title>
@@ -296,7 +296,7 @@ const ProfilePage = () => {
                   <Form.Item
                     label={
                       <span className="input-label">
-                        Old Password <span style={{ color: "red" }}>*</span>
+                        Old Password <span className="require-mark">*</span>
                       </span>
                     }
                     name="old_password"
@@ -320,7 +320,7 @@ const ProfilePage = () => {
                   <Form.Item
                     label={
                       <span className="input-label">
-                        New Password <span style={{ color: "red" }}>*</span>
+                        New Password <span className="require-mark">*</span>
                       </span>
                     }
                     name="new_password"
@@ -344,7 +344,7 @@ const ProfilePage = () => {
                   <Form.Item
                     label={
                       <span className="input-label">
-                        Confirm Password <span style={{ color: "red" }}>*</span>
+                        Confirm Password <span className="require-mark">*</span>
                       </span>
                     }
                     name="confirm_password"
@@ -378,7 +378,7 @@ const ProfilePage = () => {
               </Row>
 
               {resetPasswordFlag && (
-                <div style={{ display: "flex", gap: 8 }}>
+                <div className="reset-password-btn-wrapper">
                   <Form.Item>
                     <Button
                       type="default"

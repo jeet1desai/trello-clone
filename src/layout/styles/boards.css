@@ -119,6 +119,11 @@
   color: var(--text-secondary) !important;
 }
 
+.description {
+  height: 100;
+  resize: none;
+}
+
 .theme-dark .board-description {
   color: var(--text-secondary) !important;
 }

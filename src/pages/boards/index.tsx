@@ -43,8 +43,9 @@ import {
   clearSelectedBoard,
 } from "../../store/slices/boardSlice";
 import "../../layout/styles/boards.css";
-import { generateGradient, SORT_OPTIONS } from "../../config";
+import { SORT_OPTIONS } from "../../config";
 import AddBoardForm from "./components/AddBoardForm";
+import { generateGradient } from "../../utils";
 
 const { Title, Paragraph } = Typography;
 
@@ -251,8 +252,7 @@ const Boards: React.FC = () => {
 
           <Paragraph
             ellipsis={{ rows: 2 }}
-            className="board-description"
-            style={{ color: "inherit" }}
+            className="board-description color-inherit"
           >
             {board.description || "No description"}
           </Paragraph>

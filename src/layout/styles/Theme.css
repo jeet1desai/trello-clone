@@ -230,6 +230,14 @@ a:hover {
   align-items: center !important;
 }
 
+.require-mark {
+  color: red;
+}
+
+.color-inherit {
+  color: inherit;
+}
+
 /* Tag colors */
 .ant-tag-blue {
   background: rgba(24, 144, 255, 0.1);

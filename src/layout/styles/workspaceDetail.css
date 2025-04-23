@@ -111,6 +111,10 @@
   min-height: 100px;
 }
 
+.padding-0 {
+  padding: 0
+}
+
 /* Responsive Styles */
 @media (max-width: 768px) {
   .workspace-detail-container {

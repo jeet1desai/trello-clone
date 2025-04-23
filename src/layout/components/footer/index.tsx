@@ -64,19 +64,19 @@ const Footer: React.FC = () => {
             <div style={{ marginTop: 24 }}>
               <Space size="large">
                 <Link to="#">
-                  <GithubOutlined style={{ fontSize: 20 }} />
+                  <GithubOutlined className="font-20" />
                 </Link>
                 <Link to="#">
-                  <TwitterOutlined style={{ fontSize: 20 }} />
+                  <TwitterOutlined className="font-20" />
                 </Link>
                 <Link to="#">
-                  <InstagramOutlined style={{ fontSize: 20 }} />
+                  <InstagramOutlined className="font-20" />
                 </Link>
                 <Link to="#">
-                  <FacebookOutlined style={{ fontSize: 20 }} />
+                  <FacebookOutlined className="font-20" />
                 </Link>
                 <Link to="#">
-                  <LinkedinOutlined style={{ fontSize: 20 }} />
+                  <LinkedinOutlined className="font-20" />
                 </Link>
               </Space>
             </div>

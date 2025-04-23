@@ -180,9 +180,9 @@ export const boardService = {
     return response.data;
   },
 
-  async removeMemberFromTask(id: string) {
+  async removeMemberFromTask(taskId: string, memberId: string) {
     const response = await axiosInstance.delete(
-      `${API_URL}/task-member/delete-member/${id}`
+      `${API_URL}/task-member/delete-member?taskId=${taskId}&memberId=${memberId}`
     );
     return response.data;
   },

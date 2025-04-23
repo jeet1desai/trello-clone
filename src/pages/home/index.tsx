@@ -7,7 +7,7 @@ const { Title, Paragraph } = Typography;
 const Home: React.FC = () => {
   return (
     <div style={{ textAlign: 'center', maxWidth: 800, margin: '0 auto', padding: '40px 20px' }}>
-      <Title>Welcome to Task Management</Title>
+      <Title>Welcome to Base Team</Title>
       <Paragraph style={{ fontSize: 16, marginBottom: 32 }}>
         This is a simple task management application built with React, TypeScript, and Redux Toolkit.
       </Paragraph>

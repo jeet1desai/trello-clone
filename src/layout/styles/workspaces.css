@@ -34,6 +34,11 @@
   align-items: center;
 }
 
+.small-input {
+  width: 220;
+  margin-top: 8px;
+}
+
 .search-filter {
   display: flex;
   align-items: center;

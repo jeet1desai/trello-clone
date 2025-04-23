@@ -32,7 +32,6 @@ import {
   IBoardDetails,
   getAllLabels,
   getBoardById,
-  getBoardMemberListById,
 } from "../../../store/slices/boardSlice";
 import InviteBoard from "./components/inviteBoard";
 import "../../../layout/styles/Board.css";
@@ -55,6 +54,7 @@ import {
   updateTask,
 } from "../../../store/slices/taskSlice";
 import TaskModal from "./components/taskModal";
+import { getRandomColor } from "../../../utils";
 
 const { Title, Text } = Typography;
 
@@ -83,7 +83,7 @@ const BoardDetail: React.FC = () => {
   const wrapperRef = useRef<HTMLDivElement>(null);
 
   const dispatch = useDispatch<AppDispatch>();
-  const { selectedBoard, invitedMemberList, loading } = useSelector(
+  const { selectedBoard, invitedMemberList } = useSelector(
     (state: RootState) => state.board
   );
   const {
@@ -328,12 +328,12 @@ const BoardDetail: React.FC = () => {
             bodyStyle={{ padding: "8px 12px" }}
           >
             <div style={{ marginBottom: 8, display: "flex", gap: 6 }}>
-              {task.labels.map((label) => {
+              {task.labels?.map((label) => {
                 return (
-                  <Tooltip key={label._id} title={label.name}>
+                  <Tooltip key={label?._id} title={label?.name}>
                     <div
                       style={{
-                        background: label.backgroundColor,
+                        background: label?.backgroundColor,
                         height: "10px",
                         width: "50px",
                         borderRadius: "8px",
@@ -408,7 +408,7 @@ const BoardDetail: React.FC = () => {
               {boardData?.name}
             </Title>
           </Space>
-          <Paragraph className="board-title" style={{ color: "inherit" }}>
+          <Paragraph className="board-title color-inherit">
             {selectedBoard?.description}
           </Paragraph>
         </div>
@@ -421,7 +421,7 @@ const BoardDetail: React.FC = () => {
                     key={member._id}
                     title={`${member?.memberId?.first_name} ${member?.memberId?.last_name} (${member?.memberId?.email})`}
                   >
-                    <Avatar>{`${member?.memberId?.first_name[0]?.toUpperCase()}${member?.memberId?.last_name[0]?.toUpperCase()}`}</Avatar>
+                    <Avatar style={{background: getRandomColor(member.memberId._id)}}>{`${member?.memberId?.first_name[0]?.toUpperCase()}${member?.memberId?.last_name[0]?.toUpperCase()}`}</Avatar>
                   </Tooltip>
                 );
               })}
@@ -657,11 +657,6 @@ const BoardDetail: React.FC = () => {
         isOpen={showInviteModal}
         onClose={() => setShowInviteModal(false)}
       />
-
-      {/* <InviteBoard
-        isOpen={showInviteModal}
-        onClose={() => setShowInviteModal(false)}
-      /> */}
     </>
   );
 };

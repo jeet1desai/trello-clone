@@ -21,7 +21,7 @@ const { Header: AntHeader } = Layout;
 
 const Header: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const { allNotification, loading: memberLoading } = useSelector(
+  const { allNotification } = useSelector(
       (state: RootState) => state.notification
     );
   const navigate = useNavigate();
@@ -67,8 +67,8 @@ const Header: React.FC = () => {
     },
     {
       key: "logout",
-      label: <span style={{ color: "red" }}>Log Out</span>,
-      icon: <LogoutOutlined style={{ color: "red" }} />,
+      label: <span className="require-mark">Log Out</span>,
+      icon: <LogoutOutlined className="require-mark" />,
       onClick: handleLogout,
     },
   ];
@@ -113,7 +113,7 @@ const Header: React.FC = () => {
               <Link to="/register">Sign Up</Link>
             </Button>
             <Button type="primary" style={{ borderRadius: "50px", padding: "18px" }}>
-              <Link to="/login" style={{ color: "inherit" }}>
+              <Link to="/login" className="color-inherit">
                 Log In
               </Link>
             </Button>

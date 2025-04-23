@@ -43,8 +43,8 @@ import {
   editBoard,
 } from "../../../store/slices/boardSlice";
 import "../../../layout/styles/workspaceDetail.css";
-import { generateGradient } from "../../../config";
 import AddBoardForm from "../../boards/components/AddBoardForm";
+import { generateGradient } from "../../../utils";
 
 const { Title, Text, Paragraph } = Typography;
 
@@ -251,7 +251,7 @@ const WorkspaceDetail: React.FC = () => {
                     <Button
                       type="link"
                       onClick={() => navigate(`/board/${board._id}`)}
-                      style={{ padding: 0 }}
+                      className="padding-0"
                     >
                       {board.name}
                     </Button>
