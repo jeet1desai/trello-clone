@@ -27,7 +27,7 @@ interface SocketProviderProps {
 
 export const SocketProvider: React.FC<SocketProviderProps> = ({ children, url }) => {
   const [isConnected, setIsConnected] = useState(false);
-  const { currentUser, isAuthenticated } = useSelector(
+  const { currentUser } = useSelector(
     (state: RootState) => state.user
   );
 

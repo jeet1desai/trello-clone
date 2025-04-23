@@ -145,7 +145,6 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  color: #ffffff;
   margin-bottom: 12px;
   margin-top: 20px;
   margin-left: -22px;
@@ -155,7 +154,6 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  color: #ffffff;
   margin-bottom: 12px;
   margin-top: 12px;
   justify-content: space-between;
@@ -355,6 +353,23 @@
 .dates-btn {
   font-size: 12px;
   margin-top: 4px;
+}
+
+.member-title {
+  font-size: 12;
+  font-weight: 600;
+  color: #ccc;
+  margin-top: 10;
+}
+
+.members-list {
+  padding: 6px 0px;
+  border-radius: 4;
+  margin-bottom: 4;
+  color: inherit;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 /* Comment list style */

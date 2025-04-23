@@ -42,7 +42,8 @@ import {
   clearSelectedWorkspace,
 } from "../../store/slices/workspaceSlice";
 import "../../layout/styles/workspaces.css";
-import { generateGradient, SORT_OPTIONS } from "../../config";
+import { SORT_OPTIONS } from "../../config";
+import { generateGradient } from "../../utils";
 
 const { Title, Paragraph } = Typography;
 
@@ -239,8 +240,7 @@ const Workspaces: React.FC = () => {
 
           <Paragraph
             ellipsis={{ rows: 2 }}
-            className="workspace-description"
-            style={{ color: "inherit" }}
+            className="workspace-description color-inherit"
           >
             {workspace.description || "No description"}
           </Paragraph>
@@ -364,8 +364,7 @@ const Workspaces: React.FC = () => {
                 allowClear
                 value={searchText}
                 onChange={(e) => setSearchText(e.target.value)}
-                style={{ width: 220, marginTop: "8px" }}
-                className="form-input"
+                className="form-input small-input"
               />
               <Dropdown
                 menu={{
@@ -420,7 +419,7 @@ const Workspaces: React.FC = () => {
             <Form.Item
               label={
                 <span className="input-label">
-                  Workspace Name <span style={{ color: "red" }}>*</span>
+                  Workspace Name <span className="require-mark">*</span>
                 </span>
               }
               name="name"
@@ -436,7 +435,7 @@ const Workspaces: React.FC = () => {
             <Form.Item
               label={
                 <span className="input-label">
-                  Description <span style={{ color: "red" }}>*</span>
+                  Description <span className="require-mark">*</span>
                 </span>
               }
               name="description"

@@ -6,7 +6,7 @@ import {
   removeBoardMemberFromListById,
   MemberData,
   inviteBoardMember,
-  getBoardMemberListById
+  getBoardMemberListById,
 } from "../../../../store/slices/boardSlice";
 import {
   Modal,
@@ -22,10 +22,10 @@ import {
 } from "antd";
 import {
   LinkOutlined,
-  UserOutlined,
   ExclamationCircleOutlined,
 } from "@ant-design/icons";
 import "../../../../layout/styles/Board.css";
+import { getRandomColor } from "../../../../utils";
 
 const { Text } = Typography;
 
@@ -201,51 +201,56 @@ const InviteBoard: React.FC<InviteBoardProps> = ({ isOpen, onClose }) => {
           </div>
           <Divider style={{ margin: "12px 0" }} />
           {memberLoading ? (
-              <Spin spinning={memberLoading} style={{ display: "flow" }} />
-            ) : (
-          <List
-            itemLayout="horizontal"
-            dataSource={invitedMemberList}
-            renderItem={(item) => (
-              <List.Item
-                extra={
-                  <Select
-                    className="form-input"
-                    value={item.role}
-                    style={{ width: 150 }}
-                    disabled={item.role === "ADMIN"}
-                    onChange={(value: "MEMBER" | "ADMIN" | "REMOVE") => {
-                      if (value === "REMOVE") {
-                        handleRemoveMember(item);
-                      }
-                    }}
-                  >
-                    <Select.Option value="MEMBER">Member</Select.Option>
-                    <Select.Option
-                      disabled={item.role === "MEMBER"}
-                      value="ADMIN"
+            <Spin spinning={memberLoading} style={{ display: "flow" }} />
+          ) : (
+            <List
+              itemLayout="horizontal"
+              dataSource={invitedMemberList}
+              renderItem={(item) => (
+                <List.Item
+                  extra={
+                    <Select
+                      className="form-input"
+                      value={item.role}
+                      style={{ width: 150 }}
+                      disabled={item.role === "ADMIN"}
+                      onChange={(value: "MEMBER" | "ADMIN" | "REMOVE") => {
+                        if (value === "REMOVE") {
+                          handleRemoveMember(item);
+                        }
+                      }}
                     >
-                      Admin
-                    </Select.Option>
-                    <Select.Option value="REMOVE">
-                      <span style={{ color: "red" }}>Remove Member</span>
-                    </Select.Option>
-                  </Select>
-                }
-              >
-                <List.Item.Meta
-                  avatar={
-                    <Avatar icon={<UserOutlined />}>
-                      {item.memberId.first_name.charAt(0).toUpperCase()}
-                    </Avatar>
+                      <Select.Option value="MEMBER">Member</Select.Option>
+                      <Select.Option
+                        disabled={item.role === "MEMBER"}
+                        value="ADMIN"
+                      >
+                        Admin
+                      </Select.Option>
+                      <Select.Option value="REMOVE">
+                        <span className="require-mark">Remove Member</span>
+                      </Select.Option>
+                    </Select>
                   }
-                  title={`${item.memberId.first_name} ${item.memberId.last_name}`}
-                  description={item.memberId.email}
-                />
-              </List.Item>
-            )}
-          />
-            )}
+                >
+                  <List.Item.Meta
+                    avatar={
+                      <Avatar
+                        style={{
+                          background: getRandomColor(item.memberId._id),
+                        }}
+                      >
+                        {item.memberId.first_name.charAt(0).toUpperCase() +
+                          item.memberId.last_name.charAt(0).toUpperCase()}
+                      </Avatar>
+                    }
+                    title={`${item.memberId.first_name} ${item.memberId.last_name}`}
+                    description={item.memberId.email}
+                  />
+                </List.Item>
+              )}
+            />
+          )}
         </div>
       </div>
     </Modal>

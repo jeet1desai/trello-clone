@@ -57,6 +57,10 @@
   stroke: rgba(255, 255, 255, 0.25);
 }
 
+.font-24 {
+  font-size: 24;
+}
+
 @media (max-width: 576px) {
   .dashboard-welcome-content {
     padding: 16px;

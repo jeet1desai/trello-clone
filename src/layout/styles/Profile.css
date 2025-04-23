@@ -75,3 +75,11 @@
   font-size: 24px;
 }
 
+.margintop-20 {
+  margin-top: 20;
+}
+
+.reset-password-btn-wrapper {
+  display: flex;
+  gap: 8;
+}

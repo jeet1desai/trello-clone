@@ -598,9 +598,12 @@ export const addMemberInTask = createAsyncThunk(
 
 export const removeMemberFromTask = createAsyncThunk(
   "task/remove-member-from-task",
-  async (_id: string, { rejectWithValue }) => {
+  async (
+    { taskId, memberId }: { taskId: string; memberId: string },
+    { rejectWithValue }
+  ) => {
     try {
-      const response = await boardService.removeMemberFromTask(_id);
+      const response = await boardService.removeMemberFromTask(taskId, memberId);
       return response.data;
     } catch (error: any) {
       return rejectWithValue(

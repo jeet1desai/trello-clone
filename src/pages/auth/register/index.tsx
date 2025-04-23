@@ -70,7 +70,7 @@ const Register: React.FC = () => {
           <Form.Item
             label={
               <span className="input-label">
-                First Name <span style={{ color: "red" }}>*</span>
+                First Name <span className="require-mark">*</span>
               </span>
             }
             name="first_name"
@@ -90,7 +90,7 @@ const Register: React.FC = () => {
           <Form.Item
             label={
               <span className="input-label">
-                Middle Name <span style={{ color: "red" }}>*</span>
+                Middle Name <span className="require-mark">*</span>
               </span>
             }
             name="middle_name"
@@ -110,7 +110,7 @@ const Register: React.FC = () => {
           <Form.Item
             label={
               <span className="input-label">
-                Last Name <span style={{ color: "red" }}>*</span>
+                Last Name <span className="require-mark">*</span>
               </span>
             }
             name="last_name"
@@ -130,7 +130,7 @@ const Register: React.FC = () => {
           <Form.Item
             label={
               <span className="input-label">
-                Email <span style={{ color: "red" }}>*</span>
+                Email <span className="require-mark">*</span>
               </span>
             }
             name="email"
@@ -149,7 +149,7 @@ const Register: React.FC = () => {
           <Form.Item
             label={
               <span className="input-label">
-                Password <span style={{ color: "red" }}>*</span>
+                Password <span className="require-mark">*</span>
               </span>
             }
             name="password"
@@ -174,7 +174,7 @@ const Register: React.FC = () => {
           <Form.Item
             label={
               <span className="input-label">
-                Confirm Password <span style={{ color: "red" }}>*</span>
+                Confirm Password <span className="require-mark">*</span>
               </span>
             }
             name="confirmPassword"

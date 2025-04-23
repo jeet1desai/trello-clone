@@ -1,4 +1,4 @@
-import { Manager, Socket } from 'socket.io-client';
+import { Manager } from 'socket.io-client';
 
 class SocketService {
   private socket: ReturnType<InstanceType<typeof Manager>['socket']> | null = null;

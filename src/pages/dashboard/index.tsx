@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { Typography, Card, Row, Col, Segmented } from "antd";
 import {
@@ -29,8 +29,8 @@ const Dashboard: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
 
   useEffect(() => {
-      (async () => await dispatch(getAllNotification()))();
-    }, [dispatch]);
+    (async () => await dispatch(getAllNotification()))();
+  }, [dispatch]);
 
   // Analytics timeframe state
   const [timeframe, setTimeframe] = useState<string | number>("week");
@@ -56,7 +56,7 @@ const Dashboard: React.FC = () => {
             <StatCard
               title="Total Workspaces"
               value={workspaces.length}
-              icon={<TeamOutlined style={{ fontSize: 24 }} />}
+              icon={<TeamOutlined className="font-24" />}
               color="#1890ff"
               trend={{ value: 12, type: "up" }}
             />
@@ -65,7 +65,7 @@ const Dashboard: React.FC = () => {
             <StatCard
               title="Total Boards"
               value={boards.length}
-              icon={<ProjectOutlined style={{ fontSize: 24 }} />}
+              icon={<ProjectOutlined className="font-24" />}
               color="#52c41a"
               trend={{ value: 5, type: "up" }}
             />
@@ -74,7 +74,7 @@ const Dashboard: React.FC = () => {
             <StatCard
               title="Completed Tasks"
               value={`${completedTasks}/${totalTasks}`}
-              icon={<CheckCircleOutlined style={{ fontSize: 24 }} />}
+              icon={<CheckCircleOutlined className="font-24" />}
               color="#fa8c16"
               trend={{ value: 8, type: "up" }}
             />
@@ -83,7 +83,7 @@ const Dashboard: React.FC = () => {
             <StatCard
               title="Tasks Due Soon"
               value={7}
-              icon={<ClockCircleOutlined style={{ fontSize: 24 }} />}
+              icon={<ClockCircleOutlined className="font-24" />}
               color="#eb2f96"
               trend={{ value: 2, type: "down" }}
             />

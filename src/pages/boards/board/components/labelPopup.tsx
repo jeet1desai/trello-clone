@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { EditOutlined } from "@ant-design/icons";
+import { EditOutlined, LeftOutlined } from "@ant-design/icons";
 import { Checkbox, Button, List, Typography } from "antd";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../../../store";
@@ -32,7 +32,7 @@ const LabelPopup = ({ boardId, selectedTaskId }: IProps) => {
   const [selectedLabelId, setSelectedLabelId] = useState("");
 
   const toggleLabel = (id: string) => {
-    if (selectedTaskLabels.map((label) => label._id).includes(id)) {
+    if (selectedTaskLabels?.map((label) => label?._id).includes(id)) {
       dispatch(removeLabelFromTask({ taskId: selectedTaskId, labelId: id }));
     } else {
       dispatch(addLabelInTask({ task_id: selectedTaskId, label_id: id }));
@@ -79,7 +79,19 @@ const LabelPopup = ({ boardId, selectedTaskId }: IProps) => {
     >
       {isAddFlag ? (
         <>
-          <Title style={{ marginTop: 0, fontSize: "16px" }}>Create Label</Title>
+          <Title style={{ marginTop: 0, fontSize: "16px" }}>
+            <LeftOutlined
+              className="color-inherit"
+              onClick={() => {
+                setTitle("");
+                setSelectedColor("black");
+                setIsAddFlag(false);
+                setSearch("");
+                setSelectedLabelId("");
+              }}
+            />{" "}
+            Create Label
+          </Title>
           <div
             style={{ minHeight: "30px", background: "black", padding: "20px" }}
           >
@@ -97,6 +109,7 @@ const LabelPopup = ({ boardId, selectedTaskId }: IProps) => {
             className="form-input"
             placeholder="Enter label title"
             value={title}
+            autoFocus
             onChange={(e) => setTitle(e.target.value)}
             style={{ marginTop: 12, marginBottom: 12, borderRadius: "4px" }}
           />
@@ -108,6 +121,11 @@ const LabelPopup = ({ boardId, selectedTaskId }: IProps) => {
                 block
                 danger
                 style={{ marginTop: 16 }}
+                disabled={
+                  selectedTaskLabels?.filter(
+                    (label) => label._id === selectedLabelId
+                  ).length > 0
+                }
                 onClick={handleDeleteLabel}
               >
                 Delete
@@ -159,8 +177,8 @@ const LabelPopup = ({ boardId, selectedTaskId }: IProps) => {
               >
                 <Checkbox
                   checked={selectedTaskLabels
-                    .map((label) => label._id)
-                    .includes(label._id)}
+                    ?.map((label) => label?._id)
+                    .includes(label?._id)}
                   style={{
                     width: 20,
                     marginRight: 8,
