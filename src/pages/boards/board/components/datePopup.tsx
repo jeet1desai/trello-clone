@@ -97,7 +97,8 @@ const DatePickerPopup: React.FC<DatePickerPopupProps> = ({
             <DatePicker
               allowClear={false}
               disabledDate={disableStartDate}
-              className="date-picker-container"
+              className="date-picker-container form-input"
+              style={{ borderRadius: "4px" }}
               placeholder="Select start date"
             />
           </Form.Item>
@@ -122,7 +123,8 @@ const DatePickerPopup: React.FC<DatePickerPopupProps> = ({
               disabledDate={(current) =>
                 disableDueDate(form.getFieldValue("start_date"), current)
               }
-              className="date-picker-container"
+              className="date-picker-container form-input"
+              style={{ borderRadius: "4px" }}
               placeholder="Select due date"
               allowClear={false}
             />
@@ -131,12 +133,21 @@ const DatePickerPopup: React.FC<DatePickerPopupProps> = ({
       </Row>
       <Row justify="end" gutter={8}>
         <Col>
-          <Button size="small" onClick={handleCancel}>
+          <Button
+            className="button small-btn"
+            size="small"
+            onClick={handleCancel}
+          >
             Cancel
           </Button>
         </Col>
         <Col>
-          <Button type="primary" size="small" onClick={handleSave}>
+          <Button
+            className="button small-btn"
+            type="primary"
+            size="small"
+            onClick={handleSave}
+          >
             Save
           </Button>
         </Col>
@@ -148,12 +159,12 @@ const DatePickerPopup: React.FC<DatePickerPopupProps> = ({
     <>
       <Button
         key="dates"
-        icon={<PlusOutlined />}
+        icon={!end_date ? <PlusOutlined /> : null}
         size="small"
         className="button small-btn dates-btn"
         onClick={showModal}
       >
-        Add Dates
+        {end_date ? dayjs(end_date).format("MMM DD, YYYY") : "Add date"}
       </Button>
       <Popover
         content={popoverContent}

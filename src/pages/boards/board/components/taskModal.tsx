@@ -226,6 +226,7 @@ const TaskModal: React.FC<TaskModalProps> = ({ boardId, visible, onClose }) => {
   const [priority, setPriority] = useState<Priority>(
     selectedTask?.priority ?? Priority.MEDIUM
   );
+  const [showAllComments, setShowAllComments] = useState(false);
 
   const handleAddMemberToTask = (member_id: string) => {
     if (selectedTask) {
@@ -642,7 +643,7 @@ const TaskModal: React.FC<TaskModalProps> = ({ boardId, visible, onClose }) => {
         </Col>
         <Col xs={24} sm={12} md={8}>
           <Text strong style={{ fontSize: "12px", color: "#44546f" }}>
-            Dates
+            Due date
           </Text>
           <div
             style={{
@@ -808,7 +809,8 @@ const TaskModal: React.FC<TaskModalProps> = ({ boardId, visible, onClose }) => {
 
                     {taskAttachments.length > 3 && (
                       <Button
-                        type="primary"
+                        className="button small-btn"
+                        type="default"
                         style={{ width: "fit-content" }}
                         onClick={() => setShowAll(!showAll)}
                       >
@@ -830,9 +832,16 @@ const TaskModal: React.FC<TaskModalProps> = ({ boardId, visible, onClose }) => {
                   <DiffOutlined />
                   <Text strong>Comments</Text>
                 </div>
-                <Button type="text" className="button small-btn" size="small">
-                  Show details
-                </Button>
+                {[...taskComments].length > 5 ? (
+                  <Button
+                    type="default"
+                    className="button small-btn"
+                    size="small"
+                    onClick={() => setShowAllComments((prev) => !prev)}
+                  >
+                    {showAllComments ? "Hide details" : "Show details"}
+                  </Button>
+                ) : null}
               </div>
               <div style={{ marginLeft: "-22px" }}>
                 {/* Image Previews */}
@@ -928,6 +937,7 @@ const TaskModal: React.FC<TaskModalProps> = ({ boardId, visible, onClose }) => {
               {[...taskComments].length > 0 &&
                 [...taskComments]
                   ?.reverse()
+                  .splice(0, showAllComments ? taskComments.length : 5)
                   .map((taskComment) => (
                     <CommentCard
                       key={taskComment._id}
