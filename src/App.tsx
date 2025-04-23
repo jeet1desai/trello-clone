@@ -10,6 +10,7 @@ import { ThemeProvider, useTheme } from "./contexts/ThemeContext";
 import "./App.css";
 import "./layout/styles/Theme.css";
 import { NotificationProvider } from "./contexts/NotificationContext";
+import { SocketProvider } from "./contexts/SocketContext";
 
 const { defaultAlgorithm, darkAlgorithm } = theme;
 
@@ -29,18 +30,11 @@ const ThemedApp: React.FC = () => {
       }}
     >
       <AntdApp>
-        <Provider store={store}>
-          <PersistGate
-            loading={<SuspenseLoader message="Loading Store..." />}
-            persistor={persistor}
-          >
-            <Suspense
-              fallback={<SuspenseLoader message="Loading Application..." />}
-            >
-              <RouterProvider router={router} />
-            </Suspense>
-          </PersistGate>
-        </Provider>
+        <Suspense
+          fallback={<SuspenseLoader message="Loading Application..." />}
+        >
+          <RouterProvider router={router} />
+        </Suspense>
       </AntdApp>
     </ConfigProvider>
   );
@@ -48,11 +42,20 @@ const ThemedApp: React.FC = () => {
 
 const App: React.FC = () => {
   return (
-    <ThemeProvider>
-      <NotificationProvider>
-        <ThemedApp />
-      </NotificationProvider>
-    </ThemeProvider>
+    <Provider store={store}>
+      <PersistGate
+        loading={<SuspenseLoader message="Loading Store..." />}
+        persistor={persistor}
+      >
+        <ThemeProvider>
+          <NotificationProvider>
+            <SocketProvider url={process.env.REACT_APP_SOCKET_URL || 'http://localhost:3001'}>
+              <ThemedApp />
+            </SocketProvider>
+          </NotificationProvider>
+        </ThemeProvider>
+      </PersistGate>
+    </Provider>
   );
 };
 

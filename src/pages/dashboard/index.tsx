@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { useSelector } from "react-redux";
+import React, { useState, useEffect, useMemo } from "react";
+import { useSelector, useDispatch } from "react-redux";
 import { Typography, Card, Row, Col, Segmented } from "antd";
 import {
   ProjectOutlined,
@@ -7,7 +7,7 @@ import {
   CheckCircleOutlined,
   ClockCircleOutlined,
 } from "@ant-design/icons";
-import { RootState } from "../../store";
+import { RootState, AppDispatch } from "../../store";
 import {
   ActivityChart,
   WorkspaceDistribution,
@@ -15,6 +15,7 @@ import {
   RecentActivity,
 } from "../../components";
 import "../../layout/styles/Dashboard.css";
+import { getAllNotification } from "../../store/slices/notificationSlice";
 
 const { Title, Paragraph } = Typography;
 
@@ -24,6 +25,12 @@ const Dashboard: React.FC = () => {
   const { currentUser } = useSelector((state: RootState) => state.user);
   const { workspaces } = useSelector((state: RootState) => state.workspace);
   const { boards } = useSelector((state: RootState) => state.board);
+
+  const dispatch = useDispatch<AppDispatch>();
+
+  useEffect(() => {
+      (async () => await dispatch(getAllNotification()))();
+    }, [dispatch]);
 
   // Analytics timeframe state
   const [timeframe, setTimeframe] = useState<string | number>("week");

@@ -17,6 +17,7 @@ import boardReducer from "./slices/boardSlice";
 import statusReducer from "./slices/statusSlice";
 import taskReducer from "./slices/taskSlice";
 import taskCommentReducer from "./slices/taskCommentSlice";
+import notificationReducer from "./slices/notificationSlice";
 import taskAttachmentReducer from "./slices/taskAttachmentSlice";
 import { notificationMiddleware } from "./middleware/notificationMiddleware";
 import { RESET_APP } from "../config";
@@ -25,7 +26,7 @@ const persistConfig = {
   key: "root",
   version: 1,
   storage,
-  whitelist: ["user", "profile", "workspace", "board", "status", "task"],
+  whitelist: ["user", "profile", "workspace", "board", "status", "task", "notification"],
 };
 
 const appReducer = combineReducers({
@@ -36,6 +37,7 @@ const appReducer = combineReducers({
   status: statusReducer,
   task: taskReducer,
   taskComment: taskCommentReducer,
+  notification: notificationReducer,
   taskAttachment: taskAttachmentReducer,
 });
 
