@@ -1,24 +1,27 @@
-import React from 'react';
-import { Navigate, createBrowserRouter } from 'react-router-dom';
-import { useSelector } from 'react-redux';
-import { RootState } from '../store';
-import Layout from '../layout';
+import React from "react";
+import { Navigate, createBrowserRouter } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { RootState } from "../store";
+import Layout from "../layout";
 
 // Import your pages
-const Home = React.lazy(() => import('../pages/home'));
-const Login = React.lazy(() => import('../pages/auth/login'));
-const Register = React.lazy(() => import('../pages/auth/register'));
-const Dashboard = React.lazy(() => import('../pages/dashboard'));
-const NotFound = React.lazy(() => import('../pages/notFound'));
-const Boards = React.lazy(() => import('../pages/boards'));
-const BoardDetail = React.lazy(() => import('../pages/boards/board'));
-const Workspaces = React.lazy(() => import('../pages/workspaces'));
-const WorkspaceDetail = React.lazy(() => import('../pages/workspaces/workspace'));
-const ForgotPassword = React.lazy(() => import('../pages/auth/forgotPassword'));
-const VerifyEmail = React.lazy(() => import('../pages/auth/verifyEmail'));
-const ProfilePage = React.lazy(() => import('../pages/profile'));
-const InviteMember = React.lazy(() => import('../pages/boards/invite-member'));
-
+const Home = React.lazy(() => import("../pages/home"));
+const Login = React.lazy(() => import("../pages/auth/login"));
+const Register = React.lazy(() => import("../pages/auth/register"));
+const Dashboard = React.lazy(() => import("../pages/dashboard"));
+const NotFound = React.lazy(() => import("../pages/notFound"));
+const Boards = React.lazy(() => import("../pages/boards"));
+const BoardDetail = React.lazy(() => import("../pages/boards/board"));
+const Workspaces = React.lazy(() => import("../pages/workspaces"));
+const WorkspaceDetail = React.lazy(
+  () => import("../pages/workspaces/workspace")
+);
+const ForgotPassword = React.lazy(() => import("../pages/auth/forgotPassword"));
+const VerifyEmail = React.lazy(() => import("../pages/auth/verifyEmail"));
+const ProfilePage = React.lazy(() => import("../pages/profile"));
+const InviteMember = React.lazy(() => import("../pages/boards/invite-member"));
+const PrivacyPolicy = React.lazy(() => import("../pages/policy/privacy"));
+const TermPolicy = React.lazy(() => import("../pages/policy/terms"));
 interface RouteProps {
   element: React.ReactNode;
 }
@@ -37,13 +40,15 @@ const PublicRoute: React.FC<RouteProps> = ({ element }) => {
 // Auth routes - redirect to dashboard if already logged in
 const AuthRoute: React.FC<RouteProps> = ({ element }) => {
   const { isAuthenticated } = useSelector((state: RootState) => state.user);
-  return <>{!isAuthenticated ? element : <Navigate to="/dashboard" replace />}</>;
+  return (
+    <>{!isAuthenticated ? element : <Navigate to="/dashboard" replace />}</>
+  );
 };
 
 // Create router
 const router = createBrowserRouter([
   {
-    path: '/',
+    path: "/",
     element: <Layout />,
     children: [
       {
@@ -51,55 +56,63 @@ const router = createBrowserRouter([
         element: <PublicRoute element={<Home />} />,
       },
       {
-        path: 'login',
+        path: "privacy",
+        element: <AuthRoute element={<PrivacyPolicy />} />,
+      },
+      {
+        path: "terms",
+        element: <AuthRoute element={<TermPolicy />} />,
+      },
+      {
+        path: "login",
         element: <AuthRoute element={<Login />} />,
       },
       {
-        path: 'register',
+        path: "register",
         element: <AuthRoute element={<Register />} />,
       },
       {
-        path: 'forgot-password',
+        path: "forgot-password",
         element: <AuthRoute element={<ForgotPassword />} />,
       },
       {
-        path: 'verify-email',
+        path: "verify-email",
         element: <PublicRoute element={<VerifyEmail />} />,
       },
       {
-        path: 'dashboard',
+        path: "dashboard",
         element: <PrivateRoute element={<Dashboard />} />,
       },
       {
-        path: 'boards',
+        path: "boards",
         element: <PrivateRoute element={<Boards />} />,
       },
       {
-        path: 'board/:id',
+        path: "board/:id",
         element: <PrivateRoute element={<BoardDetail />} />,
       },
       {
-        path: 'workspaces',
+        path: "workspaces",
         element: <PrivateRoute element={<Workspaces />} />,
       },
       {
-        path: 'workspace/:id',
+        path: "workspace/:id",
         element: <PrivateRoute element={<WorkspaceDetail />} />,
       },
       {
-        path: 'profile',
+        path: "profile",
         element: <PrivateRoute element={<ProfilePage />} />,
       },
       {
-        path: 'invitation/:id',
+        path: "invitation/:id",
         element: <PrivateRoute element={<InviteMember />} />,
       },
       {
-        path: '*',
+        path: "*",
         element: <NotFound />,
       },
     ],
   },
 ]);
 
-export default router; 
+export default router;
