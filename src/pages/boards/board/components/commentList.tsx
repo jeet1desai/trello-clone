@@ -64,7 +64,7 @@ const CommentCard: React.FC<CommentCardProps> = ({
         <Avatar src={profile_image?.url ?? ""}></Avatar>
         <div className="comment-container">
           <div className="commenter-container">
-            <Text strong className="commenter-name">
+            <Text strong>
               {first_name} {last_name}
             </Text>
             <Text type="secondary" className="commenter-time">

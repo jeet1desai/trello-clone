@@ -76,10 +76,10 @@
 }
 
 .margintop-20 {
-  margin-top: 20;
+  margin-top: 20px;
 }
 
 .reset-password-btn-wrapper {
   display: flex;
-  gap: 8;
+  gap: 8px;
 }

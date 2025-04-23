@@ -235,12 +235,6 @@
   margin-bottom: 8px;
 }
 
-.members-list {
-  display: flex;
-  gap: 4px;
-  flex-wrap: wrap;
-}
-
 .watching-tag {
   background-color: #22272b;
   color: #ffffff;
@@ -357,20 +351,20 @@
 }
 
 .member-title {
-  font-size: 12;
+  font-size: 12px;
   font-weight: 600;
   color: #ccc;
-  margin-top: 10;
+  margin-top: 10px;
 }
 
 .members-list {
-  padding: 6px 0px;
-  border-radius: 4;
-  margin-bottom: 4;
+  padding: 6px 0px !important;
+  border-radius: 4px;
   color: inherit;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  border-block-end: initial !important;
 }
 
 /* Comment list style */
@@ -393,16 +387,12 @@
 .commenter-container {
   flex: 1;
   display: flex;
-  gap: 10px;
+  gap: 6px;
   align-items: center;
 }
 
-.commenter-name {
-  margin-right: 10px;
-}
-
 .commenter-time {
-  font-size: 12px;
+  font-size: 10px;
 }
 
 .comment-wrapper {

@@ -32,6 +32,7 @@ import {
   IBoardDetails,
   getAllLabels,
   getBoardById,
+  getBoardMemberListById,
 } from "../../../store/slices/boardSlice";
 import InviteBoard from "./components/inviteBoard";
 import "../../../layout/styles/Board.css";
@@ -139,6 +140,7 @@ const BoardDetail: React.FC = () => {
     if (id) {
       dispatch(getBoardById(id));
       dispatch(getStatusListByBoardId(id));
+      dispatch(getBoardMemberListById(id));
       dispatch(getAllLabels(id));
     }
   }, [dispatch, id]);
@@ -421,7 +423,9 @@ const BoardDetail: React.FC = () => {
                     key={member._id}
                     title={`${member?.memberId?.first_name} ${member?.memberId?.last_name} (${member?.memberId?.email})`}
                   >
-                    <Avatar style={{background: getRandomColor(member.memberId._id)}}>{`${member?.memberId?.first_name[0]?.toUpperCase()}${member?.memberId?.last_name[0]?.toUpperCase()}`}</Avatar>
+                    <Avatar
+                      style={{ background: getRandomColor(member.memberId._id) }}
+                    >{`${member?.memberId?.first_name[0]?.toUpperCase()}${member?.memberId?.last_name[0]?.toUpperCase()}`}</Avatar>
                   </Tooltip>
                 );
               })}
