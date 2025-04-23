@@ -44,7 +44,7 @@ import { ITask, updateTask } from "../../../../store/slices/taskSlice";
 import { Priority, TaskStatus } from "../../../../utils/enums/Task";
 import Search from "antd/es/transfer/search";
 import LabelPopup from "./labelPopup";
-import DatePickerPopup from "./datePopup";
+import DatePickerPopup, { IDates } from "./datePopup";
 import FileUploadModal from "./uploadAttachment";
 import {
   addNewTaskComment,
@@ -121,19 +121,17 @@ const PrioritySelect = ({
         value={priority}
         label={Priority[priority as keyof typeof Priority]}
       >
-        <Tooltip title={meta.description}>
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 8,
-              textTransform: "capitalize",
-            }}
-          >
-            {meta.icon}
-            {priority}
-          </div>
-        </Tooltip>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 8,
+            textTransform: "capitalize",
+          }}
+        >
+          {meta.icon}
+          {priority}
+        </div>
       </Option>
     ))}
   </Select>
@@ -221,10 +219,12 @@ const TaskModal: React.FC<TaskModalProps> = ({ boardId, visible, onClose }) => {
   const [memberVisible, setMemberVisible] = useState(false);
   const [labelVisible, setLabelVisible] = useState(false);
   const [showEditor, setShowEditor] = useState(false);
-  const [priority, setPriority] = useState<Priority>(Priority.MEDIUM);
   const [showAll, setShowAll] = useState(false);
   const [isCompleted, setIsCompleted] = useState(
     taskDetails?.status === TaskStatus.COMPLETED
+  );
+  const [priority, setPriority] = useState<Priority>(
+    selectedTask?.priority ?? Priority.MEDIUM
   );
 
   const handleAddMemberToTask = (member_id: string) => {
@@ -399,8 +399,8 @@ const TaskModal: React.FC<TaskModalProps> = ({ boardId, visible, onClose }) => {
           status_id: selectedTask.status_list_id._id,
           priority: selectedTask.priority,
           status: selectedTask.status,
-          start_date: "",
-          due_date: "",
+          start_date: selectedTask.start_date ?? "",
+          end_date: selectedTask.end_date ?? "",
         };
       });
     }
@@ -463,6 +463,17 @@ const TaskModal: React.FC<TaskModalProps> = ({ boardId, visible, onClose }) => {
     setShowEditor(false);
   };
 
+  const handleDateSave = (value: IDates) => {
+    dispatch(
+      updateTask({
+        taskId: taskDetails?._id ?? "",
+        start_date: value.start_date,
+        end_date: value.end_date,
+      })
+    );
+    setIsCompleted((prev) => !prev);
+  };
+
   const handleChange = () => {
     dispatch(
       updateTask({
@@ -503,6 +514,11 @@ const TaskModal: React.FC<TaskModalProps> = ({ boardId, visible, onClose }) => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [dispatch, isEditTitle, taskDetails, selectedTask]);
+
+  const setPriorityValue = (value: Priority) => {
+    setPriority(value);
+    dispatch(updateTask({ taskId: selectedTask?._id ?? "", priority: value }));
+  };
 
   return (
     <Modal
@@ -635,7 +651,11 @@ const TaskModal: React.FC<TaskModalProps> = ({ boardId, visible, onClose }) => {
               marginTop: "4px",
             }}
           >
-            <DatePickerPopup />
+            <DatePickerPopup
+              start_date={taskDetails?.start_date ?? ""}
+              end_date={taskDetails?.end_date ?? ""}
+              onSave={handleDateSave}
+            />
           </div>
         </Col>
         <Col xs={24} sm={12} md={8}>
@@ -650,7 +670,7 @@ const TaskModal: React.FC<TaskModalProps> = ({ boardId, visible, onClose }) => {
               marginTop: "4px",
             }}
           >
-            <PrioritySelect value={priority} onChange={setPriority} />
+            <PrioritySelect value={priority} onChange={setPriorityValue} />
           </div>
         </Col>
         <Col xs={24} sm={24} md={24} style={{ marginTop: "6px" }}>
@@ -710,22 +730,43 @@ const TaskModal: React.FC<TaskModalProps> = ({ boardId, visible, onClose }) => {
           <div style={{ flex: 1 }}>
             <div className="task-section">
               <div className="task-section-title-desc">
-                <FileTextOutlined />
-                <Text strong>Description</Text>
+                <div
+                  style={{ display: "flex", alignItems: "center", gap: "8px" }}
+                >
+                  <FileTextOutlined />
+                  <Text strong>Description</Text>
+                </div>
+                <Button
+                  type="primary"
+                  size="small"
+                  className="button small-btn"
+                  onClick={() => setShowEditor(true)}
+                >
+                  Edit
+                </Button>
               </div>
-
-              {showEditor ? (
-                <TaskDescriptionEditor
-                  onSave={handleSave}
-                  onCancel={() => setShowEditor(false)}
+              {selectedTask?.description && !showEditor && (
+                <div
+                  style={{ lineBreak: "anywhere" }}
+                  dangerouslySetInnerHTML={{
+                    __html: selectedTask.description,
+                  }}
                 />
-              ) : (
+              )}
+              {!selectedTask?.description && !showEditor && (
                 <Button
                   className="task-description-btn"
                   onClick={() => setShowEditor(true)}
                 >
                   Add a more detailed description…
                 </Button>
+              )}
+              {showEditor && (
+                <TaskDescriptionEditor
+                  initialValue={selectedTask?.description}
+                  onSave={handleSave}
+                  onCancel={() => setShowEditor(false)}
+                />
               )}
             </div>
 
