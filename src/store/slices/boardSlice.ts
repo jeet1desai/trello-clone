@@ -1154,9 +1154,9 @@ const boardSlice = createSlice({
         state.success = null;
       })
       .addCase(removeMemberFromTask.fulfilled, (state, action) => {
-        const { _id } = action.payload;
+        const { member_id } = action.payload;
         const index = state.selectedTaskMembers.findIndex(
-          (member) => member._id === _id
+          (member) => member._id === member_id
         );
         if (index !== -1) {
           state.loading = false;
