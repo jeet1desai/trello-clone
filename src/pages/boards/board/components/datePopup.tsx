@@ -2,8 +2,20 @@ import React, { useState } from "react";
 import { Form, DatePicker, Row, Col, Button, Popover } from "antd";
 import dayjs, { Dayjs } from "dayjs";
 import { PlusOutlined } from "@ant-design/icons";
+interface DatePickerPopupProps extends IDates {
+  onSave: (value: IDates) => void;
+}
 
-const DatePickerPopup: React.FC = () => {
+export interface IDates {
+  start_date: string | null;
+  end_date: string | null;
+}
+
+const DatePickerPopup: React.FC<DatePickerPopupProps> = ({
+  start_date,
+  end_date,
+  onSave,
+}) => {
   const [visible, setVisible] = useState(false);
   const [form] = Form.useForm();
 
@@ -12,7 +24,8 @@ const DatePickerPopup: React.FC = () => {
 
   const handleSave = async () => {
     try {
-      const values = await form.validateFields();
+      const values: IDates = await form.validateFields();
+      onSave(values);
       setVisible(false);
     } catch (error) {
       console.error("Validation Failed:", error);
@@ -20,7 +33,7 @@ const DatePickerPopup: React.FC = () => {
   };
 
   const validateStartDate = (value: Dayjs) => {
-    const dueDate = form.getFieldValue("due_date");
+    const dueDate = form.getFieldValue("end_date");
     if (dueDate && value && value.isAfter(dueDate)) {
       return Promise.reject(
         new Error("Start date cannot be after the due date")
@@ -56,19 +69,33 @@ const DatePickerPopup: React.FC = () => {
   };
 
   const popoverContent = (
-    <Form form={form} layout="vertical">
+    <Form
+      form={form}
+      layout="vertical"
+      initialValues={{
+        start_date: start_date ? dayjs(start_date) : null,
+        end_date: end_date ? dayjs(end_date) : null,
+      }}
+      requiredMark={false}
+    >
       <Row gutter={16}>
         <Col span={24}>
           <Form.Item
             name="start_date"
-            label="Start Date"
+            label={
+              <span className="input-label">
+                Start Date <span style={{ color: "red" }}>*</span>
+              </span>
+            }
             rules={[
+              { required: true, message: "Please select start date" },
               {
                 validator: async (_, value) => validateStartDate(value),
               },
             ]}
           >
             <DatePicker
+              allowClear={false}
               disabledDate={disableStartDate}
               className="date-picker-container"
               placeholder="Select start date"
@@ -77,9 +104,14 @@ const DatePickerPopup: React.FC = () => {
         </Col>
         <Col span={24}>
           <Form.Item
-            name="due_date"
-            label="Due Date"
+            name="end_date"
+            label={
+              <span className="input-label">
+                Due Date <span style={{ color: "red" }}>*</span>
+              </span>
+            }
             rules={[
+              { required: true, message: "Please select due date" },
               {
                 validator: async (_, value) =>
                   validateDueDate(form.getFieldValue("start_date"), value),
@@ -92,6 +124,7 @@ const DatePickerPopup: React.FC = () => {
               }
               className="date-picker-container"
               placeholder="Select due date"
+              allowClear={false}
             />
           </Form.Item>
         </Col>

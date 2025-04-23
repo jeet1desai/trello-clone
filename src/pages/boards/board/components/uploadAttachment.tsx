@@ -233,6 +233,7 @@ const FileUploadModal = () => {
         >
           <Upload
             listType="picture-card"
+            accept={"image/*"}
             fileList={fileList}
             beforeUpload={beforeUpload}
             onChange={handleChange}

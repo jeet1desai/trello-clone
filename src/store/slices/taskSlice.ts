@@ -1,5 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { taskService } from "../../services/taskService";
+import { Priority } from "../../utils/enums/Task";
 
 export interface IAttachment {
   imageName: string;
@@ -21,11 +22,13 @@ export interface ITask {
   description: string;
   board_id: string;
   created_by: string;
-  priority?: string;
+  priority?: Priority;
   status?: string;
   attachment: IAttachment[];
   labels: ILabels[];
   comments: number;
+  start_date: string | null;
+  end_date: string | null;
   status_list_id: {
     _id: string;
     name: string;
@@ -108,6 +111,9 @@ export const updateTask = createAsyncThunk(
       newPosition,
       status,
       description,
+      priority,
+      end_date,
+      start_date,
     }: {
       taskId: string;
       title?: string;
@@ -115,6 +121,9 @@ export const updateTask = createAsyncThunk(
       newPosition?: number;
       status?: string;
       description?: string;
+      priority?: Priority;
+      end_date?: string | null;
+      start_date?: string | null;
     },
     { rejectWithValue }
   ) => {
@@ -125,9 +134,12 @@ export const updateTask = createAsyncThunk(
         status_list_id,
         newPosition,
         status,
-        description
+        description,
+        priority,
+        start_date,
+        end_date
       );
-      return response;
+      return response.data;
     } catch (error: any) {
       return rejectWithValue(
         error.response?.data?.message || "Error while updating task."
@@ -236,6 +248,7 @@ const taskSlice = createSlice({
       .addCase(updateTask.fulfilled, (state, action) => {
         state.loading = false;
         state.error = null;
+        state.selectedTask = action.payload;
         state.success = "Task updated successfully.";
       })
       .addCase(updateTask.rejected, (state, action) => {

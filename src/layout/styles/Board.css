@@ -148,6 +148,7 @@
   margin-bottom: 12px;
   margin-top: 20px;
   margin-left: -22px;
+  justify-content: space-between;
 }
 
 .task-section-title {

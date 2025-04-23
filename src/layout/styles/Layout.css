@@ -417,6 +417,10 @@
   margin-bottom: 20px;
 }
 
+.editor-css .ql-editor {
+  line-break: anywhere;
+}
+
 .editor-error {
   color: #ff4d4f;
   margin-bottom: 10px;

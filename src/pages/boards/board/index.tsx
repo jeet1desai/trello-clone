@@ -71,7 +71,7 @@ export interface TaskPayload {
   description: string;
   list_id: string;
   start_date: string;
-  due_date: string;
+  end_date: string;
   priority: "Low" | "Medium" | "High" | "Highest";
   status: "Incomplete" | "Complete";
   attachments: Attachment[];
