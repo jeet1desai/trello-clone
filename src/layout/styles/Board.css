@@ -235,12 +235,6 @@
   margin-bottom: 8px;
 }
 
-.members-list {
-  display: flex;
-  gap: 4px;
-  flex-wrap: wrap;
-}
-
 .watching-tag {
   background-color: #22272b;
   color: #ffffff;
@@ -364,13 +358,13 @@
 }
 
 .members-list {
-  padding: 6px 0px;
+  padding: 6px 0px !important;
   border-radius: 4px;
-  margin-bottom: 4px;
   color: inherit;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  border-block-end: initial !important;
 }
 
 /* Comment list style */

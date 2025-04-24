@@ -301,28 +301,23 @@ const TaskModal: React.FC<TaskModalProps> = ({ boardId, visible, onClose }) => {
         <>
           <div className="member-title">Card members</div>
           <List
-            dataSource={invitedMemberList.filter(
-              (addedMember) =>
-                !selectedTaskMembers.some(
-                  (member) => member._id !== addedMember.memberId._id
-                )
-            )}
+            dataSource={selectedTaskMembers}
             renderItem={(member) => (
               <List.Item className="members-list">
                 <div style={{ display: "flex", alignItems: "center" }}>
                   <Avatar
                     style={{
-                      backgroundColor: getRandomColor(member.memberId._id),
+                      backgroundColor: getRandomColor(member._id),
                       marginRight: 8,
                     }}
                   >
-                    {member.memberId.first_name[0].toUpperCase() +
-                      member.memberId.last_name[0].toUpperCase()}
+                    {member.first_name[0].toUpperCase() +
+                      member.last_name[0].toUpperCase()}
                   </Avatar>
                   <span className="color-inherit">
-                    {member.memberId.first_name +
+                    {member.first_name +
                       " " +
-                      member.memberId.last_name}
+                      member.last_name}
                   </span>
                 </div>
                 <Button
@@ -339,7 +334,7 @@ const TaskModal: React.FC<TaskModalProps> = ({ boardId, visible, onClose }) => {
       ) : null}
 
       {invitedMemberList.filter(
-        (addedMember) =>
+        (addedMember: { memberId: { _id: string; }; }) =>
           !selectedTaskMembers.some(
             (member) => member._id === addedMember.memberId._id
           )
@@ -348,9 +343,9 @@ const TaskModal: React.FC<TaskModalProps> = ({ boardId, visible, onClose }) => {
           <div className="member-title">Board members</div>
           <List
             dataSource={invitedMemberList.filter(
-              (addedMember) =>
+              (addedMember: { memberId: { _id: string; }; }) =>
                 !selectedTaskMembers.some(
-                  (member) => member._id !== addedMember.memberId._id
+                  (member) => member._id === addedMember.memberId._id
                 )
             )}
             renderItem={(member) => (
