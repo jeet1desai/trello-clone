@@ -113,7 +113,6 @@ export const updateTask = createAsyncThunk(
       description?: string;
       priority?: Priority;
       end_date?: string | null;
-      start_date?: string | null;
     },
     { rejectWithValue }
   ) => {

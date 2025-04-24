@@ -265,7 +265,7 @@ const WorkspaceDetail: React.FC = () => {
                 description={
                   <div>
                     <Paragraph ellipsis={{ rows: 2 }}>
-                      {board.description}
+                      {board.description || "No description"}
                     </Paragraph>
                     <Space></Space>
                   </div>

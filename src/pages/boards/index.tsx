@@ -46,6 +46,7 @@ import "../../layout/styles/boards.css";
 import { SORT_OPTIONS } from "../../config";
 import AddBoardForm from "./components/AddBoardForm";
 import { generateGradient } from "../../utils";
+import { getAllWorkspaces } from "../../store/slices/workspaceSlice";
 
 const { Title, Paragraph } = Typography;
 
@@ -54,6 +55,7 @@ const Boards: React.FC = () => {
   const { modal } = App.useApp();
   const location = useLocation();
   const dispatch = useDispatch<AppDispatch>();
+  const { workspaces } = useSelector((state: RootState) => state.workspace);
   const { boards, addError, editError, loading } = useSelector(
     (state: RootState) => state.board
   );
@@ -71,10 +73,11 @@ const Boards: React.FC = () => {
 
   const showAddModal = useCallback(() => {
     dispatch(openBoardAddModal());
+    if (!workspaces.length) dispatch(getAllWorkspaces());
     setSelectedBoard(null);
     form.resetFields();
     setIsModalVisible(true);
-  }, [form, dispatch]);
+  }, [form, dispatch, workspaces]);
 
   useEffect(() => {
     (async () => {
@@ -128,24 +131,29 @@ const Boards: React.FC = () => {
       });
   }, [boards, searchText, sortOption]);
 
-  const handleAddOrEditBoard = async (values: any) => {
+  const handleAddOrEditBoard = async (values: {
+    name: string;
+    description?: string;
+    workspace: string;
+    members?: string[];
+  }) => {
     if (selectedBoard) {
       await dispatch(
         editBoard({
           _id: selectedBoard._id,
           name: values.name,
-          description: values.description,
+          description: values?.description,
           workspace: values.workspace,
-          members: values.members,
+          members: values?.members,
         })
       );
     } else {
       await dispatch(
         addNewBoard({
           name: values.name,
-          description: values.description,
+          description: values?.description,
           workspace: values.workspace,
-          members: values.members,
+          members: values?.members,
         })
       );
       await dispatch(getAllBoards());

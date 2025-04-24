@@ -45,11 +45,10 @@ const AddBoardForm = ({
       <Form.Item
         label={
           <span className="input-label">
-            Description <span className="require-mark">*</span>
+            Description
           </span>
         }
         name="description"
-        rules={[{ required: true, message: "Please enter board description" }]}
       >
         <Input.TextArea
           placeholder="Enter board description"

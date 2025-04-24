@@ -39,7 +39,7 @@ import { ITask, updateTask } from "../../../../store/slices/taskSlice";
 import { Priority, TaskStatus } from "../../../../utils/enums/task";
 import Search from "antd/es/transfer/search";
 import LabelPopup from "./labelPopup";
-import DatePickerPopup, { IDates } from "./datePopup";
+import DatePickerPopup from "./datePopup";
 import FileUploadModal from "./uploadAttachment";
 import {
   addNewTaskComment,
@@ -362,7 +362,6 @@ const TaskModal: React.FC<TaskModalProps> = ({ boardId, visible, onClose }) => {
           status_id: selectedTask.status_list_id._id,
           priority: selectedTask.priority,
           status: selectedTask.status,
-          start_date: selectedTask.start_date ?? "",
           end_date: selectedTask.end_date ?? "",
         };
       });
@@ -426,14 +425,17 @@ const TaskModal: React.FC<TaskModalProps> = ({ boardId, visible, onClose }) => {
     setShowEditor(false);
   };
 
-  const handleDateSave = (value: IDates) => {
+  const handleDateSave = (end_date: any) => {
     dispatch(
       updateTask({
         taskId: taskDetails?._id ?? "",
-        start_date: value.start_date,
-        end_date: value.end_date,
+        end_date,
       })
     );
+    setTaskDetails((prev: any) => {
+      if (!prev) return prev;
+      return { ...prev, end_date: end_date.toString() };
+    });
     setIsCompleted((prev) => !prev);
   };
 
@@ -615,7 +617,6 @@ const TaskModal: React.FC<TaskModalProps> = ({ boardId, visible, onClose }) => {
             }}
           >
             <DatePickerPopup
-              start_date={taskDetails?.start_date ?? ""}
               end_date={taskDetails?.end_date ?? ""}
               onSave={handleDateSave}
             />

@@ -20,6 +20,7 @@ import {
   updateProfile,
 } from "../../store/slices/profileSlice";
 import "../../layout/styles/Profile.css";
+import { User } from "../../store/slices/userSlice";
 
 const { Title, Text } = Typography;
 
@@ -38,7 +39,11 @@ const ProfilePage = () => {
   );
 
   useEffect(() => {
-    (async () => await dispatch(getProfileData()))();
+    const fetchProfileDetails = async () => {
+      await dispatch(getProfileData());
+    };
+
+    fetchProfileDetails();
   }, [dispatch]);
 
   const handleUpdate = async (values: {
@@ -84,18 +89,7 @@ const ProfilePage = () => {
         <Form
           form={profileForm}
           name="profile"
-          initialValues={
-            profileDetails
-              ? profileDetails
-              : {
-                  profile_image: currentUser?.profile_image,
-                  first_name: "",
-                  middle_name: "",
-                  last_name: "",
-                  email: "",
-                  phone: "",
-                }
-          }
+          initialValues={profileDetails || (currentUser as User)}
           onFinish={handleUpdate}
           layout="vertical"
           requiredMark={false}

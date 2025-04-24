@@ -66,18 +66,6 @@ export interface Attachment {
   size?: number;
 }
 
-export interface TaskPayload {
-  title: string;
-  created_by: string;
-  description: string;
-  list_id: string;
-  start_date: string;
-  end_date: string;
-  priority: "Low" | "Medium" | "High" | "Highest";
-  status: "Incomplete" | "Complete";
-  attachments: Attachment[];
-}
-
 const BoardDetail: React.FC = () => {
   const { modal } = App.useApp();
   const { id } = useParams<{ id: string }>();

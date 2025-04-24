@@ -118,18 +118,21 @@ const Workspaces: React.FC = () => {
       });
   }, [workspaces, searchText, sortOption]);
 
-  const handleAddOrEditWorkspace = async (values: any) => {
+  const handleAddOrEditWorkspace = async (values: {
+    name: string;
+    description?: string;
+  }) => {
     if (editingWorkspace) {
       await dispatch(
         editWorkspace({
           _id: editingWorkspace._id,
           name: values.name,
-          description: values.description,
+          description: values?.description,
         })
       );
     } else {
       await dispatch(
-        addNewWorkspace({ name: values.name, description: values.description })
+        addNewWorkspace({ name: values.name, description: values?.description })
       );
       await dispatch(getAllWorkspaces());
     }
@@ -435,16 +438,10 @@ const Workspaces: React.FC = () => {
             <Form.Item
               label={
                 <span className="input-label">
-                  Description <span className="require-mark">*</span>
+                  Description
                 </span>
               }
               name="description"
-              rules={[
-                {
-                  required: true,
-                  message: "Please enter workspace description",
-                },
-              ]}
             >
               <Input.TextArea
                 placeholder="Enter workspace description"
