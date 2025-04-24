@@ -221,17 +221,17 @@ export const addNewBoard = createAsyncThunk(
       members,
     }: {
       name: string;
-      description: string;
+      description?: string;
       workspace: string;
-      members: string[];
+      members?: string[];
     },
     { rejectWithValue }
   ) => {
     try {
       const response = await boardService.addNewBoard(
         name,
-        description,
         workspace,
+        description,
         members
       );
       return response;
@@ -255,9 +255,9 @@ export const editBoard = createAsyncThunk(
     }: {
       _id: string;
       name: string;
-      description: string;
+      description?: string;
       workspace: string;
-      members: string[];
+      members?: string[];
     },
     { rejectWithValue }
   ) => {
@@ -265,8 +265,8 @@ export const editBoard = createAsyncThunk(
       const response = await boardService.editBoard(
         _id,
         name,
-        description,
         workspace,
+        description,
         members
       );
       return response;

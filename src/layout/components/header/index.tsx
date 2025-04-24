@@ -24,7 +24,6 @@ import { ThemeToggle } from "../../../components/ui";
 import { useTheme } from "../../../contexts/ThemeContext";
 import "../../styles/Layout.css";
 import NavigationLinks from "./NavigationLink";
-import SearchBox from "./SearchBox";
 import { RESET_APP } from "../../../config";
 import socketService from "../../../services/socketService";
 import dayjs from "dayjs";
@@ -163,7 +162,6 @@ const Header: React.FC = () => {
       </div>
 
       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-        <SearchBox />
         <Popover
           content={
             <>

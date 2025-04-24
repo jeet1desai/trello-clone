@@ -9,9 +9,9 @@ export const boardService = {
 
   async addNewBoard(
     name: string,
-    description: string,
     workspace: string,
-    members: string[]
+    description?: string,
+    members?: string[]
   ) {
     const response = await axiosInstance.post(`${API_URL}/board/create-board`, {
       name,
@@ -25,9 +25,9 @@ export const boardService = {
   async editBoard(
     boardId: string,
     name: string,
-    description: string,
     workspace: string,
-    members: string[]
+    description?: string,
+    members?: string[]
   ) {
     const response = await axiosInstance.put(
       `${API_URL}/board/update-board/${boardId}`,

@@ -458,6 +458,15 @@ a:hover {
   background-color: var(--button-bg-hover);
 }
 
+.pointer {
+  cursor: pointer;
+}
+
+.description {
+  height: 100px;
+  resize: none !important;
+}
+
 /* Cards in Dark Theme */
 .theme-dark .ant-card {
   background-color: var(--card-bg);
