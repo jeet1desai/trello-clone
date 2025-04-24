@@ -411,6 +411,16 @@
   line-break: anywhere;
 }
 
+.task-preview-css {
+  line-break: anywhere;
+}
+
+.my-preview-image {
+  max-width: 100%;
+  border-radius: 8px;
+  margin: 10px 0px;
+}
+
 .editor-error {
   color: #ff4d4f;
   margin-bottom: 10px;

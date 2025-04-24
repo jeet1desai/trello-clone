@@ -1,7 +1,8 @@
+import React, { useEffect, useState } from "react";
 import { Button } from "antd";
-import React, { useRef, useState } from "react";
-import ReactQuill from "react-quill-new";
-import "react-quill-new/dist/quill.snow.css";
+import { useQuill } from "react-quilljs";
+import "quill/dist/quill.snow.css";
+import { useCustomImageBlot } from "../../../hooks/useCustomImageBolt";
 
 interface RichTextEditorProps {
   initialValue?: string;
@@ -14,129 +15,146 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
   onSave,
   onCancel,
 }) => {
-  const [value, setValue] = useState<string>(initialValue);
   const [error, setError] = useState<string | null>(null);
-  const [showUploadModal, setShowUploadModal] = useState<boolean>(false);
+  const [showUploadModal, setShowUploadModal] = useState(false);
   const [files, setFiles] = useState<File[]>([]);
   const [previews, setPreviews] = useState<string[]>([]);
-  const quillRef = useRef<ReactQuill | null>(null);
 
-  const allowedTypes = [
-    "image/jpeg",
-    "image/png",
-    "image/gif",
-    "application/pdf",
-    "video/mp4",
-    "video/webm",
-  ];
+  const { quill, quillRef } = useQuill({
+    modules: {
+      toolbar: "#custom-toolbar",
+    },
+    formats: [
+      "header",
+      "bold",
+      "italic",
+      "underline",
+      "strike",
+      "list",
+      "bullet",
+      "link",
+      "image",
+      "video",
+      "script",
+      "size",
+      "customImage",
+    ],
+    placeholder: "Write your content...",
+  });
 
-  const validateFileType = (file: File): boolean =>
-    allowedTypes.includes(file.type);
+  useCustomImageBlot();
 
-  const handleInlineFileInsert = (file: File) => {
-    if (!validateFileType(file)) {
-      setError("Only images, PDFs, and videos are allowed.");
-      return;
+  useEffect(() => {
+    if (quill && initialValue) {
+      quill.clipboard.dangerouslyPasteHTML(initialValue);
     }
-
-    setError(null);
-    const reader = new FileReader();
-    reader.onload = () => {
-      const base64 = reader.result;
-      const editor = quillRef.current?.getEditor();
-      const range = editor?.getSelection();
-
-      if (range && base64 && editor) {
-        if (file.type.startsWith("image/")) {
-          editor.insertEmbed(range.index, "image", base64);
-        } else if (file.type === "application/pdf") {
-          editor.insertEmbed(range.index, "link", base64);
-        } else if (file.type.startsWith("video/")) {
-          editor.insertEmbed(range.index, "video", base64);
-        }
-      }
-    };
-    reader.readAsDataURL(file);
-  };
+  }, [quill, initialValue]);
 
   const handleImageButton = () => {
     const input = document.createElement("input");
-    input.setAttribute("type", "file");
-    input.setAttribute("accept", "image/*");
-    input.click();
-
-    input.onchange = () => {
+    input.type = "file";
+    input.accept = "image/*";
+    input.onchange = async () => {
       const file = input.files?.[0];
-      if (file) {
-        handleInlineFileInsert(file);
+      if (file && validateFileType(file)) {
+        const base64 = await readFileAsDataURL(file);
+        const range = quill?.getSelection();
+        if (range) {
+          quill?.insertEmbed(range.index, "customImage", {
+            src: base64,
+            className: "my-preview-image",
+          });
+        }
+      } else {
+        setError("Only images are allowed.");
       }
     };
+    input.click();
   };
 
   const handleAttachmentButton = () => {
     setShowUploadModal(true);
   };
 
-  const readFileAsDataURL = (file: File): Promise<string> => {
-    return new Promise((resolve) => {
+  const validateFileType = (file: File) =>
+    [
+      "image/jpeg",
+      "image/png",
+      "image/gif",
+      "application/pdf",
+      "video/mp4",
+      "video/webm",
+    ].includes(file.type);
+
+  const cleanHtml = (html: string) => {
+    const div = document.createElement("div");
+    div.innerHTML = html;
+
+    // Convert childNodes to array of Element nodes only
+    const nodes = Array.from(div.childNodes).filter(
+      (node): node is Element => node.nodeType === Node.ELEMENT_NODE
+    );
+
+    // Remove leading empty <p><br></p>
+    while (
+      nodes.length &&
+      nodes[0].tagName === "P" &&
+      nodes[0].innerHTML === "<br>"
+    ) {
+      div.removeChild(nodes[0]);
+      nodes.shift();
+    }
+
+    // Remove trailing empty <p><br></p>
+    while (
+      nodes.length &&
+      nodes[nodes.length - 1].tagName === "P" &&
+      nodes[nodes.length - 1].innerHTML === "<br>"
+    ) {
+      div.removeChild(nodes[nodes.length - 1]);
+      nodes.pop();
+    }
+
+    return div.innerHTML.trim();
+  };
+
+  const readFileAsDataURL = (file: File): Promise<string> =>
+    new Promise((resolve) => {
       const reader = new FileReader();
       reader.onload = () => resolve(reader.result as string);
       reader.readAsDataURL(file);
     });
-  };
-
-  const getValidFilesWithPreviews = (
-    files: File[]
-  ): { validFiles: File[]; previewPromises: Promise<string>[] } => {
-    const validFiles: File[] = [];
-    const previewPromises: Promise<string>[] = [];
-
-    for (const file of files) {
-      if (validateFileType(file)) {
-        validFiles.push(file);
-        previewPromises.push(readFileAsDataURL(file));
-      } else {
-        setError("Only images, PDFs, and videos are allowed.");
-      }
-    }
-
-    return { validFiles, previewPromises };
-  };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFiles = e.target.files ? Array.from(e.target.files) : [];
+    const selectedFiles = Array.from(e.target.files || []);
+    const validFiles = selectedFiles.filter(validateFileType);
+    const previewPromises = validFiles.map(readFileAsDataURL);
 
-    const { validFiles, previewPromises } =
-      getValidFilesWithPreviews(selectedFiles);
-
-    Promise.all(previewPromises).then((previews) => {
+    Promise.all(previewPromises).then((results) => {
       setError(null);
       setFiles((prev) => [...prev, ...validFiles]);
-      setPreviews((prev) => [...prev, ...previews]);
+      setPreviews((prev) => [...prev, ...results]);
     });
   };
 
   const insertFilesToEditor = () => {
-    const editor = quillRef.current?.getEditor();
-    const range = editor?.getSelection();
+    const range = quill?.getSelection();
+    if (!range) return;
 
-    if (editor && range) {
-      previews.forEach((url, idx) => {
-        const type = files[idx]?.type;
-        if (type?.startsWith("image/")) {
-          editor.insertEmbed(range.index, "image", url);
-        } else if (type === "application/pdf") {
-          editor.insertEmbed(range.index, "link", url);
-        } else if (type?.startsWith("video/")) {
-          editor.insertEmbed(range.index, "video", url);
-        }
-      });
+    previews.forEach((url, i) => {
+      const type = files[i].type;
+      if (type.startsWith("image/")) {
+        quill?.insertEmbed(range.index, "image", url);
+      } else if (type.startsWith("video/")) {
+        quill?.insertEmbed(range.index, "video", url);
+      } else if (type === "application/pdf") {
+        quill?.insertEmbed(range.index, "link", url);
+      }
+    });
 
-      // Cleanup
-      setShowUploadModal(false);
-      setFiles([]);
-      setPreviews([]);
-    }
+    setShowUploadModal(false);
+    setFiles([]);
+    setPreviews([]);
   };
 
   const removeFile = (index: number) => {
@@ -144,36 +162,14 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
     setPreviews((prev) => prev.filter((_, i) => i !== index));
   };
 
-  const modules = {
-    toolbar: {
-      container: "#custom-toolbar",
-      handlers: {
-        image: handleImageButton,
-        attachment: handleAttachmentButton,
-      },
-    },
-  };
-
-  const formats = [
-    "header",
-    "bold",
-    "italic",
-    "underline",
-    "strike",
-    "list",
-    "bullet",
-    "link",
-    "image",
-    "video",
-  ];
-
   return (
     <div>
       <div id="custom-toolbar">
-        <select className="ql-header" defaultValue="">
-          <option value="1" />
-          <option value="2" />
+        <select className="ql-size" defaultValue="">
+          <option value="small" />
           <option value="" />
+          <option value="large" />
+          <option value="huge" />
         </select>
         <button className="ql-bold" />
         <button className="ql-italic" />
@@ -181,25 +177,17 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
         <button className="ql-strike" />
         <button className="ql-list" value="ordered" />
         <button className="ql-list" value="bullet" />
+        <button className="ql-script" value="sub" />
+        <button className="ql-script" value="super" />
         <button className="ql-link" />
-        {/* <button className="ql-image" /> */}
+        <button onClick={handleImageButton}>🖼️</button>
+        <button onClick={handleAttachmentButton}>📎</button>
         <button className="ql-clean" />
-        {/* <button className="ql-attachment">
-          <img
-            src="/icons/attachment.png"
-            alt="Attach"
-            style={{ width: 16, height: 16, pointerEvents: "none" }}
-          />
-        </button> */}
       </div>
 
-      <ReactQuill
+      <div
         ref={quillRef}
-        value={value}
-        onChange={setValue}
-        modules={modules}
-        formats={formats}
-        placeholder="Write your content..."
+        style={{ height: 300, marginBottom: 20 }}
         className="editor-css"
       />
 
@@ -208,83 +196,68 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
       <div className="editor-btn-container">
         <Button
           type="primary"
-          className="button small-btn"
-          onClick={() => onSave(value)}
+          onClick={() => onSave(cleanHtml(quill?.root.innerHTML ?? ""))}
         >
           Save
         </Button>
-        <Button color="primary" className="button small-btn" onClick={onCancel}>
-          Cancel
-        </Button>
+        <Button onClick={onCancel}>Cancel</Button>
       </div>
 
       {showUploadModal && (
-        <div className="show-upload-modal">
-          <div className="show-upload-modal-container">
-            <h3>Upload Attachments</h3>
-            <input
-              type="file"
-              multiple
-              accept="image/*,application/pdf,video/*"
-              onChange={handleFileChange}
-            />
-            <div className="editor-preview-container">
-              {previews.map((url, idx) => {
-                const file = files[idx];
-                const isImage = file.type.startsWith("image/");
-                const isVideo = file.type.startsWith("video/");
-
-                let mediaElement: React.ReactNode;
-
-                if (isImage) {
-                  mediaElement = <img src={url} alt="preview" width="100" />;
-                } else if (isVideo) {
-                  mediaElement = (
-                    <video width="100" controls src={url}>
+        <div className="upload-modal">
+          <h3>Upload Attachments</h3>
+          <input
+            type="file"
+            multiple
+            accept="image/*,application/pdf,video/*"
+            onChange={handleFileChange}
+          />
+          <div className="preview-container">
+            {previews.map((url, i) => {
+              const file = files[i];
+              const isImage = file.type.startsWith("image/");
+              const isVideo = file.type.startsWith("video/");
+              return (
+                <div key={i} style={{ marginTop: 8 }}>
+                  {isImage && <img src={url} alt="preview" width={100} />}
+                  {isVideo && (
+                    <video
+                      controls
+                      className="attachment-width"
+                      src={url}
+                      width={100}
+                    >
                       <track
                         kind="captions"
                         srcLang="en"
                         label="English captions"
+                        src="path-to-captions.vtt"
+                        default
                       />
                       Your browser does not support the video tag.
                     </video>
-                  );
-                } else {
-                  mediaElement = (
+                  )}
+                  {!isImage && !isVideo && (
                     <a href={url} target="_blank" rel="noopener noreferrer">
                       {file.name}
                     </a>
-                  );
-                }
-
-                return (
-                  <div
-                    key={`${file.name}-${url}`}
-                    className="media-main-container"
-                  >
-                    {mediaElement}
-                    <button
-                      onClick={() => removeFile(idx)}
-                      className="media-main-container-cross"
-                    >
-                      ❌
-                    </button>
-                  </div>
-                );
-              })}
-            </div>
-            <div className="show-upload-modal-btn-container">
-              <button onClick={insertFilesToEditor}>Insert</button>
-              <button
-                onClick={() => {
-                  setShowUploadModal(false);
-                  setFiles([]);
-                  setPreviews([]);
-                }}
-              >
-                Cancel
-              </button>
-            </div>
+                  )}
+                  <button onClick={() => removeFile(i)}>❌</button>
+                </div>
+              );
+            })}
+          </div>
+          <div>
+            <button onClick={insertFilesToEditor}>Insert</button>
+            <button
+              onClick={() => {
+                setShowUploadModal(false);
+                setFiles([]);
+                setPreviews([]);
+              }}
+            >
+              Cancel
+            </button>
           </div>
         </div>
       )}
