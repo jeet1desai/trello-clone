@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { taskService } from "../../services/taskService";
-import { Priority } from "../../utils/enums/Task";
+import { Priority } from "../../utils/enums/task";
 
 export interface IAttachment {
   imageName: string;
@@ -104,16 +104,7 @@ export const createTask = createAsyncThunk(
 export const updateTask = createAsyncThunk(
   "task/update",
   async (
-    {
-      taskId,
-      title,
-      status_list_id,
-      newPosition,
-      status,
-      description,
-      priority,
-      end_date,
-    }: {
+    data: {
       taskId: string;
       title?: string;
       status_list_id?: string;
@@ -126,16 +117,7 @@ export const updateTask = createAsyncThunk(
     { rejectWithValue }
   ) => {
     try {
-      const response = await taskService.updateTask(
-        taskId,
-        title,
-        status_list_id,
-        newPosition,
-        status,
-        description,
-        priority,
-        end_date
-      );
+      const response = await taskService.updateTask(data);
       return response.data;
     } catch (error: any) {
       return rejectWithValue(

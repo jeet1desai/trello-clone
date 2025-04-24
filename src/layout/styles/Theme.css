@@ -462,6 +462,12 @@ a:hover {
   cursor: pointer;
 }
 
+.footer-btn {
+  background-color: transparent;
+  border: none;
+  padding: 0px;
+}
+
 .description {
   height: 100px;
   resize: none !important;

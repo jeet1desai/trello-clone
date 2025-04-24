@@ -6,6 +6,7 @@ import "../../../layout/styles/Auth.css";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../../store";
 import { verifyUser } from "../../../store/slices/userSlice";
+import { PUBLIC_ROUTE } from "../../../utils/enums/route";
 
 const { Title, Text } = Typography;
 
@@ -23,7 +24,7 @@ const VerifyEmail: React.FC = () => {
   useEffect(() => {
     // Redirect if authenticated
     if (verificationSuccess) {
-      navigate("/login");
+      navigate(PUBLIC_ROUTE.LOGIN);
     }
   }, [verificationSuccess, navigate]);
 

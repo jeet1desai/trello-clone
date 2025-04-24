@@ -11,6 +11,7 @@ import { AppDispatch, RootState } from "../../../store";
 import { clearAuthState, loginUser } from "../../../store/slices/userSlice";
 import { useDispatch, useSelector } from "react-redux";
 import "../../../layout/styles/Auth.css";
+import { PRIVATE_ROUTE, PUBLIC_ROUTE } from "../../../utils/enums/route";
 
 const { Title, Text } = Typography;
 
@@ -30,7 +31,7 @@ const Login: React.FC = () => {
   useEffect(() => {
     // Redirect if authenticated
     if (isAuthenticated) {
-      navigate("/dashboard");
+      navigate(PRIVATE_ROUTE.DASHBOARD);
     }
   }, [isAuthenticated, navigate]);
 
@@ -120,13 +121,13 @@ const Login: React.FC = () => {
 
           <div className="auth-links">
             <Text>
-              <Link to="/forgot-password" className="auth-link">
+              <Link to={PUBLIC_ROUTE.FORGOT_PASSWORD} className="auth-link">
                 Forgot Password?
               </Link>
             </Text>
             <Text>
               Don't have an account?{" "}
-              <Link to="/register" className="auth-link">
+              <Link to={PUBLIC_ROUTE.REGISTRATION} className="auth-link">
                 Sign Up
               </Link>
             </Text>

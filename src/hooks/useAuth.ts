@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { message } from "antd";
 import { authService } from "../services/authService";
+import { PRIVATE_ROUTE } from "../utils/enums/route";
 
 export const useAuth = () => {
   const [loading, setLoading] = useState(false);
@@ -12,7 +13,7 @@ export const useAuth = () => {
       setLoading(true);
       await authService.login(email, password);
       message.success("Logged in successfully");
-      navigate("/dashboard");
+      navigate(PRIVATE_ROUTE.DASHBOARD);
     } catch (error) {
       message.error("Failed to login");
       throw error;

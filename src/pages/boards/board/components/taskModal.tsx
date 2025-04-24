@@ -13,15 +13,12 @@ import {
   Select,
   Row,
   Col,
-  Dropdown,
-  Menu,
   Checkbox,
 } from "antd";
 import {
   PlusOutlined,
   PaperClipOutlined,
   PictureOutlined,
-  EllipsisOutlined,
   DiffOutlined,
   CloseCircleFilled,
   CloseOutlined,
@@ -33,15 +30,13 @@ import {
   FilePdfOutlined,
   FileOutlined,
   RiseOutlined,
-  DeleteOutlined,
-  DownloadOutlined,
 } from "@ant-design/icons";
 import TaskDescriptionEditor from "../../../../components/ui/Editor";
 import type { UploadFile } from "antd";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../../../store";
 import { ITask, updateTask } from "../../../../store/slices/taskSlice";
-import { Priority, TaskStatus } from "../../../../utils/enums/Task";
+import { Priority, TaskStatus } from "../../../../utils/enums/task";
 import Search from "antd/es/transfer/search";
 import LabelPopup from "./labelPopup";
 import DatePickerPopup from "./datePopup";
@@ -68,6 +63,7 @@ import {
   removeMemberFromTask,
 } from "../../../../store/slices/boardSlice";
 import { getRandomColor } from "../../../../utils";
+import AttachmentActions from "./attachmentAction";
 
 const { Text } = Typography;
 const { Option } = Select;
@@ -185,7 +181,7 @@ const isPreviewable = (fileName: string): boolean => {
     "webm",
     "ogg",
     "jfif",
-  ].includes(ext || "");
+  ].includes(ext ?? "");
 };
 
 const handleOpenFile = (fileUrl: string, fileName: string) => {
@@ -248,33 +244,6 @@ const TaskModal: React.FC<TaskModalProps> = ({ boardId, visible, onClose }) => {
         })
       );
     }
-  };
-
-  const AttachmentActions = ({ attachment }: { attachment: IAttachment }) => {
-    const menu = (
-      <Menu
-        onClick={({ key }) => handleMenuClick(key, attachment)}
-        items={[
-          {
-            key: "download",
-            label: "Download",
-            icon: <DownloadOutlined />,
-          },
-          {
-            key: "delete",
-            label: "Delete",
-            icon: <DeleteOutlined />,
-            danger: true,
-          },
-        ]}
-      />
-    );
-
-    return (
-      <Dropdown overlay={menu} trigger={["click"]} placement="bottomRight">
-        <Button type="text" icon={<EllipsisOutlined />} />
-      </Dropdown>
-    );
   };
 
   const handleMenuClick = (key: string, attachment: IAttachment) => {
@@ -682,6 +651,7 @@ const TaskModal: React.FC<TaskModalProps> = ({ boardId, visible, onClose }) => {
           >
             {selectedTaskLabels?.map((label) => (
               <div
+                key={label._id}
                 style={{
                   background: label?.backgroundColor,
                   color: label?.textColor,
@@ -779,7 +749,7 @@ const TaskModal: React.FC<TaskModalProps> = ({ boardId, visible, onClose }) => {
                     {taskAttachments
                       .slice(0, showAll ? taskAttachments.length : 3)
                       .map((taskAttach) => (
-                        <div className="attachment-item">
+                        <div className="attachment-item" key={taskAttach._id}>
                           <div className="attachment-icon">
                             {renderPreview(taskAttach)}
                           </div>
@@ -796,7 +766,10 @@ const TaskModal: React.FC<TaskModalProps> = ({ boardId, visible, onClose }) => {
                                 )
                               }
                             />
-                            <AttachmentActions attachment={taskAttach} />
+                            <AttachmentActions
+                              attachment={taskAttach}
+                              onMenuClick={handleMenuClick}
+                            />
                           </div>
                         </div>
                       ))}
