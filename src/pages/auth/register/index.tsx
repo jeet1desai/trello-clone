@@ -2,11 +2,11 @@ import React, { useEffect } from "react";
 import { Form, Input, Button, Typography } from "antd";
 import { UserOutlined, LockOutlined, MailOutlined } from "@ant-design/icons";
 import { Link, useNavigate } from "react-router-dom";
-import { AppDispatch } from "../../../store";
+import type { RootState, AppDispatch } from "../../../store";
 import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "../../../store";
 import { clearAuthState, registerUser } from "../../../store/slices/userSlice";
 import "../../../layout/styles/Auth.css";
+import { PUBLIC_ROUTE } from "../../../utils/enums/route";
 
 const { Title, Text } = Typography;
 
@@ -26,7 +26,7 @@ const Register: React.FC = () => {
   useEffect(() => {
     // Redirect if authenticated
     if (registrationSuccess) {
-      navigate("/verify-email");
+      navigate(PUBLIC_ROUTE.VERIFY_USER_EMAIL);
     }
   }, [registrationSuccess, navigate]);
 
@@ -214,7 +214,7 @@ const Register: React.FC = () => {
         <div className="social-buttons">
           <Text>
             Already have an account?{" "}
-            <Link to="/login" className="auth-link">
+            <Link to={PUBLIC_ROUTE.LOGIN} className="auth-link">
               Login
             </Link>
           </Text>

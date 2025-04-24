@@ -3,6 +3,7 @@ import { Navigate, createBrowserRouter } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { RootState } from "../store";
 import Layout from "../layout";
+import { PRIVATE_ROUTE, PUBLIC_ROUTE } from "../utils/enums/route";
 
 // Import your pages
 const Home = React.lazy(() => import("../pages/home"));
@@ -29,7 +30,11 @@ interface RouteProps {
 // PrivateRoute component - redirects to login if not authenticated
 const PrivateRoute: React.FC<RouteProps> = ({ element }) => {
   const { isAuthenticated } = useSelector((state: RootState) => state.user);
-  return <>{isAuthenticated ? element : <Navigate to="/login" replace />}</>;
+  return (
+    <>
+      {isAuthenticated ? element : <Navigate to={PUBLIC_ROUTE.LOGIN} replace />}
+    </>
+  );
 };
 
 // Public routes - accessible whether logged in or not
@@ -41,14 +46,20 @@ const PublicRoute: React.FC<RouteProps> = ({ element }) => {
 const AuthRoute: React.FC<RouteProps> = ({ element }) => {
   const { isAuthenticated } = useSelector((state: RootState) => state.user);
   return (
-    <>{!isAuthenticated ? element : <Navigate to="/dashboard" replace />}</>
+    <>
+      {!isAuthenticated ? (
+        element
+      ) : (
+        <Navigate to={PRIVATE_ROUTE.DASHBOARD} replace />
+      )}
+    </>
   );
 };
 
 // Create router
 const router = createBrowserRouter([
   {
-    path: "/",
+    path: PUBLIC_ROUTE.HOME,
     element: <Layout />,
     children: [
       {
@@ -56,59 +67,59 @@ const router = createBrowserRouter([
         element: <PublicRoute element={<Home />} />,
       },
       {
-        path: "privacy",
-        element: <AuthRoute element={<PrivacyPolicy />} />,
+        path: PUBLIC_ROUTE.PRIVACY_POLICY,
+        element: <PublicRoute element={<PrivacyPolicy />} />,
       },
       {
-        path: "terms",
-        element: <AuthRoute element={<TermPolicy />} />,
+        path: PUBLIC_ROUTE.TERM_POLICY,
+        element: <PublicRoute element={<TermPolicy />} />,
       },
       {
-        path: "login",
+        path: PUBLIC_ROUTE.LOGIN,
         element: <AuthRoute element={<Login />} />,
       },
       {
-        path: "register",
+        path: PUBLIC_ROUTE.REGISTRATION,
         element: <AuthRoute element={<Register />} />,
       },
       {
-        path: "forgot-password",
+        path: PUBLIC_ROUTE.FORGOT_PASSWORD,
         element: <AuthRoute element={<ForgotPassword />} />,
       },
       {
-        path: "verify-email",
+        path: PUBLIC_ROUTE.VERIFY_USER_EMAIL,
         element: <PublicRoute element={<VerifyEmail />} />,
       },
       {
-        path: "dashboard",
+        path: PRIVATE_ROUTE.DASHBOARD,
         element: <PrivateRoute element={<Dashboard />} />,
       },
       {
-        path: "boards",
+        path: PRIVATE_ROUTE.BOARDS,
         element: <PrivateRoute element={<Boards />} />,
       },
       {
-        path: "board/:id",
+        path: PRIVATE_ROUTE.BOARD,
         element: <PrivateRoute element={<BoardDetail />} />,
       },
       {
-        path: "workspaces",
+        path: PRIVATE_ROUTE.WORKSPACES,
         element: <PrivateRoute element={<Workspaces />} />,
       },
       {
-        path: "workspace/:id",
+        path: PRIVATE_ROUTE.WORKSPACE,
         element: <PrivateRoute element={<WorkspaceDetail />} />,
       },
       {
-        path: "profile",
+        path: PRIVATE_ROUTE.USER_PROFILE,
         element: <PrivateRoute element={<ProfilePage />} />,
       },
       {
-        path: "invitation/:id",
+        path: PRIVATE_ROUTE.INVITATION,
         element: <PrivateRoute element={<InviteMember />} />,
       },
       {
-        path: "*",
+        path: PUBLIC_ROUTE.NOT_FOUND,
         element: <NotFound />,
       },
     ],

@@ -1,6 +1,6 @@
 import { API_URL } from "../config";
 import axiosInstance from "../helper/axiosInstance";
-import { Priority } from "../utils/enums/Task";
+import { Priority } from "../utils/enums/task";
 
 export const taskService = {
   async getTasksByStatusId(statusId: string) {
@@ -19,28 +19,21 @@ export const taskService = {
     return response.data;
   },
 
-  async updateTask(
-    taskId: string,
-    title?: string,
-    status_list_id?: string,
-    newPosition?: number,
-    status?: string,
-    description?: string,
-    priority?: Priority,
-    start_date?: string | null,
-    end_date?: string | null
-  ) {
-    const response = await axiosInstance.put(`${API_URL}/task/update-task`, {
-      taskId,
-      title,
-      status_list_id,
-      newPosition,
-      status,
-      description,
-      priority,
-      start_date,
-      end_date,
-    });
+  async updateTask(data: {
+    taskId: string;
+    title?: string;
+    status_list_id?: string;
+    newPosition?: number;
+    status?: string;
+    description?: string;
+    priority?: Priority;
+    start_date?: string | null;
+    end_date?: string | null;
+  }) {
+    const response = await axiosInstance.put(
+      `${API_URL}/task/update-task`,
+      data
+    );
     return response.data;
   },
 

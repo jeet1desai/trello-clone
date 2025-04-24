@@ -1,10 +1,22 @@
-import { Layout, Menu, Typography, Anchor } from "antd";
-import { useState, useEffect } from "react";
+import {
+  Layout,
+  Menu,
+  Typography,
+  Anchor,
+  Drawer,
+  Button,
+  Grid,
+  MenuProps,
+} from "antd";
+import { MenuOutlined } from "@ant-design/icons";
+import { useState, useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { scrollToSectionWithOffset } from "../../../utils/helper";
+import { useActiveSection } from "../../../hooks/useActiveSection";
 
-const { Sider, Content } = Layout;
+const { Content } = Layout;
 const { Title, Paragraph } = Typography;
-const { Link } = Anchor;
+const { useBreakpoint } = Grid;
 
 const sections = [
   {
@@ -18,33 +30,36 @@ const sections = [
           intended to help you understand:
         </Paragraph>
         <Anchor affix={false}>
-          <Link
+          <Anchor.Link
             href="#what-we-collect"
             title="What information we collect about you"
           />
-          <Link href="#how-we-use" title="How we use information we collect" />
-          <Link
+          <Anchor.Link
+            href="#how-we-use"
+            title="How we use information we collect"
+          />
+          <Anchor.Link
             href="#how-we-disclose"
             title="How we disclose information we collect"
           />
-          <Link
+          <Anchor.Link
             href="#how-we-store"
             title="How we store and secure information we collect"
           />
-          <Link href="#how-long" title="How long we keep information" />
-          <Link
+          <Anchor.Link href="#how-long" title="How long we keep information" />
+          <Anchor.Link
             href="#how-to-access"
             title="How to access and control your information"
           />
-          <Link
+          <Anchor.Link
             href="#how-we-transfer"
             title="How we transfer information we collect internationally"
           />
-          <Link
+          <Anchor.Link
             href="#other-info"
             title="Other important privacy information"
           />
-          <Link
+          <Anchor.Link
             href="#california"
             title="Additional disclosures for California residents"
           />
@@ -104,51 +119,116 @@ const sections = [
 const PrivacyPolicy = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const [activeKey, setActiveKey] = useState<string>("what-this-policy-covers");
+  const [drawerVisible, setDrawerVisible] = useState(false);
+  const screens = useBreakpoint();
+  const isHashTriggeredRef = useRef(false);
+  const sectionIds = sections.map((s) => s.key);
+  const [activeKey, setActiveKey] = useActiveSection(
+    sectionIds,
+    "header-id",
+    "what-this-policy-covers"
+  );
 
   useEffect(() => {
     const hash = location.hash.replace("#", "");
-    if (hash) {
+    if (hash && hash !== activeKey) {
+      isHashTriggeredRef.current = true;
+      setActiveKey(hash);
+      setTimeout(() => scrollToSectionWithOffset(hash), 0);
+    }
+  }, [location.hash]);
+
+  // Handle hash change from URL
+  useEffect(() => {
+    const hash = location.hash.replace("#", "");
+    if (hash && hash !== activeKey) {
+      isHashTriggeredRef.current = true;
       setActiveKey(hash);
       setTimeout(() => {
-        const element = document.getElementById(hash);
-        if (element) {
-          element.scrollIntoView({ behavior: "smooth" });
-        }
+        scrollToSectionWithOffset(hash);
       }, 0);
     }
-  }, [location]);
+  }, [location.hash]); // Only trigger when location hash or activeKey changes
 
-  const handleClick = (e: any) => {
+  // Update the hash in the URL when activeKey changes
+  useEffect(() => {
+    if (activeKey && !isHashTriggeredRef.current) {
+      navigate(`#${activeKey}`, { replace: true });
+    }
+    isHashTriggeredRef.current = false; // Reset after each update
+  }, [activeKey]);
+
+  const handleClick: MenuProps["onClick"] = (e) => {
     setActiveKey(e.key);
     navigate(`#${e.key}`);
-    const element = document.getElementById(e.key);
-    if (element) element.scrollIntoView({ behavior: "smooth" });
+    scrollToSectionWithOffset(e.key);
+    setDrawerVisible(false);
   };
+
+  const menu = (
+    <Menu
+      mode="inline"
+      selectedKeys={[activeKey]}
+      onClick={handleClick}
+      style={{ borderRight: 0 }}
+    >
+      {sections.map((section) => (
+        <Menu.Item key={section.key}>
+          <a href={`#${section.key}`}>{section.title}</a>
+        </Menu.Item>
+      ))}
+    </Menu>
+  );
+
   return (
-    <Layout style={{ minHeight: "100vh" }}>
-      <Sider
-        width={300}
-        breakpoint="lg"
-        collapsedWidth="0"
-        onBreakpoint={(broken) => {
-          console.log("Sider collapsed due to breakpoint:", broken);
-        }}
-        style={{ background: "#fff", padding: "24px" }}
-      >
-        <Title level={4}>Privacy Policy</Title>
-        <Menu mode="inline" selectedKeys={[activeKey]} onClick={handleClick}>
-          {sections.map((section) => (
-            <Menu.Item key={section.key}>
-              <a href={`#${section.key}`}>{section.title}</a>
-            </Menu.Item>
-          ))}
-        </Menu>
-      </Sider>
+    <Layout
+      style={{ minHeight: "100vh", display: "flex", flexDirection: "row" }}
+    >
+      {screens.lg && (
+        <div
+          style={{
+            width: 300,
+            padding: 24,
+            borderRight: "1px solid #f0f0f0",
+          }}
+        >
+          <Title level={4}>Privacy Policy</Title>
+          {menu}
+        </div>
+      )}
+
       <Layout style={{ padding: "24px", overflowX: "hidden" }}>
-        <Title level={2} style={{ marginTop: "-10px", marginBottom: "0px" }}>
-          Privacy Policy
-        </Title>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            gap: "10px",
+          }}
+        >
+          <Title level={2} style={{ marginTop: "-10px", marginBottom: "0px" }}>
+            Privacy Policy
+          </Title>
+          {!screens.lg && (
+            <>
+              <Button
+                type="primary"
+                icon={<MenuOutlined />}
+                onClick={() => setDrawerVisible(true)}
+              />
+              <Drawer
+                title="Privacy Policy"
+                placement="left"
+                closable
+                onClose={() => setDrawerVisible(false)}
+                open={drawerVisible}
+                styles={{ body: { padding: 0 } }}
+              >
+                {menu}
+              </Drawer>
+            </>
+          )}
+        </div>
         <Content>
           {sections.map((section) => (
             <div

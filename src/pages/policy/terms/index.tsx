@@ -1,8 +1,20 @@
-import React, { useEffect, useState } from "react";
-import { Layout, Menu, Typography } from "antd";
+import React, { useEffect, useRef, useState } from "react";
+import {
+  Button,
+  Drawer,
+  Grid,
+  Layout,
+  Menu,
+  MenuProps,
+  Typography,
+} from "antd";
+import { MenuOutlined } from "@ant-design/icons";
 import { useLocation, useNavigate } from "react-router-dom";
+import { scrollToSectionWithOffset } from "../../../utils/helper";
+import { useActiveSection } from "../../../hooks/useActiveSection";
 
-const { Sider, Content } = Layout;
+const { useBreakpoint } = Grid;
+const { Content } = Layout;
 const { Title, Paragraph } = Typography;
 
 const sections = [
@@ -95,43 +107,113 @@ const sections = [
 const TermsAndConditions: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const [activeKey, setActiveKey] = useState<string>("acceptance");
+  const screens = useBreakpoint();
+  const sectionIds = sections.map((s) => s.key);
+  const [activeKey, setActiveKey] = useActiveSection(
+    sectionIds,
+    "header-id",
+    "acceptance"
+  );
+  const [drawerVisible, setDrawerVisible] = useState(false);
+  const isHashTriggeredRef = useRef(false);
+
   useEffect(() => {
     const hash = location.hash.replace("#", "");
-    if (hash) {
+    if (hash && hash !== activeKey) {
+      isHashTriggeredRef.current = true;
       setActiveKey(hash);
       setTimeout(() => {
-        navigate(`#${hash}`);
-        const element = document.getElementById(hash);
-        if (element) {
-          element.scrollIntoView({ behavior: "smooth" });
-        }
+        scrollToSectionWithOffset(hash);
       }, 0);
     }
-  }, [location]);
+  }, [location.hash]);
 
-  const handleClick = (e: any) => {
+  useEffect(() => {
+    if (activeKey && !isHashTriggeredRef.current) {
+      navigate(`#${activeKey}`, { replace: true });
+    }
+    isHashTriggeredRef.current = false;
+  }, [activeKey]);
+
+  const handleClick: MenuProps["onClick"] = (e) => {
     setActiveKey(e.key);
     navigate(`#${e.key}`);
-    const element = document.getElementById(e.key);
-    if (element) element.scrollIntoView({ behavior: "smooth" });
+    scrollToSectionWithOffset(e.key);
+    setDrawerVisible(false);
   };
+
+  const menu = (
+    <Menu
+      mode="inline"
+      selectedKeys={[activeKey]}
+      onClick={handleClick}
+      style={{ borderRight: 0 }}
+    >
+      {sections.map((section) => (
+        <Menu.Item key={section.key}>
+          <a href={`#${section.key}`}>{section.title}</a>
+        </Menu.Item>
+      ))}
+    </Menu>
+  );
+
   return (
-    <Layout style={{ minHeight: "100vh" }}>
-      <Sider width={300} style={{ background: "#fff", padding: "24px" }}>
-        <Title level={4}>Terms & Conditions</Title>
-        <Paragraph type="secondary">
-          Last updated: {new Date().toLocaleDateString()}
-        </Paragraph>
-        <Menu mode="inline" selectedKeys={[activeKey]} onClick={handleClick}>
-          {sections.map((section) => (
-            <Menu.Item key={section.key}>
-              <a href={`#${section.key}`}>{section.title}</a>
-            </Menu.Item>
-          ))}
-        </Menu>
-      </Sider>
+    <Layout
+      style={{ minHeight: "100vh", display: "flex", flexDirection: "row" }}
+    >
+      {screens.lg && (
+        <div
+          style={{
+            width: 300,
+            padding: 24,
+            borderRight: "1px solid #f0f0f0",
+          }}
+        >
+          <Title level={4}>Terms & Conditions</Title>
+          {menu}
+        </div>
+      )}
+
       <Layout style={{ padding: "24px" }}>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            gap: "10px",
+          }}
+        >
+          <div>
+            <Title
+              level={2}
+              style={{ marginTop: "-10px", marginBottom: "0px" }}
+            >
+              Terms & Conditions
+            </Title>
+            <Paragraph type="secondary" style={{ margin: "0px" }}>
+              Last updated: {new Date().toLocaleDateString()}
+            </Paragraph>
+          </div>
+          {!screens.lg && (
+            <>
+              <Button
+                type="primary"
+                icon={<MenuOutlined />}
+                onClick={() => setDrawerVisible(true)}
+              />
+              <Drawer
+                title="Privacy Policy"
+                placement="left"
+                closable
+                onClose={() => setDrawerVisible(false)}
+                open={drawerVisible}
+                styles={{ body: { padding: 0 } }}
+              >
+                {menu}
+              </Drawer>
+            </>
+          )}
+        </div>
         <Content>
           {sections.map((section) => (
             <div
