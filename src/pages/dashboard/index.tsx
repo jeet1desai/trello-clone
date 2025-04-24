@@ -15,7 +15,7 @@ import {
 } from "../../components";
 import "../../layout/styles/Dashboard.css";
 import { getAllNotification } from "../../store/slices/notificationSlice";
-import { getDashboardAnalytics, getDashboardCount } from "../../store/slices/dashboardSlice";
+import { getDashboardAnalytics, getDashboardCount, getDashboardRecentActivity } from "../../store/slices/dashboardSlice";
 
 const { Title, Paragraph } = Typography;
 
@@ -30,6 +30,7 @@ const Dashboard: React.FC = () => {
       try {
         await dispatch(getDashboardCount());
         await dispatch(getDashboardAnalytics());
+        await dispatch(getDashboardRecentActivity(1));
       } catch (error) {
         console.error('Error fetching dashboard data:', error);
       }

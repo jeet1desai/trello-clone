@@ -128,3 +128,20 @@
     transform: translateY(0);
   }
 }
+
+/* Common styles for dashboard components */
+.dashboard-loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  min-height: 200px;
+}
+
+.dashboard-empty-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  min-height: 200px;
+}

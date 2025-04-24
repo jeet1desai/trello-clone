@@ -11,7 +11,7 @@ import {
   Space,
   Popover,
   Badge,
-  Result,
+  Empty,
 } from "antd";
 import {
   BellOutlined,
@@ -237,7 +237,7 @@ const Header: React.FC = () => {
                     scrollbarWidth: "none",
                   }}
                 >
-                  <Result status="info" subTitle="No new notification" />
+                  <Empty description="No new notification" />
                 </div>
               )}
             </>

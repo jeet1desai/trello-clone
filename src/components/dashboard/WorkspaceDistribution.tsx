@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
-import { Card, Typography } from 'antd';
+import { Card, Typography, Spin, Empty } from 'antd';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../store';
+import '../../layout/styles/Dashboard.css';
 
 interface ChartItem {
   name: string;
@@ -57,7 +58,7 @@ const CustomTooltip: React.FC<CustomTooltipProps> = ({ active, payload }) => {
 };
 
 const WorkspaceDistribution: React.FC = () => {
-  const { dashboardAnalytic } = useSelector((state: RootState) => state.dashboard);
+  const { dashboardAnalytic, loading } = useSelector((state: RootState) => state.dashboard);
   const [chartData, setChartData] = useState<ChartItem[]>([]);
   
   useEffect(() => {
@@ -90,31 +91,53 @@ const WorkspaceDistribution: React.FC = () => {
     setChartData(transformedData);
   }, [dashboardAnalytic]);
 
+  const renderChart = () => {
+    if (loading) {
+      return (
+        <div className="dashboard-loading-container">
+          <Spin size="large" />
+        </div>
+      );
+    }
+
+    if (!chartData.length) {
+      return (
+        <div className="dashboard-empty-container">
+          <Empty description="No distribution data available" />
+        </div>
+      );
+    }
+
+    return (
+      <ResponsiveContainer width="100%" height="100%">
+        <PieChart>
+          <Pie
+            data={chartData}
+            cx="50%"
+            cy="50%"
+            labelLine={false}
+            outerRadius={80}
+            innerRadius={40}
+            fill="#8884d8"
+            dataKey="value"
+            nameKey="name"
+          >
+            {chartData.map((entry, index) => (
+              <Cell key={`cell-${index}`} fill={entry.color} />
+            ))}
+          </Pie>
+          <Tooltip content={<CustomTooltip />} />
+          <Legend layout="vertical" verticalAlign="middle" align="right" />
+        </PieChart>
+      </ResponsiveContainer>
+    );
+  };
+
   return (
     <Card className="dashboard-card">
       <Title level={4}>Workspaces Distribution</Title>
       <div style={{ width: '100%', height: 250 }}>
-        <ResponsiveContainer width="100%" height="100%">
-          <PieChart>
-            <Pie
-              data={chartData}
-              cx="50%"
-              cy="50%"
-              labelLine={false}
-              outerRadius={80}
-              innerRadius={40}
-              fill="#8884d8"
-              dataKey="value"
-              nameKey="name"
-            >
-              {chartData.map((entry, index) => (
-                <Cell key={`cell-${index}`} fill={entry.color} />
-              ))}
-            </Pie>
-            <Tooltip content={<CustomTooltip />} />
-            <Legend layout="vertical" verticalAlign="middle" align="right" />
-          </PieChart>
-        </ResponsiveContainer>
+        {renderChart()}
       </div>
     </Card>
   );

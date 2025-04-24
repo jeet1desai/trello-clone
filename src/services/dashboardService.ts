@@ -25,4 +25,16 @@ export const dashboardService = {
       throw error;
     }
   },
+
+  async getDashboardRecentActivity(page: number) {
+    try {
+      const response = await axiosInstance.get(
+        `${API_URL}/user/activity?page=${page}`
+      );
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching dashboard recent activity:', error);
+      throw error;
+    }
+  },
 }; 

@@ -26,12 +26,41 @@ export interface DashboardCountResponse {
   totalTask: number;
 }
 
+export interface ProfileImage {
+  url: string;
+  imageId: string;
+  imageName: string;
+}
+
+export interface CreatedBy {
+  _id: string;
+  first_name: string;
+  middle_name: string;
+  last_name: string;
+  email: string;
+  profile_image: ProfileImage;
+}
+
+export interface ActivityItem {
+  _id: string;
+  visible_to: string[];
+  created_by: CreatedBy;
+  action: string;
+  module: string;
+  createdAt: string;
+  updatedAt: string;
+  details: string;
+  __v: number;
+}
+
+
 interface DashboardState {
   dashboardAnalytic: DashboardAnalyticResponse | null;
   dashboardCount: DashboardCountResponse | null;
   loading: boolean;
   error: string | null;
   success: string | null;
+  recentActivity: ActivityItem[]
 }
 
 const initialState: DashboardState = {
@@ -40,6 +69,7 @@ const initialState: DashboardState = {
   loading: false,
   error: null,
   success: null,
+  recentActivity: []
 };
 
 export const getDashboardCount = createAsyncThunk(
@@ -70,6 +100,20 @@ export const getDashboardAnalytics = createAsyncThunk(
   }
 );
 
+export const getDashboardRecentActivity = createAsyncThunk(
+  "user/activity?page=",
+  async (_page: number, { rejectWithValue }) => {
+    try {
+      const response = await dashboardService.getDashboardRecentActivity(_page);
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message || "Error while fetching dashboard analytics"
+      );
+    }
+  }
+);
+
 const dashboardSlice = createSlice({
   name: "dashboard",
   initialState,
@@ -80,6 +124,9 @@ const dashboardSlice = createSlice({
       state.loading = false;
       state.error = null;
       state.success = null;
+    },
+    addNewRecentActivity: (state, action) => {
+      state.recentActivity = [action.payload.data, ...state.recentActivity];
     },
   },
   extraReducers: (builder) => {
@@ -122,9 +169,29 @@ const dashboardSlice = createSlice({
         state.success = null;
         state.error =
           (action.payload as string) || "Error while fetching dashboard analytics.";
+      })
+      
+      // Get dashboard recent activity
+      .addCase(getDashboardRecentActivity.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.success = null;
+      })
+      .addCase(getDashboardRecentActivity.fulfilled, (state, action) => {
+        state.recentActivity = action.payload.activities;
+        state.loading = false;
+        state.error = null;
+        state.success = "Dashboard recent activity fetched successfully.";
+      })
+      .addCase(getDashboardRecentActivity.rejected, (state, action) => {
+        state.loading = false;
+        state.recentActivity = [];
+        state.success = null;
+        state.error =
+          (action.payload as string) || "Error while fetching dashboard recent activity.";
       });
   },
 });
 
-export const { clearDashboardState } = dashboardSlice.actions;
+export const { clearDashboardState, addNewRecentActivity } = dashboardSlice.actions;
 export default dashboardSlice.reducer; 
