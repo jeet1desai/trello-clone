@@ -113,7 +113,6 @@ export const updateTask = createAsyncThunk(
       description,
       priority,
       end_date,
-      start_date,
     }: {
       taskId: string;
       title?: string;
@@ -123,7 +122,6 @@ export const updateTask = createAsyncThunk(
       description?: string;
       priority?: Priority;
       end_date?: string | null;
-      start_date?: string | null;
     },
     { rejectWithValue }
   ) => {
@@ -136,7 +134,6 @@ export const updateTask = createAsyncThunk(
         status,
         description,
         priority,
-        start_date,
         end_date
       );
       return response.data;

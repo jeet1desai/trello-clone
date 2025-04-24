@@ -27,7 +27,6 @@ export const taskService = {
     status?: string,
     description?: string,
     priority?: Priority,
-    start_date?: string | null,
     end_date?: string | null
   ) {
     const response = await axiosInstance.put(`${API_URL}/task/update-task`, {
@@ -38,7 +37,6 @@ export const taskService = {
       status,
       description,
       priority,
-      start_date,
       end_date,
     });
     return response.data;

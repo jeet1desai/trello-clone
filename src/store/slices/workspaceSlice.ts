@@ -100,7 +100,7 @@ export const getWorkspaceById = createAsyncThunk(
 export const addNewWorkspace = createAsyncThunk(
   "workspace/add",
   async (
-    { name, description }: { name: string; description: string },
+    { name, description }: { name: string; description?: string },
     { rejectWithValue }
   ) => {
     try {
@@ -121,7 +121,7 @@ export const editWorkspace = createAsyncThunk(
       _id,
       name,
       description,
-    }: { _id: string; name: string; description: string },
+    }: { _id: string; name: string; description?: string },
     { rejectWithValue }
   ) => {
     try {
