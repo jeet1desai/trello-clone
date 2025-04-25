@@ -14,7 +14,7 @@
 /* Header styles */
 .app-header {
   padding: 0 24px;
-  height: 72px;
+  height: 60px;
   line-height: 72px;
   background-color: var(--header-bg) !important;
   color: var(--text-primary);
@@ -167,7 +167,7 @@
 .user-avatar {
   background: var(--primary-color);
   cursor: pointer;
-  width: 54px;
+  width: 38px;
   height: 38px;
   display: flex;
   align-items: center;
@@ -409,6 +409,16 @@
 
 .editor-css .ql-editor {
   line-break: anywhere;
+}
+
+.task-preview-css {
+  line-break: anywhere;
+}
+
+.my-preview-image {
+  max-width: 100%;
+  border-radius: 8px;
+  margin: 10px 0px;
 }
 
 .editor-error {

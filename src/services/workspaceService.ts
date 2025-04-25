@@ -9,7 +9,7 @@ export const workspaceService = {
     return response.data;
   },
 
-  async addWorkspace(name: string, description: string) {
+  async addWorkspace(name: string, description?: string) {
     const response = await axiosInstance.post(
       `${API_URL}/workspace/create-workspace`,
       {
@@ -20,7 +20,7 @@ export const workspaceService = {
     return response.data;
   },
 
-  async editWorkspace(workspaceId: string, name: string, description: string) {
+  async editWorkspace(workspaceId: string, name: string, description?: string) {
     const response = await axiosInstance.put(
       `${API_URL}/workspace/update-workspace/${workspaceId}`,
       {

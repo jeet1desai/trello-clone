@@ -13,15 +13,12 @@ import {
   Select,
   Row,
   Col,
-  Dropdown,
-  Menu,
   Checkbox,
 } from "antd";
 import {
   PlusOutlined,
   PaperClipOutlined,
   PictureOutlined,
-  EllipsisOutlined,
   DiffOutlined,
   CloseCircleFilled,
   CloseOutlined,
@@ -33,18 +30,16 @@ import {
   FilePdfOutlined,
   FileOutlined,
   RiseOutlined,
-  DeleteOutlined,
-  DownloadOutlined,
 } from "@ant-design/icons";
 import TaskDescriptionEditor from "../../../../components/ui/Editor";
 import type { UploadFile } from "antd";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../../../store";
 import { ITask, updateTask } from "../../../../store/slices/taskSlice";
-import { Priority, TaskStatus } from "../../../../utils/enums/Task";
+import { Priority, TaskStatus } from "../../../../utils/enums/task";
 import Search from "antd/es/transfer/search";
 import LabelPopup from "./labelPopup";
-import DatePickerPopup, { IDates } from "./datePopup";
+import DatePickerPopup from "./datePopup";
 import FileUploadModal from "./uploadAttachment";
 import {
   addNewTaskComment,
@@ -68,6 +63,7 @@ import {
   removeMemberFromTask,
 } from "../../../../store/slices/boardSlice";
 import { getRandomColor } from "../../../../utils";
+import AttachmentActions from "./attachmentAction";
 
 const { Text } = Typography;
 const { Option } = Select;
@@ -185,7 +181,7 @@ const isPreviewable = (fileName: string): boolean => {
     "webm",
     "ogg",
     "jfif",
-  ].includes(ext || "");
+  ].includes(ext ?? "");
 };
 
 const handleOpenFile = (fileUrl: string, fileName: string) => {
@@ -250,33 +246,6 @@ const TaskModal: React.FC<TaskModalProps> = ({ boardId, visible, onClose }) => {
     }
   };
 
-  const AttachmentActions = ({ attachment }: { attachment: IAttachment }) => {
-    const menu = (
-      <Menu
-        onClick={({ key }) => handleMenuClick(key, attachment)}
-        items={[
-          {
-            key: "download",
-            label: "Download",
-            icon: <DownloadOutlined />,
-          },
-          {
-            key: "delete",
-            label: "Delete",
-            icon: <DeleteOutlined />,
-            danger: true,
-          },
-        ]}
-      />
-    );
-
-    return (
-      <Dropdown overlay={menu} trigger={["click"]} placement="bottomRight">
-        <Button type="text" icon={<EllipsisOutlined />} />
-      </Dropdown>
-    );
-  };
-
   const handleMenuClick = (key: string, attachment: IAttachment) => {
     if (key === "download") {
       handleDownload(attachment.url, attachment.imageName);
@@ -315,9 +284,7 @@ const TaskModal: React.FC<TaskModalProps> = ({ boardId, visible, onClose }) => {
                       member.last_name[0].toUpperCase()}
                   </Avatar>
                   <span className="color-inherit">
-                    {member.first_name +
-                      " " +
-                      member.last_name}
+                    {member.first_name + " " + member.last_name}
                   </span>
                 </div>
                 <Button
@@ -334,7 +301,7 @@ const TaskModal: React.FC<TaskModalProps> = ({ boardId, visible, onClose }) => {
       ) : null}
 
       {invitedMemberList.filter(
-        (addedMember: { memberId: { _id: string; }; }) =>
+        (addedMember: { memberId: { _id: string } }) =>
           !selectedTaskMembers.some(
             (member) => member._id === addedMember.memberId._id
           )
@@ -343,7 +310,7 @@ const TaskModal: React.FC<TaskModalProps> = ({ boardId, visible, onClose }) => {
           <div className="member-title">Board members</div>
           <List
             dataSource={invitedMemberList.filter(
-              (addedMember: { memberId: { _id: string; }; }) =>
+              (addedMember: { memberId: { _id: string } }) =>
                 !selectedTaskMembers.some(
                   (member) => member._id === addedMember.memberId._id
                 )
@@ -395,7 +362,6 @@ const TaskModal: React.FC<TaskModalProps> = ({ boardId, visible, onClose }) => {
           status_id: selectedTask.status_list_id._id,
           priority: selectedTask.priority,
           status: selectedTask.status,
-          start_date: selectedTask.start_date ?? "",
           end_date: selectedTask.end_date ?? "",
         };
       });
@@ -459,14 +425,17 @@ const TaskModal: React.FC<TaskModalProps> = ({ boardId, visible, onClose }) => {
     setShowEditor(false);
   };
 
-  const handleDateSave = (value: IDates) => {
+  const handleDateSave = (end_date: any) => {
     dispatch(
       updateTask({
         taskId: taskDetails?._id ?? "",
-        start_date: value.start_date,
-        end_date: value.end_date,
+        end_date,
       })
     );
+    setTaskDetails((prev: any) => {
+      if (!prev) return prev;
+      return { ...prev, end_date: end_date.toString() };
+    });
     setIsCompleted((prev) => !prev);
   };
 
@@ -648,7 +617,6 @@ const TaskModal: React.FC<TaskModalProps> = ({ boardId, visible, onClose }) => {
             }}
           >
             <DatePickerPopup
-              start_date={taskDetails?.start_date ?? ""}
               end_date={taskDetails?.end_date ?? ""}
               onSave={handleDateSave}
             />
@@ -683,6 +651,7 @@ const TaskModal: React.FC<TaskModalProps> = ({ boardId, visible, onClose }) => {
           >
             {selectedTaskLabels?.map((label) => (
               <div
+                key={label._id}
                 style={{
                   background: label?.backgroundColor,
                   color: label?.textColor,
@@ -732,18 +701,20 @@ const TaskModal: React.FC<TaskModalProps> = ({ boardId, visible, onClose }) => {
                   <FileTextOutlined />
                   <Text strong>Description</Text>
                 </div>
-                <Button
-                  type="primary"
-                  size="small"
-                  className="button small-btn"
-                  onClick={() => setShowEditor(true)}
-                >
-                  Edit
-                </Button>
+                {selectedTask?.description && !showEditor && (
+                  <Button
+                    type="primary"
+                    size="small"
+                    className="button small-btn"
+                    onClick={() => setShowEditor(true)}
+                  >
+                    Edit
+                  </Button>
+                )}
               </div>
               {selectedTask?.description && !showEditor && (
                 <div
-                  style={{ lineBreak: "anywhere" }}
+                  className="task-preview-css"
                   dangerouslySetInnerHTML={{
                     __html: selectedTask.description,
                   }}
@@ -780,7 +751,7 @@ const TaskModal: React.FC<TaskModalProps> = ({ boardId, visible, onClose }) => {
                     {taskAttachments
                       .slice(0, showAll ? taskAttachments.length : 3)
                       .map((taskAttach) => (
-                        <div className="attachment-item">
+                        <div className="attachment-item" key={taskAttach._id}>
                           <div className="attachment-icon">
                             {renderPreview(taskAttach)}
                           </div>
@@ -797,7 +768,10 @@ const TaskModal: React.FC<TaskModalProps> = ({ boardId, visible, onClose }) => {
                                 )
                               }
                             />
-                            <AttachmentActions attachment={taskAttach} />
+                            <AttachmentActions
+                              attachment={taskAttach}
+                              onMenuClick={handleMenuClick}
+                            />
                           </div>
                         </div>
                       ))}

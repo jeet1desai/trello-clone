@@ -24,7 +24,6 @@ import { ThemeToggle } from "../../../components/ui";
 import { useTheme } from "../../../contexts/ThemeContext";
 import "../../styles/Layout.css";
 import NavigationLinks from "./NavigationLink";
-import SearchBox from "./SearchBox";
 import { RESET_APP } from "../../../config";
 import socketService from "../../../services/socketService";
 import dayjs from "dayjs";
@@ -32,8 +31,10 @@ import relativeTime from "dayjs/plugin/relativeTime";
 import {
   addNewNotification,
   readNotificationById,
+  Notification,
 } from "../../../store/slices/notificationSlice";
-import { Notification } from "../../../store/slices/notificationSlice";
+import { PRIVATE_ROUTE, PUBLIC_ROUTE } from "../../../utils/enums/route";
+import { companyLogo } from "../../../assets";
 dayjs.extend(relativeTime);
 const { Header: AntHeader } = Layout;
 
@@ -54,7 +55,7 @@ const Header: React.FC = () => {
     await dispatch(logoutUser());
     dispatch({ type: RESET_APP });
     await persistor.purge();
-    navigate("/login");
+    navigate(PUBLIC_ROUTE.LOGIN);
   };
 
   const handleReadNotification = async (id: string) => {
@@ -76,7 +77,7 @@ const Header: React.FC = () => {
       key: "profile",
       label: <span>Profile</span>,
       icon: <UserOutlined />,
-      onClick: () => navigate("/profile"),
+      onClick: () => navigate(PRIVATE_ROUTE.USER_PROFILE),
     },
     {
       key: "logout",
@@ -99,9 +100,9 @@ const Header: React.FC = () => {
           }}
         >
           <div className="logo">
-            <Link to="/">
+            <Link to={PUBLIC_ROUTE.HOME}>
               <img
-                src={require("../../../assets/base-team-logo.png")}
+                src={companyLogo}
                 alt="Base Team"
                 style={{
                   width: "36px",
@@ -123,13 +124,13 @@ const Header: React.FC = () => {
                 padding: "18px",
               }}
             >
-              <Link to="/register">Sign Up</Link>
+              <Link to={PUBLIC_ROUTE.REGISTRATION}>Sign Up</Link>
             </Button>
             <Button
               type="primary"
               style={{ borderRadius: "50px", padding: "18px" }}
             >
-              <Link to="/login" className="color-inherit">
+              <Link to={PUBLIC_ROUTE.LOGIN} className="color-inherit">
                 Log In
               </Link>
             </Button>
@@ -140,12 +141,12 @@ const Header: React.FC = () => {
   }
 
   return (
-    <AntHeader className="app-header">
+    <AntHeader className="app-header" id="header-id">
       <div style={{ display: "flex", alignItems: "center" }}>
         <div className="logo" style={{ marginRight: 12 }}>
-          <Link to="/dashboard">
+          <Link to={PRIVATE_ROUTE.DASHBOARD}>
             <img
-              src={require("../../../assets/base-team-logo.png")}
+              src={companyLogo}
               alt="Base Team"
               style={{
                 width: "36px",
@@ -162,7 +163,6 @@ const Header: React.FC = () => {
       </div>
 
       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-        <SearchBox />
         <Popover
           content={
             <>

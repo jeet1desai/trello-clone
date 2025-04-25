@@ -10,6 +10,7 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../../store";
 import "../../../layout/styles/Auth.css";
+import { PUBLIC_ROUTE } from "../../../utils/enums/route";
 
 const { Title, Text } = Typography;
 
@@ -35,7 +36,7 @@ const ForgotPassword: React.FC = () => {
       await dispatch(requestPasswordReset(values.email));
     } else {
       await dispatch(changePassword(values));
-      navigate("/login");
+      navigate(PUBLIC_ROUTE.LOGIN);
     }
   };
 
@@ -152,7 +153,7 @@ const ForgotPassword: React.FC = () => {
 
           <div className="auth-links">
             <Text>
-              <Link to="/login" className="auth-link">
+              <Link to={PUBLIC_ROUTE.LOGIN} className="auth-link">
                 Back to Login
               </Link>
             </Text>

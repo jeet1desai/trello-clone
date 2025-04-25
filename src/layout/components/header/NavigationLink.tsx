@@ -3,6 +3,7 @@ import { MoreOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import { useMedia } from "../../../hooks/useMedia";
 import { useIsActivePath } from "../../../hooks/useNavigation";
+import { PRIVATE_ROUTE } from "../../../utils/enums/route";
 
 const NavigationLinks = () => {
   const navigate = useNavigate();
@@ -12,11 +13,11 @@ const NavigationLinks = () => {
   const navItems = [
     {
       label: "Workspaces",
-      path: "/workspaces",
+      path: PRIVATE_ROUTE.WORKSPACES,
     },
     {
       label: "Boards",
-      path: "/boards",
+      path: PRIVATE_ROUTE.BOARDS,
     },
   ];
 

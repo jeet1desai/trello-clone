@@ -8,6 +8,7 @@ import {
   RocketOutlined 
 } from '@ant-design/icons';
 import '../../layout/styles/home.css';
+import { PUBLIC_ROUTE } from "../../utils/enums/route";
 
 const { Title, Paragraph } = Typography;
 
@@ -25,12 +26,12 @@ const Home: React.FC = () => {
               Collaborate, track, and achieve your goals efficiently.
             </Paragraph>
             <Space size="large">
-              <Link to="/login">
+              <Link to={PUBLIC_ROUTE.LOGIN}>
                 <Button type="primary" size="large" icon={<RocketOutlined />}>
                   Get Started
                 </Button>
               </Link>
-              <Link to="/register">
+              <Link to={PUBLIC_ROUTE.REGISTRATION}>
                 <Button size="large" type="default">
                   Create Account
                 </Button>
@@ -82,4 +83,4 @@ const Home: React.FC = () => {
   );
 };
 
-export default Home; 
+export default Home;

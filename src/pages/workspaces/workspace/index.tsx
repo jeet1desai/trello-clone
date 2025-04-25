@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, generatePath } from "react-router-dom";
 import {
   Typography,
   Card,
@@ -45,6 +45,7 @@ import {
 import "../../../layout/styles/workspaceDetail.css";
 import AddBoardForm from "../../boards/components/AddBoardForm";
 import { generateGradient } from "../../../utils";
+import { PRIVATE_ROUTE } from "../../../utils/enums/route";
 
 const { Title, Text, Paragraph } = Typography;
 
@@ -103,7 +104,7 @@ const WorkspaceDetail: React.FC = () => {
       },
       onOk() {
         dispatch(deleteWorkspace(selectedWorkspace._id));
-        navigate("/workspaces");
+        navigate(PRIVATE_ROUTE.WORKSPACES);
       },
     });
   };
@@ -250,7 +251,11 @@ const WorkspaceDetail: React.FC = () => {
                   <Space>
                     <Button
                       type="link"
-                      onClick={() => navigate(`/board/${board._id}`)}
+                      onClick={() =>
+                        navigate(
+                          generatePath(PRIVATE_ROUTE.BOARD, { id: board._id })
+                        )
+                      }
                       className="padding-0"
                     >
                       {board.name}
@@ -260,7 +265,7 @@ const WorkspaceDetail: React.FC = () => {
                 description={
                   <div>
                     <Paragraph ellipsis={{ rows: 2 }}>
-                      {board.description}
+                      {board.description || "No description"}
                     </Paragraph>
                     <Space></Space>
                   </div>
@@ -281,7 +286,7 @@ const WorkspaceDetail: React.FC = () => {
           <div className="workspace-info">
             <Text
               className="workspace-back"
-              onClick={() => navigate("/workspaces")}
+              onClick={() => navigate(PRIVATE_ROUTE.WORKSPACES)}
             >
               <ArrowLeftOutlined /> Back
             </Text>
