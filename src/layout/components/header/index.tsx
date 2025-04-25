@@ -11,7 +11,7 @@ import {
   Space,
   Popover,
   Badge,
-  Result,
+  Empty,
 } from "antd";
 import {
   BellOutlined,
@@ -63,7 +63,7 @@ const Header: React.FC = () => {
   };
 
   useEffect(() => {
-    socketService.on("receive_notification", (payload) => {
+    socketService.on('receive_notification', (payload) => {
       dispatch(addNewNotification(payload));
     });
 
@@ -237,7 +237,7 @@ const Header: React.FC = () => {
                     scrollbarWidth: "none",
                   }}
                 >
-                  <Result status="info" subTitle="No new notification" />
+                  <Empty description="No new notification" />
                 </div>
               )}
             </>

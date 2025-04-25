@@ -731,18 +731,20 @@ const TaskModal: React.FC<TaskModalProps> = ({ boardId, visible, onClose }) => {
                   <FileTextOutlined />
                   <Text strong>Description</Text>
                 </div>
-                <Button
-                  type="primary"
-                  size="small"
-                  className="button small-btn"
-                  onClick={() => setShowEditor(true)}
-                >
-                  Edit
-                </Button>
+                {selectedTask?.description && !showEditor && (
+                  <Button
+                    type="primary"
+                    size="small"
+                    className="button small-btn"
+                    onClick={() => setShowEditor(true)}
+                  >
+                    Edit
+                  </Button>
+                )}
               </div>
               {selectedTask?.description && !showEditor && (
                 <div
-                  style={{ lineBreak: "anywhere" }}
+                  className="task-preview-css"
                   dangerouslySetInnerHTML={{
                     __html: selectedTask.description,
                   }}

@@ -1,13 +1,5 @@
 import React from "react";
-import {
-  Avatar,
-  Typography,
-  Space,
-  Image,
-  Button,
-  Input,
-  Upload,
-} from "antd";
+import { Avatar, Typography, Space, Image, Button, Input, Upload } from "antd";
 import { CloseCircleFilled, PictureOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
@@ -197,7 +189,11 @@ const CommentCard: React.FC<CommentCardProps> = ({
                   });
                   setIsEditing(false);
                 }}
-                disabled={!msg.trim() || msg.trim() === comment}
+                disabled={
+                  (!msg.trim() || msg.trim() === comment) &&
+                  removedAttachments.length === 0 &&
+                  fileList.length === 0
+                }
               >
                 Save
               </Button>
