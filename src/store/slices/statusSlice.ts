@@ -127,6 +127,9 @@ const statusSlice = createSlice({
   name: "status",
   initialState,
   reducers: {
+    addNewStatus: (state, action) => {
+      state.statusList = [...state.statusList, action.payload.data];
+    },
     setSelectedStatus: (state, action) => {
       state.selectedStatus = action.payload;
     },
@@ -135,6 +138,16 @@ const statusSlice = createSlice({
       state.loading = false;
       state.error = null;
       state.success = null;
+    },
+    updateStatusPosition: (state, action) => {
+      const { statusId, newPosition } = action.payload.data;
+      const statusIndex = state.statusList.findIndex(status => status._id === statusId);
+      if (statusIndex !== -1) {
+        const updatedStatus = { ...state.statusList[statusIndex], position: newPosition };
+        state.statusList.splice(statusIndex, 1);
+        const insertIndex = Math.min(Math.max(0, newPosition - 1), state.statusList.length);
+        state.statusList.splice(insertIndex, 0, updatedStatus);
+      }
     },
   },
   extraReducers: (builder) => {
@@ -222,6 +235,6 @@ const statusSlice = createSlice({
   },
 });
 
-export const { setSelectedStatus, clearStatusState } = statusSlice.actions;
+export const { addNewStatus, setSelectedStatus, clearStatusState, updateStatusPosition } = statusSlice.actions;
 
 export default statusSlice.reducer;

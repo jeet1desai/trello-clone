@@ -64,7 +64,6 @@ const Header: React.FC = () => {
 
   useEffect(() => {
     socketService.on("receive_notification", (payload) => {
-      console.log("notification data", payload);
       dispatch(addNewNotification(payload));
     });
 

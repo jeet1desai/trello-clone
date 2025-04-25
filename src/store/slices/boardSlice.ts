@@ -603,7 +603,10 @@ export const removeMemberFromTask = createAsyncThunk(
     { rejectWithValue }
   ) => {
     try {
-      const response = await boardService.removeMemberFromTask(taskId, memberId);
+      const response = await boardService.removeMemberFromTask(
+        taskId,
+        memberId
+      );
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
@@ -617,6 +620,22 @@ const boardSlice = createSlice({
   name: "board",
   initialState,
   reducers: {
+    addSelectedMembers: (state, action) => {
+      const { _id, first_name, last_name, email } =
+        action.payload.data.member_id;
+      state.selectedTaskMembers = [
+        ...state.selectedTaskMembers,
+        { _id, first_name, last_name, email },
+      ];
+    },
+    addSelectedLabels: (state, action) => {
+      const { _id, name, boardId, textColor, backgroundColor } =
+        action.payload.data.label_id;
+      state.selectedTaskLabels = [
+        ...state.selectedTaskLabels,
+        { _id, name, boardId, textColor, backgroundColor },
+      ];
+    },
     openBoardAddModal: (state) => {
       state.addError = null;
       state.editError = null;
@@ -1059,7 +1078,14 @@ const boardSlice = createSlice({
           createdAt,
           updatedAt,
         };
-        state.selectedTaskLabels = [...state.selectedTaskLabels, currentLabel];
+        const existingLabel = state.selectedTaskLabels.findIndex(
+          (label) => label._id === currentLabel._id
+        );
+        if (existingLabel === -1)
+          state.selectedTaskLabels = [
+            ...state.selectedTaskLabels,
+            currentLabel,
+          ];
         state.loading = false;
         state.error = null;
         state.success = "Label added successfully.";
@@ -1125,17 +1151,22 @@ const boardSlice = createSlice({
         state.success = null;
       })
       .addCase(addMemberInTask.fulfilled, (state, action) => {
-        const { _id, first_name, last_name, email } = action.payload.data.member_id;
+        const { _id, first_name, last_name, email } =
+          action.payload.data.member_id;
         const currentMember = {
           _id,
           first_name,
           last_name,
           email,
         };
-        state.selectedTaskMembers = [
-          ...state.selectedTaskMembers,
-          currentMember,
-        ];
+        const existingMember = state.selectedTaskMembers.findIndex(
+          (member) => member._id === currentMember._id
+        );
+        if (existingMember === -1)
+          state.selectedTaskMembers = [
+            ...state.selectedTaskMembers,
+            currentMember,
+          ];
         state.loading = false;
         state.error = null;
         state.success = "Member added successfully.";
@@ -1177,6 +1208,11 @@ const boardSlice = createSlice({
   },
 });
 
-export const { openBoardAddModal, clearSelectedBoard } = boardSlice.actions;
+export const {
+  addSelectedMembers,
+  addSelectedLabels,
+  openBoardAddModal,
+  clearSelectedBoard,
+} = boardSlice.actions;
 
 export default boardSlice.reducer;

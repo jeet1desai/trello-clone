@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Modal, Button, Upload, UploadFile, Form } from "antd";
 import {
   FileExcelOutlined,
@@ -14,6 +14,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../../../store";
 import { addNewTaskAttachment } from "../../../../store/slices/taskAttachmentSlice";
 import { toNativeFile } from "./taskModal";
+import socketService from "../../../../services/socketService";
 
 const allowedTypes = [
   "image/jpeg",
@@ -207,6 +208,16 @@ const FileUploadModal = () => {
       handleClose();
     }
   };
+
+  useEffect(() => {
+    socketService.on("upload-attachment-task", (payload) => {
+      console.log("sss", payload);
+    });
+
+    return () => {
+      socketService.off("upload-attachment-task");
+    };
+  });
 
   return (
     <>

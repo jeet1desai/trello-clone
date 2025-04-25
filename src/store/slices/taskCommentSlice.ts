@@ -49,8 +49,6 @@ interface WorkspaceState {
   taskLoading: boolean;
   error: string | null;
   success: string | null;
-  addError: string | null;
-  editError: string | null;
 }
 
 const initialState: WorkspaceState = {
@@ -58,8 +56,6 @@ const initialState: WorkspaceState = {
   taskLoading: false,
   error: null,
   success: null,
-  addError: null,
-  editError: null,
 };
 
 export const getTaskCommentById = createAsyncThunk(
@@ -150,8 +146,39 @@ const taskCommentSlice = createSlice({
   name: "taskComment",
   initialState,
   reducers: {
+    addNewComment: (state, action) => {
+      const {
+        _id,
+        comment,
+        attachment,
+        task_id,
+        commented_by,
+        createdAt,
+        updatedAt,
+        __v,
+      } = action.payload.data;
+      state.taskComments = [
+        ...state.taskComments,
+        {
+          _id,
+          comment,
+          attachment,
+          task_id,
+          commented_by,
+          createdAt,
+          updatedAt,
+          __v,
+        },
+      ];
+    },
+    updateComment: (state, action) => {
+      state.taskComments = state.taskComments.map((comment) =>
+          comment._id === action.payload.data._id
+            ? action.payload.data
+            : comment
+        );
+    },
     addTaskComment: (state) => {
-      state.addError = null;
       state.taskLoading = false;
     },
     clearSelectedTaskComment: (state) => {
@@ -185,22 +212,22 @@ const taskCommentSlice = createSlice({
       // Add task comment
       .addCase(addNewTaskComment.pending, (state) => {
         state.taskLoading = true;
-        state.addError = null;
         state.success = null;
         state.error = null;
       })
       .addCase(addNewTaskComment.fulfilled, (state, action) => {
-        state.taskComments = [...state.taskComments, action.payload.data];
+        const existingComment = state.taskComments.findIndex(
+          (comment) => comment._id === action.payload.data._id
+        );
+        if (existingComment === -1)
+          state.taskComments = [...state.taskComments, action.payload.data];
         state.taskLoading = false;
-        state.addError = null;
         state.error = null;
         state.success = "Task comment added successfully.";
       })
       .addCase(addNewTaskComment.rejected, (state, action) => {
         state.taskLoading = false;
         state.success = null;
-        state.addError =
-          (action.payload as string) || "Error while adding task comment.";
         state.error =
           (action.payload as string) || "Error while adding task comment.";
       })
@@ -208,7 +235,6 @@ const taskCommentSlice = createSlice({
       // Update task comment
       .addCase(updateTaskComment.pending, (state) => {
         state.taskLoading = true;
-        state.addError = null;
         state.success = null;
         state.error = null;
       })
@@ -219,15 +245,12 @@ const taskCommentSlice = createSlice({
             : comment
         );
         state.taskLoading = false;
-        state.addError = null;
         state.error = null;
         state.success = "Task comment updated successfully.";
       })
       .addCase(updateTaskComment.rejected, (state, action) => {
         state.taskLoading = false;
         state.success = null;
-        state.addError =
-          (action.payload as string) || "Error while updating task comment.";
         state.error =
           (action.payload as string) || "Error while updating task comment.";
       })
@@ -262,7 +285,7 @@ const taskCommentSlice = createSlice({
   },
 });
 
-export const { addTaskComment, clearSelectedTaskComment } =
+export const { addNewComment, updateComment, addTaskComment, clearSelectedTaskComment } =
   taskCommentSlice.actions;
 
 export default taskCommentSlice.reducer;
