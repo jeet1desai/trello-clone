@@ -30,6 +30,8 @@ const ActivityChart: React.FC = () => {
   const initialData = dashboardAnalytic?.week || [];
   const chartData = formatChartData(initialData);
 
+  const isWeeklyDataEmpty = chartData.every(item => item.task === 0 && item.board === 0);
+
   const renderChart = () => {
     if (loading) {
       return (
@@ -39,7 +41,7 @@ const ActivityChart: React.FC = () => {
       );
     }
 
-    if (!chartData.length) {
+    if (isWeeklyDataEmpty || !chartData.length) {
       return (
         <div className="dashboard-empty-container">
           <Empty description="No activity data available" />

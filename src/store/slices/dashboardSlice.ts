@@ -53,6 +53,18 @@ export interface ActivityItem {
   __v: number;
 }
 
+interface Pagination {
+  currentPage: number;
+  totalPages: number;
+  totalRecords: number;
+  limit: number;
+}
+
+interface ActivitiesResponse {
+  activities: ActivityItem[];
+  pagination: Pagination;
+}
+
 
 interface DashboardState {
   dashboardAnalytic: DashboardAnalyticResponse | null;
@@ -60,7 +72,9 @@ interface DashboardState {
   loading: boolean;
   error: string | null;
   success: string | null;
-  recentActivity: ActivityItem[]
+  recentActivity: ActivitiesResponse;
+  hasMore: boolean;
+  loadingMore: boolean;
 }
 
 const initialState: DashboardState = {
@@ -69,7 +83,17 @@ const initialState: DashboardState = {
   loading: false,
   error: null,
   success: null,
-  recentActivity: []
+  recentActivity: {
+    activities: [],
+    pagination: {
+      currentPage: 0,
+      limit: 0,
+      totalPages: 0,
+      totalRecords: 0
+    }
+  },
+  hasMore: false,
+  loadingMore: false
 };
 
 export const getDashboardCount = createAsyncThunk(
@@ -126,7 +150,7 @@ const dashboardSlice = createSlice({
       state.success = null;
     },
     addNewRecentActivity: (state, action) => {
-      state.recentActivity = [action.payload.data, ...state.recentActivity];
+      state.recentActivity.activities = [action.payload.data, ...state.recentActivity.activities];
     },
   },
   extraReducers: (builder) => {
@@ -174,19 +198,37 @@ const dashboardSlice = createSlice({
       // Get dashboard recent activity
       .addCase(getDashboardRecentActivity.pending, (state) => {
         state.loading = true;
+        state.loadingMore = true;
         state.error = null;
         state.success = null;
       })
       .addCase(getDashboardRecentActivity.fulfilled, (state, action) => {
-        state.recentActivity = action.payload.activities;
+        const { activities, pagination } = action.payload;
+        state.recentActivity.activities = [
+          ...state.recentActivity.activities,
+          ...activities
+        ];
+        state.recentActivity.pagination = pagination;
+        state.hasMore = pagination.currentPage < pagination.totalPages;
+        state.loadingMore = false;
         state.loading = false;
         state.error = null;
         state.success = "Dashboard recent activity fetched successfully.";
       })
       .addCase(getDashboardRecentActivity.rejected, (state, action) => {
         state.loading = false;
-        state.recentActivity = [];
+        state.recentActivity = {
+          activities: [],
+          pagination: {
+            currentPage: 0,
+            limit: 0,
+            totalPages: 0,
+            totalRecords: 0
+          }
+        };
         state.success = null;
+        state.hasMore = false;
+        state.loadingMore = false;
         state.error =
           (action.payload as string) || "Error while fetching dashboard recent activity.";
       });

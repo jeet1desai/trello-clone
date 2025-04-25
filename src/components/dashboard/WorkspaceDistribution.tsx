@@ -91,6 +91,10 @@ const WorkspaceDistribution: React.FC = () => {
     setChartData(transformedData);
   }, [dashboardAnalytic]);
 
+  const isChartDataEmpty = dashboardAnalytic &&
+  Object.values(dashboardAnalytic.boards).every(value => value === 0) &&
+  Object.values(dashboardAnalytic.tasks).every(value => value === 0);
+
   const renderChart = () => {
     if (loading) {
       return (
@@ -100,7 +104,7 @@ const WorkspaceDistribution: React.FC = () => {
       );
     }
 
-    if (!chartData.length) {
+    if (isChartDataEmpty || !chartData.length) {
       return (
         <div className="dashboard-empty-container">
           <Empty description="No distribution data available" />
