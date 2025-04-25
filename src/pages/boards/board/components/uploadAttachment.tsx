@@ -12,7 +12,10 @@ import type { UploadRequestOption as RcCustomRequestOptions } from "rc-upload/li
 import CustomUploadItem from "./uploadItems";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../../../store";
-import { addNewTaskAttachment } from "../../../../store/slices/taskAttachmentSlice";
+import {
+  addNewAttachment,
+  addNewTaskAttachment,
+} from "../../../../store/slices/taskAttachmentSlice";
 import { toNativeFile } from "./taskModal";
 import socketService from "../../../../services/socketService";
 
@@ -211,7 +214,7 @@ const FileUploadModal = () => {
 
   useEffect(() => {
     socketService.on("upload-attachment-task", (payload) => {
-      console.log("sss", payload);
+      dispatch(addNewAttachment(payload));
     });
 
     return () => {

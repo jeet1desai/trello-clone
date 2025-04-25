@@ -119,6 +119,18 @@ const taskAttachmentSlice = createSlice({
   name: "taskAttachment",
   initialState,
   reducers: {
+    addNewAttachment: (state, action) => {
+      const newAttachments = action.payload.data.attachment.filter(
+        (newA: IAttachment) =>
+          !state.taskAttachments.some(
+            (existingA) => existingA.imageName === newA.imageName
+          )
+      );
+
+      if (newAttachments.length > 0) {
+        state.taskAttachments = [...state.taskAttachments, ...newAttachments];
+      }
+    },
     addTaskAttachment: (state) => {
       state.addError = null;
       state.taskAttachmentLoading = false;
@@ -159,10 +171,17 @@ const taskAttachmentSlice = createSlice({
         state.error = null;
       })
       .addCase(addNewTaskAttachment.fulfilled, (state, action) => {
-        state.taskAttachments = [
-          ...state.taskAttachments,
-          ...action.payload.data.attachment,
-        ];
+        const newAttachments = action.payload.data.attachment.filter(
+          (newA: { imageName: string }) =>
+            !state.taskAttachments.some(
+              (existingA) => existingA.imageName === newA.imageName
+            )
+        );
+        if (newAttachments.length > 0)
+          state.taskAttachments = [
+            ...state.taskAttachments,
+            ...action.payload.data.attachment,
+          ];
         state.taskAttachmentLoading = false;
         state.addError = null;
         state.error = null;
@@ -207,7 +226,10 @@ const taskAttachmentSlice = createSlice({
   },
 });
 
-export const { addTaskAttachment, clearSelectedTaskAttachment } =
-  taskAttachmentSlice.actions;
+export const {
+  addNewAttachment,
+  addTaskAttachment,
+  clearSelectedTaskAttachment,
+} = taskAttachmentSlice.actions;
 
 export default taskAttachmentSlice.reducer;
