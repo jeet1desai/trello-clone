@@ -15,7 +15,11 @@ import {
 } from "../../components";
 import "../../layout/styles/Dashboard.css";
 import { getAllNotification } from "../../store/slices/notificationSlice";
-import { getDashboardAnalytics, getDashboardCount, getDashboardRecentActivity } from "../../store/slices/dashboardSlice";
+import {
+  getDashboardAnalytics,
+  getDashboardCount,
+  getDashboardRecentActivity,
+} from "../../store/slices/dashboardSlice";
 
 const { Title, Paragraph } = Typography;
 
@@ -32,7 +36,7 @@ const Dashboard: React.FC = () => {
         await dispatch(getDashboardAnalytics());
         await dispatch(getDashboardRecentActivity(1));
       } catch (error) {
-        console.error('Error fetching dashboard data:', error);
+        console.error("Error fetching dashboard data:", error);
       }
     };
 
@@ -52,7 +56,7 @@ const Dashboard: React.FC = () => {
       <Card className="dashboard-welcome">
         <div className="dashboard-welcome-content">
           <Title level={2} className="welcome-title">
-            Welcome, {currentUser?.first_name || "User"}!
+            Welcome, {currentUser?.first_name ?? "User"}!
           </Title>
           <Paragraph className="welcome-subtitle">
             Here's what's happening with your projects today.
@@ -82,7 +86,9 @@ const Dashboard: React.FC = () => {
           <Col xs={24} sm={8} lg={8}>
             <StatCard
               title="Completed Tasks"
-              value={`${dashboardCount?.task ?? 0}/${dashboardCount?.totalTask ?? 0}`}
+              value={`${dashboardCount?.task ?? 0}/${
+                dashboardCount?.totalTask ?? 0
+              }`}
               icon={<CheckCircleOutlined className="font-24" />}
               color="#fa8c16"
             />
@@ -104,9 +110,7 @@ const Dashboard: React.FC = () => {
           </Col>
           <Col>
             <Segmented
-              options={[
-                { label: "Week", value: "week" },
-              ]}
+              options={[{ label: "Week", value: "week" }]}
               value={timeframe}
               onChange={setTimeframe}
             />

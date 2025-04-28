@@ -46,6 +46,7 @@ import "../../../layout/styles/workspaceDetail.css";
 import AddBoardForm from "../../boards/components/AddBoardForm";
 import { generateGradient } from "../../../utils";
 import { PRIVATE_ROUTE } from "../../../utils/enums/route";
+import CustomButton from "../../../components/ui/button";
 
 const { Title, Text, Paragraph } = Typography;
 
@@ -192,6 +193,26 @@ const WorkspaceDetail: React.FC = () => {
       );
     }
 
+    const getBoardMenuItems = (board: IWorkspaceBoard): MenuProps["items"] => {
+      const items: MenuProps["items"] = [
+        {
+          key: "edit",
+          label: "Edit",
+          icon: <EditOutlined />,
+          onClick: () => showEditBoardModal(board),
+        },
+        {
+          key: "delete",
+          label: "Delete",
+          icon: <DeleteOutlined />,
+          danger: true,
+          onClick: () => handleDeleteBoard(board._id, board.name),
+        },
+      ];
+
+      return items;
+    };
+
     return (
       <List
         itemLayout="horizontal"
@@ -199,33 +220,11 @@ const WorkspaceDetail: React.FC = () => {
         renderItem={(board) => {
           const boardColor = generateGradient(board.name);
 
-          // Create board dropdown menu
-          const getBoardMenuItems = (
-            board: IWorkspaceBoard
-          ): MenuProps["items"] => {
-            const items: MenuProps["items"] = [
-              {
-                key: "edit",
-                label: "Edit",
-                icon: <EditOutlined />,
-                onClick: () => showEditBoardModal(board),
-              },
-              {
-                key: "delete",
-                label: "Delete",
-                icon: <DeleteOutlined />,
-                danger: true,
-                onClick: () => handleDeleteBoard(board._id, board.name),
-              },
-            ];
-
-            return items;
-          };
-
           return (
             <List.Item
               actions={[
                 <Dropdown
+                  key={board._id}
                   menu={{
                     items: getBoardMenuItems(board),
                   }}
@@ -295,14 +294,15 @@ const WorkspaceDetail: React.FC = () => {
                 {selectedWorkspace.name}
               </Title>
               <div>
-                <Button
+                <CustomButton
                   className="button"
                   danger
                   icon={<DeleteOutlined />}
                   onClick={handleDelete}
+                  breakPoint={460}
                 >
                   Delete
-                </Button>
+                </CustomButton>
               </div>
             </div>
 
@@ -340,7 +340,9 @@ const WorkspaceDetail: React.FC = () => {
                       <Card
                         title="Workspace Information"
                         className="info-card"
-                        headStyle={{ borderTop: `3px solid ${workspaceColor}` }}
+                        styles={{
+                          header: { borderTop: `3px solid ${workspaceColor}` },
+                        }}
                       >
                         <div className="info-card-content">
                           <p>
@@ -363,7 +365,9 @@ const WorkspaceDetail: React.FC = () => {
                       <Card
                         title="Activity"
                         className="activity-card"
-                        headStyle={{ borderTop: `3px solid ${workspaceColor}` }}
+                        styles={{
+                          header: { borderTop: `3px solid ${workspaceColor}` },
+                        }}
                       >
                         <div className="activity-content">
                           <Text type="secondary">No recent activity</Text>
@@ -383,7 +387,9 @@ const WorkspaceDetail: React.FC = () => {
                             View All
                           </Button>
                         }
-                        headStyle={{ borderTop: `3px solid ${workspaceColor}` }}
+                        styles={{
+                          header: { borderTop: `3px solid ${workspaceColor}` },
+                        }}
                       >
                         <div className="boards-card-content">
                           {renderBoardsList(workspaceBoards.slice(0, 3))}
@@ -400,21 +406,24 @@ const WorkspaceDetail: React.FC = () => {
                   <Row gutter={[16, 16]}>
                     <Col xs={24}>
                       <div className="boards-header">
-                        <Title level={4}>All Boards</Title>
-                        <Button
+                        <Title level={4} style={{ margin: "0px" }}>
+                          All Boards
+                        </Title>
+                        <CustomButton
                           type="primary"
                           className="button"
                           icon={<PlusOutlined />}
                           onClick={showAddBoardModal}
+                          breakPoint={370}
+                          style={{ marginTop: "0px" }}
                         >
                           Create Board
-                        </Button>
+                        </CustomButton>
                       </div>
 
                       <Card
-                        bordered={false}
                         className="boards-list-card"
-                        headStyle={{ borderTop: `3px solid ${workspaceColor}` }}
+                        style={{ borderTop: `3px solid ${workspaceColor}` }}
                       >
                         {renderBoardsList(workspaceBoards)}
                       </Card>

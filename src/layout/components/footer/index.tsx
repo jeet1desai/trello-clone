@@ -44,24 +44,16 @@ const Footer: React.FC = () => {
         className={`app-footer ${isDarkMode ? "footer-dark" : "footer-light"}`}
         style={{ borderTop: `1px solid ${borderColor}` }}
       >
-        <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 20px" }}>
+        <div className="footer-main-container">
           <Row gutter={[48, 24]}>
-            <Col xs={24} sm={12} md={6}>
-              <div style={{ marginBottom: 24 }}>
+            <Col xs={24} sm={12} md={9}>
+              <div className="margin-bottom-24">
                 <Link to={PUBLIC_ROUTE.HOME}>
-                  <Title
-                    level={4}
-                    style={{ margin: 0, display: "flex", alignItems: "center" }}
-                  >
+                  <Title level={4} className="footer-company-name">
                     <img
                       src={companyLogo}
                       alt="Base Team"
-                      style={{
-                        width: "26px",
-                        height: "auto",
-                        marginRight: 5,
-                        borderRadius: "4px",
-                      }}
+                      className="footer-company-logo"
                     />
                     Base Team
                   </Title>
@@ -71,7 +63,7 @@ const Footer: React.FC = () => {
                 A simple and efficient way to organize your tasks, projects, and
                 collaborations.
               </Text>
-              <div style={{ marginTop: 24 }}>
+              <div className="margin-top-24">
                 <Space size="large">
                   <Link to={PUBLIC_ROUTE.UNKNOWN}>
                     <GithubOutlined className="font-20" />
@@ -91,8 +83,8 @@ const Footer: React.FC = () => {
                 </Space>
               </div>
             </Col>
-            <Col xs={24} sm={12} md={6}>
-              <Title level={5} style={{ marginBottom: 16 }}>
+            <Col xs={8} sm={12} md={5}>
+              <Title level={5} className="footer-company-list-container">
                 Product
               </Title>
               <Space direction="vertical" size="middle">
@@ -113,8 +105,8 @@ const Footer: React.FC = () => {
                 </Link>
               </Space>
             </Col>
-            <Col xs={24} sm={12} md={6}>
-              <Title level={5} style={{ marginBottom: 16 }}>
+            <Col xs={8} sm={12} md={5}>
+              <Title level={5} className="footer-company-list-container">
                 Resources
               </Title>
               <Space direction="vertical" size="middle">
@@ -132,8 +124,8 @@ const Footer: React.FC = () => {
                 </Link>
               </Space>
             </Col>
-            <Col xs={24} sm={12} md={6}>
-              <Title level={5} style={{ marginBottom: 16 }}>
+            <Col xs={8} sm={12} md={5}>
+              <Title level={5} className="footer-company-list-container">
                 Company
               </Title>
               <Space direction="vertical" size="middle">
@@ -162,17 +154,11 @@ const Footer: React.FC = () => {
 
           <Divider style={{ borderColor: dividerColor, margin: "32px 0" }} />
 
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              flexWrap: "wrap",
-            }}
-          >
-            <Text>
+          <div className="policy-container">
+            <Text className="policy-text">
               &copy; {new Date().getFullYear()} Base Team. All rights reserved.
             </Text>
-            <Space size="middle">
+            <Space size="middle" className="policy-type-container">
               <input
                 type="button"
                 value="Terms of Service"

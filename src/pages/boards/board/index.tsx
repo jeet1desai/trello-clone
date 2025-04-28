@@ -412,7 +412,9 @@ const BoardDetail: React.FC = () => {
                     title={`${member?.memberId?.first_name} ${member?.memberId?.last_name} (${member?.memberId?.email})`}
                   >
                     <Avatar
-                      style={{ background: getRandomColor(member.memberId._id) }}
+                      style={{
+                        background: getRandomColor(member.memberId._id),
+                      }}
                     >{`${member?.memberId?.first_name[0]?.toUpperCase()}${member?.memberId?.last_name[0]?.toUpperCase()}`}</Avatar>
                   </Tooltip>
                 );

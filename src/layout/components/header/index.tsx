@@ -63,7 +63,7 @@ const Header: React.FC = () => {
   };
 
   useEffect(() => {
-    socketService.on('receive_notification', (payload) => {
+    socketService.on("receive_notification", (payload) => {
       dispatch(addNewNotification(payload));
     });
 
@@ -164,83 +164,44 @@ const Header: React.FC = () => {
 
       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
         <Popover
+          overlayClassName="custom-notification-popover"
           content={
-            <>
+            <div className="notification-popover-content">
               {allNotification.length > 0 ? (
-                <div
-                  style={{
-                    width: "350px",
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: "6px",
-                    height: 400,
-                    overflow: "auto",
-                    scrollbarWidth: "none",
-                  }}
-                >
-                  {allNotification.map((item: Notification) => {
-                    return (
-                      <div
-                        key={item._id}
-                        style={{
-                          background: isDarkMode ? "#181818" : "#efefef",
-                          padding: "10px",
-                          borderRadius: "4px",
-                          display: "flex",
-                          justifyContent: "space-between",
-                        }}
-                      >
-                        <div
+                allNotification.map((item: Notification) => (
+                  <div
+                    className="notification-item"
+                    key={item._id}
+                    style={{
+                      background: isDarkMode ? "#181818" : "#efefef",
+                    }}
+                  >
+                    <div className="notification-left">
+                      <Avatar />
+                      <div className="notification-text">
+                        <p>{item.message}</p>
+                        <span
                           style={{
-                            display: "flex",
-                            alignItems: "flex-start",
-                            gap: 8,
+                            color: "#727272",
                           }}
                         >
-                          <Avatar />
-                          <div
-                            style={{
-                              display: "flex",
-                              flexDirection: "column",
-                              gap: 4,
-                              maxWidth: "250px",
-                            }}
-                          >
-                            <p style={{ margin: 0 }}>{item.message}</p>
-                            <span
-                              style={{
-                                color: isDarkMode ? "#727272" : "#727272",
-                              }}
-                            >
-                              {dayjs(item.createdAt).fromNow()}
-                            </span>
-                          </div>
-                        </div>
-                        <Button
-                          type="text"
-                          icon={<EyeInvisibleOutlined />}
-                          onClick={() => handleReadNotification(item._id)}
-                          style={{ color: isDarkMode ? "white" : "inherit" }}
-                        />
+                          {dayjs(item.createdAt).fromNow()}
+                        </span>
                       </div>
-                    );
-                  })}
-                </div>
+                    </div>
+                    <Button
+                      type="text"
+                      icon={<EyeInvisibleOutlined />}
+                      onClick={() => handleReadNotification(item._id)}
+                      className="notification-button"
+                      style={{ color: isDarkMode ? "white" : "inherit" }}
+                    />
+                  </div>
+                ))
               ) : (
-                <div
-                  style={{
-                    width: "350px",
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: "6px",
-                    overflow: "auto",
-                    scrollbarWidth: "none",
-                  }}
-                >
-                  <Empty description="No new notification" />
-                </div>
+                <Empty description="No new notification" />
               )}
-            </>
+            </div>
           }
           title="Notification"
           trigger="click"
@@ -249,15 +210,11 @@ const Header: React.FC = () => {
           <Button
             type="text"
             icon={
-              <Badge
-                dot={allNotification.some(
-                  (notification) => notification.read === false
-                )}
-              >
+              <Badge dot={allNotification.some((n) => !n.read)}>
                 <BellOutlined />
               </Badge>
             }
-            style={{ color: isDarkMode ? "white" : "inherit" }}
+            className="notification-trigger"
           />
         </Popover>
 
