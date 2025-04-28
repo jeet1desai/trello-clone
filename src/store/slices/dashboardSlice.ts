@@ -125,7 +125,7 @@ export const getDashboardAnalytics = createAsyncThunk(
 );
 
 export const getDashboardRecentActivity = createAsyncThunk(
-  "user/activity?page=",
+  "dashboard/activity?page=",
   async (_page: number, { rejectWithValue }) => {
     try {
       const response = await dashboardService.getDashboardRecentActivity(_page);

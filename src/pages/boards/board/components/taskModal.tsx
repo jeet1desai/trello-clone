@@ -477,7 +477,6 @@ const TaskModal: React.FC<TaskModalProps> = ({ boardId, visible, onClose }) => {
         status: !isCompleted ? TaskStatus.COMPLETED : TaskStatus.INCOMPLETE,
       })
     );
-    setIsCompleted((prev) => !prev);
   };
 
   const taskCommentDelete = (commentId: string) =>

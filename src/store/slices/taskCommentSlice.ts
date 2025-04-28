@@ -157,26 +157,28 @@ const taskCommentSlice = createSlice({
         updatedAt,
         __v,
       } = action.payload.data;
-      state.taskComments = [
-        ...state.taskComments,
-        {
-          _id,
-          comment,
-          attachment,
-          task_id,
-          commented_by,
-          createdAt,
-          updatedAt,
-          __v,
-        },
-      ];
+      const existingComment = state.taskComments.findIndex(
+        (comment) => comment._id === _id
+      );
+      if (existingComment === -1)
+        state.taskComments = [
+          ...state.taskComments,
+          {
+            _id,
+            comment,
+            attachment,
+            task_id,
+            commented_by,
+            createdAt,
+            updatedAt,
+            __v,
+          },
+        ];
     },
     updateComment: (state, action) => {
       state.taskComments = state.taskComments.map((comment) =>
-          comment._id === action.payload.data._id
-            ? action.payload.data
-            : comment
-        );
+        comment._id === action.payload.data._id ? action.payload.data : comment
+      );
     },
     addTaskComment: (state) => {
       state.taskLoading = false;
@@ -285,7 +287,11 @@ const taskCommentSlice = createSlice({
   },
 });
 
-export const { addNewComment, updateComment, addTaskComment, clearSelectedTaskComment } =
-  taskCommentSlice.actions;
+export const {
+  addNewComment,
+  updateComment,
+  addTaskComment,
+  clearSelectedTaskComment,
+} = taskCommentSlice.actions;
 
 export default taskCommentSlice.reducer;

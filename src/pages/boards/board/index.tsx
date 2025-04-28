@@ -8,6 +8,7 @@ import {
   Tooltip,
   Spin,
   App,
+  Checkbox,
 } from "antd";
 import {
   PlusOutlined,
@@ -366,8 +367,19 @@ const BoardDetail: React.FC = () => {
               <div>
                 <Paragraph
                   ellipsis={{ rows: 2 }}
-                  style={{ marginBottom: 4, fontWeight: 500 }}
+                  style={{
+                    marginBottom: 4,
+                    fontWeight: 500,
+                    display: "flex",
+                    gap: 4,
+                  }}
                 >
+                  {hoveredTaskId === task._id && (
+                    <Checkbox
+                      checked={task.status === "Completed"}
+                      prefixCls="status-checkbox"
+                    />
+                  )}
                   {task.title}
                 </Paragraph>
                 <div style={{ display: "flex", gap: 8 }}>
@@ -405,6 +417,7 @@ const BoardDetail: React.FC = () => {
                 <Button
                   type="text"
                   size="small"
+                  style={{ marginLeft: 4 }}
                   danger
                   icon={<DeleteOutlined />}
                   onClick={(e) => handleDeleteTask(e, task._id)}
@@ -500,6 +513,7 @@ const BoardDetail: React.FC = () => {
                             borderRadius: 6,
                             padding: "8px 8px 0 8px",
                             height: "100%",
+                            maxWidth: "300px",
                           }}
                         >
                           <div
