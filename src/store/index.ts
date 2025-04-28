@@ -18,6 +18,7 @@ import statusReducer from "./slices/statusSlice";
 import taskReducer from "./slices/taskSlice";
 import taskCommentReducer from "./slices/taskCommentSlice";
 import notificationReducer from "./slices/notificationSlice";
+import dashboardReducer from "./slices/dashboardSlice";
 import taskAttachmentReducer from "./slices/taskAttachmentSlice";
 import { notificationMiddleware } from "./middleware/notificationMiddleware";
 import { RESET_APP } from "../config";
@@ -39,6 +40,7 @@ const appReducer = combineReducers({
   taskComment: taskCommentReducer,
   notification: notificationReducer,
   taskAttachment: taskAttachmentReducer,
+  dashboard: dashboardReducer,
 });
 
 const rootReducer = (
