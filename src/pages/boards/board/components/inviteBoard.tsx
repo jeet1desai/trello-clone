@@ -20,10 +20,7 @@ import {
   App,
   Spin,
 } from "antd";
-import {
-  LinkOutlined,
-  ExclamationCircleOutlined,
-} from "@ant-design/icons";
+import { LinkOutlined, ExclamationCircleOutlined } from "@ant-design/icons";
 import "../../../../layout/styles/Board.css";
 import { getRandomColor } from "../../../../utils";
 
@@ -63,10 +60,8 @@ const InviteBoard: React.FC<InviteBoardProps> = ({ isOpen, onClose }) => {
     if (lastEmail && validateEmail(lastEmail)) {
       setEmailError("");
       setEmails(newEmails);
-    } else {
-      if (lastEmail) {
-        setEmailError("Invalid Email address");
-      }
+    } else if (lastEmail) {
+      setEmailError("Invalid Email address");
     }
   };
 

@@ -68,6 +68,7 @@ import {
 } from "../../../../store/slices/boardSlice";
 import { getRandomColor } from "../../../../utils";
 import AttachmentActions from "./attachmentAction";
+import "quill/dist/quill.snow.css";
 import socketService from "../../../../services/socketService";
 
 const { Text } = Typography;
@@ -541,7 +542,6 @@ const TaskModal: React.FC<TaskModalProps> = ({ boardId, visible, onClose }) => {
       }}
       footer={null}
       className="task-modal"
-      width={768}
     >
       <Spin
         spinning={loading || taskLoading || taskAttachmentLoading}
@@ -744,7 +744,7 @@ const TaskModal: React.FC<TaskModalProps> = ({ boardId, visible, onClose }) => {
               </div>
               {selectedTask?.description && !showEditor && (
                 <div
-                  className="task-preview-css"
+                  className="task-preview-css ql-editor"
                   dangerouslySetInnerHTML={{
                     __html: selectedTask.description,
                   }}

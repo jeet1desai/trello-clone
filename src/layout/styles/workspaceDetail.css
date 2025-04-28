@@ -112,17 +112,13 @@
 }
 
 .padding-0 {
-  padding: 0px
+  padding: 0px;
 }
 
 /* Responsive Styles */
 @media (max-width: 768px) {
   .workspace-detail-container {
     padding: 15px;
-  }
-
-  .workspace-title-row {
-    justify-content: center;
   }
 
   .workspace-meta {
@@ -135,4 +131,4 @@
   .workspace-detail-container {
     padding: 10px;
   }
-} 
+}

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { generatePath, useLocation, useNavigate } from "react-router-dom";
 import {
   Row,
   Col,
@@ -44,12 +44,16 @@ import {
 import "../../layout/styles/workspaces.css";
 import { SORT_OPTIONS } from "../../config";
 import { generateGradient } from "../../utils";
+import { PRIVATE_ROUTE } from "../../utils/enums/route";
+import CustomButton from "../../components/ui/button";
+import ResponsiveSearch from "../../components/ui/searchResponsive";
 
 const { Title, Paragraph } = Typography;
 
 const Workspaces: React.FC = () => {
   const { modal } = App.useApp();
   const [form] = Form.useForm();
+  const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useDispatch<AppDispatch>();
   const { workspaces, addError, editError, loading } = useSelector(
@@ -207,20 +211,24 @@ const Workspaces: React.FC = () => {
       <Card
         hoverable
         className="workspace-card"
-        headStyle={{ background, padding: 0 }}
+        styles={{ header: { background, padding: 0 } }}
       >
         <div className="workspace-card-color-bar" style={{ background }} />
         <div className="workspace-card-content">
           <div className="workspace-card-header">
             <div className="workspace-card-title">
-              <Link
-                to={`/workspace/${workspace._id}`}
+              <button
+                onClick={() =>
+                  navigate(
+                    generatePath(PRIVATE_ROUTE.WORKSPACE, { id: workspace._id })
+                  )
+                }
                 className="workspace-link"
               >
                 <Title level={4} className="workspace-name">
                   {workspace.name}
                 </Title>
-              </Link>
+              </button>
             </div>
             <div className="workspace-card-actions">
               <Dropdown
@@ -361,14 +369,16 @@ const Workspaces: React.FC = () => {
           </div>
           <div className="header-right">
             <Space className="search-filter">
-              <Input
-                prefix={<SearchOutlined />}
-                placeholder="Search workspaces"
-                allowClear
-                value={searchText}
-                onChange={(e) => setSearchText(e.target.value)}
-                className="form-input small-input"
-              />
+              <ResponsiveSearch breakPoint={590}>
+                <Input
+                  prefix={<SearchOutlined />}
+                  placeholder="Search workspaces"
+                  allowClear
+                  value={searchText}
+                  onChange={(e) => setSearchText(e.target.value)}
+                  className="form-input small-input"
+                />
+              </ResponsiveSearch>
               <Dropdown
                 menu={{
                   items: sortMenuItems,
@@ -378,22 +388,25 @@ const Workspaces: React.FC = () => {
                 }}
                 trigger={["click"]}
               >
-                <Button type="default" className="button">
-                  <Space>
-                    <SortAscendingOutlined />
-                    Sort
-                  </Space>
-                </Button>
+                <CustomButton
+                  type="default"
+                  className="button"
+                  icon={<SortAscendingOutlined />}
+                  breakPoint={800}
+                >
+                  <Space>Sort</Space>
+                </CustomButton>
               </Dropdown>
+              <CustomButton
+                type="primary"
+                icon={<PlusOutlined />}
+                onClick={showAddModal}
+                className="button"
+                breakPoint={820}
+              >
+                Create New Workspace
+              </CustomButton>
             </Space>
-            <Button
-              type="primary"
-              icon={<PlusOutlined />}
-              onClick={showAddModal}
-              className="button"
-            >
-              Create New Workspace
-            </Button>
           </div>
         </div>
 
@@ -436,11 +449,7 @@ const Workspaces: React.FC = () => {
               />
             </Form.Item>
             <Form.Item
-              label={
-                <span className="input-label">
-                  Description
-                </span>
-              }
+              label={<span className="input-label">Description</span>}
               name="description"
             >
               <Input.TextArea

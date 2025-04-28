@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { generatePath, useLocation, useNavigate } from "react-router-dom";
 import {
   Row,
   Col,
@@ -47,10 +47,13 @@ import { SORT_OPTIONS } from "../../config";
 import AddBoardForm from "./components/AddBoardForm";
 import { generateGradient } from "../../utils";
 import { getAllWorkspaces } from "../../store/slices/workspaceSlice";
-
+import { PRIVATE_ROUTE } from "../../utils/enums/route";
+import CustomButton from "../../components/ui/button";
+import ResponsiveSearch from "../../components/ui/searchResponsive";
 const { Title, Paragraph } = Typography;
 
 const Boards: React.FC = () => {
+  const navigate = useNavigate();
   const [form] = Form.useForm();
   const { modal } = App.useApp();
   const location = useLocation();
@@ -233,11 +236,16 @@ const Boards: React.FC = () => {
         <div className="board-card-content">
           <div className="board-card-header">
             <div className="board-card-title">
-              <Link to={`/board/${board._id}`} className="board-link">
+              <button
+                onClick={() =>
+                  navigate(generatePath(PRIVATE_ROUTE.BOARD, { id: board._id }))
+                }
+                className="board-link"
+              >
                 <Title level={4} className="board-name">
                   {board.name}
                 </Title>
-              </Link>
+              </button>
             </div>
             <div className="board-card-actions">
               <Dropdown
@@ -361,22 +369,24 @@ const Boards: React.FC = () => {
       <Spin spinning={loading} fullscreen />
       <div className="boards-container">
         <div className="boards-header">
-          <div className="header-left">
+          <div className="boards-header-left">
             <Title level={3} className="page-title">
               Your Boards
             </Title>
           </div>
-          <div className="header-right">
+          <div className="boards-header-right">
             <Space className="search-filter">
-              <Input
-                prefix={<SearchOutlined />}
-                placeholder="Search boards"
-                allowClear
-                value={searchText}
-                onChange={(e) => setSearchText(e.target.value)}
-                style={{ width: 220, marginTop: "8px" }}
-                className="form-input"
-              />
+              <ResponsiveSearch breakPoint={540}>
+                <Input
+                  prefix={<SearchOutlined />}
+                  placeholder="Search boards"
+                  allowClear
+                  value={searchText}
+                  onChange={(e) => setSearchText(e.target.value)}
+                  style={{ width: 220, marginTop: "8px" }}
+                  className="form-input"
+                />
+              </ResponsiveSearch>
               <Dropdown
                 menu={{
                   items: sortMenuItems,
@@ -386,22 +396,25 @@ const Boards: React.FC = () => {
                 }}
                 trigger={["click"]}
               >
-                <Button type="default" className="button">
-                  <Space>
-                    <SortAscendingOutlined />
-                    Sort
-                  </Space>
-                </Button>
+                <CustomButton
+                  type="default"
+                  className="button"
+                  icon={<SortAscendingOutlined />}
+                  breakPoint={720}
+                >
+                  <Space>Sort</Space>
+                </CustomButton>
               </Dropdown>
+              <CustomButton
+                type="primary"
+                icon={<PlusOutlined />}
+                onClick={showAddModal}
+                className="button"
+                breakPoint={740}
+              >
+                Create New Board
+              </CustomButton>
             </Space>
-            <Button
-              type="primary"
-              icon={<PlusOutlined />}
-              onClick={showAddModal}
-              className="button"
-            >
-              Create New Board
-            </Button>
           </div>
         </div>
 

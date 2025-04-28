@@ -384,6 +384,64 @@
   border-color: var(--border-color);
 }
 
+.footer-main-container {
+  max-width: 1200px;
+  margin: 0px auto;
+  padding: 0px 20px;
+  overflow-x: hidden;
+}
+
+.footer-company-name {
+  margin: 0px;
+  display: flex;
+  align-items: center;
+}
+
+.footer-company-logo {
+  width: 26px;
+  height: auto;
+  margin-right: 5px;
+  border-radius: 4px;
+}
+
+.margin-bottom-24 {
+  margin-bottom: 24px;
+}
+
+.margin-top-24 {
+  margin-top: 24px;
+}
+
+.footer-company-list-container {
+  margin-bottom: 16px;
+  margin-top: auto;
+}
+
+.policy-container {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 480px) {
+  .policy-container {
+    text-align: center;
+    width: -webkit-fill-available;
+    gap: 10px;
+  }
+
+  .policy-text {
+    text-align: center;
+    width: -webkit-fill-available;
+  }
+
+  .policy-type-container {
+    display: flex;
+    justify-content: center;
+    width: -webkit-fill-available;
+  }
+}
+
 /* Fix existing styles related to theming */
 .ant-menu-item a {
   color: inherit;
@@ -471,4 +529,88 @@
 
 .media-main-container-cross {
   margin-left: 10px;
+}
+
+/* Notification Style */
+
+.notification-popover-content {
+  width: 100%;
+  max-width: 350px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 60vh;
+  overflow-y: auto;
+  padding-right: 6px;
+}
+
+.notification-item {
+  padding: 10px;
+  border-radius: 4px;
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.notification-left {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  flex: 1;
+}
+
+.notification-text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-width: 220px;
+  word-break: break-word;
+}
+
+.notification-text p {
+  margin: 0;
+}
+
+.notification-text span {
+  color: #727272;
+}
+
+.notification-button {
+  align-self: flex-start;
+}
+
+.notification-empty {
+  max-width: 350px;
+  width: 100%;
+  padding: 12px;
+}
+
+/* 🌐 Responsive Styles */
+@media (max-width: 480px) {
+  .custom-notification-popover {
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    right: auto !important;
+  }
+
+  .custom-notification-popover .ant-popover-arrow {
+    left: calc(100% - 120px) !important;
+    display: block;
+  }
+
+  .notification-popover-content {
+    max-width: 90vw;
+    max-height: 70vh;
+  }
+
+  .notification-text {
+    max-width: 65vw;
+  }
+}
+
+@media (max-width: 390px) {
+  .custom-notification-popover .ant-popover-arrow {
+    left: calc(100% - 135px) !important;
+  }
 }

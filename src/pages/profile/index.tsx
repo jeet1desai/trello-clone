@@ -81,7 +81,7 @@ const ProfilePage = () => {
       <div className="profile-container">
         <div className="profile-header-gradient">
           <Title level={3}>
-            Welcome, {profileDetails?.first_name || "User"}
+            Welcome, {profileDetails?.first_name ?? "User"}
           </Title>
           <Text type="secondary">Today, {new Date().toDateString()}</Text>
         </div>
@@ -113,7 +113,7 @@ const ProfilePage = () => {
                     <div className="avatar-upload-wrapper">
                       <Avatar
                         size={80}
-                        src={previewImage || profileDetails?.profile_image?.url}
+                        src={previewImage ?? profileDetails?.profile_image?.url}
                         icon={<UserOutlined />}
                       />
                       {editMode && (

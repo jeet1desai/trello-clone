@@ -109,6 +109,12 @@
   min-width: 768px;
 }
 
+@media (max-width: 800px) {
+  .task-modal {
+    min-width: 90%;
+  }
+}
+
 .task-header {
   display: flex;
   gap: 4px;
