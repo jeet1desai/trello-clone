@@ -41,7 +41,7 @@ const Dashboard: React.FC = () => {
       <Card className="dashboard-welcome">
         <div className="dashboard-welcome-content">
           <Title level={2} className="welcome-title">
-            Welcome back, {currentUser?.first_name || "User"}!
+            Welcome back, {currentUser?.first_name ?? "User"}!
           </Title>
           <Paragraph className="welcome-subtitle">
             Here's what's happening with your projects today.

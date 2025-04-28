@@ -1,25 +1,32 @@
-import React from 'react';
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
-import { Card, Typography } from 'antd';
+import React from "react";
+import {
+  PieChart,
+  Pie,
+  Cell,
+  ResponsiveContainer,
+  Tooltip,
+  Legend,
+} from "recharts";
+import { Card, Typography } from "antd";
 
 const { Title } = Typography;
 
 // Sample data for workspace distribution
 const workspaceData = [
-  { name: 'Marketing', value: 8, color: '#1890ff' },
-  { name: 'Engineering', value: 12, color: '#52c41a' },
-  { name: 'Design', value: 5, color: '#722ed1' },
-  { name: 'Management', value: 3, color: '#fa8c16' },
-  { name: 'Other', value: 2, color: '#eb2f96' },
+  { name: "Marketing", value: 8, color: "#1890ff" },
+  { name: "Engineering", value: 12, color: "#52c41a" },
+  { name: "Design", value: 5, color: "#722ed1" },
+  { name: "Management", value: 3, color: "#fa8c16" },
+  { name: "Other", value: 2, color: "#eb2f96" },
 ];
 
-const COLORS = workspaceData.map(item => item.color);
+const COLORS = workspaceData.map((item) => item.color);
 
 const WorkspaceDistribution: React.FC = () => {
   return (
-    <Card bordered={false} className="dashboard-card">
+    <Card hoverable className="dashboard-card">
       <Title level={4}>Workspaces Distribution</Title>
-      <div style={{ width: '100%', height: 250 }}>
+      <div style={{ width: "100%", height: 250 }}>
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
             <Pie
@@ -34,7 +41,10 @@ const WorkspaceDistribution: React.FC = () => {
               nameKey="name"
             >
               {workspaceData.map((entry, index) => (
-                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                <Cell
+                  key={`cell-${index}`}
+                  fill={COLORS[index % COLORS.length]}
+                />
               ))}
             </Pie>
             <Tooltip formatter={(value) => [`${value} boards`, null]} />
@@ -46,4 +56,4 @@ const WorkspaceDistribution: React.FC = () => {
   );
 };
 
-export default WorkspaceDistribution; 
+export default WorkspaceDistribution;
