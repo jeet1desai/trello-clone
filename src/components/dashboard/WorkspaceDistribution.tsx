@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import {
   PieChart,
   Pie,
@@ -7,40 +7,31 @@ import {
   Tooltip,
   Legend,
 } from "recharts";
-import { Card, Typography, Spin, Empty } from "antd";
+import { Card, Typography, Spin } from "antd";
 import { useSelector } from "react-redux";
 import { RootState } from "../../store";
 import "../../layout/styles/Dashboard.css";
 
-interface ChartItem {
-  name: string;
-  boards: number;
-  tasks: number;
-  color: string;
-  value: number;
-}
-
-interface CustomTooltipProps {
-  active?: boolean;
-  payload?: Array<{
-    payload: ChartItem;
-  }>;
-}
-
 const { Title } = Typography;
 
-// Sample data for workspace distribution
-const workspaceData = [
-  { name: "Marketing", value: 8, color: "#1890ff" },
-  { name: "Engineering", value: 12, color: "#52c41a" },
-  { name: "Design", value: 5, color: "#722ed1" },
-  { name: "Management", value: 3, color: "#fa8c16" },
-  { name: "Other", value: 2, color: "#eb2f96" },
-];
-
-const COLORS = workspaceData.map((item) => item.color);
-
 const WorkspaceDistribution: React.FC = () => {
+  const { dashboardAnalytic, loading } = useSelector(
+    (state: RootState) => state.dashboard
+  );
+  const workspaceData = [
+    { name: "Boards", value: dashboardAnalytic?.boards.thisWeek, color: "#1890ff" },
+    { name: "Tasks", value: dashboardAnalytic?.tasks.thisWeek, color: "#52c41a" },
+  ];
+  const COLORS = workspaceData.map((item) => item.color);
+
+  if (loading) {
+    return (
+      <div className="dashboard-loading-container">
+        <Spin size="large" />
+      </div>
+    );
+  }
+
   return (
     <Card bordered={false} className="dashboard-card">
       <Title level={4}>Workspaces Distribution</Title>
@@ -60,12 +51,12 @@ const WorkspaceDistribution: React.FC = () => {
             >
               {workspaceData.map((entry, index) => (
                 <Cell
-                  key={`cell-${index}`}
+                  key={entry.name}
                   fill={COLORS[index % COLORS.length]}
                 />
               ))}
             </Pie>
-            <Tooltip formatter={(value) => [`${value} boards`, null]} />
+            <Tooltip formatter={(value, name) => [`${value} ${name}`, null]} />
             <Legend layout="vertical" verticalAlign="middle" align="right" />
           </PieChart>
         </ResponsiveContainer>

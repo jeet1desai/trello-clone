@@ -12,12 +12,14 @@ import {
   Popover,
   Badge,
   Empty,
+  Typography,
 } from "antd";
 import {
   BellOutlined,
   UserOutlined,
   LogoutOutlined,
   EyeInvisibleOutlined,
+  NotificationOutlined,
 } from "@ant-design/icons";
 import { logoutUser } from "../../../store/slices/userSlice";
 import { ThemeToggle } from "../../../components/ui";
@@ -35,6 +37,7 @@ import {
 } from "../../../store/slices/notificationSlice";
 import { PRIVATE_ROUTE, PUBLIC_ROUTE } from "../../../utils/enums/route";
 import { companyLogo } from "../../../assets";
+import { getRandomColor } from "../../../utils";
 dayjs.extend(relativeTime);
 const { Header: AntHeader } = Layout;
 
@@ -177,7 +180,12 @@ const Header: React.FC = () => {
                     }}
                   >
                     <div className="notification-left">
-                      <Avatar />
+                      <Avatar
+                        style={{ background: getRandomColor(item.sender._id) }}
+                      >
+                        {item.sender.first_name[0].toUpperCase() +
+                          item.sender.last_name[0].toUpperCase()}
+                      </Avatar>
                       <div className="notification-text">
                         <p>{item.message}</p>
                         <span
@@ -203,7 +211,17 @@ const Header: React.FC = () => {
               )}
             </div>
           }
-          title="Notification"
+          title={
+            <div
+              className="notification-header"
+            >
+              <Typography>Notification</Typography>
+              <Typography className="notification-mark-as-read">
+                <NotificationOutlined style={{marginRight: 4}} />
+                Mark all as read
+              </Typography>
+            </div>
+          }
           trigger="click"
           placement="bottomRight"
         >
@@ -220,7 +238,11 @@ const Header: React.FC = () => {
 
         <ThemeToggle style={{ marginRight: 8 }} />
 
-        <Dropdown menu={{ items: userMenuItems }} placement="bottomRight" arrow>
+        <Dropdown
+          menu={{ items: userMenuItems }}
+          placement="bottomRight"
+          trigger={["click"]}
+        >
           <Avatar className="user-avatar" src={currentUser?.profile_image?.url}>
             {currentUser?.first_name?.[0]?.toUpperCase()}
           </Avatar>

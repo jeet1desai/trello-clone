@@ -886,7 +886,10 @@ const TaskModal: React.FC<TaskModalProps> = ({ boardId, visible, onClose }) => {
                     alignItems: "flex-end",
                   }}
                 >
-                  <Avatar src={currentUser?.profile_image.url}>
+                  <Avatar
+                    src={currentUser?.profile_image.url}
+                    style={{ background: getRandomColor(currentUser?.id ?? "") }}
+                  >
                     {currentUser?.first_name[0].toUpperCase()}
                     {currentUser?.last_name?.[0]?.toUpperCase()}
                   </Avatar>

@@ -7,6 +7,7 @@ import {
   ITaskCommentBy,
   IAttachment,
 } from "../../../../store/slices/taskCommentSlice";
+import { getRandomColor } from "../../../../utils";
 
 dayjs.extend(relativeTime);
 
@@ -40,7 +41,7 @@ const CommentCard: React.FC<CommentCardProps> = ({
   key,
   commentId,
 }) => {
-  const { profile_image, first_name, last_name } = commentedBy;
+  const { _id, profile_image, first_name, last_name } = commentedBy;
   const [isEditing, setIsEditing] = React.useState(false);
   const [msg, setMsg] = React.useState(comment);
   const [fileList, setFileList] = React.useState<File[]>([]);
@@ -53,7 +54,13 @@ const CommentCard: React.FC<CommentCardProps> = ({
   return (
     <>
       <div className="comment-list-container">
-        <Avatar src={profile_image?.url ?? ""}></Avatar>
+        <Avatar
+          src={profile_image?.url}
+          style={{ background: getRandomColor(_id) }}
+        >
+          {first_name[0].toUpperCase()}
+          {last_name[0].toUpperCase()}
+        </Avatar>
         <div className="comment-container">
           <div className="commenter-container">
             <Text strong>
