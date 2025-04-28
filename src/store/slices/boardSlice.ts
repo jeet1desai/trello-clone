@@ -90,14 +90,16 @@ export interface IBoardDetails {
   workspace: IBoardWorkspace[];
 }
 
+export interface memberId {
+  _id: string;
+  first_name: string;
+  last_name: string;
+  email: string;
+}
+
 export interface MemberData {
   _id: string;
-  memberId: {
-    _id: string;
-    first_name: string;
-    last_name: string;
-    email: string;
-  };
+  memberId: memberId;
   role: "ADMIN" | "MEMBER";
   boardId: {
     _id: string;
