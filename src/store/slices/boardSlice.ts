@@ -310,7 +310,7 @@ export const getBoardMemberListById = createAsyncThunk(
 );
 
 export const removeBoardMemberFromListById = createAsyncThunk(
-  "status/remove-member",
+  "member/remove-member",
   async (
     {
       _id,
