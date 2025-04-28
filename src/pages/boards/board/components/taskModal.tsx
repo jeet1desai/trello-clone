@@ -42,9 +42,11 @@ import LabelPopup from "./labelPopup";
 import DatePickerPopup from "./datePopup";
 import FileUploadModal from "./uploadAttachment";
 import {
+  addNewComment,
   addNewTaskComment,
   deleteTaskComment,
   getTaskCommentById,
+  updateComment,
   updateTaskComment,
 } from "../../../../store/slices/taskCommentSlice";
 import { RcFile } from "antd/es/upload";
@@ -61,10 +63,13 @@ import {
   getLabelsByTaskId,
   getMembersByTaskId,
   removeMemberFromTask,
+  addSelectedLabels,
+  addSelectedMembers,
 } from "../../../../store/slices/boardSlice";
 import { getRandomColor } from "../../../../utils";
 import AttachmentActions from "./attachmentAction";
 import "quill/dist/quill.snow.css";
+import socketService from "../../../../services/socketService";
 
 const { Text } = Typography;
 const { Option } = Select;
@@ -408,6 +413,31 @@ const TaskModal: React.FC<TaskModalProps> = ({ boardId, visible, onClose }) => {
     }
   };
 
+  useEffect(() => {
+    socketService.on("receive_new_task-member", (payload) => {
+      dispatch(addSelectedMembers(payload));
+    });
+
+    socketService.on("receive-new-task-label", (payload) => {
+      dispatch(addSelectedLabels(payload));
+    });
+
+    socketService.on("receive_new_comment", (payload) => {
+      dispatch(addNewComment(payload));
+    });
+
+    socketService.on("receive_updated_comment", (payload) => {
+      dispatch(updateComment(payload));
+    });
+
+    return () => {
+      socketService.off("receive_new_task-member");
+      socketService.off("receive-new-task-label");
+      socketService.off("receive_new_comment");
+      socketService.off("receive_updated_comment");
+    };
+  });
+
   const handleUploadChange = ({ fileList }: { fileList: UploadFile[] }) => {
     setFileList(fileList);
   };
@@ -447,7 +477,6 @@ const TaskModal: React.FC<TaskModalProps> = ({ boardId, visible, onClose }) => {
         status: !isCompleted ? TaskStatus.COMPLETED : TaskStatus.INCOMPLETE,
       })
     );
-    setIsCompleted((prev) => !prev);
   };
 
   const taskCommentDelete = (commentId: string) =>

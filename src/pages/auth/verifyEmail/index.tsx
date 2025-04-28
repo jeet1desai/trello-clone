@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { Typography } from "antd";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { AppstoreOutlined } from "@ant-design/icons";
 import "../../../layout/styles/Auth.css";
 import { useDispatch, useSelector } from "react-redux";
@@ -43,6 +43,17 @@ const VerifyEmail: React.FC = () => {
           Verify your email to complete your signup. If you don't see it, you
           may need to check{" "}
           <span style={{ fontWeight: 700 }}>your spam folder</span>.
+        </Text>
+        <br />
+        <Text
+          type="secondary"
+          style={{ display: "block", marginTop: "20px", textAlign: "center" }}
+        >
+          Once verified{" "}
+          <Link to="/login" className="auth-link">
+            Try Login
+          </Link>
+          .
         </Text>
       </div>
     </div>

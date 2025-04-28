@@ -159,6 +159,13 @@ const taskSlice = createSlice({
   name: "task",
   initialState,
   reducers: {
+    addNewTask: (state, action) => {
+      const statusListId = action.payload.data.status_list_id._id || action.payload.data.status_list_id;
+      if (!state.tasksByStatus[statusListId]) {
+        state.tasksByStatus[statusListId] = [];
+      }
+      state.tasksByStatus[statusListId].push(action.payload.data);
+    },
     clearTaskState: (state) => {
       state.tasksByStatus = {};
       state.selectedTask = null;
@@ -171,6 +178,152 @@ const taskSlice = createSlice({
     },
     clearSelectedTask: (state) => {
       state.selectedTask = null;
+    },
+    updateTaskPosition: (state, action) => {
+      const task = action.payload.data;
+      const taskId = task._id;
+      const newPosition = task.position;
+      const status_list_id = task.status_list_id;
+      
+      let sourceStatusId = '';
+      let taskIndex = -1;
+      Object.entries(state.tasksByStatus).forEach(([statusId, tasks]) => {
+        const index = tasks.findIndex(t => t._id === taskId);
+        if (index !== -1) {
+          sourceStatusId = statusId;
+          taskIndex = index;
+        }
+      });
+      
+      if (taskIndex === -1) return; // Task not found
+      const taskToMove = { ...state.tasksByStatus[sourceStatusId][taskIndex] };
+      state.tasksByStatus[sourceStatusId].splice(taskIndex, 1);
+      
+      if (status_list_id && status_list_id !== sourceStatusId) {
+        if (!state.tasksByStatus[status_list_id]) {
+          state.tasksByStatus[status_list_id] = [];
+        }
+        
+        if (typeof taskToMove.status_list_id === 'object') {
+          taskToMove.status_list_id._id = status_list_id;
+        } else {
+          taskToMove.status_list_id = status_list_id;
+        }
+
+        taskToMove.position = newPosition;
+        const destInsertIndex = Math.min(
+          Math.max(0, newPosition - 1), 
+          state.tasksByStatus[status_list_id].length
+        );
+        state.tasksByStatus[status_list_id].splice(destInsertIndex, 0, taskToMove);
+      } else {
+        taskToMove.position = newPosition;
+        const insertIndex = Math.min(
+          Math.max(0, newPosition - 1), 
+          state.tasksByStatus[sourceStatusId].length
+        );
+        state.tasksByStatus[sourceStatusId].splice(insertIndex, 0, taskToMove);
+      }
+    },
+    updateTaskInState: (state, action) => {
+      const updatedTask = action.payload.data;
+      const taskId = updatedTask._id;
+      for (const statusId in state.tasksByStatus) {
+        const taskIndex = state.tasksByStatus[statusId].findIndex(task => task._id === taskId);
+        
+        if (taskIndex !== -1) {
+          if (updatedTask.status_list_id && updatedTask.status_list_id !== statusId) {
+            const taskToUpdate = { ...state.tasksByStatus[statusId][taskIndex] };
+            state.tasksByStatus[statusId].splice(taskIndex, 1);
+            const newStatusId = typeof updatedTask.status_list_id === 'object' 
+              ? updatedTask.status_list_id._id 
+              : updatedTask.status_list_id;
+              
+            if (!state.tasksByStatus[newStatusId]) {
+              state.tasksByStatus[newStatusId] = [];
+            }
+            if (updatedTask.title !== undefined) {
+              taskToUpdate.title = updatedTask.title;
+            }
+            if (updatedTask.description !== undefined) {
+              taskToUpdate.description = updatedTask.description;
+            }
+            if (updatedTask.priority !== undefined) {
+              taskToUpdate.priority = updatedTask.priority;
+            }
+            if (updatedTask.status !== undefined) {
+              taskToUpdate.status = updatedTask.status;
+            }
+            if (updatedTask.end_date !== undefined) {
+              taskToUpdate.end_date = updatedTask.end_date;
+            }
+            if (updatedTask.start_date !== undefined) {
+              taskToUpdate.start_date = updatedTask.start_date;
+            }
+            if (typeof updatedTask.status_list_id === 'object') {
+              taskToUpdate.status_list_id = updatedTask.status_list_id;
+            } else {
+              if (typeof taskToUpdate.status_list_id === 'object') {
+                taskToUpdate.status_list_id._id = newStatusId;
+              } else {
+                taskToUpdate.status_list_id = { _id: newStatusId } as any;
+              }
+            }
+            // Add to new status list
+            state.tasksByStatus[newStatusId].push(taskToUpdate);
+          } else {
+            const task = state.tasksByStatus[statusId][taskIndex];
+            
+            if (updatedTask.title !== undefined) {
+              task.title = updatedTask.title;
+            }
+            if (updatedTask.description !== undefined) {
+              task.description = updatedTask.description;
+            }
+            if (updatedTask.priority !== undefined) {
+              task.priority = updatedTask.priority;
+            }
+            if (updatedTask.status !== undefined) {
+              task.status = updatedTask.status;
+            }
+            if (updatedTask.end_date !== undefined) {
+              task.end_date = updatedTask.end_date;
+            }
+            if (updatedTask.start_date !== undefined) {
+              task.start_date = updatedTask.start_date;
+            }
+          }
+          if (state.selectedTask && state.selectedTask._id === taskId) {
+            if (updatedTask.title !== undefined) {
+              state.selectedTask.title = updatedTask.title;
+            }
+            if (updatedTask.description !== undefined) {
+              state.selectedTask.description = updatedTask.description;
+            }
+            if (updatedTask.priority !== undefined) {
+              state.selectedTask.priority = updatedTask.priority;
+            }
+            if (updatedTask.status !== undefined) {
+              state.selectedTask.status = updatedTask.status;
+            }
+            if (updatedTask.end_date !== undefined) {
+              state.selectedTask.end_date = updatedTask.end_date;
+            }
+            if (updatedTask.start_date !== undefined) {
+              state.selectedTask.start_date = updatedTask.start_date;
+            }
+            if (updatedTask.status_list_id !== undefined) {
+              if (typeof updatedTask.status_list_id === 'object') {
+                state.selectedTask.status_list_id = updatedTask.status_list_id;
+              } else if (typeof state.selectedTask.status_list_id === 'object') {
+                state.selectedTask.status_list_id._id = updatedTask.status_list_id;
+              }
+            }
+          }
+          
+          break;
+        }
+      }
     },
   },
   extraReducers: (builder) => {
@@ -286,7 +439,13 @@ const taskSlice = createSlice({
   },
 });
 
-export const { clearTaskState, setSelectedTask, clearSelectedTask } =
-  taskSlice.actions;
+export const {
+  addNewTask,
+  clearTaskState,
+  setSelectedTask,
+  clearSelectedTask,
+  updateTaskPosition,
+  updateTaskInState,
+} = taskSlice.actions;
 
 export default taskSlice.reducer;

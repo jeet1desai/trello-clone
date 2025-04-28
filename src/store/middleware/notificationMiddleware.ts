@@ -23,7 +23,13 @@ export const notificationMiddleware: Middleware<
     const [sliceName] = action.type.split("/");
     const sliceState = fullState[sliceName as keyof RootState];
 
-    if (sliceName.includes("status") || sliceName.includes("task")  || sliceName.includes("notification")) return;
+    if (
+      sliceName.includes("status") ||
+      sliceName.includes("task") ||
+      sliceName.includes("notification") ||
+      sliceName.includes("dashboard")
+    )
+      return;
 
     if (isRejectedWithValue(action)) {
       const errorMessage =

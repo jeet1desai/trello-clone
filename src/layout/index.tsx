@@ -28,7 +28,6 @@ const Layout: React.FC = () => {
         minHeight: "calc(100vh - 72px)",
       }
     : {
-        padding: "24px",
         minHeight: "calc(100vh - 72px)",
       };
 
@@ -47,7 +46,7 @@ const Layout: React.FC = () => {
     <AntLayout style={{ minHeight: "100vh" }}>
       {showHeader && <Header />}
       <AntLayout>
-        <Content style={contentStyle}>
+        <Content style={{...contentStyle, padding: !isBoardDetailPage && showHeader ? "24px" : 0}}>
           <div
             style={{
               maxWidth: isBoardDetailPage ? "100%" : 1200,
@@ -59,7 +58,7 @@ const Layout: React.FC = () => {
           </div>
         </Content>
       </AntLayout>
-      {showFooter && <Footer />}
+      {showFooter && showHeader && <Footer />}
     </AntLayout>
   );
 };

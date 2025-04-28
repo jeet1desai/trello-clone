@@ -8,6 +8,7 @@ import {
   Tooltip,
   Spin,
   App,
+  Checkbox,
 } from "antd";
 import {
   PlusOutlined,
@@ -38,24 +39,30 @@ import InviteBoard from "./components/inviteBoard";
 import "../../../layout/styles/Board.css";
 import {
   IStatusList,
+  addNewStatus,
   createNewStatus,
   deleteStatus,
   getStatusListByBoardId,
   setSelectedStatus,
   updateStatus,
+  updateStatusPosition,
 } from "../../../store/slices/statusSlice";
 import Paragraph from "antd/es/typography/Paragraph";
 import { Input } from "../../../components";
 import AddTaskForm from "./components/addTaskForm";
 import {
   ITask,
+  addNewTask,
   deleteTask,
   getTasksByStatusId,
   setSelectedTask,
   updateTask,
+  updateTaskPosition,
+  updateTaskInState,
 } from "../../../store/slices/taskSlice";
 import TaskModal from "./components/taskModal";
 import { getRandomColor } from "../../../utils";
+import socketService from "../../../services/socketService";
 
 const { Title, Text } = Typography;
 
@@ -149,6 +156,32 @@ const BoardDetail: React.FC = () => {
     }
   }, [selectedBoard]);
 
+  useEffect(() => {
+    socketService.on("receive_status", (payload) => {
+      dispatch(addNewStatus(payload));
+    });
+
+    socketService.on("receive_updated_status", (payload) => {
+      dispatch(updateStatusPosition(payload));
+    });
+
+    socketService.on("receive-new-task", (payload) => {
+      dispatch(addNewTask(payload));
+    });
+
+    socketService.on("receive-updated-task", (payload) => {
+      dispatch(updateTaskPosition(payload));
+      dispatch(updateTaskInState(payload));
+    });
+
+    return () => {
+      socketService.off("receive_status");
+      socketService.off("receive_updated_status");
+      socketService.off("receive-new-task");
+      socketService.off("receive-updated-task");
+    };
+  });
+
   const handleKeyDown = async (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter" && id) {
       setIsEditStatus({});
@@ -194,7 +227,6 @@ const BoardDetail: React.FC = () => {
           newPosition: destination.index + 1,
         })
       );
-      dispatch(getStatusListByBoardId(destination.droppableId));
       return;
     }
 
@@ -216,7 +248,6 @@ const BoardDetail: React.FC = () => {
           newPosition: destination.index + 1,
         })
       );
-      dispatch(getTasksByStatusId(source.droppableId));
     } else {
       // Different list movement
       await dispatch(
@@ -226,8 +257,6 @@ const BoardDetail: React.FC = () => {
           newPosition: destination.index + 1,
         })
       );
-      dispatch(getTasksByStatusId(source.droppableId));
-      dispatch(getTasksByStatusId(destination.droppableId));
     }
   };
 
@@ -285,8 +314,9 @@ const BoardDetail: React.FC = () => {
       cancelButtonProps: {
         className: "button",
       },
-      onOk() {
-        dispatch(deleteStatus(list._id));
+      async onOk() {
+        await dispatch(deleteStatus(list._id));
+        id && (await dispatch(getStatusListByBoardId(id)));
       },
     });
   };
@@ -337,8 +367,19 @@ const BoardDetail: React.FC = () => {
               <div>
                 <Paragraph
                   ellipsis={{ rows: 2 }}
-                  style={{ marginBottom: 4, fontWeight: 500 }}
+                  style={{
+                    marginBottom: 4,
+                    fontWeight: 500,
+                    display: "flex",
+                    gap: 4,
+                  }}
                 >
+                  {hoveredTaskId === task._id && (
+                    <Checkbox
+                      checked={task.status === "Completed"}
+                      prefixCls="status-checkbox"
+                    />
+                  )}
                   {task.title}
                 </Paragraph>
                 <div style={{ display: "flex", gap: 8 }}>
@@ -376,6 +417,7 @@ const BoardDetail: React.FC = () => {
                 <Button
                   type="text"
                   size="small"
+                  style={{ marginLeft: 4 }}
                   danger
                   icon={<DeleteOutlined />}
                   onClick={(e) => handleDeleteTask(e, task._id)}
@@ -471,6 +513,7 @@ const BoardDetail: React.FC = () => {
                             borderRadius: 6,
                             padding: "8px 8px 0 8px",
                             height: "100%",
+                            maxWidth: "300px",
                           }}
                         >
                           <div
@@ -529,6 +572,8 @@ const BoardDetail: React.FC = () => {
                                   style={{
                                     borderRadius: 6,
                                     minHeight: 10,
+                                    maxHeight: "62vh",
+                                    overflow: "auto",
                                   }}
                                 >
                                   {statusTasks.map((task, index) =>

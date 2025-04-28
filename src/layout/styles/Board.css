@@ -12,10 +12,10 @@
 }
 
 .board-content {
-  padding: 24px;
+  padding: 14px;
   overflow-x: auto;
   display: flex;
-  height: calc(100vh - 180px);
+  height: calc(100vh - 145px);
 }
 
 .list-header {
