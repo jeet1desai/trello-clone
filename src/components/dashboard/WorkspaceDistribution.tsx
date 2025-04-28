@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import {
   PieChart,
   Pie,
@@ -7,25 +7,8 @@ import {
   Tooltip,
   Legend,
 } from "recharts";
-import { Card, Typography, Spin, Empty } from "antd";
-import { useSelector } from "react-redux";
-import { RootState } from "../../store";
+import { Card, Typography } from "antd";
 import "../../layout/styles/Dashboard.css";
-
-interface ChartItem {
-  name: string;
-  boards: number;
-  tasks: number;
-  color: string;
-  value: number;
-}
-
-interface CustomTooltipProps {
-  active?: boolean;
-  payload?: Array<{
-    payload: ChartItem;
-  }>;
-}
 
 const { Title } = Typography;
 

@@ -1,5 +1,5 @@
-import React from "react";
-import { Avatar, Typography, Space, Image, Button, Input, Upload } from "antd";
+import React, { useState } from "react";
+import { Avatar, Typography, Space, Image, Button, Upload } from "antd";
 import { CloseCircleFilled, PictureOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
@@ -7,6 +7,10 @@ import {
   ITaskCommentBy,
   IAttachment,
 } from "../../../../store/slices/taskCommentSlice";
+import CommentTextRenderer from "./commentRender";
+import MentionTextComment from "../../../../components/ui/mention";
+import { useSelector } from "react-redux";
+import { RootState } from "../../../../store";
 
 dayjs.extend(relativeTime);
 
@@ -41,12 +45,20 @@ const CommentCard: React.FC<CommentCardProps> = ({
   commentId,
 }) => {
   const { profile_image, first_name, last_name } = commentedBy;
+  const { invitedMemberList } = useSelector((state: RootState) => state.board);
   const [isEditing, setIsEditing] = React.useState(false);
-  const [msg, setMsg] = React.useState(comment);
+  const [msg, setMsg] = React.useState<string>(comment);
   const [fileList, setFileList] = React.useState<File[]>([]);
   const [removedAttachments, setRemovedAttachments] = React.useState<string[]>(
     []
   );
+  const [mentionedMembers, setMentionedMembers] = useState<string[]>([]);
+
+  const handleMentionChange = (value: string, mentions: string[]) => {
+    setMsg(value);
+    setMentionedMembers(mentions);
+  };
+
   const [existingAttachments, setExistingAttachments] =
     React.useState<IAttachment[]>(attachments);
 
@@ -66,7 +78,10 @@ const CommentCard: React.FC<CommentCardProps> = ({
           <div className="comment-wrapper">
             <Space className="comment-detail-container">
               <div>
-                <Text>{comment}</Text>
+                <CommentTextRenderer
+                  comment={comment}
+                  members={invitedMemberList.map((item) => item.memberId)}
+                />
               </div>
               {attachments.length > 0 && (
                 <div className="comment-attachment-container">
@@ -155,12 +170,12 @@ const CommentCard: React.FC<CommentCardProps> = ({
             {/* Input Row */}
             <div className="edit-comment-container">
               <div className="edit-comment-box">
-                <Input.TextArea
+                <MentionTextComment
                   value={msg}
-                  onChange={(e) => setMsg(e.target.value)}
                   placeholder="Edit your comment..."
-                  autoSize={{ minRows: 1, maxRows: 4 }}
                   className="edit-text-box"
+                  onChange={handleMentionChange}
+                  members={invitedMemberList.map((item) => item.memberId)}
                 />
                 <Upload
                   beforeUpload={(file) => {
@@ -190,7 +205,9 @@ const CommentCard: React.FC<CommentCardProps> = ({
                   setIsEditing(false);
                 }}
                 disabled={
-                  (!msg.trim() || msg.trim() === comment) &&
+                  (!msg.trim() ||
+                    msg.trim() === "@" ||
+                    msg.trim() === comment) &&
                   removedAttachments.length === 0 &&
                   fileList.length === 0
                 }
