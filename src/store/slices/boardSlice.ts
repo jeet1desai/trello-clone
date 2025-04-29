@@ -1,6 +1,7 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { boardService } from "../../services/boardService";
 import { updateWorkspaceBoards } from "./workspaceSlice";
+import { removeTaskLabel, updateTaskLabel } from "./taskSlice";
 
 export interface IMember {
   _id: string;
@@ -90,7 +91,7 @@ export interface IBoardDetails {
   workspace: IBoardWorkspace[];
 }
 
-export interface memberId {
+export interface IMemberId {
   _id: string;
   first_name: string;
   last_name: string;
@@ -99,7 +100,7 @@ export interface memberId {
 
 export interface MemberData {
   _id: string;
-  memberId: memberId;
+  memberId: IMemberId;
   role: "ADMIN" | "MEMBER";
   boardId: {
     _id: string;
@@ -193,7 +194,7 @@ export const getAllBoards = createAsyncThunk(
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message || "Error while fetching boards."
+        error.response?.data?.message ?? "Error while fetching boards."
       );
     }
   }
@@ -207,7 +208,7 @@ export const getBoardById = createAsyncThunk(
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message || "Error while fetching board details."
+        error.response?.data?.message ?? "Error while fetching board details."
       );
     }
   }
@@ -239,7 +240,7 @@ export const addNewBoard = createAsyncThunk(
       return response;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message || "Error while adding board."
+        error.response?.data?.message ?? "Error while adding board."
       );
     }
   }
@@ -274,7 +275,7 @@ export const editBoard = createAsyncThunk(
       return response;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message || "Error while updating board."
+        error.response?.data?.message ?? "Error while updating board."
       );
     }
   }
@@ -289,7 +290,7 @@ export const deleteBoard = createAsyncThunk(
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message || "Error while deleting board."
+        error.response?.data?.message ?? "Error while deleting board."
       );
     }
   }
@@ -303,7 +304,7 @@ export const getBoardMemberListById = createAsyncThunk(
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message || "Error while fetching members"
+        error.response?.data?.message ?? "Error while fetching members"
       );
     }
   }
@@ -329,7 +330,7 @@ export const removeBoardMemberFromListById = createAsyncThunk(
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message || "Error while removing members."
+        error.response?.data?.message ?? "Error while removing members."
       );
     }
   }
@@ -352,7 +353,7 @@ export const inviteBoardMember = createAsyncThunk(
       return response.message;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message || "Error while sending invitation."
+        error.response?.data?.message ?? "Error while sending invitation."
       );
     }
   }
@@ -366,7 +367,7 @@ export const getInvitationDetailsById = createAsyncThunk(
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message || "Error while fetching members"
+        error.response?.data?.message ?? "Error while fetching members"
       );
     }
   }
@@ -391,7 +392,7 @@ export const updateInvitationMemberById = createAsyncThunk(
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message || "Error while fetching members"
+        error.response?.data?.message ?? "Error while fetching members"
       );
     }
   }
@@ -405,7 +406,7 @@ export const getAllLabels = createAsyncThunk(
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message || "Error while fetching labels."
+        error.response?.data?.message ?? "Error while fetching labels."
       );
     }
   }
@@ -437,7 +438,7 @@ export const addNewLabel = createAsyncThunk(
       return response;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message || "Error while adding label."
+        error.response?.data?.message ?? "Error while adding label."
       );
     }
   }
@@ -469,7 +470,7 @@ export const editLabel = createAsyncThunk(
       return response;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message || "Error while updating label."
+        error.response?.data?.message ?? "Error while updating label."
       );
     }
   }
@@ -483,7 +484,7 @@ export const deleteLabel = createAsyncThunk(
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message || "Error while deleting label."
+        error.response?.data?.message ?? "Error while deleting label."
       );
     }
   }
@@ -499,7 +500,7 @@ export const getLabelsByTaskId = createAsyncThunk(
       );
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message || "Error while fetching labels."
+        error.response?.data?.message ?? "Error while fetching labels."
       );
     }
   }
@@ -515,14 +516,15 @@ export const addLabelInTask = createAsyncThunk(
       task_id: string;
       label_id: string;
     },
-    { rejectWithValue }
+    { rejectWithValue, dispatch }
   ) => {
     try {
       const response = await boardService.addLabelInTask(task_id, label_id);
+      dispatch(updateTaskLabel(response.data));
       return response;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message || "Error while adding label."
+        error.response?.data?.message ?? "Error while adding label."
       );
     }
   }
@@ -532,14 +534,15 @@ export const removeLabelFromTask = createAsyncThunk(
   "task/remove-label-from-task",
   async (
     { taskId, labelId }: { taskId: string; labelId: string },
-    { rejectWithValue }
+    { rejectWithValue, dispatch }
   ) => {
     try {
       const response = await boardService.removeLabelFromTask(taskId, labelId);
+      dispatch(removeTaskLabel(response.data))
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message || "Error while removing label."
+        error.response?.data?.message ?? "Error while removing label."
       );
     }
   }
@@ -569,7 +572,7 @@ export const getMembersByTaskId = createAsyncThunk(
       );
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message || "Error while fetching members."
+        error.response?.data?.message ?? "Error while fetching members."
       );
     }
   }
@@ -592,7 +595,7 @@ export const addMemberInTask = createAsyncThunk(
       return response;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message || "Error while adding member."
+        error.response?.data?.message ?? "Error while adding member."
       );
     }
   }
@@ -612,7 +615,7 @@ export const removeMemberFromTask = createAsyncThunk(
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message || "Error while removing member."
+        error.response?.data?.message ?? "Error while removing member."
       );
     }
   }
@@ -1083,11 +1086,12 @@ const boardSlice = createSlice({
         const existingLabel = state.selectedTaskLabels.findIndex(
           (label) => label._id === currentLabel._id
         );
-        if (existingLabel === -1)
+        if (existingLabel === -1) {
           state.selectedTaskLabels = [
             ...state.selectedTaskLabels,
             currentLabel,
           ];
+        }
         state.loading = false;
         state.error = null;
         state.success = "Label added successfully.";

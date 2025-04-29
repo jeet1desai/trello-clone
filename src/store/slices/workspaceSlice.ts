@@ -76,7 +76,7 @@ export const getAllWorkspaces = createAsyncThunk(
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message || "Error while fetching workspaces."
+        error.response?.data?.message ?? "Error while fetching workspaces."
       );
     }
   }
@@ -90,7 +90,7 @@ export const getWorkspaceById = createAsyncThunk(
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message ||
+        error.response?.data?.message ??
           "Error while fetching workspace details."
       );
     }
@@ -108,7 +108,7 @@ export const addNewWorkspace = createAsyncThunk(
       return response;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message || "Error while adding workspace."
+        error.response?.data?.message ?? "Error while adding workspace."
       );
     }
   }
@@ -133,7 +133,7 @@ export const editWorkspace = createAsyncThunk(
       return response;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message || "Error while updating workspace."
+        error.response?.data?.message ?? "Error while updating workspace."
       );
     }
   }
@@ -147,7 +147,7 @@ export const deleteWorkspace = createAsyncThunk(
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message || "Error while deleting workspace."
+        error.response?.data?.message ?? "Error while deleting workspace."
       );
     }
   }
@@ -161,7 +161,7 @@ export const getBoardsByWorkspaceId = createAsyncThunk(
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message || "Error while fetching boards."
+        error.response?.data?.message ?? "Error while fetching boards."
       );
     }
   }

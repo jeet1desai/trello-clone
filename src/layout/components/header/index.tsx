@@ -34,6 +34,7 @@ import {
   addNewNotification,
   readNotificationById,
   Notification,
+  readAllNotifications,
 } from "../../../store/slices/notificationSlice";
 import { PRIVATE_ROUTE, PUBLIC_ROUTE } from "../../../utils/enums/route";
 import { companyLogo } from "../../../assets";
@@ -181,7 +182,9 @@ const Header: React.FC = () => {
                   >
                     <div className="notification-left">
                       <Avatar
-                        style={{ background: getRandomColor(item?.sender?._id) }}
+                        style={{
+                          background: getRandomColor(item?.sender?._id),
+                        }}
                       >
                         {item.sender.first_name?.[0]?.toUpperCase() +
                           item.sender.last_name?.[0]?.toUpperCase()}
@@ -212,14 +215,17 @@ const Header: React.FC = () => {
             </div>
           }
           title={
-            <div
-              className="notification-header"
-            >
+            <div className="notification-header">
               <Typography>Notification</Typography>
-              <Typography className="notification-mark-as-read">
-                <NotificationOutlined style={{marginRight: 4}} />
-                Mark all as read
-              </Typography>
+              {allNotification.length > 0 && (
+                <Typography
+                  className="notification-mark-as-read"
+                  onClick={() => dispatch(readAllNotifications())}
+                >
+                  <NotificationOutlined style={{ marginRight: 4 }} />
+                  Mark all as read
+                </Typography>
+              )}
             </div>
           }
           trigger="click"

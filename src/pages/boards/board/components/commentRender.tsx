@@ -1,11 +1,11 @@
 import { Typography } from "antd";
-import { memberId } from "../../../../store/slices/boardSlice";
+import { IMemberId } from "../../../../store/slices/boardSlice";
 
 const { Text } = Typography;
 
 interface Props {
   comment: string;
-  members: memberId[];
+  members: IMemberId[];
 }
 
 const CommentTextRenderer: React.FC<Props> = ({ comment, members }) => {

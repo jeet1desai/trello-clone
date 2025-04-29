@@ -1,5 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { taskCommentService } from "../../services/taskCommentService";
+import { removeTaskComments, updateTaskComments } from "./taskSlice";
 
 export interface IAttachment {
   imageName: string;
@@ -66,7 +67,7 @@ export const getTaskCommentById = createAsyncThunk(
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message ||
+        error.response?.data?.message ??
           "Error while fetching task comment details."
       );
     }
@@ -81,7 +82,7 @@ export const addNewTaskComment = createAsyncThunk(
       comment,
       attachments,
     }: { taskId: string; comment: string; attachments: File[] },
-    { rejectWithValue }
+    { rejectWithValue, dispatch }
   ) => {
     try {
       const response = await taskCommentService.addTaskComment(
@@ -89,10 +90,11 @@ export const addNewTaskComment = createAsyncThunk(
         comment,
         attachments
       );
+      dispatch(updateTaskComments(response.data));
       return response;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message || "Error while adding task comment."
+        error.response?.data?.message ?? "Error while adding task comment."
       );
     }
   }
@@ -122,7 +124,7 @@ export const updateTaskComment = createAsyncThunk(
       return response;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message || "Error while adding task comment."
+        error.response?.data?.message ?? "Error while adding task comment."
       );
     }
   }
@@ -130,13 +132,14 @@ export const updateTaskComment = createAsyncThunk(
 
 export const deleteTaskComment = createAsyncThunk(
   "taskComment/delete-to-task",
-  async (_id: string, { rejectWithValue }) => {
+  async (_id: string, { rejectWithValue, dispatch }) => {
     try {
       const response = await taskCommentService.deleteTaskComment(_id);
+      dispatch(removeTaskComments(response.data));
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message || "Error while deleting task comment."
+        error.response?.data?.message ?? "Error while deleting task comment."
       );
     }
   }

@@ -104,7 +104,7 @@ export const getDashboardCount = createAsyncThunk(
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message || "Error while fetching dashboard count"
+        error.response?.data?.message ?? "Error while fetching dashboard count"
       );
     }
   }
@@ -118,7 +118,7 @@ export const getDashboardAnalytics = createAsyncThunk(
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message || "Error while fetching dashboard analytics"
+        error.response?.data?.message ?? "Error while fetching dashboard analytics"
       );
     }
   }
@@ -132,7 +132,7 @@ export const getDashboardRecentActivity = createAsyncThunk(
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message || "Error while fetching dashboard analytics"
+        error.response?.data?.message ?? "Error while fetching dashboard analytics"
       );
     }
   }

@@ -66,7 +66,7 @@ export const getTasksByStatusId = createAsyncThunk(
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message || "Error while fetching tasks."
+        error.response?.data?.message ?? "Error while fetching tasks."
       );
     }
   }
@@ -95,7 +95,7 @@ export const createTask = createAsyncThunk(
       return response;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message || "Error while creating task."
+        error.response?.data?.message ?? "Error while creating task."
       );
     }
   }
@@ -121,7 +121,7 @@ export const updateTask = createAsyncThunk(
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message || "Error while updating task."
+        error.response?.data?.message ?? "Error while updating task."
       );
     }
   }
@@ -135,7 +135,7 @@ export const deleteTask = createAsyncThunk(
       return { taskId, ...response };
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message || "Error while deleting task."
+        error.response?.data?.message ?? "Error while deleting task."
       );
     }
   }
@@ -149,7 +149,7 @@ export const getTaskById = createAsyncThunk(
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message || "Error while fetching task."
+        error.response?.data?.message ?? "Error while fetching task."
       );
     }
   }
@@ -161,7 +161,7 @@ const taskSlice = createSlice({
   reducers: {
     addNewTask: (state, action) => {
       const statusListId =
-        action.payload.data.status_list_id._id ||
+        action.payload.data.status_list_id._id ??
         action.payload.data.status_list_id;
       if (!state.tasksByStatus[statusListId]) {
         state.tasksByStatus[statusListId] = [];
@@ -276,12 +276,10 @@ const taskSlice = createSlice({
             }
             if (typeof updatedTask.status_list_id === "object") {
               taskToUpdate.status_list_id = updatedTask.status_list_id;
+            } else if (typeof taskToUpdate.status_list_id === "object") {
+              taskToUpdate.status_list_id._id = newStatusId;
             } else {
-              if (typeof taskToUpdate.status_list_id === "object") {
-                taskToUpdate.status_list_id._id = newStatusId;
-              } else {
-                taskToUpdate.status_list_id = { _id: newStatusId } as any;
-              }
+              taskToUpdate.status_list_id = { _id: newStatusId } as any;
             }
             // Add to new status list
             state.tasksByStatus[newStatusId].push(taskToUpdate);
@@ -340,6 +338,94 @@ const taskSlice = createSlice({
 
           break;
         }
+      }
+    },
+    updateTaskLabel: (state, action) => {
+      const { _id, status_list_id } = action.payload.task_id;
+      const updatedTasks = state.tasksByStatus[status_list_id].map((task) => {
+        return task._id === _id
+          ? {
+              ...task,
+              labels: [...task.labels, action.payload.label_id],
+            }
+          : task;
+      });
+      state.tasksByStatus = {
+        ...state.tasksByStatus,
+        [status_list_id]: updatedTasks,
+      };
+    },
+    removeTaskLabel: (state, action) => {
+      const { label_id, task_id } = action.payload;
+      if (state.selectedTask) {
+        const updatedTasks = state.tasksByStatus[
+          state.selectedTask?.status_list_id._id
+        ].map((task) => {
+          const updatedLabels = task.labels.filter(
+            (label) => label._id !== label_id
+          );
+          return task._id === task_id
+            ? {
+                ...task,
+                labels: updatedLabels,
+              }
+            : task;
+        });
+        state.tasksByStatus = {
+          ...state.tasksByStatus,
+          [state.selectedTask?.status_list_id._id]: updatedTasks,
+        };
+      }
+    },
+    updateTaskAttachment: (state, action) => {
+      const { _id, status_list_id } = action.payload;
+      const updatedTasks = state.tasksByStatus[status_list_id].map((task) => {
+        return task._id === _id
+          ? {
+              ...task,
+              attachment: action.payload.attachment,
+            }
+          : task;
+      });
+      state.tasksByStatus = {
+        ...state.tasksByStatus,
+        [status_list_id]: updatedTasks,
+      };
+      state.selectedTask = {
+        ...state.selectedTask,
+        attachment: action.payload.attachment,
+      } as ITask;
+    },
+    updateTaskComments: (state, action) => {
+      const { _id, status_list_id } = action.payload.task_id;
+      const updatedTasks = state.tasksByStatus[status_list_id].map((task) => {
+        return task._id === _id
+          ? {
+              ...task,
+              comments: task.comments + 1,
+            }
+          : task;
+      });
+      state.tasksByStatus = {
+        ...state.tasksByStatus,
+        [status_list_id]: updatedTasks,
+      };
+    },
+    removeTaskComments: (state, action) => {
+      const { task_id } = action.payload;
+      if (state.selectedTask) {
+        const updatedTasks = state.tasksByStatus[state.selectedTask.status_list_id._id].map((task) => {
+          return task._id === task_id
+            ? {
+                ...task,
+                comments: task.comments - 1,
+              }
+            : task;
+        });
+        state.tasksByStatus = {
+          ...state.tasksByStatus,
+          [state.selectedTask.status_list_id._id]: updatedTasks,
+        };
       }
     },
   },
@@ -463,6 +549,11 @@ export const {
   clearSelectedTask,
   updateTaskPosition,
   updateTaskInState,
+  updateTaskLabel,
+  removeTaskLabel,
+  updateTaskAttachment,
+  updateTaskComments,
+  removeTaskComments,
 } = taskSlice.actions;
 
 export default taskSlice.reducer;
