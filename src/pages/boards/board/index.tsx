@@ -221,6 +221,13 @@ const BoardDetail: React.FC = () => {
 
     // Moving lists
     if (type === "list" && selectedStatus) {
+      dispatch(updateStatusPosition({
+        data: {
+          _id: selectedStatus._id,
+          position: destination.index + 1
+        }
+      }));
+      
       await dispatch(
         updateStatus({
           statusId: selectedStatus._id,
@@ -239,6 +246,21 @@ const BoardDetail: React.FC = () => {
     );
 
     if (!sourceList || !destList) return;
+
+    // Find the task being moved
+    const taskToMove = tasksByStatus[source.droppableId]?.find(
+      (task) => task._id === draggableId
+    );
+
+    if (!taskToMove) return;
+
+    dispatch(updateTaskPosition({
+      data: {
+        ...taskToMove,
+        position: destination.index + 1,
+        status_list_id: destination.droppableId
+      }
+    }));
 
     if (source.droppableId === destination.droppableId) {
       // Same list movement

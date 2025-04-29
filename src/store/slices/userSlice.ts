@@ -177,7 +177,11 @@ const userSlice = createSlice({
       state.currentUser = state.currentUser
         ? {
             ...state.currentUser,
-            profile_image: action.payload,
+            profile_image: action.payload.profile_image,
+            first_name: action.payload.first_name,
+            middle_name: action.payload.middle_name,
+            last_name: action.payload.last_name,
+            email: action.payload.email,
           }
         : null;
     },

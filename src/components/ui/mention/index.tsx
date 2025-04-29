@@ -19,7 +19,7 @@ const MentionTextComment: React.FC<MentionTextCommentProps> = ({
   className,
   placeholder,
 }) => {
-  const lineHeight = 42;
+  const lineHeight = 35;
   const maxLines = 5;
 
   const mentionedMembers = useMemo(() => {

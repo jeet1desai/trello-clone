@@ -140,12 +140,12 @@ const statusSlice = createSlice({
       state.success = null;
     },
     updateStatusPosition: (state, action) => {
-      const { statusId, newPosition } = action.payload.data;
-      const statusIndex = state.statusList.findIndex(status => status._id === statusId);
+      const { _id, position } = action.payload.data;
+      const statusIndex = state.statusList.findIndex(status => status._id === _id);
       if (statusIndex !== -1) {
-        const updatedStatus = { ...state.statusList[statusIndex], position: newPosition };
+        const updatedStatus = { ...state.statusList[statusIndex], position: position };
         state.statusList.splice(statusIndex, 1);
-        const insertIndex = Math.min(Math.max(0, newPosition - 1), state.statusList.length);
+        const insertIndex = Math.min(Math.max(0, position - 1), state.statusList.length);
         state.statusList.splice(insertIndex, 0, updatedStatus);
       }
     },

@@ -170,8 +170,8 @@ const Header: React.FC = () => {
           overlayClassName="custom-notification-popover"
           content={
             <div className="notification-popover-content">
-              {allNotification.length > 0 ? (
-                allNotification.map((item: Notification) => (
+              {allNotification?.length > 0 ? (
+                allNotification?.map((item: Notification) => (
                   <div
                     className="notification-item"
                     key={item._id}
@@ -181,10 +181,10 @@ const Header: React.FC = () => {
                   >
                     <div className="notification-left">
                       <Avatar
-                        style={{ background: getRandomColor(item.sender._id) }}
+                        style={{ background: getRandomColor(item?.sender?._id) }}
                       >
-                        {item.sender.first_name[0].toUpperCase() +
-                          item.sender.last_name[0].toUpperCase()}
+                        {item.sender.first_name?.[0]?.toUpperCase() +
+                          item.sender.last_name?.[0]?.toUpperCase()}
                       </Avatar>
                       <div className="notification-text">
                         <p>{item.message}</p>
