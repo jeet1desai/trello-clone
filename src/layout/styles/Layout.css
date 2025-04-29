@@ -257,6 +257,22 @@
   font-weight: 400;
   color: inherit;
 }
+
+.notification-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.notification-mark-as-read {
+  color: var(--primary-color) !important;
+  font-size: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+}
+
 /* Main content styles */
 .main-content {
   flex: 1;
@@ -535,7 +551,7 @@
 
 .notification-popover-content {
   width: 100%;
-  max-width: 350px;
+  min-width: 350px;
   display: flex;
   flex-direction: column;
   gap: 6px;

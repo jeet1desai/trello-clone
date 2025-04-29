@@ -399,14 +399,15 @@ const TaskModal: React.FC<TaskModalProps> = ({ boardId, visible, onClose }) => {
         .filter((f): f is RcFile => !!f)
         .map(toNativeFile); // ✅ native File[]
 
-      dispatch(
-        addNewTaskComment({
-          taskId: selectedTask?._id ?? "",
-          comment: msg,
-          attachments: files,
-          //mentionedMembers: mentionedMembers,
+      selectedTask &&
+        dispatch(
+          addNewTaskComment({
+            taskId: selectedTask?._id,
+            comment: msg,
+            attachments: files,
+            //mentionedMembers: mentionedMembers,
         })
-      );
+        );
 
       setMsg("");
       setFileList([]);
@@ -886,13 +887,18 @@ const TaskModal: React.FC<TaskModalProps> = ({ boardId, visible, onClose }) => {
                     alignItems: "flex-end",
                   }}
                 >
-                  <Avatar src={currentUser?.profile_image.url}>
+                  <Avatar
+                    src={currentUser?.profile_image.url}
+                    style={{
+                      background: getRandomColor(currentUser?.id ?? ""),
+                    }}
+                  >
                     {currentUser?.first_name[0].toUpperCase()}
                     {currentUser?.last_name?.[0]?.toUpperCase()}
                   </Avatar>
                   <div style={{ position: "relative", width: "100%" }}>
                     <MentionTextComment
-                      placeholder="Write a comment with @ or # for mention someone... "
+                      placeholder="Write a comment with @ or # for mention someone..."
                       className="form-input-mention"
                       value={msg}
                       onChange={handleMentionChange}

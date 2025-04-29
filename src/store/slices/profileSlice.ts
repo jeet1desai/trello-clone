@@ -45,7 +45,7 @@ export const updateProfile = createAsyncThunk(
   ) => {
     try {
       const response = await profileService.updateProfile(profileData);
-      dispatch(updateImage(response.data.profile_image))
+      dispatch(updateImage(response.data))
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
