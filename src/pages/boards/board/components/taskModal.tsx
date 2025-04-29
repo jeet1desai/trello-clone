@@ -70,6 +70,7 @@ import { getRandomColor } from "../../../../utils";
 import AttachmentActions from "./attachmentAction";
 import "quill/dist/quill.snow.css";
 import socketService from "../../../../services/socketService";
+import MentionTextComment from "../../../../components/ui/mention";
 
 const { Text } = Typography;
 const { Option } = Select;
@@ -202,7 +203,13 @@ const handleOpenFile = (fileUrl: string, fileName: string) => {
 const TaskModal: React.FC<TaskModalProps> = ({ boardId, visible, onClose }) => {
   const dispatch = useDispatch<AppDispatch>();
   const { currentUser } = useSelector((state: RootState) => state.user);
+  const [msg, setMsg] = useState<string>("");
+  const [mentionedMembers, setMentionedMembers] = useState<string[]>([]);
 
+  const handleMentionChange = (value: string, mentions: string[]) => {
+    setMsg(value);
+    setMentionedMembers(mentions);
+  };
   const { selectedTask, loading } = useSelector(
     (state: RootState) => state.task
   );
@@ -215,7 +222,6 @@ const TaskModal: React.FC<TaskModalProps> = ({ boardId, visible, onClose }) => {
   const { selectedTaskLabels, selectedTaskMembers, invitedMemberList } =
     useSelector((state: RootState) => state.board);
   const [isEditTitle, setIsEditTitle] = useState(false);
-  const [msg, setMsg] = useState("");
   const [taskDetails, setTaskDetails] = useState<ITask | null>(null);
   const [fileList, setFileList] = useState<UploadFile[]>([]);
   const [memberVisible, setMemberVisible] = useState(false);
@@ -386,13 +392,6 @@ const TaskModal: React.FC<TaskModalProps> = ({ boardId, visible, onClose }) => {
       };
     });
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      sendMessage();
-    }
-  };
-
   const sendMessage = () => {
     if (msg.trim()) {
       const files: File[] = fileList
@@ -405,6 +404,7 @@ const TaskModal: React.FC<TaskModalProps> = ({ boardId, visible, onClose }) => {
           taskId: selectedTask?._id ?? "",
           comment: msg,
           attachments: files,
+          //mentionedMembers: mentionedMembers,
         })
       );
 
@@ -894,14 +894,12 @@ const TaskModal: React.FC<TaskModalProps> = ({ boardId, visible, onClose }) => {
                     {currentUser?.last_name?.[0]?.toUpperCase()}
                   </Avatar>
                   <div style={{ position: "relative", width: "100%" }}>
-                    <Input.TextArea
-                      className="form-input"
+                    <MentionTextComment
+                      placeholder="Write a comment with @ or # for mention someone... "
+                      className="form-input-mention"
                       value={msg}
-                      onChange={(e) => setMsg(e.target.value)}
-                      onKeyDown={handleKeyDown}
-                      placeholder="Write a comment..."
-                      autoSize={{ minRows: 1, maxRows: 4 }}
-                      style={{ flex: 1, borderRadius: "4px" }}
+                      onChange={handleMentionChange}
+                      members={invitedMemberList.map((item) => item.memberId)}
                     />
                     <Upload
                       beforeUpload={() => false} // Prevent auto upload
@@ -929,7 +927,7 @@ const TaskModal: React.FC<TaskModalProps> = ({ boardId, visible, onClose }) => {
                   className="button small-btn"
                   style={{ marginLeft: "38px", marginTop: "10px" }}
                   onClick={sendMessage}
-                  disabled={!msg.trim()}
+                  disabled={!msg.trim() || msg.trim() === "@"}
                 >
                   Save
                 </Button>

@@ -597,3 +597,18 @@ a:hover {
     font-size: 15px;
   }
 }
+
+/* mention component Style */
+
+.form-input-mention,
+.edit-text-box {
+  border-radius: 12px;
+  transition: all 0.3s ease;
+  height: 42px;
+  font-size: 16px;
+}
+
+.form-input-mention .rc-textarea,
+.edit-text-box .rc-textarea {
+  height: 100%;
+}
