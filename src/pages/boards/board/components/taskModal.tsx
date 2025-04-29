@@ -406,7 +406,7 @@ const TaskModal: React.FC<TaskModalProps> = ({ boardId, visible, onClose }) => {
             comment: msg,
             attachments: files,
             //mentionedMembers: mentionedMembers,
-        })
+          })
         );
 
       setMsg("");
