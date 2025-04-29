@@ -1,13 +1,13 @@
 import { Mentions } from "antd";
 import { useMemo } from "react";
-import { memberId } from "../../../store/slices/boardSlice";
+import { IMemberId } from "../../../store/slices/boardSlice";
 
 const { Option } = Mentions;
 
 export interface MentionTextCommentProps {
   value: string;
   onChange: (value: string, mentions: string[]) => void;
-  members: memberId[];
+  members: IMemberId[];
   className: string;
   placeholder: string;
 }

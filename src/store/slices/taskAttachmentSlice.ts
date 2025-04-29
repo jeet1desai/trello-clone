@@ -1,5 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { taskAttachmentService } from "../../services/taskAttachmentService";
+import { updateTaskAttachment } from "./taskSlice";
 
 export interface IAttachment {
   imageName: string;
@@ -70,7 +71,7 @@ export const getTaskAttachmentById = createAsyncThunk(
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message ||
+        error.response?.data?.message ??
           "Error while fetching task comment details."
       );
     }
@@ -81,17 +82,18 @@ export const addNewTaskAttachment = createAsyncThunk(
   "taskAttachment/add-to-task",
   async (
     { taskId, attachments }: { taskId: string; attachments: File[] },
-    { rejectWithValue }
+    { rejectWithValue, dispatch }
   ) => {
     try {
       const response = await taskAttachmentService.addTaskAttachment(
         taskId,
         attachments
       );
+      dispatch(updateTaskAttachment(response.data));
       return response;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message || "Error while adding task comment."
+        error.response?.data?.message ?? "Error while adding task comment."
       );
     }
   }
@@ -99,17 +101,21 @@ export const addNewTaskAttachment = createAsyncThunk(
 
 export const deleteTaskAttachment = createAsyncThunk(
   "taskAttachment/delete-to-task",
-  async (data: { _id: string; taskId: string }, { rejectWithValue }) => {
+  async (
+    data: { _id: string; taskId: string },
+    { rejectWithValue, dispatch }
+  ) => {
     try {
       const response = await taskAttachmentService.deleteTaskAttachment(
         data._id,
         data.taskId
       );
       const responseData = { _id: data._id };
+      dispatch(updateTaskAttachment(response.data));
       if (response.success) return responseData;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message || "Error while deleting task comment."
+        error.response?.data?.message ?? "Error while deleting task comment."
       );
     }
   }

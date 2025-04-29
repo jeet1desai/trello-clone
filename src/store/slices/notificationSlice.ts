@@ -40,7 +40,7 @@ export const getAllNotification = createAsyncThunk(
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message || "Error while fetching notifications"
+        error.response?.data?.message ?? "Error while fetching notifications."
       );
     }
   }
@@ -54,7 +54,23 @@ export const readNotificationById = createAsyncThunk(
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message || "Error while fetching members"
+        error.response?.data?.message ??
+          "Error while marking notification as read."
+      );
+    }
+  }
+);
+
+export const readAllNotifications = createAsyncThunk(
+  "notification/mark-all-notification",
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await notificationService.readAllNotifications();
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message ??
+          "Error while marking notifications as read."
       );
     }
   }
@@ -89,7 +105,7 @@ const notificationSlice = createSlice({
         state.error =
           (action.payload as string) || "Error while fetching notifications.";
       })
-      
+
       // read notification
       .addCase(readNotificationById.pending, (state) => {
         state.loading = true;
@@ -118,12 +134,33 @@ const notificationSlice = createSlice({
         state.allNotification = [];
         state.success = null;
         state.error =
-          (action.payload as string) || "Error while fetching notifications.";
+          (action.payload as string) ||
+          "Error while marking notification as read.";
       })
-      ;
+
+      // read all notification
+      .addCase(readAllNotifications.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.success = null;
+      })
+      .addCase(readAllNotifications.fulfilled, (state, action) => {
+        state.allNotification = [];
+        state.loading = false;
+        state.error = null;
+        state.success = "Notification read successfully.";
+      })
+      .addCase(readAllNotifications.rejected, (state, action) => {
+        state.loading = false;
+        state.allNotification = [];
+        state.success = null;
+        state.error =
+          (action.payload as string) ||
+          "Error while marking notification as read.";
+      });
   },
 });
 
 export const { addNewNotification } = notificationSlice.actions;
 
-export default notificationSlice.reducer; 
+export default notificationSlice.reducer;

@@ -15,4 +15,11 @@ export const notificationService = {
     );
     return response.data;
   },
+
+  async readAllNotifications() {
+    const response = await axiosInstance.put(
+      `${API_URL}/notification/mark-all-notifications-read`
+    );
+    return response.data;
+  },
 }; 

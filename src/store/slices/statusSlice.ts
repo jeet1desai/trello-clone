@@ -51,7 +51,7 @@ export const getStatusListByBoardId = createAsyncThunk(
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message || "Error while fetching status."
+        error.response?.data?.message ?? "Error while fetching status."
       );
     }
   }
@@ -74,7 +74,7 @@ export const createNewStatus = createAsyncThunk(
       return response.message;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message || "Error while adding status."
+        error.response?.data?.message ?? "Error while adding status."
       );
     }
   }
@@ -103,7 +103,7 @@ export const updateStatus = createAsyncThunk(
       return response;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message || "Error while updating status."
+        error.response?.data?.message ?? "Error while updating status."
       );
     }
   }
@@ -117,7 +117,7 @@ export const deleteStatus = createAsyncThunk(
       return response.message;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message || "Error while deleting status."
+        error.response?.data?.message ?? "Error while deleting status."
       );
     }
   }

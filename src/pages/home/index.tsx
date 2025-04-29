@@ -27,12 +27,12 @@ const Home: React.FC = () => {
             </Paragraph>
             <Space size="large">
               <Link to={PUBLIC_ROUTE.LOGIN}>
-                <Button type="primary" size="large" icon={<RocketOutlined />}>
+                <Button className="button" type="primary" icon={<RocketOutlined />}>
                   Get Started
                 </Button>
               </Link>
               <Link to={PUBLIC_ROUTE.REGISTRATION}>
-                <Button size="large" type="default">
+                <Button className="button" type="default">
                   Create Account
                 </Button>
               </Link>
