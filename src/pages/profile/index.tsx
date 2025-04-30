@@ -151,10 +151,6 @@ const ProfilePage = () => {
                   rules={[
                     { required: true, message: "First Name is required" },
                     {
-                      min: 2,
-                      message: "First Name must be at least 2 characters",
-                    },
-                    {
                       max: 50,
                       message: "First Name must not exceed 50 characters",
                     },
@@ -179,10 +175,6 @@ const ProfilePage = () => {
                   rules={[
                     { required: true, message: "Middle Name is required" },
                     {
-                      min: 2,
-                      message: "Middle Name must be at least 2 characters",
-                    },
-                    {
                       max: 50,
                       message: "Middle Name must not exceed 50 characters",
                     },
@@ -206,10 +198,6 @@ const ProfilePage = () => {
                   name="last_name"
                   rules={[
                     { required: true, message: "Last Name is required" },
-                    {
-                      min: 2,
-                      message: "Last Name must be at least 2 characters",
-                    },
                     {
                       max: 50,
                       message: "Last Name must not exceed 50 characters",
