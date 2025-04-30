@@ -71,12 +71,14 @@ import AttachmentActions from "./attachmentAction";
 import "quill/dist/quill.snow.css";
 import socketService from "../../../../services/socketService";
 import MentionTextComment from "../../../../components/ui/mention";
+import { useNavigate } from "react-router-dom";
 
 const { Text } = Typography;
 const { Option } = Select;
 
 interface TaskModalProps {
   boardId: string;
+  taskId: string | null;
   visible: boolean;
   onClose: () => void;
 }
@@ -200,15 +202,20 @@ const handleOpenFile = (fileUrl: string, fileName: string) => {
   }
 };
 
-const TaskModal: React.FC<TaskModalProps> = ({ boardId, visible, onClose }) => {
+const TaskModal: React.FC<TaskModalProps> = ({
+  boardId,
+  taskId,
+  visible,
+  onClose,
+}) => {
+  const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
   const { currentUser } = useSelector((state: RootState) => state.user);
   const [msg, setMsg] = useState<string>("");
   const [mentionedMembers, setMentionedMembers] = useState<string[]>([]);
 
-  const handleMentionChange = (value: string, mentions: string[]) => {
+  const handleMentionChange = (value: string) => {
     setMsg(value);
-    setMentionedMembers(mentions);
   };
   const { selectedTask, loading } = useSelector(
     (state: RootState) => state.task
@@ -405,12 +412,13 @@ const TaskModal: React.FC<TaskModalProps> = ({ boardId, visible, onClose }) => {
             taskId: selectedTask?._id,
             comment: msg,
             attachments: files,
-            //mentionedMembers: mentionedMembers,
+            mentionedMembers,
           })
         );
 
       setMsg("");
       setFileList([]);
+      setMentionedMembers([]);
     }
   };
 
@@ -489,8 +497,12 @@ const TaskModal: React.FC<TaskModalProps> = ({ boardId, visible, onClose }) => {
       comment: string;
       newAttachments: File[];
       removedAttachments: string[];
+      mentionedMembers: string[];
     }
-  ) => dispatch(updateTaskComment({ taskId: commentId, updateTask }));
+  ) =>
+    dispatch(
+      updateTaskComment({ taskId: commentId, updateTask })
+    );
 
   useEffect(() => {
     async function handleClickOutside(event: MouseEvent) {
@@ -529,6 +541,7 @@ const TaskModal: React.FC<TaskModalProps> = ({ boardId, visible, onClose }) => {
         setShowEditor(false);
         setMemberVisible(false);
         setLabelVisible(false);
+        navigate(window.location.pathname);
       }}
       onClose={() => {
         onClose();
@@ -539,6 +552,7 @@ const TaskModal: React.FC<TaskModalProps> = ({ boardId, visible, onClose }) => {
         setShowEditor(false);
         setMemberVisible(false);
         setLabelVisible(false);
+        navigate(window.location.pathname);
       }}
       footer={null}
       className="task-modal"
@@ -901,8 +915,9 @@ const TaskModal: React.FC<TaskModalProps> = ({ boardId, visible, onClose }) => {
                       placeholder="Write a comment with @ or # for mention someone..."
                       className="form-input-mention"
                       value={msg}
-                      onChange={handleMentionChange}
                       members={invitedMemberList.map((item) => item.memberId)}
+                      setMentions={setMentionedMembers}
+                      onChange={handleMentionChange}
                     />
                     <Upload
                       beforeUpload={() => false} // Prevent auto upload

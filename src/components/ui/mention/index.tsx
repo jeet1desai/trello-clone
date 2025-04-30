@@ -2,22 +2,22 @@ import { Mentions } from "antd";
 import { useMemo } from "react";
 import { IMemberId } from "../../../store/slices/boardSlice";
 
-const { Option } = Mentions;
-
 export interface MentionTextCommentProps {
   value: string;
-  onChange: (value: string, mentions: string[]) => void;
   members: IMemberId[];
   className: string;
   placeholder: string;
+  setMentions: (members: string[]) => void;
+  onChange: (value: string) => void;
 }
 
 const MentionTextComment: React.FC<MentionTextCommentProps> = ({
   value,
-  onChange,
   members,
   className,
   placeholder,
+  setMentions,
+  onChange,
 }) => {
   const lineHeight = 35;
   const maxLines = 5;
@@ -32,8 +32,7 @@ const MentionTextComment: React.FC<MentionTextCommentProps> = ({
     Math.min(value.split("\n").length, maxLines) * lineHeight;
 
   const handleChange = (val: string) => {
-    const mentions = Array.from(val.matchAll(/@(\w+)/g)).map((m) => m[1]);
-    onChange(val, mentions);
+    onChange(val);
   };
 
   const filteredMembers = useMemo(() => {
@@ -60,18 +59,22 @@ const MentionTextComment: React.FC<MentionTextCommentProps> = ({
       }}
       value={value}
       onChange={handleChange}
+      onSelect={(option) =>
+        // @ts-ignore
+        setMentions((prev: any) => {
+          return [...prev, option.key] as string[];
+        })
+      }
       placeholder={placeholder}
       prefix={["@", "#"]}
-    >
-      {filteredMembers.map((member) => (
-        <Option
-          key={member._id}
-          value={`${member.first_name} ${member.last_name}`}
-        >
-          {member.first_name} {member.last_name}
-        </Option>
-      ))}
-    </Mentions>
+      options={filteredMembers.map((member) => {
+        return {
+          label: member.first_name + " " + member.last_name,
+          value: member.first_name + " " + member.last_name,
+          key: member._id,
+        };
+      })}
+    />
   );
 };
 

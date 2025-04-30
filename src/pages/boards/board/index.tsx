@@ -63,6 +63,7 @@ import {
 import TaskModal from "./components/taskModal";
 import { getRandomColor } from "../../../utils";
 import socketService from "../../../services/socketService";
+import { useSearchParams } from "react-router-dom";
 
 const { Title, Text } = Typography;
 
@@ -76,6 +77,8 @@ export interface Attachment {
 const BoardDetail: React.FC = () => {
   const { modal } = App.useApp();
   const { id } = useParams<{ id: string }>();
+  const [searchParams] = useSearchParams();
+  const taskId = searchParams.get("task_id");
   const wrapperRef = useRef<HTMLDivElement>(null);
 
   const dispatch = useDispatch<AppDispatch>();
@@ -151,6 +154,15 @@ const BoardDetail: React.FC = () => {
   }, [dispatch, statusList]);
 
   useEffect(() => {
+    if (id && taskId) {
+      const task = Object.values(tasksByStatus)
+        .flat()
+        .find((t) => t.board_id === id && t._id === taskId) as ITask;
+      handleTaskClick(task);
+    }
+  }, [id, taskId, tasksByStatus]);
+
+  useEffect(() => {
     if (selectedBoard) {
       setBoardData(selectedBoard);
     }
@@ -221,13 +233,15 @@ const BoardDetail: React.FC = () => {
 
     // Moving lists
     if (type === "list" && selectedStatus) {
-      dispatch(updateStatusPosition({
-        data: {
-          _id: selectedStatus._id,
-          position: destination.index + 1
-        }
-      }));
-      
+      dispatch(
+        updateStatusPosition({
+          data: {
+            _id: selectedStatus._id,
+            position: destination.index + 1,
+          },
+        })
+      );
+
       await dispatch(
         updateStatus({
           statusId: selectedStatus._id,
@@ -254,13 +268,15 @@ const BoardDetail: React.FC = () => {
 
     if (!taskToMove) return;
 
-    dispatch(updateTaskPosition({
-      data: {
-        ...taskToMove,
-        position: destination.index + 1,
-        status_list_id: destination.droppableId
-      }
-    }));
+    dispatch(
+      updateTaskPosition({
+        data: {
+          ...taskToMove,
+          position: destination.index + 1,
+          status_list_id: destination.droppableId,
+        },
+      })
+    );
 
     if (source.droppableId === destination.droppableId) {
       // Same list movement
@@ -710,6 +726,7 @@ const BoardDetail: React.FC = () => {
 
       <TaskModal
         boardId={id ? id : ""}
+        taskId={taskId}
         visible={visibleTaskCardForm}
         onClose={() => setVisibleTaskCardForm(false)}
       />

@@ -30,6 +30,7 @@ interface CommentCardProps {
       comment: string;
       newAttachments: File[];
       removedAttachments: string[];
+      mentionedMembers: string[];
     }
   ) => void;
   commentId: string;
@@ -55,9 +56,8 @@ const CommentCard: React.FC<CommentCardProps> = ({
   );
   const [mentionedMembers, setMentionedMembers] = useState<string[]>([]);
 
-  const handleMentionChange = (value: string, mentions: string[]) => {
+  const handleMentionChange = (value: string) => {
     setMsg(value);
-    setMentionedMembers(mentions);
   };
 
   const [existingAttachments, setExistingAttachments] =
@@ -181,8 +181,9 @@ const CommentCard: React.FC<CommentCardProps> = ({
                   value={msg}
                   placeholder="Edit your comment..."
                   className="edit-text-box"
-                  onChange={handleMentionChange}
                   members={invitedMemberList.map((item) => item.memberId)}
+                  setMentions={setMentionedMembers}
+                  onChange={handleMentionChange}
                 />
                 <Upload
                   beforeUpload={(file) => {
@@ -208,8 +209,10 @@ const CommentCard: React.FC<CommentCardProps> = ({
                     comment: msg,
                     newAttachments: fileList,
                     removedAttachments,
+                    mentionedMembers,
                   });
                   setIsEditing(false);
+                  setMentionedMembers([]);
                 }}
                 disabled={
                   (!msg.trim() ||
