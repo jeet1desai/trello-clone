@@ -127,7 +127,7 @@ export const updateTaskComment = createAsyncThunk(
     try {
       const response = await taskCommentService.updateTaskComment(
         taskId,
-        updateTask,
+        updateTask
       );
       return response;
     } catch (error: any) {
@@ -185,6 +185,13 @@ const taskCommentSlice = createSlice({
             __v,
           },
         ];
+    },
+    removeComment: (state, action) => {
+      const { _id } = action.payload.data;
+      const updatedComments = state.taskComments.filter(
+        (comment) => comment._id !== _id
+      );
+      state.taskComments = updatedComments;
     },
     updateComment: (state, action) => {
       state.taskComments = state.taskComments.map((comment) =>
@@ -300,6 +307,7 @@ const taskCommentSlice = createSlice({
 
 export const {
   addNewComment,
+  removeComment,
   updateComment,
   addTaskComment,
   clearSelectedTaskComment,

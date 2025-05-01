@@ -168,6 +168,15 @@ const taskSlice = createSlice({
       }
       state.tasksByStatus[statusListId].push(action.payload.data);
     },
+    removeTask: (state, action) => {
+      const statusListId = action.payload.data.status_list_id;
+      if (!state.tasksByStatus[statusListId]) {
+        state.tasksByStatus[statusListId] = [];
+      }
+      state.tasksByStatus[statusListId] = state.tasksByStatus[
+        statusListId
+      ].filter((task) => task._id !== action.payload.data._id);
+    },
     clearTaskState: (state) => {
       state.tasksByStatus = {};
       state.selectedTask = null;
@@ -414,7 +423,9 @@ const taskSlice = createSlice({
     removeTaskComments: (state, action) => {
       const { task_id } = action.payload;
       if (state.selectedTask) {
-        const updatedTasks = state.tasksByStatus[state.selectedTask.status_list_id._id].map((task) => {
+        const updatedTasks = state.tasksByStatus[
+          state.selectedTask.status_list_id._id
+        ].map((task) => {
           return task._id === task_id
             ? {
                 ...task,
@@ -544,6 +555,7 @@ const taskSlice = createSlice({
 
 export const {
   addNewTask,
+  removeTask,
   clearTaskState,
   setSelectedTask,
   clearSelectedTask,
