@@ -81,10 +81,6 @@ const InviteBoard: React.FC<InviteBoardProps> = ({ isOpen, onClose }) => {
     setEmails([]);
   };
 
-  const handleCreateLink = () => {
-    console.log("Creating share link");
-  };
-
   const handleRemoveMember = (member: MemberData) => {
     modal.confirm({
       title: `Are you sure you want to remove "${member.memberId.first_name} ${member.memberId.last_name}" from the board?`,
@@ -185,17 +181,6 @@ const InviteBoard: React.FC<InviteBoardProps> = ({ isOpen, onClose }) => {
         </div>
         <span className="color-red">{emailError}</span>
 
-        <div className="link-section">
-          <Space align="center">
-            <Button type="default" icon={<LinkOutlined />} className="button" />
-            <div className="link-content">
-              <Text>Share this board with a link</Text>
-              <p className="display-start" onClick={handleCreateLink}>
-                Create link
-              </p>
-            </div>
-          </Space>
-        </div>
         <div className="members-section">
           <div className="member-count">
             <Text strong>Board members</Text>

@@ -201,7 +201,7 @@ export const getAllBoards = createAsyncThunk(
 );
 
 export const getBoardById = createAsyncThunk(
-  "board/get-board-by-id",
+  "task/get-board-by-id",
   async (_id: string, { rejectWithValue }) => {
     try {
       const response = await boardService.getBoardById(_id);
