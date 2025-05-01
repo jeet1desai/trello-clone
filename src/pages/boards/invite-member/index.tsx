@@ -12,6 +12,7 @@ import {
 } from "../../../store/slices/boardSlice";
 import { PRIVATE_ROUTE, PUBLIC_ROUTE } from "../../../utils/enums/route";
 import { companyLogo } from "../../../assets";
+import socketService from "../../../services/socketService";
 
 const { Title, Text, Link } = Typography;
 
@@ -61,6 +62,7 @@ const InviteMemberPage: React.FC = () => {
 
   useEffect(() => {
     if (invitedMemberDetails && invitedMemberDetail) {
+      socketService.setBoardId(invitedMemberDetail.boardId._id)
       setInvitedMemberDetails(invitedMemberDetail);
     }
   }, [invitedMemberDetails, invitedMemberDetail]);

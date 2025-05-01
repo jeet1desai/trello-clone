@@ -666,6 +666,15 @@ const boardSlice = createSlice({
       state.error = null;
       state.success = null;
     },
+    addNewInvitedMember: (state, action) => {
+      state.invitedMemberList = [...action.payload.data];
+    },
+    removeInvitedmember: (state,action)=>{
+      const { _id } = action.payload.data;
+      state.invitedMemberList = state.invitedMemberList.filter(
+        (item) => item._id !== _id
+      );
+    }
   },
   extraReducers: (builder) => {
     builder
@@ -1233,6 +1242,8 @@ export const {
   removeSelectedLabel,
   openBoardAddModal,
   clearSelectedBoard,
+  addNewInvitedMember,
+  removeInvitedmember
 } = boardSlice.actions;
 
 export default boardSlice.reducer;
