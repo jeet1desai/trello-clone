@@ -16,7 +16,7 @@ import { companyLogo } from "../../../assets";
 const { Title, Text, Link } = Typography;
 
 const InviteMemberPage: React.FC = () => {
-  const { id } = useParams<{ id: string }>();
+  const { id, userId } = useParams<{ id: string, userId: string }>();
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
 
@@ -102,36 +102,42 @@ const InviteMemberPage: React.FC = () => {
             <Link onClick={handleRegister}>register here</Link>
           </Text>
 
-          <Space
-            style={{
-              width: "100%",
-              justifyContent: "space-between",
-              marginTop: "20px",
-            }}
-          >
-            <Button
-              type="primary"
-              size="large"
-              onClick={handleAccept}
-              block
-              style={{ marginRight: "8px" }}
-            >
-              Accept
-            </Button>
-            <Button
-              size="large"
-              onClick={handleReject}
-              block
+          {currentUser?.id === userId ?
+            <Space
               style={{
-                marginLeft: "8px",
-                background: "#f4f5f7",
-                borderColor: "#f4f5f7",
-                color: "#172b4d",
+                width: "100%",
+                justifyContent: "space-between",
+                marginTop: "20px",
               }}
             >
-              Reject
-            </Button>
-          </Space>
+              <Button
+                type="primary"
+                size="large"
+                onClick={handleAccept}
+                block
+                style={{ marginRight: "8px" }}
+              >
+                Accept
+              </Button>
+              <Button
+                size="large"
+                onClick={handleReject}
+                block
+                style={{
+                  marginLeft: "8px",
+                  background: "#f4f5f7",
+                  borderColor: "#f4f5f7",
+                  color: "#172b4d",
+                }}
+              >
+                Reject
+              </Button>
+            </Space>
+            :
+            <Text style={{ color: 'red', fontWeight: 'bold', fontSize: '18px' }}>
+              You do not have permission to perform this action
+            </Text>
+          }
         </Space>
       </div>
     </div>

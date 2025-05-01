@@ -483,7 +483,7 @@ const taskSlice = createSlice({
       .addCase(updateTask.fulfilled, (state, action) => {
         state.loading = false;
         state.error = null;
-        state.selectedTask = action.payload.data;
+        state.selectedTask = action.payload;
         state.success = "Task updated successfully.";
       })
       .addCase(updateTask.rejected, (state, action) => {
