@@ -7,6 +7,8 @@ import {
   MemberData,
   inviteBoardMember,
   getBoardMemberListById,
+  addNewInvitedMember,
+  removeInvitedmember,
 } from "../../../../store/slices/boardSlice";
 import {
   Modal,
@@ -23,6 +25,7 @@ import {
 import { LinkOutlined, ExclamationCircleOutlined } from "@ant-design/icons";
 import "../../../../layout/styles/Board.css";
 import { getRandomColor } from "../../../../utils";
+import socketService from "../../../../services/socketService";
 
 const { Text } = Typography;
 
@@ -114,6 +117,21 @@ const InviteBoard: React.FC<InviteBoardProps> = ({ isOpen, onClose }) => {
     if (id && isOpen)
       (async () => await dispatch(getBoardMemberListById(id)))();
   }, [dispatch, id, isOpen]);
+
+  useEffect(() => {
+    socketService.on('receive_new_member', (payload) => {
+      dispatch(addNewInvitedMember(payload));
+    });
+
+    socketService.on('remove_member', (payload) => {
+      dispatch(removeInvitedmember(payload));
+    });
+
+    return () => {
+      socketService.off("receive_new_member");
+      socketService.off("remove_member");
+    };
+  });
 
   return (
     <Modal
