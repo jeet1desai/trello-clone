@@ -162,6 +162,13 @@ const BoardDetail: React.FC = () => {
     }
   }, [id, taskId, tasksByStatus]);
 
+  // Update board ID when it changes
+  useEffect(() => {
+    if (id) {
+      socketService.setBoardId(id);
+    }
+  }, [id]);
+
   useEffect(() => {
     if (selectedBoard) {
       setBoardData(selectedBoard);

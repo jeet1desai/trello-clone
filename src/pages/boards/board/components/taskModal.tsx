@@ -65,6 +65,7 @@ import {
   removeMemberFromTask,
   addSelectedLabels,
   addSelectedMembers,
+  removeSelectedMember,
 } from "../../../../store/slices/boardSlice";
 import { getRandomColor } from "../../../../utils";
 import AttachmentActions from "./attachmentAction";
@@ -427,6 +428,10 @@ const TaskModal: React.FC<TaskModalProps> = ({
       dispatch(addSelectedMembers(payload));
     });
 
+    socketService.on("task-member-removed", (payload) => {
+      dispatch(removeSelectedMember(payload));
+    });
+
     socketService.on("receive-new-task-label", (payload) => {
       dispatch(addSelectedLabels(payload));
     });
@@ -441,6 +446,7 @@ const TaskModal: React.FC<TaskModalProps> = ({
 
     return () => {
       socketService.off("receive_new_task-member");
+      socketService.off("task-member-removed");
       socketService.off("receive-new-task-label");
       socketService.off("receive_new_comment");
       socketService.off("receive_updated_comment");
@@ -499,10 +505,7 @@ const TaskModal: React.FC<TaskModalProps> = ({
       removedAttachments: string[];
       mentionedMembers: string[];
     }
-  ) =>
-    dispatch(
-      updateTaskComment({ taskId: commentId, updateTask })
-    );
+  ) => dispatch(updateTaskComment({ taskId: commentId, updateTask }));
 
   useEffect(() => {
     async function handleClickOutside(event: MouseEvent) {
@@ -598,7 +601,7 @@ const TaskModal: React.FC<TaskModalProps> = ({
             style={{ fontSize: "16px", margin: "8px" }}
             onClick={() => setIsEditTitle(true)}
           >
-            {taskDetails?.title}
+            {taskDetails?.title ?? selectedTask?.title}
           </Text>
         )}
       </div>
