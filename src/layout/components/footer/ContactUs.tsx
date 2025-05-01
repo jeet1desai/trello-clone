@@ -1,6 +1,9 @@
 import React from "react";
-import { Button, Form, Input, Modal, Space } from "antd";
+import { Button, Form, Input, Modal, Space, Spin } from "antd";
 import { UserOutlined, MailOutlined } from "@ant-design/icons";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "../../../store";
+import { contactUsCreate } from "../../../store/slices/contactUsSlice";
 
 interface IProps {
   open: boolean;
@@ -9,13 +12,32 @@ interface IProps {
 
 const ContactUs = ({ open, onCancel }: IProps) => {
   const [form] = Form.useForm();
-
-  const onSubmit = (values: {
+  const dispatch = useDispatch<AppDispatch>();
+  const { loading, validationObject } = useSelector(
+    (state: RootState) => state.contactUs
+  );
+  const onSubmit = async (values: {
     name: string;
     email: string;
     description: string;
   }) => {
-    console.log("sss", values);
+    const result = await dispatch(contactUsCreate(values));
+
+    if (contactUsCreate.rejected.match(result) && result.payload) {
+      const backendErrors = result.payload as Record<string, string>;
+
+      const fieldErrors = Object.entries(backendErrors).map(
+        ([field, message]) => ({
+          name: field,
+          errors: [message],
+        })
+      );
+
+      form.setFields(fieldErrors);
+    } else {
+      form.resetFields();
+      onCancel();
+    }
   };
 
   return (
@@ -28,6 +50,7 @@ const ContactUs = ({ open, onCancel }: IProps) => {
       }}
       footer={null}
     >
+      <Spin spinning={loading} fullscreen />
       <Form
         form={form}
         layout="vertical"
@@ -47,7 +70,17 @@ const ContactUs = ({ open, onCancel }: IProps) => {
             </span>
           }
           name="name"
-          rules={[{ required: true, message: "Please enter your name" }]}
+          rules={[
+            { required: true, message: "Please enter your name" },
+            {
+              min: 2,
+              message: "Name must be at least 2 characters",
+            },
+            {
+              max: 50,
+              message: "Name must not exceed 50 characters",
+            },
+          ]}
         >
           <Input
             prefix={<UserOutlined className="form-icon" />}
@@ -62,7 +95,10 @@ const ContactUs = ({ open, onCancel }: IProps) => {
             </span>
           }
           name="email"
-          rules={[{ required: true, message: "Please enter your email" }]}
+          rules={[
+            { required: true, message: "Please enter your email" },
+            { type: "email", message: "Invalid email address" },
+          ]}
         >
           <Input
             prefix={<MailOutlined className="form-icon" />}
@@ -96,7 +132,7 @@ const ContactUs = ({ open, onCancel }: IProps) => {
               type="primary"
               className="button"
               htmlType="submit"
-              // loading={loading}
+              loading={loading}
             >
               Submit
             </Button>

@@ -20,6 +20,7 @@ import taskCommentReducer from "./slices/taskCommentSlice";
 import notificationReducer from "./slices/notificationSlice";
 import dashboardReducer from "./slices/dashboardSlice";
 import taskAttachmentReducer from "./slices/taskAttachmentSlice";
+import contactUsReducer from "./slices/contactUsSlice";
 import { notificationMiddleware } from "./middleware/notificationMiddleware";
 import { RESET_APP } from "../config";
 
@@ -27,7 +28,15 @@ const persistConfig = {
   key: "root",
   version: 1,
   storage,
-  whitelist: ["user", "profile", "workspace", "board", "status", "task", "notification"],
+  whitelist: [
+    "user",
+    "profile",
+    "workspace",
+    "board",
+    "status",
+    "task",
+    "notification",
+  ],
 };
 
 const appReducer = combineReducers({
@@ -41,6 +50,7 @@ const appReducer = combineReducers({
   notification: notificationReducer,
   taskAttachment: taskAttachmentReducer,
   dashboard: dashboardReducer,
+  contactUs: contactUsReducer,
 });
 
 const rootReducer = (
