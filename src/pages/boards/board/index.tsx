@@ -43,6 +43,7 @@ import {
   createNewStatus,
   deleteStatus,
   getStatusListByBoardId,
+  removeStatus,
   setSelectedStatus,
   updateStatus,
   updateStatusPosition,
@@ -59,6 +60,7 @@ import {
   updateTask,
   updateTaskPosition,
   updateTaskInState,
+  removeTask,
 } from "../../../store/slices/taskSlice";
 import TaskModal from "./components/taskModal";
 import { getRandomColor } from "../../../utils";
@@ -151,7 +153,7 @@ const BoardDetail: React.FC = () => {
         }
       });
     }
-  }, [dispatch, statusList]);
+  }, [dispatch]);
 
   useEffect(() => {
     if (id && taskId) {
@@ -184,6 +186,10 @@ const BoardDetail: React.FC = () => {
       dispatch(updateStatusPosition(payload));
     });
 
+    socketService.on("remove_status", (payload) => {
+      dispatch(removeStatus(payload));
+    });
+
     socketService.on("receive-new-task", (payload) => {
       dispatch(addNewTask(payload));
     });
@@ -193,11 +199,17 @@ const BoardDetail: React.FC = () => {
       dispatch(updateTaskInState(payload));
     });
 
+    socketService.on("remove_task", (payload) => {
+      dispatch(removeTask(payload));
+    });
+
     return () => {
       socketService.off("receive_status");
       socketService.off("receive_updated_status");
+      socketService.off("remove_status");
       socketService.off("receive-new-task");
       socketService.off("receive-updated-task");
+      socketService.off("remove_task");
     };
   });
 
@@ -314,7 +326,6 @@ const BoardDetail: React.FC = () => {
           name: newStatusTitle,
         })
       );
-      await dispatch(getStatusListByBoardId(id));
       setNewStatusTitle("");
       setShowAddList(false);
     }
@@ -361,7 +372,6 @@ const BoardDetail: React.FC = () => {
       },
       async onOk() {
         await dispatch(deleteStatus(list._id));
-        id && (await dispatch(getStatusListByBoardId(id)));
       },
     });
   };

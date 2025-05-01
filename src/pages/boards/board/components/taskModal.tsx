@@ -46,6 +46,7 @@ import {
   addNewTaskComment,
   deleteTaskComment,
   getTaskCommentById,
+  removeComment,
   updateComment,
   updateTaskComment,
 } from "../../../../store/slices/taskCommentSlice";
@@ -56,6 +57,7 @@ import {
   deleteTaskAttachment,
   getTaskAttachmentById,
   IAttachment,
+  removeAttachment,
 } from "../../../../store/slices/taskAttachmentSlice";
 import { handleDownload } from "../../../../services/downloadService";
 import {
@@ -66,6 +68,7 @@ import {
   addSelectedLabels,
   addSelectedMembers,
   removeSelectedMember,
+  removeSelectedLabel,
 } from "../../../../store/slices/boardSlice";
 import { getRandomColor } from "../../../../utils";
 import AttachmentActions from "./attachmentAction";
@@ -411,6 +414,10 @@ const TaskModal: React.FC<TaskModalProps> = ({
       dispatch(addSelectedLabels(payload));
     });
 
+    socketService.on("remove_task_label", (payload) => {
+      dispatch(removeSelectedLabel(payload));
+    });
+
     socketService.on("receive_new_comment", (payload) => {
       dispatch(addNewComment(payload));
     });
@@ -419,12 +426,23 @@ const TaskModal: React.FC<TaskModalProps> = ({
       dispatch(updateComment(payload));
     });
 
+    socketService.on("remove_comment", (payload) => {
+      dispatch(removeComment(payload));
+    });
+
+    socketService.on("remove_task_attachment", (payload) => {
+      dispatch(removeAttachment(payload));
+    });
+
     return () => {
       socketService.off("receive_new_task-member");
       socketService.off("task-member-removed");
       socketService.off("receive-new-task-label");
+      socketService.off("remove_task_label");
       socketService.off("receive_new_comment");
       socketService.off("receive_updated_comment");
+      socketService.off("remove_comment");
+      socketService.off("remove_task_attachment");
     };
   });
 

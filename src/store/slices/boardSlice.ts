@@ -647,6 +647,12 @@ const boardSlice = createSlice({
         { _id, name, boardId, textColor, backgroundColor },
       ];
     },
+    removeSelectedLabel: (state, action) => {
+      const { label_id } = action.payload.data;
+      state.selectedTaskLabels = state.selectedTaskLabels.filter(
+        (label) => label._id !== label_id
+      );
+    },
     openBoardAddModal: (state) => {
       state.addError = null;
       state.editError = null;
@@ -1224,6 +1230,7 @@ export const {
   addSelectedMembers,
   removeSelectedMember,
   addSelectedLabels,
+  removeSelectedLabel,
   openBoardAddModal,
   clearSelectedBoard,
 } = boardSlice.actions;
