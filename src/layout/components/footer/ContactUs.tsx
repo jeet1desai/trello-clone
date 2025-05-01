@@ -13,9 +13,7 @@ interface IProps {
 const ContactUs = ({ open, onCancel }: IProps) => {
   const [form] = Form.useForm();
   const dispatch = useDispatch<AppDispatch>();
-  const { loading, validationObject } = useSelector(
-    (state: RootState) => state.contactUs
-  );
+  const { loading } = useSelector((state: RootState) => state.contactUs);
   const onSubmit = async (values: {
     name: string;
     email: string;
