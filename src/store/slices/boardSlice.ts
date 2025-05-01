@@ -538,7 +538,7 @@ export const removeLabelFromTask = createAsyncThunk(
   ) => {
     try {
       const response = await boardService.removeLabelFromTask(taskId, labelId);
-      dispatch(removeTaskLabel(response.data))
+      dispatch(removeTaskLabel(response.data));
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
@@ -632,6 +632,12 @@ const boardSlice = createSlice({
         ...state.selectedTaskMembers,
         { _id, first_name, last_name, email },
       ];
+    },
+    removeSelectedMember: (state, action) => {
+      const updatedMembers = state.selectedTaskMembers.filter(
+        (member) => member._id !== action.payload.data.member_id
+      );
+      state.selectedTaskMembers = updatedMembers;
     },
     addSelectedLabels: (state, action) => {
       const { _id, name, boardId, textColor, backgroundColor } =
@@ -1216,6 +1222,7 @@ const boardSlice = createSlice({
 
 export const {
   addSelectedMembers,
+  removeSelectedMember,
   addSelectedLabels,
   openBoardAddModal,
   clearSelectedBoard,

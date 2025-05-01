@@ -26,7 +26,7 @@ export enum PUBLIC_ROUTE {
 export enum PRIVATE_ROUTE {
   DASHBOARD = "/dashboard",
   USER_PROFILE = "/profile",
-  INVITATION = "invitation/:id",
+  INVITATION = "invitation/:id/:userId",
   WORKSPACES = "/workspaces",
   WORKSPACE = "/workspace/:id",
   BOARDS = "/boards",

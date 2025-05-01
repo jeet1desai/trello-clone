@@ -81,14 +81,21 @@ export const addNewTaskComment = createAsyncThunk(
       taskId,
       comment,
       attachments,
-    }: { taskId: string; comment: string; attachments: File[] },
+      mentionedMembers,
+    }: {
+      taskId: string;
+      comment: string;
+      attachments: File[];
+      mentionedMembers: string[];
+    },
     { rejectWithValue, dispatch }
   ) => {
     try {
       const response = await taskCommentService.addTaskComment(
         taskId,
         comment,
-        attachments
+        attachments,
+        mentionedMembers
       );
       dispatch(updateTaskComments(response.data));
       return response;
@@ -112,6 +119,7 @@ export const updateTaskComment = createAsyncThunk(
         comment: string;
         newAttachments: File[];
         removedAttachments: string[];
+        mentionedMembers: string[];
       };
     },
     { rejectWithValue }
@@ -119,7 +127,7 @@ export const updateTaskComment = createAsyncThunk(
     try {
       const response = await taskCommentService.updateTaskComment(
         taskId,
-        updateTask
+        updateTask,
       );
       return response;
     } catch (error: any) {

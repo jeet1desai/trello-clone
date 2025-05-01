@@ -1,7 +1,8 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Button, Form, FormInstance, Input, Select, Space } from "antd";
-import { useSelector } from "react-redux";
-import { RootState } from "../../../store";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "../../../store";
+import { getAllWorkspaces } from "../../../store/slices/workspaceSlice";
 
 interface IProps {
   form: FormInstance<any>;
@@ -20,7 +21,12 @@ const AddBoardForm = ({
   onCancel,
   onFinish,
 }: IProps) => {
+  const dispatch = useDispatch<AppDispatch>();
   const { workspaces } = useSelector((state: RootState) => state.workspace);
+
+  useEffect(() => {
+    dispatch(getAllWorkspaces());
+  }, [dispatch]);
 
   return (
     <Form
@@ -43,11 +49,7 @@ const AddBoardForm = ({
         <Input placeholder="Enter board name" className="form-input" />
       </Form.Item>
       <Form.Item
-        label={
-          <span className="input-label">
-            Description
-          </span>
-        }
+        label={<span className="input-label">Description</span>}
         name="description"
       >
         <Input.TextArea

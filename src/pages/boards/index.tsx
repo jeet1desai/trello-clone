@@ -46,7 +46,6 @@ import "../../layout/styles/boards.css";
 import { SORT_OPTIONS } from "../../config";
 import AddBoardForm from "./components/AddBoardForm";
 import { generateGradient } from "../../utils";
-import { getAllWorkspaces } from "../../store/slices/workspaceSlice";
 import { PRIVATE_ROUTE } from "../../utils/enums/route";
 import CustomButton from "../../components/ui/button";
 import ResponsiveSearch from "../../components/ui/searchResponsive";
@@ -58,7 +57,6 @@ const Boards: React.FC = () => {
   const { modal } = App.useApp();
   const location = useLocation();
   const dispatch = useDispatch<AppDispatch>();
-  const { workspaces } = useSelector((state: RootState) => state.workspace);
   const { boards, addError, editError, loading } = useSelector(
     (state: RootState) => state.board
   );
@@ -76,11 +74,10 @@ const Boards: React.FC = () => {
 
   const showAddModal = useCallback(() => {
     dispatch(openBoardAddModal());
-    if (!workspaces.length) dispatch(getAllWorkspaces());
     setSelectedBoard(null);
     form.resetFields();
     setIsModalVisible(true);
-  }, [form, dispatch, workspaces]);
+  }, [form, dispatch]);
 
   useEffect(() => {
     (async () => {
