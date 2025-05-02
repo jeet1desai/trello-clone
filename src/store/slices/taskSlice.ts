@@ -300,10 +300,7 @@ const taskSlice = createSlice({
               ...state.tasksByStatus[statusId][taskIndex],
             };
             state.tasksByStatus[statusId].splice(taskIndex, 1);
-            const newStatusId =
-              typeof updatedTask.status_list_id === "object"
-                ? updatedTask.status_list_id._id
-                : updatedTask.status_list_id;
+            const newStatusId = updatedTask.status_list_id;
 
             if (!state.tasksByStatus[newStatusId]) {
               state.tasksByStatus[newStatusId] = [];
@@ -317,14 +314,14 @@ const taskSlice = createSlice({
             if (updatedTask.priority !== undefined) {
               taskToUpdate.priority = updatedTask.priority;
             }
+            if (updatedTask.assigned_to !== undefined) {
+              taskToUpdate.assigned_to = updatedTask.assigned_to;
+            }
             if (updatedTask.status !== undefined) {
               taskToUpdate.status = updatedTask.status;
             }
             if (updatedTask.end_date !== undefined) {
               taskToUpdate.end_date = updatedTask.end_date;
-            }
-            if (updatedTask.start_date !== undefined) {
-              taskToUpdate.start_date = updatedTask.start_date;
             }
             if (typeof updatedTask.status_list_id === "object") {
               taskToUpdate.status_list_id = updatedTask.status_list_id;
@@ -347,14 +344,14 @@ const taskSlice = createSlice({
             if (updatedTask.priority !== undefined) {
               task.priority = updatedTask.priority;
             }
+            if (updatedTask.assigned_to !== undefined) {
+              task.assigned_to = updatedTask.assigned_to;
+            }
             if (updatedTask.status !== undefined) {
               task.status = updatedTask.status;
             }
             if (updatedTask.end_date !== undefined) {
               task.end_date = updatedTask.end_date;
-            }
-            if (updatedTask.start_date !== undefined) {
-              task.start_date = updatedTask.start_date;
             }
           }
           if (state.selectedTask && state.selectedTask._id === taskId) {
@@ -367,14 +364,14 @@ const taskSlice = createSlice({
             if (updatedTask.priority !== undefined) {
               state.selectedTask.priority = updatedTask.priority;
             }
+            if (updatedTask.assigned_to !== undefined) {
+              state.selectedTask.assigned_to = updatedTask.assigned_to;
+            }
             if (updatedTask.status !== undefined) {
               state.selectedTask.status = updatedTask.status;
             }
             if (updatedTask.end_date !== undefined) {
               state.selectedTask.end_date = updatedTask.end_date;
-            }
-            if (updatedTask.start_date !== undefined) {
-              state.selectedTask.start_date = updatedTask.start_date;
             }
             if (updatedTask.status_list_id !== undefined) {
               if (typeof updatedTask.status_list_id === "object") {

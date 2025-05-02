@@ -754,8 +754,8 @@ const TaskModal: React.FC<TaskModalProps> = ({
                       cursor: "pointer",
                     }}
                   >
-                    {selectedTask.assigned_to.first_name[0].toUpperCase() +
-                      selectedTask.assigned_to.last_name[0].toUpperCase()}
+                    {selectedTask.assigned_to.first_name?.[0].toUpperCase() +
+                      selectedTask.assigned_to.last_name?.[0].toUpperCase()}
                   </Avatar>
                 </Tooltip>
               ) : (
