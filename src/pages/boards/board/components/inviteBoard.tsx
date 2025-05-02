@@ -26,6 +26,8 @@ import { LinkOutlined, ExclamationCircleOutlined } from "@ant-design/icons";
 import "../../../../layout/styles/Board.css";
 import { getRandomColor } from "../../../../utils";
 import socketService from "../../../../services/socketService";
+import { useNavigate } from "react-router-dom";
+import { PRIVATE_ROUTE } from "../../../../utils/enums/route";
 
 const { Text } = Typography;
 
@@ -39,8 +41,12 @@ const InviteBoard: React.FC<InviteBoardProps> = ({ isOpen, onClose }) => {
 
   const { id } = useParams<{ id: string }>();
   const dispatch = useDispatch<AppDispatch>();
+  const navigate = useNavigate();
   const { invitedMemberList, loading: memberLoading } = useSelector(
     (state: RootState) => state.board
+  );
+  const { currentUser } = useSelector(
+    (state: RootState) => state.user
   );
   const [loading, setLoading] = useState(false);
   const [emails, setEmails] = useState<string[]>([]);
@@ -109,6 +115,14 @@ const InviteBoard: React.FC<InviteBoardProps> = ({ isOpen, onClose }) => {
     });
   };
 
+  const checkRedirectBoard = (payload: any):any => {
+    if (payload.data.memberId === currentUser?.id) {
+      navigate(PRIVATE_ROUTE.BOARDS);
+    } else {
+      dispatch(removeInvitedmember(payload));
+    }
+  }
+
   useEffect(() => {
     if (id && isOpen)
       (async () => await dispatch(getBoardMemberListById(id)))();
@@ -120,7 +134,7 @@ const InviteBoard: React.FC<InviteBoardProps> = ({ isOpen, onClose }) => {
     });
 
     socketService.on('remove_member', (payload) => {
-      dispatch(removeInvitedmember(payload));
+      checkRedirectBoard(payload)
     });
 
     return () => {
