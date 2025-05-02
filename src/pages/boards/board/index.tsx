@@ -18,6 +18,9 @@ import {
   ExclamationCircleOutlined,
   MessageOutlined,
   PaperClipOutlined,
+  ClockCircleOutlined,
+  UserOutlined,
+  AlertFilled,
 } from "@ant-design/icons";
 import type {
   DraggableProvided,
@@ -61,11 +64,14 @@ import {
   updateTaskPosition,
   updateTaskInState,
   removeTask,
+  getTaskById,
 } from "../../../store/slices/taskSlice";
 import TaskModal from "./components/taskModal";
 import { getRandomColor } from "../../../utils";
 import socketService from "../../../services/socketService";
 import { useSearchParams } from "react-router-dom";
+import dayjs from "dayjs";
+import { Priority } from "../../../utils/enums/task";
 
 const { Title, Text } = Typography;
 
@@ -390,7 +396,7 @@ const BoardDetail: React.FC = () => {
             opacity: snapshot.isDragging ? 0.8 : 1,
           }}
           onClick={() => handleTaskClick(task)}
-          onMouseDown={() => dispatch(setSelectedTask(task))}
+          onMouseDown={() => dispatch(getTaskById(task._id))}
           onMouseEnter={() => setHoveredTaskId(task._id)}
           onMouseLeave={() => setHoveredTaskId(null)}
         >
@@ -399,6 +405,7 @@ const BoardDetail: React.FC = () => {
             style={{
               boxShadow: "0 1px 2px rgba(0, 0, 0, 0.1)",
               cursor: "pointer",
+              background: task.status === "Completed" ? "#6bf16b26" : "",
             }}
             bodyStyle={{ padding: "8px 12px" }}
           >
@@ -429,12 +436,11 @@ const BoardDetail: React.FC = () => {
                     gap: 4,
                   }}
                 >
-                  {hoveredTaskId === task._id && (
-                    <Checkbox
-                      checked={task.status === "Completed"}
-                      prefixCls="status-checkbox"
-                    />
-                  )}
+                  {task.status === "Completed" ? (
+                    <Checkbox checked={true} prefixCls="status-checkbox" />
+                  ) : hoveredTaskId === task._id ? (
+                    <Checkbox checked={false} prefixCls="status-checkbox" />
+                  ) : null}
                   {task.title}
                 </Paragraph>
                 <div style={{ display: "flex", gap: 8 }}>
@@ -466,6 +472,65 @@ const BoardDetail: React.FC = () => {
                       {task.attachment.length}
                     </Paragraph>
                   ) : null}
+                  {task.members > 0 ? (
+                    <Paragraph
+                      style={{
+                        marginBottom: 0,
+                        display: "flex",
+                        gap: 4,
+                        alignItems: "center",
+                        fontSize: "12px",
+                      }}
+                    >
+                      <UserOutlined />
+                      {task.members}
+                    </Paragraph>
+                  ) : null}
+                </div>
+                <div style={{ display: "flex", gap: 8, marginTop: 4 }}>
+                  {task.end_date && (
+                    <Paragraph
+                      style={{
+                        marginBottom: 0,
+                        display: "flex",
+                        gap: 4,
+                        alignItems: "center",
+                        fontSize: "12px",
+                        background: dayjs().isAfter(task.end_date)
+                          ? "#d32029"
+                          : "transparent",
+                        padding: dayjs().isAfter(task.end_date) ? "2px 4px" : 0,
+                        borderRadius: "4px",
+                        color: dayjs().isAfter(task.end_date)
+                          ? "rgb(255 174 167)"
+                          : "inherit",
+                      }}
+                    >
+                      <ClockCircleOutlined />
+                      {dayjs(task.end_date).format("MMM DD")}
+                    </Paragraph>
+                  )}
+                  <div>
+                    {Array.from(
+                      {
+                        length:
+                          task.priority === Priority.LOW
+                            ? 1
+                            : task.priority === Priority.MEDIUM
+                            ? 2
+                            : task.priority === Priority.HIGH
+                            ? 3
+                            : 4,
+                      },
+                      (_, i) => i + 1
+                    ).map((alert) => (
+                      <AlertFilled
+                        style={{
+                          color: "rgb(255 64 64)",
+                        }}
+                      />
+                    ))}
+                  </div>
                 </div>
               </div>
               {hoveredTaskId === task._id && (

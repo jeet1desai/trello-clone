@@ -12,6 +12,7 @@ import {
   editLabel,
   removeLabelFromTask,
 } from "../../../../store/slices/boardSlice";
+import Search from "antd/es/transfer/search";
 
 const { Title } = Typography;
 
@@ -161,15 +162,18 @@ const LabelPopup = ({ boardId, selectedTaskId }: IProps) => {
       ) : (
         <>
           <Title style={{ marginTop: 0, fontSize: "16px" }}>Labels</Title>
-          <Input
-            className="form-input"
+          <Search
+            prefixCls="form-input form-input-small"
             placeholder="Search labels..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            style={{ marginBottom: 12, borderRadius: "4px" }}
           />
           <List
-            style={{ minHeight: "250px", overflowX: "auto" }}
+            style={{
+              minHeight: "250px",
+              overflowX: "auto",
+              marginTop: 12,
+            }}
             dataSource={filteredLabels}
             renderItem={(label) => (
               <List.Item

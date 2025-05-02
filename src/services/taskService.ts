@@ -50,4 +50,22 @@ export const taskService = {
     );
     return response.data;
   },
+
+  async assignMember(task_id: string, member_id: string) {
+    const response = await axiosInstance.post(
+      `${API_URL}/task-member/assign-member`,
+      {
+        task_id,
+        member_id,
+      }
+    );
+    return response.data;
+  },
+
+  async unassignMember(taskId: string) {
+    const response = await axiosInstance.delete(
+      `${API_URL}/task-member/unassign-member?taskId=${taskId}`
+    );
+    return response.data;
+  },
 };

@@ -35,7 +35,11 @@ import TaskDescriptionEditor from "../../../../components/ui/Editor";
 import type { UploadFile } from "antd";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../../../store";
-import { updateTask } from "../../../../store/slices/taskSlice";
+import {
+  assignMember,
+  unassignMember,
+  updateTask,
+} from "../../../../store/slices/taskSlice";
 import { Priority, TaskStatus } from "../../../../utils/enums/task";
 import Search from "antd/es/transfer/search";
 import LabelPopup from "./labelPopup";
@@ -236,6 +240,7 @@ const TaskModal: React.FC<TaskModalProps> = ({
   const [taskName, setTaskName] = useState("");
   const [fileList, setFileList] = useState<UploadFile[]>([]);
   const [memberVisible, setMemberVisible] = useState(false);
+  const [assignedMemberVisible, setAssignedMemberVisible] = useState(false);
   const [labelVisible, setLabelVisible] = useState(false);
   const [showEditor, setShowEditor] = useState(false);
   const [showAll, setShowAll] = useState(false);
@@ -261,6 +266,27 @@ const TaskModal: React.FC<TaskModalProps> = ({
         removeMemberFromTask({
           taskId: selectedTask?._id,
           memberId: id,
+        })
+      );
+    }
+  };
+
+  const handleAssignMember = (member_id: string) => {
+    if (selectedTask) {
+      dispatch(
+        assignMember({
+          task_id: selectedTask._id,
+          member_id,
+        })
+      );
+    }
+  };
+
+  const handleUnassignMember = () => {
+    if (selectedTask) {
+      dispatch(
+        unassignMember({
+          taskId: selectedTask?._id,
         })
       );
     }
@@ -362,6 +388,61 @@ const TaskModal: React.FC<TaskModalProps> = ({
           />
         </>
       ) : null}
+    </div>
+  );
+
+  const assignedMemberContent = (
+    <div style={{ width: 250 }}>
+      <div style={{ fontWeight: 600, marginBottom: 8 }}>Assigned to</div>
+      <Search
+        prefixCls="form-input form-input-small"
+        placeholder="Search members"
+      />
+      <List.Item
+        style={{
+          marginTop: "6px",
+          color: "grey",
+          fontWeight: 600,
+          cursor: "pointer",
+          padding: "6px",
+        }}
+        onClick={handleUnassignMember}
+      >
+        Unassigned
+      </List.Item>
+      <List
+        dataSource={selectedTaskMembers}
+        renderItem={(member) => (
+          <List.Item
+            style={{
+              cursor: "pointer",
+              padding: "6px",
+              borderRadius: "4px",
+              borderBlockEnd: "initial !important",
+              background:
+                selectedTask?.assigned_to?._id === member._id
+                  ? "#77b7ec42"
+                  : "",
+            }}
+            onClick={() => handleAssignMember(member._id)}
+          >
+            <div style={{ display: "flex", alignItems: "center" }}>
+              <Avatar
+                style={{
+                  backgroundColor: getRandomColor(member._id),
+                  marginRight: 8,
+                }}
+              >
+                {member.first_name[0].toUpperCase() +
+                  member.last_name[0].toUpperCase()}
+              </Avatar>
+              <span className="color-inherit">
+                {member.first_name + " " + member.last_name}
+              </span>
+            </div>
+          </List.Item>
+        )}
+      />
     </div>
   );
 
@@ -591,7 +672,7 @@ const TaskModal: React.FC<TaskModalProps> = ({
         )}
       </div>
       <Row>
-        <Col xs={24} sm={12} md={8}>
+        <Col xs={24} sm={12} md={6}>
           <Text strong style={{ fontSize: "12px", color: "#44546f" }}>
             Members
           </Text>
@@ -637,7 +718,57 @@ const TaskModal: React.FC<TaskModalProps> = ({
             </Popover>
           </div>
         </Col>
-        <Col xs={24} sm={12} md={8}>
+        <Col xs={24} sm={12} md={6}>
+          <Text strong style={{ fontSize: "12px", color: "#44546f" }}>
+            Assigned to
+          </Text>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 4,
+              marginTop: "4px",
+            }}
+          >
+            <Popover
+              content={assignedMemberContent}
+              title={null}
+              trigger="click"
+              open={assignedMemberVisible}
+              onOpenChange={setAssignedMemberVisible}
+              placement="bottomLeft"
+            >
+              {selectedTask?.assigned_to ? (
+                <Tooltip
+                  title={
+                    selectedTask?.assigned_to?.first_name +
+                    " " +
+                    selectedTask?.assigned_to?.last_name
+                  }
+                >
+                  <Avatar
+                    style={{
+                      background: getRandomColor(
+                        selectedTask?.assigned_to?._id ?? ""
+                      ),
+                      cursor: "pointer",
+                    }}
+                  >
+                    {selectedTask.assigned_to.first_name[0].toUpperCase() +
+                      selectedTask.assigned_to.last_name[0].toUpperCase()}
+                  </Avatar>
+                </Tooltip>
+              ) : (
+                <Button
+                  shape="circle"
+                  icon={<PlusOutlined />}
+                  className="button small-btn"
+                />
+              )}
+            </Popover>
+          </div>
+        </Col>
+        <Col xs={24} sm={12} md={6}>
           <Text strong style={{ fontSize: "12px", color: "#44546f" }}>
             Due date
           </Text>
@@ -654,7 +785,7 @@ const TaskModal: React.FC<TaskModalProps> = ({
             />
           </div>
         </Col>
-        <Col xs={24} sm={12} md={8}>
+        <Col xs={24} sm={12} md={6}>
           <Text strong style={{ fontSize: "12px", color: "#44546f" }}>
             Priority
           </Text>

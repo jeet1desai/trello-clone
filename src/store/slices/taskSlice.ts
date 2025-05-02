@@ -39,7 +39,13 @@ export interface ITask {
       description: string;
     };
   };
+  members: number;
   position?: number;
+  assigned_to: {
+    _id: string;
+    first_name: string;
+    last_name: string;
+  } | null;
 }
 
 interface TaskState {
@@ -150,6 +156,43 @@ export const getTaskById = createAsyncThunk(
     } catch (error: any) {
       return rejectWithValue(
         error.response?.data?.message ?? "Error while fetching task."
+      );
+    }
+  }
+);
+
+export const assignMember = createAsyncThunk(
+  "task/assign-member-in-task",
+  async (
+    {
+      task_id,
+      member_id,
+    }: {
+      task_id: string;
+      member_id: string;
+    },
+    { rejectWithValue }
+  ) => {
+    try {
+      const response = await taskService.assignMember(task_id, member_id);
+      return response;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message ?? "Error while assigning member."
+      );
+    }
+  }
+);
+
+export const unassignMember = createAsyncThunk(
+  "task/unassign-member-from-task",
+  async ({ taskId }: { taskId: string }, { rejectWithValue }) => {
+    try {
+      const response = await taskService.unassignMember(taskId);
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message ?? "Error while unassigning member."
       );
     }
   }
@@ -549,6 +592,47 @@ const taskSlice = createSlice({
         state.success = null;
         state.error =
           (action.payload as string) || "Error while fetching task.";
+      })
+
+      // Assign member into task
+      .addCase(assignMember.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.success = null;
+      })
+      .addCase(assignMember.fulfilled, (state, action) => {
+        state.selectedTask = {
+          ...state.selectedTask,
+          assigned_to: action.payload.data,
+        } as ITask;
+        state.loading = false;
+        state.error = null;
+        state.success = "Member assigned successfully.";
+      })
+      .addCase(assignMember.rejected, (state, action) => {
+        state.loading = false;
+        state.success = null;
+        state.error =
+          (action.payload as string) || "Error while assigning member.";
+      })
+
+      // Unassign member from task
+      .addCase(unassignMember.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.success = null;
+      })
+      .addCase(unassignMember.fulfilled, (state, action) => {
+        state.selectedTask = { ...state.selectedTask, assigned_to: null } as ITask;
+        state.loading = false;
+        state.error = null;
+        state.success = "Member unassigned successfully.";
+      })
+      .addCase(unassignMember.rejected, (state, action) => {
+        state.loading = false;
+        state.success = null;
+        state.error =
+          (action.payload as string) || "Error while unassigning member.";
       });
   },
 });
