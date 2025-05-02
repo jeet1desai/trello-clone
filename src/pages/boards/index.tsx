@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { generatePath, useLocation, useNavigate } from "react-router-dom";
 import {
   Row,
@@ -43,7 +43,7 @@ import {
   clearSelectedBoard,
 } from "../../store/slices/boardSlice";
 import "../../layout/styles/boards.css";
-import { SORT_OPTIONS } from "../../config";
+import { SORT_OPTIONS, SORT_OPTIONS_VALUES } from "../../config";
 import AddBoardForm from "./components/AddBoardForm";
 import { generateGradient } from "../../utils";
 import { PRIVATE_ROUTE } from "../../utils/enums/route";
@@ -56,11 +56,13 @@ const Boards: React.FC = () => {
   const [form] = Form.useForm();
   const { modal } = App.useApp();
   const location = useLocation();
+  const listRef = useRef<HTMLDivElement | null>(null);
   const dispatch = useDispatch<AppDispatch>();
-  const { boards, addError, editError, loading } = useSelector(
+  const { boards, addError, editError, loading, hasMore, boardPagination } = useSelector(
     (state: RootState) => state.board
   );
 
+  const [loadingMore, setLoadingMore] = useState(false);
   const [searchText, setSearchText] = useState("");
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [selectedBoard, setSelectedBoard] = useState<IBoard | null>(null);
@@ -81,7 +83,7 @@ const Boards: React.FC = () => {
 
   useEffect(() => {
     (async () => {
-      await dispatch(getAllBoards());
+      await dispatch(getAllBoards({page:1 , search: '', sortType: 0}));
     })();
 
     return () => {
@@ -101,35 +103,7 @@ const Boards: React.FC = () => {
   // Calculate processed boards
   const processedBoards = React.useMemo(() => {
     return boards
-      .filter((board) => {
-        // Filter by search text
-        const nameMatch = board.name
-          .toLowerCase()
-          .includes(searchText.toLowerCase());
-        const descMatch = board.description
-          .toLowerCase()
-          .includes(searchText.toLowerCase());
-        const textMatch = nameMatch || descMatch;
-
-        return textMatch;
-      })
-      .sort((a, b) => {
-        if (sortOption === SORT_OPTIONS.NAME_ASC) {
-          return a.name.localeCompare(b.name);
-        } else if (sortOption === SORT_OPTIONS.NAME_DESC) {
-          return b.name.localeCompare(a.name);
-        } else if (sortOption === SORT_OPTIONS.CREATED_ASC) {
-          return (
-            new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
-          );
-        } else if (sortOption === SORT_OPTIONS.CREATED_DESC) {
-          return (
-            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-          );
-        }
-        return 0;
-      });
-  }, [boards, searchText, sortOption]);
+  }, [boards]);
 
   const handleAddOrEditBoard = async (values: {
     name: string;
@@ -156,7 +130,7 @@ const Boards: React.FC = () => {
           members: values?.members,
         })
       );
-      await dispatch(getAllBoards());
+      await dispatch(getAllBoards({page:1 , search: '', sortType: 0}));
     }
     if (!addError) {
       setIsModalVisible(false);
@@ -287,6 +261,21 @@ const Boards: React.FC = () => {
     );
   };
 
+  const handleScroll = async () => {
+    const container = listRef.current;
+    if (container && !loading && hasMore) {
+      const scrollTop = container.scrollTop;
+      const scrollHeight = container.scrollHeight;
+      const clientHeight = container.clientHeight;
+      if (scrollTop + clientHeight >= scrollHeight - 100) {
+        setLoadingMore(true)
+        await dispatch(getAllBoards({ page: boardPagination.currentPage + 1, search: '', sortType: 0 }));
+      }
+    } else if (loadingMore && !hasMore) {
+      setLoadingMore(false)
+    }
+  };
+
   const renderBoards = (boards: IBoard[]) => {
     if (boards.length === 0) {
       let emptyMessage = "No boards found";
@@ -311,38 +300,41 @@ const Boards: React.FC = () => {
     }
 
     return (
-      <Row gutter={[16, 16]} className="boards-grid">
-        {boards.map((board) => (
-          <Col xs={24} sm={12} md={8} lg={6} key={board._id}>
-            {renderBoardCard(board)}
-          </Col>
-        ))}
-        <Col xs={24} sm={12} md={8} lg={6}>
-          <Card hoverable className="create-board-card" onClick={showAddModal}>
-            <div className="create-card-content">
-              <PlusOutlined className="plus-icon" />
-              <div className="create-card-text">Create New Board</div>
-            </div>
-          </Card>
-        </Col>
-      </Row>
+      <div
+        ref={listRef}
+        style={{ maxHeight: '460px', overflow: 'auto', padding: '0 16px' }}
+        onScroll={handleScroll}
+      >
+        <Row gutter={[16, 16]} className="boards-grid">
+          {boards.map((board) => (
+            <Col xs={24} sm={12} md={8} lg={8} key={board._id}>
+              {renderBoardCard(board)}
+            </Col>
+          ))}
+        </Row>
+        {loadingMore && (
+          <div style={{ textAlign: 'center', padding: '16px 0' }}>
+            <Spin />
+          </div>
+        )}
+      </div>
     );
   };
 
   // Sort menu items
   const sortMenuItems: MenuProps["items"] = [
     {
-      key: SORT_OPTIONS.DEFAULT,
+      key: SORT_OPTIONS_VALUES.DEFAULT,
       label: "Default",
       icon: sortOption === SORT_OPTIONS.DEFAULT ? <CheckOutlined /> : null,
     },
     {
-      key: SORT_OPTIONS.NAME_ASC,
+      key: SORT_OPTIONS_VALUES.NAME_ASC,
       label: "Name (A-Z)",
       icon: sortOption === SORT_OPTIONS.NAME_ASC ? <CheckOutlined /> : null,
     },
     {
-      key: SORT_OPTIONS.NAME_DESC,
+      key: SORT_OPTIONS_VALUES.NAME_DESC,
       label: "Name (Z-A)",
       icon: sortOption === SORT_OPTIONS.NAME_DESC ? <CheckOutlined /> : null,
     },
@@ -350,12 +342,12 @@ const Boards: React.FC = () => {
       type: "divider",
     },
     {
-      key: SORT_OPTIONS.CREATED_ASC,
+      key: SORT_OPTIONS_VALUES.CREATED_ASC,
       label: "Date Created (Oldest first)",
       icon: sortOption === SORT_OPTIONS.CREATED_ASC ? <CheckOutlined /> : null,
     },
     {
-      key: SORT_OPTIONS.CREATED_DESC,
+      key: SORT_OPTIONS_VALUES.CREATED_DESC,
       label: "Date Created (Newest first)",
       icon: sortOption === SORT_OPTIONS.CREATED_DESC ? <CheckOutlined /> : null,
     },
@@ -387,7 +379,10 @@ const Boards: React.FC = () => {
               <Dropdown
                 menu={{
                   items: sortMenuItems,
-                  onClick: ({ key }) => setSortOption(key),
+                  onClick: ({ key }) => {
+                    setSortOption(key)
+                    dispatch(getAllBoards({page:1 , search: '', sortType: Number(key)}));
+                  },
                   selectable: true,
                   defaultSelectedKeys: [sortOption],
                 }}

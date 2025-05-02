@@ -115,7 +115,6 @@ const RecentActivity: React.FC = () => {
         onScroll={handleScroll}
       >
         <List
-          ref={listRef}
           itemLayout="horizontal"
           dataSource={data}
           renderItem={(item) => (

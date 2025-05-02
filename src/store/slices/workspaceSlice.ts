@@ -1,5 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { workspaceService } from "../../services/workspaceService";
+import { Pagination } from "./dashboardSlice";
 
 export interface IUser {
   _id: string;
@@ -55,6 +56,8 @@ interface WorkspaceState {
   success: string | null;
   addError: string | null;
   editError: string | null;
+  workspacePagination: Pagination;
+  hasMore: boolean;
 }
 
 const initialState: WorkspaceState = {
@@ -66,13 +69,31 @@ const initialState: WorkspaceState = {
   success: null,
   addError: null,
   editError: null,
+  workspacePagination: {
+    currentPage: 0,
+    limit: 0,
+    totalPages: 0,
+    totalRecords: 0
+  },
+  hasMore: false,
 };
 
 export const getAllWorkspaces = createAsyncThunk(
   "workspace/get-all",
-  async (_, { rejectWithValue }) => {
+  async (
+    {
+      page,
+      search,
+      sortType
+    }: {
+      page: number;
+      search: string;
+      sortType: number;
+    },
+    { rejectWithValue }
+  ) => {
     try {
-      const response = await workspaceService.getAllWorkspaces();
+      const response = await workspaceService.getAllWorkspaces(page, search, sortType);
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
@@ -201,7 +222,17 @@ const workspaceSlice = createSlice({
         state.success = null;
       })
       .addCase(getAllWorkspaces.fulfilled, (state, action) => {
-        state.workspaces = action.payload;
+        const { workspaces, pagination } = action.payload;
+        if (pagination.currentPage === 1) {
+          state.workspaces = workspaces
+        } else {
+          state.workspaces = [
+            ...state.workspaces,
+            ...workspaces
+          ];
+        }
+        state.workspacePagination = pagination;
+        state.hasMore = pagination.currentPage < pagination.totalPages;
         state.loading = false;
         state.error = null;
         state.success = "Workspace fetched successfully.";

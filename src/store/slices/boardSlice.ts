@@ -2,6 +2,7 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { boardService } from "../../services/boardService";
 import { updateWorkspaceBoards } from "./workspaceSlice";
 import { removeTaskLabel, updateTaskLabel } from "./taskSlice";
+import { Pagination } from "./dashboardSlice";
 
 export interface IMember {
   _id: string;
@@ -169,6 +170,8 @@ interface BoardState {
   editError: string | null;
   invitedMemberList: MemberData[];
   invitedMemberDetail: InvitationMember | null;
+  boardPagination: Pagination;
+  hasMore: boolean;
 }
 
 const initialState: BoardState = {
@@ -184,13 +187,31 @@ const initialState: BoardState = {
   editError: null,
   invitedMemberList: [],
   invitedMemberDetail: null,
+  boardPagination: {
+    currentPage: 0,
+    limit: 0,
+    totalPages: 0,
+    totalRecords: 0
+  },
+  hasMore: false,
 };
 
 export const getAllBoards = createAsyncThunk(
   "board/get-all",
-  async (_, { rejectWithValue }) => {
+  async (
+    {
+      page,
+      search,
+      sortType
+    }: {
+      page: number;
+      search: string;
+      sortType: number;
+    },
+    { rejectWithValue }
+  ) => {
     try {
-      const response = await boardService.getAllBoards();
+      const response = await boardService.getAllBoards(page, search, sortType);
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
@@ -685,7 +706,17 @@ const boardSlice = createSlice({
         state.success = null;
       })
       .addCase(getAllBoards.fulfilled, (state, action) => {
-        state.boards = action.payload;
+        const { boards, pagination } = action.payload;
+        if (pagination.currentPage === 1) {
+          state.boards = boards
+        } else {
+          state.boards = [
+            ...state.boards,
+            ...boards
+          ];
+        }
+        state.boardPagination = pagination;
+        state.hasMore = pagination.currentPage < pagination.totalPages;
         state.loading = false;
         state.error = null;
         state.success = "Boards fetched successfully.";
@@ -701,6 +732,7 @@ const boardSlice = createSlice({
       // Fetch board details
       .addCase(getBoardById.pending, (state) => {
         state.loading = true;
+        state.hasMore = false;
         state.error = null;
         state.success = null;
       })

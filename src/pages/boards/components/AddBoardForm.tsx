@@ -25,7 +25,7 @@ const AddBoardForm = ({
   const { workspaces } = useSelector((state: RootState) => state.workspace);
 
   useEffect(() => {
-    dispatch(getAllWorkspaces());
+    dispatch(getAllWorkspaces({page:1 , search: '', sortType: 1}));
   }, [dispatch]);
 
   return (

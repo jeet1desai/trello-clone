@@ -2,8 +2,12 @@ import { API_URL } from "../config";
 import axiosInstance from "../helper/axiosInstance";
 
 export const boardService = {
-  async getAllBoards() {
-    const response = await axiosInstance.get(`${API_URL}/board/get-boards`);
+  async getAllBoards(
+    page: number,
+    search: string,
+    sortType: number
+  ) {
+    const response = await axiosInstance.get(`${API_URL}/board/get-boards?page=${page}&search=${search}&sortType=${sortType}`);
     return response.data;
   },
 

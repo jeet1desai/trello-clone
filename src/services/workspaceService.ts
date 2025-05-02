@@ -2,10 +2,13 @@ import { API_URL } from "../config";
 import axiosInstance from "../helper/axiosInstance";
 
 export const workspaceService = {
-  async getAllWorkspaces() {
+  async getAllWorkspaces(
+    page: number,
+    search: string,
+    sortType: number
+  ) {
     const response = await axiosInstance.get(
-      `${API_URL}/workspace/get-workspaces`
-    );
+      `${API_URL}/workspace/get-workspaces?page=${page}&search=${search}&sortType=${sortType}`);
     return response.data;
   },
 

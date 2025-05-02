@@ -53,7 +53,7 @@ export interface ActivityItem {
   __v: number;
 }
 
-interface Pagination {
+export interface Pagination {
   currentPage: number;
   totalPages: number;
   totalRecords: number;
