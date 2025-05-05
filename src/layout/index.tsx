@@ -25,10 +25,10 @@ const Layout: React.FC = () => {
   const contentStyle = isBoardDetailPage
     ? {
         background: isDarkMode ? "#1D2125" : "#F0F2F5",
-        minHeight: "calc(100vh - 72px)",
+        minHeight: "calc(100vh - 408px)",
       }
     : {
-        minHeight: "calc(100vh - 72px)",
+        minHeight: "calc(100vh - 408px)",
       };
 
   // Don't show footer on board detail pages
@@ -46,7 +46,12 @@ const Layout: React.FC = () => {
     <AntLayout style={{ minHeight: "100vh" }}>
       {showHeader && <Header />}
       <AntLayout>
-        <Content style={{...contentStyle, padding: !isBoardDetailPage && showHeader ? "24px" : 0}}>
+        <Content
+          style={{
+            ...contentStyle,
+            padding: !isBoardDetailPage && showHeader ? "24px" : 0,
+          }}
+        >
           <div
             style={{
               maxWidth: isBoardDetailPage ? "100%" : 1200,

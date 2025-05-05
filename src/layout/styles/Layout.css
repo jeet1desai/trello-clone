@@ -630,3 +630,61 @@
     left: calc(100% - 135px) !important;
   }
 }
+
+/* Contact Us style */
+.contact-container {
+  max-width: 1100px;
+  margin: 40px auto;
+  padding: 24px;
+}
+
+.contact-card {
+  background: inherit;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.contact-info {
+  background-color: var(--button-primary-bg);
+  color: #fff;
+  padding: 32px !important;
+  border-radius: 12px 0 0 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.text-color-white {
+  color: #fff !important;
+}
+
+.margin-bottom-0 {
+  margin-bottom: 0px !important;
+}
+
+.info-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.contact-us-title {
+  text-align: center;
+  font-weight: 700 !important;
+  margin: 0px !important;
+}
+
+.contact-us-title-text {
+  text-align: center;
+  color: #717171 !important;
+  margin-bottom: 30px !important;
+  margin-top: 18px !important;
+}
+
+.contact-us-form-actions {
+  justify-content: flex-end;
+  display: flex;
+  margin-top: 24px;
+}

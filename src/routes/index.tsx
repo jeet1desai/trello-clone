@@ -23,6 +23,7 @@ const ProfilePage = React.lazy(() => import("../pages/profile"));
 const InviteMember = React.lazy(() => import("../pages/boards/invite-member"));
 const PrivacyPolicy = React.lazy(() => import("../pages/policy/privacy"));
 const TermPolicy = React.lazy(() => import("../pages/policy/terms"));
+const ContactUs = React.lazy(() => import("../pages/contactUs"));
 interface RouteProps {
   element: React.ReactNode;
 }
@@ -73,6 +74,10 @@ const router = createBrowserRouter([
       {
         path: PUBLIC_ROUTE.TERM_POLICY,
         element: <PublicRoute element={<TermPolicy />} />,
+      },
+      {
+        path: PUBLIC_ROUTE.CONTACT_US,
+        element: <PublicRoute element={<ContactUs />} />,
       },
       {
         path: PUBLIC_ROUTE.LOGIN,
