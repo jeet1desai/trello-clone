@@ -807,27 +807,6 @@ const boardSlice = createSlice({
         state.success = null;
       })
       .addCase(addNewBoard.fulfilled, (state, action) => {
-        const {
-          _id,
-          name,
-          description,
-          createdBy,
-          workspace,
-          createdAt,
-          updatedAt,
-          members,
-        } = action.payload.data;
-        const currentWorkspace = {
-          _id: _id,
-          name,
-          description,
-          createdBy,
-          workspace,
-          createdAt,
-          updatedAt,
-          members,
-        };
-        state.boards = [...state.boards, currentWorkspace];
         state.loading = false;
         state.addError = null;
         state.error = null;
@@ -1342,7 +1321,7 @@ const boardSlice = createSlice({
         if (index !== -1) {
           state.loading = false;
           state.error = null;
-          state.selectedTaskMembers.splice(index, 1);
+          state.searchTaskMembers.splice(index, 1);
           state.success = "Member removed successfully.";
         } else {
           state.loading = false;

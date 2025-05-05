@@ -1,8 +1,10 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Button, Form, FormInstance, Input, Select, Space } from "antd";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../../store";
-import { getAllWorkspaces } from "../../../store/slices/workspaceSlice";
+import {
+  getAllWorkspaces,
+} from "../../../store/slices/workspaceSlice";
 
 interface IProps {
   form: FormInstance<any>;
@@ -24,9 +26,23 @@ const AddBoardForm = ({
   const dispatch = useDispatch<AppDispatch>();
   const { workspaces } = useSelector((state: RootState) => state.workspace);
 
+  const [searchText, setSearchText] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState(searchText);
+
   useEffect(() => {
-    dispatch(getAllWorkspaces({page:1 , search: '', sortType: 1}));
-  }, [dispatch]);
+    const handler = setTimeout(() => {
+      setDebouncedSearch(searchText);
+    }, 300);
+
+    return () => clearTimeout(handler);
+  }, [searchText]);
+
+  useEffect(() => {
+    (async () =>
+      await dispatch(
+        getAllWorkspaces({ page: 1, search: searchText, sortType: 1 })
+      ))();
+  }, [debouncedSearch]);
 
   return (
     <Form
@@ -75,10 +91,11 @@ const AddBoardForm = ({
           filterOption={(input, option) =>
             (option?.label ?? "").toLowerCase().includes(input.toLowerCase())
           }
+          onSearch={(value) => setSearchText(value)}
           className="form-input"
           defaultValue={defaultWorkspace}
           disabled={!!defaultWorkspace}
-          options={workspaces.map((workspace) => {
+          options={workspaces?.map((workspace) => {
             return { value: workspace._id, label: workspace.name };
           })}
         />

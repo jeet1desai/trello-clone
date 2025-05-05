@@ -66,9 +66,12 @@ const initialState: TaskState = {
 
 export const getTasksByStatusId = createAsyncThunk(
   "task/get-tasks-by-status",
-  async (statusId: string, { rejectWithValue }) => {
+  async (
+    data: { statusId: string; filterType: string },
+    { rejectWithValue }
+  ) => {
     try {
-      const response = await taskService.getTasksByStatusId(statusId);
+      const response = await taskService.getTasksByStatusId(data);
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
@@ -479,6 +482,18 @@ const taskSlice = createSlice({
         };
       }
     },
+    assignTaskMember: (state, action) => {
+      state.selectedTask = {
+        ...state.selectedTask,
+        assigned_to: action.payload.data,
+      } as ITask;
+    },
+    unassignTaskMember: (state, action) => {
+      state.selectedTask = {
+        ...state.selectedTask,
+        assigned_to: null,
+      } as ITask;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -489,8 +504,8 @@ const taskSlice = createSlice({
         state.success = null;
       })
       .addCase(getTasksByStatusId.fulfilled, (state, action) => {
-        const statusId = action.meta.arg;
-        state.tasksByStatus[statusId] = action.payload;
+        const data = action.meta.arg;
+        state.tasksByStatus[data.statusId] = action.payload;
         state.loading = false;
         state.error = null;
         state.success = "Tasks fetched successfully.";
@@ -620,7 +635,10 @@ const taskSlice = createSlice({
         state.success = null;
       })
       .addCase(unassignMember.fulfilled, (state, action) => {
-        state.selectedTask = { ...state.selectedTask, assigned_to: null } as ITask;
+        state.selectedTask = {
+          ...state.selectedTask,
+          assigned_to: null,
+        } as ITask;
         state.loading = false;
         state.error = null;
         state.success = "Member unassigned successfully.";
@@ -647,6 +665,8 @@ export const {
   updateTaskAttachment,
   updateTaskComments,
   removeTaskComments,
+  assignTaskMember,
+  unassignTaskMember,
 } = taskSlice.actions;
 
 export default taskSlice.reducer;

@@ -9,6 +9,7 @@ import {
   Spin,
   App,
   Checkbox,
+  Popover,
 } from "antd";
 import {
   PlusOutlined,
@@ -21,6 +22,7 @@ import {
   ClockCircleOutlined,
   UserOutlined,
   AlertFilled,
+  FilterOutlined,
 } from "@ant-design/icons";
 import type {
   DraggableProvided,
@@ -116,6 +118,8 @@ const BoardDetail: React.FC = () => {
   const [visibleTaskCardForm, setVisibleTaskCardForm] =
     useState<boolean>(false);
   const [hoveredTaskId, setHoveredTaskId] = useState<string | null>(null);
+  const [filterOpen, setFilterOpen] = useState(false);
+  const [selectedFilter, setSelectedFilter] = useState("");
 
   useEffect(() => {
     async function handleClickOutside(event: MouseEvent) {
@@ -153,13 +157,15 @@ const BoardDetail: React.FC = () => {
 
   useEffect(() => {
     if (statusList.length > 0) {
-      statusList.forEach((status) => {
+      statusList.forEach(async (status) => {
         if (status?._id) {
-          dispatch(getTasksByStatusId(status._id));
+          await dispatch(
+            getTasksByStatusId({ statusId: status._id, filterType: "me" })
+          );
         }
       });
     }
-  }, [dispatch]);
+  }, [dispatch, statusList]);
 
   useEffect(() => {
     if (id && taskId) {
@@ -382,6 +388,19 @@ const BoardDetail: React.FC = () => {
     });
   };
 
+  const handleMemberFilter = (e: any, filter: string) => {
+    const filterType = e.target.checked === true ? filter : "";
+    if (statusList.length > 0) {
+      statusList.forEach(async (status) => {
+        if (status?._id) {
+          await dispatch(
+            getTasksByStatusId({ statusId: status._id, filterType })
+          );
+        }
+      });
+    }
+  };
+
   // Render task card component
   const renderTaskCard = (task: ITask, index: number) => (
     <Draggable key={task._id} draggableId={task._id} index={index}>
@@ -566,6 +585,40 @@ const BoardDetail: React.FC = () => {
         </div>
         <div>
           <Space size={16}>
+            <Popover
+              open={filterOpen}
+              content={
+                <div className="custom-filter-content">
+                  <Checkbox checked={true}>Me</Checkbox>
+                  <Checkbox onChange={(e) => handleMemberFilter(e, "all")}>
+                    All
+                  </Checkbox>
+                </div>
+              }
+              title={
+                <div className="custom-filter-popup">
+                  <p style={{ margin: 0 }}>Filter</p>
+                  <CloseOutlined
+                    style={{ cursor: "pointer" }}
+                    onClick={() => setFilterOpen(false)}
+                  />
+                </div>
+              }
+              trigger="click"
+              placement="bottom"
+              arrow={false}
+              onOpenChange={() => setFilterOpen((prev) => !prev)}
+            >
+              <Tooltip title="Filter">
+                <Button
+                  className="button"
+                  type="default"
+                  style={{ marginTop: 0 }}
+                >
+                  <FilterOutlined />
+                </Button>
+              </Tooltip>
+            </Popover>
             <Avatar.Group maxCount={3}>
               {invitedMemberList?.map((member) => {
                 return (

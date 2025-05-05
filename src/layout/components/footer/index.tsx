@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { Layout, Typography, Row, Col, Space, Divider } from "antd";
 import { Link, useNavigate } from "react-router-dom";
 import {
@@ -10,7 +10,7 @@ import {
 } from "@ant-design/icons";
 import { useTheme } from "../../../contexts/ThemeContext";
 import "../../styles/Layout.css";
-import { scrollToSectionWithOffset } from "../../../utils/helper";
+import { scrollToSectionWithOffset } from "../../../helper";
 import { PUBLIC_ROUTE } from "../../../utils/enums/route";
 import { companyLogo } from "../../../assets";
 

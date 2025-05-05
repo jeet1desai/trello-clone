@@ -3,9 +3,9 @@ import axiosInstance from "../helper/axiosInstance";
 import { Priority } from "../utils/enums/task";
 
 export const taskService = {
-  async getTasksByStatusId(statusId: string) {
+  async getTasksByStatusId(data: {statusId: string, filterType: string}) {
     const response = await axiosInstance.get(
-      `${API_URL}/task/get-task?statusId=${statusId}`
+      `${API_URL}/task/get-task?statusId=${data.statusId}&filterType=${data.filterType}`
     );
     return response.data;
   },

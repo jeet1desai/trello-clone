@@ -177,7 +177,7 @@ export const deleteWorkspace = createAsyncThunk(
 );
 
 export const getBoardsByWorkspaceId = createAsyncThunk(
-  "workspace/get-boards",
+  "task/get-boards",
   async (_id: string, { rejectWithValue }) => {
     try {
       const response = await workspaceService.getBoardsByWorkspaceId(_id);
@@ -268,17 +268,6 @@ const workspaceSlice = createSlice({
         state.error = null;
       })
       .addCase(addNewWorkspace.fulfilled, (state, action) => {
-        const { _id, name, description, createdBy, createdAt, updatedAt } =
-          action.payload.data;
-        const currentWorkspace = {
-          _id: _id,
-          name,
-          description,
-          createdBy,
-          createdAt,
-          updatedAt,
-        };
-        state.workspaces = [...state.workspaces, currentWorkspace];
         state.loading = false;
         state.addError = null;
         state.error = null;

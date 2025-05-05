@@ -84,8 +84,6 @@ const Workspaces: React.FC = () => {
   }, [location, showAddModal]);
 
   useEffect(() => {
-    (async () =>
-      await dispatch(getAllWorkspaces({ page: 1, search: "", sortType: 0 })))();
     return () => {
       dispatch(clearSelectedWorkspace());
     };

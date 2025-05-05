@@ -28,7 +28,7 @@ const persistConfig = {
   key: "root",
   version: 1,
   storage,
-  whitelist: ["user", "profile", "status", "task", "notification"],
+  whitelist: ["user", "profile", "notification"],
 };
 
 const appReducer = combineReducers({

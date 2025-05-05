@@ -82,10 +82,6 @@ const Boards: React.FC = () => {
   }, [form, dispatch]);
 
   useEffect(() => {
-    (async () => {
-      await dispatch(getAllBoards({ page: 1, search: "", sortType: 0 }));
-    })();
-
     return () => {
       dispatch(openBoardAddModal());
       dispatch(clearSelectedBoard());
@@ -279,6 +275,7 @@ const Boards: React.FC = () => {
   };
 
   const renderBoards = (boards: IBoard[]) => {
+    console.log("sss", boards)
     if (boards?.length === 0) {
       let emptyMessage = "No boards found";
 

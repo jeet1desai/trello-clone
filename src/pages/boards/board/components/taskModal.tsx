@@ -38,7 +38,9 @@ import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../../../store";
 import {
   assignMember,
+  assignTaskMember,
   unassignMember,
+  unassignTaskMember,
   updateTask,
 } from "../../../../store/slices/taskSlice";
 import { Priority, TaskStatus } from "../../../../utils/enums/task";
@@ -74,7 +76,6 @@ import {
   addSelectedMembers,
   removeSelectedMember,
   removeSelectedLabel,
-  getBoardMemberListById,
   getMembersByTaskIdSearch,
   getBoardMemberListBySearchId,
 } from "../../../../store/slices/boardSlice";
@@ -273,13 +274,14 @@ const TaskModal: React.FC<TaskModalProps> = ({
   }, [searchAssigned]);
 
   useEffect(() => {
-    (async () =>
-      await dispatch(
-        getMembersByTaskIdSearch({
-          _id: selectedTask?._id ?? "",
-          search: searchAssigned,
-        })
-      ))();
+    if (visible && selectedTask)
+      (async () =>
+        await dispatch(
+          getMembersByTaskIdSearch({
+            _id: selectedTask?._id ?? "",
+            search: searchAssigned,
+          })
+        ))();
   }, [debouncedSearchAssigned]);
 
   useEffect(() => {
@@ -305,7 +307,7 @@ const TaskModal: React.FC<TaskModalProps> = ({
         })
       );
     }
-    fetchData();
+    if (visible && selectedTask) fetchData();
   }, [debouncedSearchMembers]);
 
   const handleAddMemberToTask = (member_id: string) => {
@@ -373,29 +375,14 @@ const TaskModal: React.FC<TaskModalProps> = ({
         allowClear
         className="form-input form-input-small"
         value={searchMembers}
-        onClear={async () => {
-          setSearchMembers("");
-          setDebouncedSearchMembers("");
-          await dispatch(
-            getMembersByTaskId({
-              _id: selectedTask?._id ?? "",
-              search: "",
-            })
-          );
-          await dispatch(
-            getBoardMemberListById({
-              _id: boardId,
-              search: "",
-            })
-          );
-        }}
+        onClear={async () => setSearchMembers("")}
         onChange={(e) => setSearchMembers(e.target.value)}
       />
-      {searchTaskMembers?.length > 0 ? (
+      {(searchMembers ? searchTaskMembers : selectedTaskMembers)?.length > 0 ? (
         <>
           <div className="member-title">Card members</div>
           <List
-            dataSource={searchTaskMembers}
+            dataSource={searchMembers ? searchTaskMembers : selectedTaskMembers}
             renderItem={(member) => (
               <List.Item className="members-list">
                 <div style={{ display: "flex", alignItems: "center" }}>
@@ -427,7 +414,7 @@ const TaskModal: React.FC<TaskModalProps> = ({
 
       {invitedSearchMemberList.filter(
         (addedMember: { memberId: { _id: string } }) =>
-          !searchTaskMembers.some(
+          !(searchMembers ? searchTaskMembers : selectedTaskMembers).some(
             (member) => member._id === addedMember.memberId._id
           )
       ).length > 0 ? (
@@ -436,7 +423,7 @@ const TaskModal: React.FC<TaskModalProps> = ({
           <List
             dataSource={invitedSearchMemberList.filter(
               (addedMember: { memberId: { _id: string } }) =>
-                !searchTaskMembers.some(
+                !(searchMembers ? searchTaskMembers : selectedTaskMembers).some(
                   (member) => member._id === addedMember.memberId._id
                 )
             )}
@@ -493,7 +480,7 @@ const TaskModal: React.FC<TaskModalProps> = ({
         Unassigned
       </List.Item>
       <List
-        dataSource={searchTaskMembers}
+        dataSource={searchAssigned ? searchTaskMembers : selectedTaskMembers}
         renderItem={(member) => (
           <List.Item
             style={{
@@ -597,6 +584,14 @@ const TaskModal: React.FC<TaskModalProps> = ({
       dispatch(removeAttachment(payload));
     });
 
+    socketService.on("receive_task_assigned_member", (payload) => {
+      dispatch(assignTaskMember(payload));
+    });
+
+    socketService.on("unassigned_task_member", (payload) => {
+      dispatch(unassignTaskMember(payload));
+    });
+
     return () => {
       socketService.off("receive_new_task-member");
       socketService.off("task-member-removed");
@@ -606,6 +601,8 @@ const TaskModal: React.FC<TaskModalProps> = ({
       socketService.off("receive_updated_comment");
       socketService.off("remove_comment");
       socketService.off("remove_task_attachment");
+      socketService.off("receive_task_assigned_member");
+      socketService.off("unassigned_task_member");
     };
   });
 
