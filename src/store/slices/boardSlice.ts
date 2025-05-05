@@ -171,7 +171,6 @@ interface BoardState {
   invitedMemberList: MemberData[];
   invitedMemberDetail: InvitationMember | null;
   boardPagination: Pagination;
-  hasMore: boolean;
 }
 
 const initialState: BoardState = {
@@ -191,18 +190,17 @@ const initialState: BoardState = {
     currentPage: 0,
     limit: 0,
     totalPages: 0,
-    totalRecords: 0
+    totalRecords: 0,
   },
-  hasMore: false,
 };
 
 export const getAllBoards = createAsyncThunk(
-  "board/get-all",
+  "task/get-all",
   async (
     {
       page,
       search,
-      sortType
+      sortType,
     }: {
       page: number;
       search: string;
@@ -690,12 +688,12 @@ const boardSlice = createSlice({
     addNewInvitedMember: (state, action) => {
       state.invitedMemberList = [...action.payload.data];
     },
-    removeInvitedmember: (state,action)=>{
+    removeInvitedmember: (state, action) => {
       const { _id } = action.payload.data;
       state.invitedMemberList = state.invitedMemberList.filter(
         (item) => item._id !== _id
       );
-    }
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -707,16 +705,8 @@ const boardSlice = createSlice({
       })
       .addCase(getAllBoards.fulfilled, (state, action) => {
         const { boards, pagination } = action.payload;
-        if (pagination.currentPage === 1) {
-          state.boards = boards
-        } else {
-          state.boards = [
-            ...state.boards,
-            ...boards
-          ];
-        }
+        state.boards = boards;
         state.boardPagination = pagination;
-        state.hasMore = pagination.currentPage < pagination.totalPages;
         state.loading = false;
         state.error = null;
         state.success = "Boards fetched successfully.";
@@ -732,7 +722,6 @@ const boardSlice = createSlice({
       // Fetch board details
       .addCase(getBoardById.pending, (state) => {
         state.loading = true;
-        state.hasMore = false;
         state.error = null;
         state.success = null;
       })
@@ -1275,7 +1264,7 @@ export const {
   openBoardAddModal,
   clearSelectedBoard,
   addNewInvitedMember,
-  removeInvitedmember
+  removeInvitedmember,
 } = boardSlice.actions;
 
 export default boardSlice.reducer;

@@ -57,7 +57,6 @@ interface WorkspaceState {
   addError: string | null;
   editError: string | null;
   workspacePagination: Pagination;
-  hasMore: boolean;
 }
 
 const initialState: WorkspaceState = {
@@ -73,18 +72,17 @@ const initialState: WorkspaceState = {
     currentPage: 0,
     limit: 0,
     totalPages: 0,
-    totalRecords: 0
+    totalRecords: 0,
   },
-  hasMore: false,
 };
 
 export const getAllWorkspaces = createAsyncThunk(
-  "workspace/get-all",
+  "task/get-all",
   async (
     {
       page,
       search,
-      sortType
+      sortType,
     }: {
       page: number;
       search: string;
@@ -93,7 +91,11 @@ export const getAllWorkspaces = createAsyncThunk(
     { rejectWithValue }
   ) => {
     try {
-      const response = await workspaceService.getAllWorkspaces(page, search, sortType);
+      const response = await workspaceService.getAllWorkspaces(
+        page,
+        search,
+        sortType
+      );
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
@@ -223,16 +225,8 @@ const workspaceSlice = createSlice({
       })
       .addCase(getAllWorkspaces.fulfilled, (state, action) => {
         const { workspaces, pagination } = action.payload;
-        if (pagination.currentPage === 1) {
-          state.workspaces = workspaces
-        } else {
-          state.workspaces = [
-            ...state.workspaces,
-            ...workspaces
-          ];
-        }
+        state.workspaces = workspaces;
         state.workspacePagination = pagination;
-        state.hasMore = pagination.currentPage < pagination.totalPages;
         state.loading = false;
         state.error = null;
         state.success = "Workspace fetched successfully.";

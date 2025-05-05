@@ -16,13 +16,12 @@ import {
   Button,
   List,
   Avatar,
-  Space,
   Typography,
   Divider,
   App,
   Spin,
 } from "antd";
-import { LinkOutlined, ExclamationCircleOutlined } from "@ant-design/icons";
+import { ExclamationCircleOutlined } from "@ant-design/icons";
 import "../../../../layout/styles/Board.css";
 import { getRandomColor } from "../../../../utils";
 import socketService from "../../../../services/socketService";

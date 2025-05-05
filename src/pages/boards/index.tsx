@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { generatePath, useLocation, useNavigate } from "react-router-dom";
 import {
   Row,
@@ -17,6 +17,7 @@ import {
   App,
   Alert,
   Spin,
+  Pagination,
 } from "antd";
 import {
   PlusOutlined,
@@ -56,17 +57,15 @@ const Boards: React.FC = () => {
   const [form] = Form.useForm();
   const { modal } = App.useApp();
   const location = useLocation();
-  const listRef = useRef<HTMLDivElement | null>(null);
   const dispatch = useDispatch<AppDispatch>();
-  const { boards, addError, editError, loading, hasMore, boardPagination } = useSelector(
+  const { boards, addError, editError, loading, boardPagination } = useSelector(
     (state: RootState) => state.board
   );
 
-  const [loadingMore, setLoadingMore] = useState(false);
   const [searchText, setSearchText] = useState("");
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [selectedBoard, setSelectedBoard] = useState<IBoard | null>(null);
-  const [sortOption, setSortOption] = useState<string>(SORT_OPTIONS.DEFAULT);
+  const [sortOption, setSortOption] = useState(SORT_OPTIONS_VALUES.DEFAULT);
   const [debouncedSearch, setDebouncedSearch] = useState(searchText);
 
   // Get owner details
@@ -84,7 +83,7 @@ const Boards: React.FC = () => {
 
   useEffect(() => {
     (async () => {
-      await dispatch(getAllBoards({page:1 , search: '', sortType: 0}));
+      await dispatch(getAllBoards({ page: 1, search: "", sortType: 0 }));
     })();
 
     return () => {
@@ -147,7 +146,7 @@ const Boards: React.FC = () => {
           members: values?.members,
         })
       );
-      await dispatch(getAllBoards({page:1 , search: '', sortType: 0}));
+      await dispatch(getAllBoards({ page: 1, search: "", sortType: 0 }));
     }
     if (!addError) {
       setIsModalVisible(false);
@@ -183,8 +182,11 @@ const Boards: React.FC = () => {
       cancelButtonProps: {
         className: "button",
       },
-      onOk() {
-        dispatch(deleteBoard(_id));
+      async onOk() {
+        await dispatch(deleteBoard(_id));
+        await dispatch(
+          getAllBoards({ page: 1, search: searchText, sortType: sortOption })
+        );
       },
     });
   };
@@ -278,23 +280,8 @@ const Boards: React.FC = () => {
     );
   };
 
-  const handleScroll = async () => {
-    const container = listRef.current;
-    if (container && !loading && hasMore) {
-      const scrollTop = container.scrollTop;
-      const scrollHeight = container.scrollHeight;
-      const clientHeight = container.clientHeight;
-      if (scrollTop + clientHeight >= scrollHeight - 100) {
-        setLoadingMore(true)
-        await dispatch(getAllBoards({ page: boardPagination.currentPage + 1, search: '', sortType: 0 }));
-      }
-    } else if (loadingMore && !hasMore) {
-      setLoadingMore(false)
-    }
-  };
-
   const renderBoards = (boards: IBoard[]) => {
-    if (boards.length === 0) {
+    if (boards?.length === 0) {
       let emptyMessage = "No boards found";
 
       return (
@@ -317,23 +304,31 @@ const Boards: React.FC = () => {
     }
 
     return (
-      <div
-        ref={listRef}
-        style={{ maxHeight: '460px', overflow: 'auto', padding: '0 16px' }}
-        onScroll={handleScroll}
-      >
+      <div>
         <Row gutter={[16, 16]} className="boards-grid">
-          {boards.map((board) => (
-            <Col xs={24} sm={12} md={8} lg={8} key={board._id}>
+          {boards?.map((board) => (
+            <Col xs={24} sm={12} md={8} lg={6} key={board._id}>
               {renderBoardCard(board)}
             </Col>
           ))}
         </Row>
-        {loadingMore && (
-          <div style={{ textAlign: 'center', padding: '16px 0' }}>
-            <Spin />
-          </div>
-        )}
+        <Pagination
+          align="center"
+          style={{ marginTop: "60px" }}
+          defaultCurrent={1}
+          pageSize={boardPagination.limit}
+          current={boardPagination.currentPage}
+          total={boardPagination.totalRecords}
+          onChange={(page) => {
+            dispatch(
+              getAllBoards({
+                page,
+                search: searchText,
+                sortType: sortOption,
+              })
+            );
+          }}
+        />
       </div>
     );
   };
@@ -343,17 +338,20 @@ const Boards: React.FC = () => {
     {
       key: SORT_OPTIONS_VALUES.DEFAULT,
       label: "Default",
-      icon: sortOption === SORT_OPTIONS.DEFAULT ? <CheckOutlined /> : null,
+      icon:
+        sortOption === SORT_OPTIONS_VALUES.DEFAULT ? <CheckOutlined /> : null,
     },
     {
       key: SORT_OPTIONS_VALUES.NAME_ASC,
       label: "Name (A-Z)",
-      icon: sortOption === SORT_OPTIONS.NAME_ASC ? <CheckOutlined /> : null,
+      icon:
+        sortOption === SORT_OPTIONS_VALUES.NAME_ASC ? <CheckOutlined /> : null,
     },
     {
       key: SORT_OPTIONS_VALUES.NAME_DESC,
       label: "Name (Z-A)",
-      icon: sortOption === SORT_OPTIONS.NAME_DESC ? <CheckOutlined /> : null,
+      icon:
+        sortOption === SORT_OPTIONS_VALUES.NAME_DESC ? <CheckOutlined /> : null,
     },
     {
       type: "divider",
@@ -361,12 +359,18 @@ const Boards: React.FC = () => {
     {
       key: SORT_OPTIONS_VALUES.CREATED_ASC,
       label: "Date Created (Oldest first)",
-      icon: sortOption === SORT_OPTIONS.CREATED_ASC ? <CheckOutlined /> : null,
+      icon:
+        sortOption === SORT_OPTIONS_VALUES.CREATED_ASC ? (
+          <CheckOutlined />
+        ) : null,
     },
     {
       key: SORT_OPTIONS_VALUES.CREATED_DESC,
       label: "Date Created (Newest first)",
-      icon: sortOption === SORT_OPTIONS.CREATED_DESC ? <CheckOutlined /> : null,
+      icon:
+        sortOption === SORT_OPTIONS_VALUES.CREATED_DESC ? (
+          <CheckOutlined />
+        ) : null,
     },
   ];
 
@@ -393,7 +397,7 @@ const Boards: React.FC = () => {
                   onChange={(e) => setSearchText(e.target.value)}
                   onClear={async () =>
                     await dispatch(
-                      getAllBoards({ page: 0, search: "", sortType: 0 })
+                      getAllBoards({ page: 1, search: "", sortType: 0 })
                     )
                   }
                 />
@@ -402,11 +406,17 @@ const Boards: React.FC = () => {
                 menu={{
                   items: sortMenuItems,
                   onClick: ({ key }) => {
-                    setSortOption(key)
-                    dispatch(getAllBoards({page:1 , search: '', sortType: Number(key)}));
+                    setSortOption(Number(key));
+                    dispatch(
+                      getAllBoards({
+                        page: 1,
+                        search: searchText,
+                        sortType: Number(key),
+                      })
+                    );
                   },
                   selectable: true,
-                  defaultSelectedKeys: [sortOption],
+                  defaultSelectedKeys: [SORT_OPTIONS.DEFAULT],
                 }}
                 trigger={["click"]}
               >

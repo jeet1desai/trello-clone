@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { generatePath, useLocation, useNavigate } from "react-router-dom";
 import {
   Row,
@@ -16,6 +16,7 @@ import {
   Tooltip,
   App,
   Spin,
+  Pagination,
 } from "antd";
 import {
   PlusOutlined,
@@ -55,24 +56,16 @@ const Workspaces: React.FC = () => {
   const [form] = Form.useForm();
   const navigate = useNavigate();
   const location = useLocation();
-  const listRef = useRef<HTMLDivElement | null>(null);
   const dispatch = useDispatch<AppDispatch>();
-  const {
-    workspaces,
-    addError,
-    editError,
-    loading,
-    hasMore,
-    workspacePagination,
-  } = useSelector((state: RootState) => state.workspace);
+  const { workspaces, addError, editError, loading, workspacePagination } =
+    useSelector((state: RootState) => state.workspace);
 
-  const [loadingMore, setLoadingMore] = useState(false);
   const [searchText, setSearchText] = useState("");
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingWorkspace, setEditingWorkspace] = useState<IWorkspace | null>(
     null
   );
-  const [sortOption, setSortOption] = useState<string>(SORT_OPTIONS.DEFAULT);
+  const [sortOption, setSortOption] = useState(SORT_OPTIONS_VALUES.DEFAULT);
   const [debouncedSearch, setDebouncedSearch] = useState(searchText);
 
   const showAddModal = useCallback(() => {
@@ -169,8 +162,15 @@ const Workspaces: React.FC = () => {
       cancelButtonProps: {
         className: "button",
       },
-      onOk() {
-        dispatch(deleteWorkspace(_id));
+      async onOk() {
+        await dispatch(deleteWorkspace(_id));
+        await dispatch(
+          getAllWorkspaces({
+            page: 1,
+            search: searchText,
+            sortType: sortOption,
+          })
+        );
       },
     });
   };
@@ -278,29 +278,8 @@ const Workspaces: React.FC = () => {
     );
   };
 
-  const handleScroll = async () => {
-    const container = listRef.current;
-    if (container && !loading && hasMore) {
-      const scrollTop = container.scrollTop;
-      const scrollHeight = container.scrollHeight;
-      const clientHeight = container.clientHeight;
-      if (scrollTop + clientHeight >= scrollHeight - 100) {
-        setLoadingMore(true);
-        await dispatch(
-          getAllWorkspaces({
-            page: workspacePagination.currentPage + 1,
-            search: "",
-            sortType: 0,
-          })
-        );
-      }
-    } else if (loadingMore && !hasMore) {
-      setLoadingMore(false);
-    }
-  };
-
   const renderWorkspaces = (workspaces: IWorkspace[]) => {
-    if (workspaces.length === 0) {
+    if (workspaces?.length === 0) {
       return (
         <div className="empty-state">
           <Empty
@@ -321,23 +300,31 @@ const Workspaces: React.FC = () => {
     }
 
     return (
-      <div
-        ref={listRef}
-        style={{ maxHeight: "460px", overflow: "auto", padding: "0 16px" }}
-        onScroll={handleScroll}
-      >
+      <div>
         <Row gutter={[16, 16]} className="workspaces-grid">
-          {workspaces.slice(0, 9).map((workspace) => (
-            <Col xs={24} sm={12} md={8} lg={8} key={workspace._id}>
+          {workspaces?.map((workspace) => (
+            <Col xs={24} sm={12} md={8} lg={6} key={workspace._id}>
               {renderWorkspaceCard(workspace)}
             </Col>
           ))}
         </Row>
-        {loadingMore && (
-          <div style={{ textAlign: "center", padding: "16px 0" }}>
-            <Spin />
-          </div>
-        )}
+        <Pagination
+          align="center"
+          style={{ marginTop: "60px" }}
+          defaultCurrent={1}
+          pageSize={workspacePagination.limit}
+          current={workspacePagination.currentPage}
+          total={workspacePagination.totalRecords}
+          onChange={(page) => {
+            dispatch(
+              getAllWorkspaces({
+                page,
+                search: searchText,
+                sortType: sortOption,
+              })
+            );
+          }}
+        />
       </div>
     );
   };
@@ -347,17 +334,20 @@ const Workspaces: React.FC = () => {
     {
       key: SORT_OPTIONS_VALUES.DEFAULT,
       label: "Default",
-      icon: sortOption === SORT_OPTIONS.DEFAULT ? <CheckOutlined /> : null,
+      icon:
+        sortOption === SORT_OPTIONS_VALUES.DEFAULT ? <CheckOutlined /> : null,
     },
     {
       key: SORT_OPTIONS_VALUES.NAME_ASC,
       label: "Name (A-Z)",
-      icon: sortOption === SORT_OPTIONS.NAME_ASC ? <CheckOutlined /> : null,
+      icon:
+        sortOption === SORT_OPTIONS_VALUES.NAME_ASC ? <CheckOutlined /> : null,
     },
     {
       key: SORT_OPTIONS_VALUES.NAME_DESC,
       label: "Name (Z-A)",
-      icon: sortOption === SORT_OPTIONS.NAME_DESC ? <CheckOutlined /> : null,
+      icon:
+        sortOption === SORT_OPTIONS_VALUES.NAME_DESC ? <CheckOutlined /> : null,
     },
     {
       type: "divider",
@@ -365,12 +355,18 @@ const Workspaces: React.FC = () => {
     {
       key: SORT_OPTIONS_VALUES.CREATED_ASC,
       label: "Date Created (Oldest first)",
-      icon: sortOption === SORT_OPTIONS.CREATED_ASC ? <CheckOutlined /> : null,
+      icon:
+        sortOption === SORT_OPTIONS_VALUES.CREATED_ASC ? (
+          <CheckOutlined />
+        ) : null,
     },
     {
       key: SORT_OPTIONS_VALUES.CREATED_DESC,
       label: "Date Created (Newest first)",
-      icon: sortOption === SORT_OPTIONS.CREATED_DESC ? <CheckOutlined /> : null,
+      icon:
+        sortOption === SORT_OPTIONS_VALUES.CREATED_DESC ? (
+          <CheckOutlined />
+        ) : null,
     },
   ];
 
@@ -396,7 +392,7 @@ const Workspaces: React.FC = () => {
                   onChange={(e) => setSearchText(e.target.value)}
                   onClear={async () =>
                     await dispatch(
-                      getAllWorkspaces({ page: 0, search: "", sortType: 0 })
+                      getAllWorkspaces({ page: 1, search: "", sortType: 0 })
                     )
                   }
                 />
@@ -405,17 +401,17 @@ const Workspaces: React.FC = () => {
                 menu={{
                   items: sortMenuItems,
                   onClick: ({ key }) => {
-                    setSortOption(key);
+                    setSortOption(Number(key));
                     dispatch(
                       getAllWorkspaces({
                         page: 1,
-                        search: "",
+                        search: searchText,
                         sortType: Number(key),
                       })
                     );
                   },
                   selectable: true,
-                  defaultSelectedKeys: [sortOption],
+                  defaultSelectedKeys: [SORT_OPTIONS.DEFAULT],
                 }}
                 trigger={["click"]}
               >
@@ -441,9 +437,7 @@ const Workspaces: React.FC = () => {
           </div>
         </div>
 
-        <div className="workspaces-content">
-          {renderWorkspaces(workspaces)}
-        </div>
+        <div className="workspaces-content">{renderWorkspaces(workspaces)}</div>
 
         {/* Add/Edit Workspace Modal */}
         <Modal
