@@ -46,16 +46,20 @@ const ContactUs = () => {
         <Title level={2} className="contact-us-title">
           Contact Us
         </Title>
-        <Title level={4} className="contact-us-title-text">
+        <Title level={5} className="contact-us-title-text">
           Any question or remarks? Just write us a message!
         </Title>
 
         <Row className="contact-card" gutter={32}>
           <Col xs={24} md={10} className="contact-info">
-            <Title level={3} className="text-color-white">
+            <Title
+              level={3}
+              style={{ marginBottom: "6px" }}
+              className="text-color-white"
+            >
               Contact Information
             </Title>
-            <Paragraph className="text-color-white">
+            <Paragraph className="text-color-secondary">
               Say something to start a live chat!
             </Paragraph>
             <div className="info-item">
@@ -80,7 +84,9 @@ const ContactUs = () => {
 
           <Col xs={24} md={14}>
             <div className="contact-us-content">
-              <Title level={2}>Need Assistance?</Title>
+              <Title level={3} style={{ marginBottom: "6px" }}>
+                Need Assistance?
+              </Title>
               <Paragraph>
                 Submit your request below and our team will reach out to you
                 shortly.

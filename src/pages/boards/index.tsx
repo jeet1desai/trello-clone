@@ -109,12 +109,10 @@ const Boards: React.FC = () => {
   }, [searchText]);
 
   useEffect(() => {
-    if (debouncedSearch) {
-      (async () =>
-        await dispatch(
-          getAllBoards({ page: 1, search: searchText, sortType: 0 })
-        ))();
-    }
+    (async () =>
+      await dispatch(
+        getAllBoards({ page: 1, search: searchText, sortType: 0 })
+      ))();
 
     return () => {
       dispatch(clearSelectedBoard());

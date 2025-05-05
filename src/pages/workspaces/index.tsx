@@ -100,12 +100,10 @@ const Workspaces: React.FC = () => {
   }, [searchText]);
 
   useEffect(() => {
-    if (debouncedSearch) {
-      (async () =>
-        await dispatch(
-          getAllWorkspaces({ page: 1, search: searchText, sortType: 0 })
-        ))();
-    }
+    (async () =>
+      await dispatch(
+        getAllWorkspaces({ page: 1, search: searchText, sortType: 0 })
+      ))();
 
     return () => {
       dispatch(clearSelectedWorkspace());
