@@ -67,6 +67,7 @@ const Boards: React.FC = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [selectedBoard, setSelectedBoard] = useState<IBoard | null>(null);
   const [sortOption, setSortOption] = useState<string>(SORT_OPTIONS.DEFAULT);
+  const [debouncedSearch, setDebouncedSearch] = useState(searchText);
 
   // Get owner details
   const getOwnerDetails = (board: IBoard) => {
@@ -100,10 +101,26 @@ const Boards: React.FC = () => {
     }
   }, [location, showAddModal]);
 
-  // Calculate processed boards
-  const processedBoards = React.useMemo(() => {
-    return boards
-  }, [boards]);
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearch(searchText);
+    }, 300);
+
+    return () => clearTimeout(handler);
+  }, [searchText]);
+
+  useEffect(() => {
+    if (debouncedSearch) {
+      (async () =>
+        await dispatch(
+          getAllBoards({ page: 1, search: searchText, sortType: 0 })
+        ))();
+    }
+
+    return () => {
+      dispatch(clearSelectedBoard());
+    };
+  }, [debouncedSearch]);
 
   const handleAddOrEditBoard = async (values: {
     name: string;
@@ -371,9 +388,14 @@ const Boards: React.FC = () => {
                   placeholder="Search boards"
                   allowClear
                   value={searchText}
-                  onChange={(e) => setSearchText(e.target.value)}
-                  style={{ width: 220, marginTop: "8px" }}
                   className="form-input"
+                  style={{ width: 220, marginTop: "8px" }}
+                  onChange={(e) => setSearchText(e.target.value)}
+                  onClear={async () =>
+                    await dispatch(
+                      getAllBoards({ page: 0, search: "", sortType: 0 })
+                    )
+                  }
                 />
               </ResponsiveSearch>
               <Dropdown
@@ -410,7 +432,7 @@ const Boards: React.FC = () => {
           </div>
         </div>
 
-        <div className="boards-content">{renderBoards(processedBoards)}</div>
+        <div className="boards-content">{renderBoards(boards)}</div>
 
         {/* Add/Edit Board Modal */}
         <Modal
