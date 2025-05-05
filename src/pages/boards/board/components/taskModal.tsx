@@ -30,6 +30,7 @@ import {
   FilePdfOutlined,
   FileOutlined,
   RiseOutlined,
+  SearchOutlined,
 } from "@ant-design/icons";
 import TaskDescriptionEditor from "../../../../components/ui/Editor";
 import type { UploadFile } from "antd";
@@ -73,6 +74,9 @@ import {
   addSelectedMembers,
   removeSelectedMember,
   removeSelectedLabel,
+  getBoardMemberListById,
+  getMembersByTaskIdSearch,
+  getBoardMemberListBySearchId,
 } from "../../../../store/slices/boardSlice";
 import { getRandomColor } from "../../../../utils";
 import AttachmentActions from "./attachmentAction";
@@ -234,8 +238,13 @@ const TaskModal: React.FC<TaskModalProps> = ({
   const { taskAttachments, taskAttachmentLoading } = useSelector(
     (state: RootState) => state.taskAttachment
   );
-  const { selectedTaskLabels, selectedTaskMembers, invitedMemberList } =
-    useSelector((state: RootState) => state.board);
+  const {
+    selectedTaskLabels,
+    selectedTaskMembers,
+    invitedMemberList,
+    searchTaskMembers,
+    invitedSearchMemberList,
+  } = useSelector((state: RootState) => state.board);
   const [isEditTitle, setIsEditTitle] = useState(false);
   const [taskName, setTaskName] = useState("");
   const [fileList, setFileList] = useState<UploadFile[]>([]);
@@ -248,6 +257,56 @@ const TaskModal: React.FC<TaskModalProps> = ({
     selectedTask?.status === TaskStatus.COMPLETED
   );
   const [showAllComments, setShowAllComments] = useState(false);
+  const [searchMembers, setSearchMembers] = useState("");
+  const [debouncedSearchMembers, setDebouncedSearchMembers] =
+    useState(searchMembers);
+  const [searchAssigned, setSearchAssigned] = useState("");
+  const [debouncedSearchAssigned, setDebouncedSearchAssigned] =
+    useState(searchAssigned);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearchAssigned(searchAssigned);
+    }, 300);
+
+    return () => clearTimeout(handler);
+  }, [searchAssigned]);
+
+  useEffect(() => {
+    (async () =>
+      await dispatch(
+        getMembersByTaskIdSearch({
+          _id: selectedTask?._id ?? "",
+          search: searchAssigned,
+        })
+      ))();
+  }, [debouncedSearchAssigned]);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearchMembers(searchMembers);
+    }, 300);
+
+    return () => clearTimeout(handler);
+  }, [searchMembers]);
+
+  useEffect(() => {
+    async function fetchData() {
+      await dispatch(
+        getMembersByTaskIdSearch({
+          _id: selectedTask?._id ?? "",
+          search: searchMembers,
+        })
+      );
+      await dispatch(
+        getBoardMemberListBySearchId({
+          _id: boardId,
+          search: searchMembers,
+        })
+      );
+    }
+    fetchData();
+  }, [debouncedSearchMembers]);
 
   const handleAddMemberToTask = (member_id: string) => {
     if (selectedTask) {
@@ -308,15 +367,35 @@ const TaskModal: React.FC<TaskModalProps> = ({
   const memberContent = (
     <div style={{ width: 250 }}>
       <div style={{ fontWeight: 600, marginBottom: 8 }}>Members</div>
-      <Search
-        prefixCls="form-input form-input-small"
+      <Input
+        prefix={<SearchOutlined />}
         placeholder="Search members"
+        allowClear
+        className="form-input form-input-small"
+        value={searchMembers}
+        onClear={async () => {
+          setSearchMembers("");
+          setDebouncedSearchMembers("");
+          await dispatch(
+            getMembersByTaskId({
+              _id: selectedTask?._id ?? "",
+              search: "",
+            })
+          );
+          await dispatch(
+            getBoardMemberListById({
+              _id: boardId,
+              search: "",
+            })
+          );
+        }}
+        onChange={(e) => setSearchMembers(e.target.value)}
       />
-      {selectedTaskMembers?.length > 0 ? (
+      {searchTaskMembers?.length > 0 ? (
         <>
           <div className="member-title">Card members</div>
           <List
-            dataSource={selectedTaskMembers}
+            dataSource={searchTaskMembers}
             renderItem={(member) => (
               <List.Item className="members-list">
                 <div style={{ display: "flex", alignItems: "center" }}>
@@ -346,18 +425,18 @@ const TaskModal: React.FC<TaskModalProps> = ({
         </>
       ) : null}
 
-      {invitedMemberList.filter(
+      {invitedSearchMemberList.filter(
         (addedMember: { memberId: { _id: string } }) =>
-          !selectedTaskMembers.some(
+          !searchTaskMembers.some(
             (member) => member._id === addedMember.memberId._id
           )
       ).length > 0 ? (
         <>
           <div className="member-title">Board members</div>
           <List
-            dataSource={invitedMemberList.filter(
+            dataSource={invitedSearchMemberList.filter(
               (addedMember: { memberId: { _id: string } }) =>
-                !selectedTaskMembers.some(
+                !searchTaskMembers.some(
                   (member) => member._id === addedMember.memberId._id
                 )
             )}
@@ -397,6 +476,9 @@ const TaskModal: React.FC<TaskModalProps> = ({
       <Search
         prefixCls="form-input form-input-small"
         placeholder="Search members"
+        value={searchAssigned}
+        handleClear={() => setSearchAssigned("")}
+        onChange={(e) => setSearchAssigned(e.target.value)}
       />
       <List.Item
         style={{
@@ -411,7 +493,7 @@ const TaskModal: React.FC<TaskModalProps> = ({
         Unassigned
       </List.Item>
       <List
-        dataSource={selectedTaskMembers}
+        dataSource={searchTaskMembers}
         renderItem={(member) => (
           <List.Item
             style={{
@@ -448,7 +530,7 @@ const TaskModal: React.FC<TaskModalProps> = ({
 
   useEffect(() => {
     if (selectedTask && visible) {
-      dispatch(getMembersByTaskId(selectedTask?._id));
+      dispatch(getMembersByTaskId({ _id: selectedTask?._id, search: "" }));
       dispatch(getTaskCommentById(selectedTask?._id));
       dispatch(getTaskAttachmentById(selectedTask._id));
       dispatch(getLabelsByTaskId(selectedTask?._id));

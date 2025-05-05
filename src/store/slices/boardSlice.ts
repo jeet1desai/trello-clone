@@ -161,6 +161,7 @@ interface BoardState {
   boards: IBoard[];
   boardLabels: ILabel[];
   selectedTaskMembers: ITaskMember[];
+  searchTaskMembers: ITaskMember[];
   selectedTaskLabels: ILabel[];
   selectedBoard: IBoardDetails | null;
   loading: boolean;
@@ -169,6 +170,7 @@ interface BoardState {
   addError: string | null;
   editError: string | null;
   invitedMemberList: MemberData[];
+  invitedSearchMemberList: MemberData[];
   invitedMemberDetail: InvitationMember | null;
   boardPagination: Pagination;
   hasMore: boolean;
@@ -178,6 +180,7 @@ const initialState: BoardState = {
   boards: [],
   boardLabels: [],
   selectedTaskMembers: [],
+  searchTaskMembers: [],
   selectedTaskLabels: [],
   selectedBoard: null,
   loading: false,
@@ -186,12 +189,13 @@ const initialState: BoardState = {
   addError: null,
   editError: null,
   invitedMemberList: [],
+  invitedSearchMemberList: [],
   invitedMemberDetail: null,
   boardPagination: {
     currentPage: 0,
     limit: 0,
     totalPages: 0,
-    totalRecords: 0
+    totalRecords: 0,
   },
   hasMore: false,
 };
@@ -202,7 +206,7 @@ export const getAllBoards = createAsyncThunk(
     {
       page,
       search,
-      sortType
+      sortType,
     }: {
       page: number;
       search: string;
@@ -319,9 +323,29 @@ export const deleteBoard = createAsyncThunk(
 
 export const getBoardMemberListById = createAsyncThunk(
   "status/member-list",
-  async (_id: string, { rejectWithValue }) => {
+  async (data: { _id: string; search: string }, { rejectWithValue }) => {
     try {
-      const response = await boardService.getBoardMemberListById(_id);
+      const response = await boardService.getBoardMemberListById(
+        data._id,
+        data.search
+      );
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message ?? "Error while fetching members"
+      );
+    }
+  }
+);
+
+export const getBoardMemberListBySearchId = createAsyncThunk(
+  "status/member-list-search",
+  async (data: { _id: string; search: string }, { rejectWithValue }) => {
+    try {
+      const response = await boardService.getBoardMemberListById(
+        data._id,
+        data.search
+      );
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
@@ -570,10 +594,46 @@ export const removeLabelFromTask = createAsyncThunk(
 );
 
 export const getMembersByTaskId = createAsyncThunk(
-  "task/get-members-by-task",
-  async (_id: string, { rejectWithValue }) => {
+  "task/get-members-search-by-task",
+  async (data: { _id: string; search: string }, { rejectWithValue }) => {
     try {
-      const response = await boardService.getMembersByTaskId(_id);
+      const response = await boardService.getMembersByTaskId(
+        data._id,
+        data.search
+      );
+      return response.data?.map(
+        (members: {
+          member_id: {
+            _id: string;
+            first_name: string;
+            last_name: string;
+            email: string;
+          };
+        }) => {
+          return {
+            _id: members.member_id._id,
+            first_name: members.member_id.first_name,
+            last_name: members.member_id.last_name,
+            email: members.member_id.email,
+          };
+        }
+      );
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message ?? "Error while fetching members."
+      );
+    }
+  }
+);
+
+export const getMembersByTaskIdSearch = createAsyncThunk(
+  "task/get-members-by-task",
+  async (data: { _id: string; search: string }, { rejectWithValue }) => {
+    try {
+      const response = await boardService.getMembersByTaskId(
+        data._id,
+        data.search
+      );
       return response.data?.map(
         (members: {
           member_id: {
@@ -690,12 +750,12 @@ const boardSlice = createSlice({
     addNewInvitedMember: (state, action) => {
       state.invitedMemberList = [...action.payload.data];
     },
-    removeInvitedmember: (state,action)=>{
+    removeInvitedmember: (state, action) => {
       const { _id } = action.payload.data;
       state.invitedMemberList = state.invitedMemberList.filter(
         (item) => item._id !== _id
       );
-    }
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -708,12 +768,9 @@ const boardSlice = createSlice({
       .addCase(getAllBoards.fulfilled, (state, action) => {
         const { boards, pagination } = action.payload;
         if (pagination.currentPage === 1) {
-          state.boards = boards
+          state.boards = boards;
         } else {
-          state.boards = [
-            ...state.boards,
-            ...boards
-          ];
+          state.boards = [...state.boards, ...boards];
         }
         state.boardPagination = pagination;
         state.hasMore = pagination.currentPage < pagination.totalPages;
@@ -874,6 +931,7 @@ const boardSlice = createSlice({
       })
       .addCase(getBoardMemberListById.fulfilled, (state, action) => {
         state.invitedMemberList = action.payload;
+        state.invitedSearchMemberList = action.payload;
         state.loading = false;
         state.error = null;
         state.success = "Members fetched successfully.";
@@ -881,6 +939,26 @@ const boardSlice = createSlice({
       .addCase(getBoardMemberListById.rejected, (state, action) => {
         state.loading = false;
         state.invitedMemberList = [];
+        state.success = null;
+        state.error =
+          (action.payload as string) || "Error while fetching members.";
+      })
+
+      // Get board member list
+      .addCase(getBoardMemberListBySearchId.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.success = null;
+      })
+      .addCase(getBoardMemberListBySearchId.fulfilled, (state, action) => {
+        state.invitedSearchMemberList = action.payload;
+        state.loading = false;
+        state.error = null;
+        state.success = "Members fetched successfully.";
+      })
+      .addCase(getBoardMemberListBySearchId.rejected, (state, action) => {
+        state.loading = false;
+        state.invitedSearchMemberList = [];
         state.success = null;
         state.error =
           (action.payload as string) || "Error while fetching members.";
@@ -1191,11 +1269,32 @@ const boardSlice = createSlice({
       })
       .addCase(getMembersByTaskId.fulfilled, (state, action) => {
         state.selectedTaskMembers = action.payload;
+        state.searchTaskMembers = action.payload;
         state.loading = false;
         state.error = null;
         state.success = "Members fetched successfully.";
       })
       .addCase(getMembersByTaskId.rejected, (state, action) => {
+        state.loading = false;
+        state.boards = [];
+        state.success = null;
+        state.error =
+          (action.payload as string) || "Error while fetching members.";
+      })
+
+      // Get Search members for task
+      .addCase(getMembersByTaskIdSearch.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.success = null;
+      })
+      .addCase(getMembersByTaskIdSearch.fulfilled, (state, action) => {
+        state.searchTaskMembers = action.payload;
+        state.loading = false;
+        state.error = null;
+        state.success = "Members fetched successfully.";
+      })
+      .addCase(getMembersByTaskIdSearch.rejected, (state, action) => {
         state.loading = false;
         state.boards = [];
         state.success = null;
@@ -1275,7 +1374,7 @@ export const {
   openBoardAddModal,
   clearSelectedBoard,
   addNewInvitedMember,
-  removeInvitedmember
+  removeInvitedmember,
 } = boardSlice.actions;
 
 export default boardSlice.reducer;
