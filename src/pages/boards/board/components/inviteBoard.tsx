@@ -44,9 +44,7 @@ const InviteBoard: React.FC<InviteBoardProps> = ({ isOpen, onClose }) => {
   const { invitedMemberList, loading: memberLoading } = useSelector(
     (state: RootState) => state.board
   );
-  const { currentUser } = useSelector(
-    (state: RootState) => state.user
-  );
+  const { currentUser } = useSelector((state: RootState) => state.user);
   const [loading, setLoading] = useState(false);
   const [emails, setEmails] = useState<string[]>([]);
   const [emailError, setEmailError] = useState<string>("");
@@ -114,26 +112,27 @@ const InviteBoard: React.FC<InviteBoardProps> = ({ isOpen, onClose }) => {
     });
   };
 
-  const checkRedirectBoard = (payload: any):any => {
+  const checkRedirectBoard = (payload: any): any => {
     if (payload.data.memberId === currentUser?.id) {
       navigate(PRIVATE_ROUTE.BOARDS);
     } else {
       dispatch(removeInvitedmember(payload));
     }
-  }
+  };
 
   useEffect(() => {
     if (id && isOpen)
-      (async () => await dispatch(getBoardMemberListById(id)))();
+      (async () =>
+        await dispatch(getBoardMemberListById({ _id: id, search: "" })))();
   }, [dispatch, id, isOpen]);
 
   useEffect(() => {
-    socketService.on('receive_new_member', (payload) => {
+    socketService.on("receive_new_member", (payload) => {
       dispatch(addNewInvitedMember(payload));
     });
 
-    socketService.on('remove_member', (payload) => {
-      checkRedirectBoard(payload)
+    socketService.on("remove_member", (payload) => {
+      checkRedirectBoard(payload);
     });
 
     return () => {

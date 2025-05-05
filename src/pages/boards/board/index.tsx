@@ -146,7 +146,7 @@ const BoardDetail: React.FC = () => {
     if (id) {
       dispatch(getBoardById(id));
       dispatch(getStatusListByBoardId(id));
-      dispatch(getBoardMemberListById(id));
+      dispatch(getBoardMemberListById({ _id: id, search: "" }));
       dispatch(getAllLabels(id));
     }
   }, [dispatch, id]);
