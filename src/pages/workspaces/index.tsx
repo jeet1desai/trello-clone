@@ -57,9 +57,14 @@ const Workspaces: React.FC = () => {
   const location = useLocation();
   const listRef = useRef<HTMLDivElement | null>(null);
   const dispatch = useDispatch<AppDispatch>();
-  const { workspaces, addError, editError, loading, hasMore, workspacePagination } = useSelector(
-    (state: RootState) => state.workspace
-  );
+  const {
+    workspaces,
+    addError,
+    editError,
+    loading,
+    hasMore,
+    workspacePagination,
+  } = useSelector((state: RootState) => state.workspace);
 
   const [loadingMore, setLoadingMore] = useState(false);
   const [searchText, setSearchText] = useState("");
@@ -68,6 +73,7 @@ const Workspaces: React.FC = () => {
     null
   );
   const [sortOption, setSortOption] = useState<string>(SORT_OPTIONS.DEFAULT);
+  const [debouncedSearch, setDebouncedSearch] = useState(searchText);
 
   const showAddModal = useCallback(() => {
     dispatch(openWorkspaceAddModal());
@@ -85,44 +91,33 @@ const Workspaces: React.FC = () => {
   }, [location, showAddModal]);
 
   useEffect(() => {
-    (async () => await dispatch(getAllWorkspaces({page:1 , search: '', sortType: 0})))();
+    (async () =>
+      await dispatch(getAllWorkspaces({ page: 1, search: "", sortType: 0 })))();
     return () => {
       dispatch(clearSelectedWorkspace());
     };
   }, [dispatch]);
 
-  // Calculate processed workspaces
-  const processedWorkspaces = React.useMemo(() => {
-    return workspaces
-      .filter((workspace) => {
-        // Filter by search text
-        const nameMatch = workspace.name
-          .toLowerCase()
-          .includes(searchText.toLowerCase());
-        const descMatch = workspace.description
-          .toLowerCase()
-          .includes(searchText.toLowerCase());
-        const textMatch = nameMatch || descMatch;
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearch(searchText);
+    }, 300);
 
-        return textMatch;
-      })
-      .sort((a, b) => {
-        if (sortOption === SORT_OPTIONS.NAME_ASC) {
-          return a.name.localeCompare(b.name);
-        } else if (sortOption === SORT_OPTIONS.NAME_DESC) {
-          return b.name.localeCompare(a.name);
-        } else if (sortOption === SORT_OPTIONS.CREATED_ASC) {
-          return (
-            new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
-          );
-        } else if (sortOption === SORT_OPTIONS.CREATED_DESC) {
-          return (
-            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-          );
-        }
-        return 0;
-      });
-  }, [workspaces, searchText, sortOption]);
+    return () => clearTimeout(handler);
+  }, [searchText]);
+
+  useEffect(() => {
+    if (debouncedSearch) {
+      (async () =>
+        await dispatch(
+          getAllWorkspaces({ page: 1, search: searchText, sortType: 0 })
+        ))();
+    }
+
+    return () => {
+      dispatch(clearSelectedWorkspace());
+    };
+  }, [debouncedSearch]);
 
   const handleAddOrEditWorkspace = async (values: {
     name: string;
@@ -140,7 +135,7 @@ const Workspaces: React.FC = () => {
       await dispatch(
         addNewWorkspace({ name: values.name, description: values?.description })
       );
-      await dispatch(getAllWorkspaces({page:1 , search: '', sortType: 0}));
+      await dispatch(getAllWorkspaces({ page: 1, search: "", sortType: 0 }));
     }
     if (!addError) {
       setIsModalVisible(false);
@@ -290,11 +285,17 @@ const Workspaces: React.FC = () => {
       const scrollHeight = container.scrollHeight;
       const clientHeight = container.clientHeight;
       if (scrollTop + clientHeight >= scrollHeight - 100) {
-        setLoadingMore(true)
-        await dispatch(getAllWorkspaces({ page: workspacePagination.currentPage + 1, search: '', sortType: 0 }));
+        setLoadingMore(true);
+        await dispatch(
+          getAllWorkspaces({
+            page: workspacePagination.currentPage + 1,
+            search: "",
+            sortType: 0,
+          })
+        );
       }
     } else if (loadingMore && !hasMore) {
-      setLoadingMore(false)
+      setLoadingMore(false);
     }
   };
 
@@ -322,18 +323,18 @@ const Workspaces: React.FC = () => {
     return (
       <div
         ref={listRef}
-        style={{ maxHeight: '460px', overflow: 'auto', padding: '0 16px' }}
+        style={{ maxHeight: "460px", overflow: "auto", padding: "0 16px" }}
         onScroll={handleScroll}
       >
         <Row gutter={[16, 16]} className="workspaces-grid">
-          {workspaces.slice(0,9).map((workspace) => (
+          {workspaces.slice(0, 9).map((workspace) => (
             <Col xs={24} sm={12} md={8} lg={8} key={workspace._id}>
               {renderWorkspaceCard(workspace)}
             </Col>
           ))}
         </Row>
         {loadingMore && (
-          <div style={{ textAlign: 'center', padding: '16px 0' }}>
+          <div style={{ textAlign: "center", padding: "16px 0" }}>
             <Spin />
           </div>
         )}
@@ -391,16 +392,27 @@ const Workspaces: React.FC = () => {
                   placeholder="Search workspaces"
                   allowClear
                   value={searchText}
-                  onChange={(e) => setSearchText(e.target.value)}
                   className="form-input small-input"
+                  onChange={(e) => setSearchText(e.target.value)}
+                  onClear={async () =>
+                    await dispatch(
+                      getAllWorkspaces({ page: 0, search: "", sortType: 0 })
+                    )
+                  }
                 />
               </ResponsiveSearch>
               <Dropdown
                 menu={{
                   items: sortMenuItems,
                   onClick: ({ key }) => {
-                    setSortOption(key)
-                    dispatch(getAllWorkspaces({page:1 , search: '', sortType: Number(key)}));
+                    setSortOption(key);
+                    dispatch(
+                      getAllWorkspaces({
+                        page: 1,
+                        search: "",
+                        sortType: Number(key),
+                      })
+                    );
                   },
                   selectable: true,
                   defaultSelectedKeys: [sortOption],
@@ -430,7 +442,7 @@ const Workspaces: React.FC = () => {
         </div>
 
         <div className="workspaces-content">
-          {renderWorkspaces(processedWorkspaces)}
+          {renderWorkspaces(workspaces)}
         </div>
 
         {/* Add/Edit Workspace Modal */}
