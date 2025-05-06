@@ -1103,7 +1103,7 @@ const TaskModal: React.FC<TaskModalProps> = ({
                   }}
                 >
                   <Avatar
-                    src={currentUser?.profile_image.url}
+                    src={currentUser?.profile_image?.url}
                     style={{
                       background: getRandomColor(currentUser?.id ?? ""),
                     }}

@@ -67,11 +67,11 @@ const initialState: TaskState = {
 export const getTasksByStatusId = createAsyncThunk(
   "task/get-tasks-by-status",
   async (
-    data: { statusId: string; filterType: string },
+    data: { statusId: string; filterBy: string[] },
     { rejectWithValue }
   ) => {
     try {
-      const response = await taskService.getTasksByStatusId(data);
+      const response = await taskService.getTasksByStatusId(data.statusId, data.filterBy);
       return response.data;
     } catch (error: any) {
       return rejectWithValue(

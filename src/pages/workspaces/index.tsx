@@ -57,6 +57,7 @@ const Workspaces: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useDispatch<AppDispatch>();
+  const { currentUser } = useSelector((state: RootState) => state.user);
   const { workspaces, addError, editError, loading, workspacePagination } =
     useSelector((state: RootState) => state.workspace);
 
@@ -223,23 +224,25 @@ const Workspaces: React.FC = () => {
                 </Title>
               </button>
             </div>
-            <div className="workspace-card-actions">
-              <Dropdown
-                menu={{
-                  items: moreMenu,
-                  onClick: ({ key }) => handleMenuClick(key, workspace),
-                }}
-                placement="bottomRight"
-                trigger={["click"]}
-              >
-                <Button
-                  type="text"
-                  shape="circle"
-                  icon={<EllipsisOutlined />}
-                  className="more-btn"
-                />
-              </Dropdown>
-            </div>
+            {workspace.createdBy._id === currentUser?.id ? (
+              <div className="workspace-card-actions">
+                <Dropdown
+                  menu={{
+                    items: moreMenu,
+                    onClick: ({ key }) => handleMenuClick(key, workspace),
+                  }}
+                  placement="bottomRight"
+                  trigger={["click"]}
+                >
+                  <Button
+                    type="text"
+                    shape="circle"
+                    icon={<EllipsisOutlined />}
+                    className="more-btn"
+                  />
+                </Dropdown>
+              </div>
+            ) : null}
           </div>
 
           <Paragraph
