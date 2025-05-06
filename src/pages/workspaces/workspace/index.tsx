@@ -301,6 +301,7 @@ const WorkspaceDetail: React.FC = () => {
                 <CustomButton
                   className="button"
                   danger
+                  style={{ marginTop: 0 }}
                   icon={<DeleteOutlined />}
                   onClick={handleDelete}
                   breakPoint={460}
@@ -311,7 +312,7 @@ const WorkspaceDetail: React.FC = () => {
             </div>
 
             <Paragraph className="workspace-description">
-              {selectedWorkspace.description}
+              {selectedWorkspace.description ?? "No description"}
             </Paragraph>
 
             <div className="workspace-meta">

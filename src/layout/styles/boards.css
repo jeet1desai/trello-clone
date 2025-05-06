@@ -70,14 +70,13 @@
 }
 
 .board-card-color-bar {
-  height: 12px;
-  border-radius: 4px;
+  height: 8px;
   width: 100%;
   position: relative;
 }
 
 .board-card-content {
-  padding: 8px 4px;
+  padding: 12px 24px;
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -107,19 +106,8 @@
   line-height: 1.4 !important;
 }
 
-.board-link {
-  color: inherit;
-  background: transparent;
-  padding: 0;
-  border: none;
-}
-
-.board-link:hover {
-  color: #1890ff;
-}
-
 .board-description {
-  margin-bottom: 12px !important;
+  margin-bottom: 6px !important;
   flex-grow: 1;
   color: var(--text-secondary) !important;
 }
@@ -182,11 +170,6 @@
 }
 
 /* Fix tag styles for dark theme */
-.theme-dark .ant-tag {
-  border-color: var(--primary-color);
-  background-color: rgba(24, 144, 255, 0.15);
-}
-
 .theme-dark .ant-tag-blue {
   color: #40a9ff;
 }

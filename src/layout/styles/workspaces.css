@@ -36,7 +36,6 @@
 
 .small-input {
   width: 220px;
-  margin-top: 8px;
 }
 
 .search-filter {
@@ -80,15 +79,7 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
-.workspace-card-color-bar {
-  height: 12px;
-  border-radius: 4px;
-  width: 100%;
-  position: relative;
-}
-
 .workspace-card-content {
-  padding: 8px 4px 16px 4px;
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -111,24 +102,21 @@
   flex-shrink: 0;
 }
 
+.workspace-icon {
+  background: #80808040;
+  padding: 8px;
+  border-radius: 8px;
+  font-size: 22px;
+}
+
 .workspace-name {
   margin: 0 !important;
   line-height: 1.4 !important;
-}
-
-.workspace-link {
-  color: inherit;
-  background: transparent;
-  padding: 0;
-  border: none;
-}
-
-.workspace-link:hover {
-  color: #1890ff;
+  cursor: pointer;
 }
 
 .workspace-description {
-  margin-bottom: 12px !important;
+  margin-bottom: 4px !important;
   flex-grow: 1;
   color: var(--text-secondary) !important;
 }
@@ -138,7 +126,7 @@
 }
 
 .workspace-card-footer {
-  margin-top: auto;
+  margin-top: 10px;
 }
 
 .more-btn:hover {
@@ -191,11 +179,6 @@
 }
 
 /* Fix tag styles for dark theme */
-.theme-dark .ant-tag {
-  border-color: var(--primary-color);
-  background-color: rgba(24, 144, 255, 0.15);
-}
-
 .theme-dark .ant-tag-blue {
   color: #40a9ff;
 }

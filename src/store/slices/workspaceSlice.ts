@@ -16,6 +16,7 @@ export interface IWorkspace {
   createdBy: IUser;
   createdAt: string;
   updatedAt: string;
+  boards: number;
 }
 
 export interface IWorkspaceBoard {
