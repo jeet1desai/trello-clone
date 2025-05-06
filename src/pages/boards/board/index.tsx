@@ -38,7 +38,7 @@ import type {
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../../store";
-import { useParams } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import {
   IBoardDetails,
   getAllLabels,
@@ -95,6 +95,7 @@ const BoardDetail: React.FC = () => {
   const [searchParams] = useSearchParams();
   const taskId = searchParams.get("task_id");
   const wrapperRef = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
 
   const dispatch = useDispatch<AppDispatch>();
   const { currentUser } = useSelector((state: RootState) => state.user);
@@ -153,12 +154,18 @@ const BoardDetail: React.FC = () => {
   }, [dispatch, isEditStatus, newStatusTitle, id]);
 
   useEffect(() => {
-    if (id) {
-      dispatch(getBoardById(id));
-      dispatch(getStatusListByBoardId(id));
-      dispatch(getBoardMemberListById({ _id: id, search: "" }));
-      dispatch(getAllLabels(id));
-    }
+    (async () => {
+      if (id) {
+        const board: any = await dispatch(getBoardById(id));
+        if (!board.error) {
+          await dispatch(getStatusListByBoardId(id));
+          await dispatch(getBoardMemberListById({ _id: id, search: "" }));
+          await dispatch(getAllLabels(id));
+        } else {
+          navigate("/boards");
+        }
+      }
+    })();
   }, [dispatch, id]);
 
   useEffect(() => {
@@ -621,9 +628,7 @@ const BoardDetail: React.FC = () => {
                   >
                     All
                   </Checkbox>
-                  <Checkbox checked={true} disabled>
-                    Me
-                  </Checkbox>
+                  <Checkbox checked={true}>Me</Checkbox>
                   {invitedMemberList
                     ?.filter(
                       (member) => member.memberId._id !== currentUser?.id

@@ -69,8 +69,12 @@ const WorkspaceDetail: React.FC = () => {
   useEffect(() => {
     if (id)
       (async () => {
-        await dispatch(getWorkspaceById(id));
-        await dispatch(getBoardsByWorkspaceId(id));
+        const workspace: any = await dispatch(getWorkspaceById(id));
+        if (!workspace.error) {
+          await dispatch(getBoardsByWorkspaceId(id));
+        } else {
+          navigate("/workspaces");
+        }
       })();
   }, [dispatch, id]);
 

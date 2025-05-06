@@ -2,9 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Button, Form, FormInstance, Input, Select, Space } from "antd";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../../store";
-import {
-  getAllWorkspaces,
-} from "../../../store/slices/workspaceSlice";
+import { getWorkspacesForBoards } from "../../../store/slices/boardSlice";
 
 interface IProps {
   form: FormInstance<any>;
@@ -24,7 +22,9 @@ const AddBoardForm = ({
   onFinish,
 }: IProps) => {
   const dispatch = useDispatch<AppDispatch>();
-  const { workspaces } = useSelector((state: RootState) => state.workspace);
+  const { boardWorkspaces } = useSelector(
+    (state: RootState) => state.board
+  );
 
   const [searchText, setSearchText] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState(searchText);
@@ -40,7 +40,7 @@ const AddBoardForm = ({
   useEffect(() => {
     (async () =>
       await dispatch(
-        getAllWorkspaces({ page: 1, search: searchText, sortType: 1 })
+        getWorkspacesForBoards({ page: 1, search: searchText, sortType: 1 })
       ))();
   }, [debouncedSearch]);
 
@@ -95,7 +95,7 @@ const AddBoardForm = ({
           className="form-input"
           defaultValue={defaultWorkspace}
           disabled={!!defaultWorkspace}
-          options={workspaces?.map((workspace) => {
+          options={boardWorkspaces?.map((workspace) => {
             return { value: workspace._id, label: workspace.name };
           })}
         />

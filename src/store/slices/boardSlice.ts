@@ -1,8 +1,9 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { boardService } from "../../services/boardService";
-import { updateWorkspaceBoards } from "./workspaceSlice";
+import { IWorkspace, updateWorkspaceBoards } from "./workspaceSlice";
 import { removeTaskLabel, updateTaskLabel } from "./taskSlice";
 import { Pagination } from "./dashboardSlice";
+import { workspaceService } from "../../services/workspaceService";
 
 export interface IMember {
   _id: string;
@@ -173,6 +174,8 @@ interface BoardState {
   invitedSearchMemberList: MemberData[];
   invitedMemberDetail: InvitationMember | null;
   boardPagination: Pagination;
+  boardWorkspaces: IWorkspace[];
+  boardWorkspacesPagination: Pagination;
 }
 
 const initialState: BoardState = {
@@ -191,6 +194,13 @@ const initialState: BoardState = {
   invitedSearchMemberList: [],
   invitedMemberDetail: null,
   boardPagination: {
+    currentPage: 0,
+    limit: 0,
+    totalPages: 0,
+    totalRecords: 0,
+  },
+  boardWorkspaces: [],
+  boardWorkspacesPagination: {
     currentPage: 0,
     limit: 0,
     totalPages: 0,
@@ -224,7 +234,7 @@ export const getAllBoards = createAsyncThunk(
 );
 
 export const getBoardById = createAsyncThunk(
-  "task/get-board-by-id",
+  "board/get-board-by-id",
   async (_id: string, { rejectWithValue }) => {
     try {
       const response = await boardService.getBoardById(_id);
@@ -695,6 +705,35 @@ export const removeMemberFromTask = createAsyncThunk(
     } catch (error: any) {
       return rejectWithValue(
         error.response?.data?.message ?? "Error while removing member."
+      );
+    }
+  }
+);
+
+export const getWorkspacesForBoards = createAsyncThunk(
+  "task/get-all-workspace",
+  async (
+    {
+      page,
+      search,
+      sortType,
+    }: {
+      page: number;
+      search: string;
+      sortType: number;
+    },
+    { rejectWithValue }
+  ) => {
+    try {
+      const response = await workspaceService.getAllWorkspaces(
+        page,
+        search,
+        sortType
+      );
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message ?? "Error while fetching workspaces."
       );
     }
   }
@@ -1333,6 +1372,28 @@ const boardSlice = createSlice({
         state.success = null;
         state.error =
           (action.payload as string) || "Error while removing member.";
+      })
+
+      // Workspaces for boards
+      .addCase(getWorkspacesForBoards.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.success = null;
+      })
+      .addCase(getWorkspacesForBoards.fulfilled, (state, action) => {
+        const { workspaces, pagination } = action.payload;
+        state.boardWorkspaces = workspaces;
+        state.boardWorkspacesPagination = pagination;
+        state.loading = false;
+        state.error = null;
+        state.success = "Workspace fetched successfully.";
+      })
+      .addCase(getWorkspacesForBoards.rejected, (state, action) => {
+        state.loading = false;
+        state.boardWorkspaces = [];
+        state.success = null;
+        state.error =
+          (action.payload as string) || "Error while fetching workspaces.";
       });
   },
 });
