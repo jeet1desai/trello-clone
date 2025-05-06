@@ -47,4 +47,9 @@ export const authService = {
     const response = await axiosInstance.get(`${API_URL}/auth/logout`);
     return response.data;
   },
+
+  async googleLogin(token: string) {
+    const response = await axiosInstance.post(`${API_URL}/auth/google`, { token });
+    return response.data;
+  },
 }; 

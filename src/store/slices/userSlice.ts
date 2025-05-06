@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { authService } from "../../services/authService";
-
+import { CredentialResponse } from "@react-oauth/google";
 export interface User {
   id: string;
   first_name: string;
@@ -12,6 +12,18 @@ export interface User {
     imageName: string;
     url: string;
   };
+}
+
+export interface AuthState {
+  user: User | null;
+  token: string | null;
+  status: 'idle' | 'loading' | 'succeeded' | 'failed';
+  error: string | null;
+}
+
+export interface GoogleAuthResponse {
+  user: User;
+  token: string;
 }
 
 interface UserState {
@@ -165,6 +177,26 @@ export const logoutUser = createAsyncThunk(
       return response;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message ?? "Logout failed.");
+    }
+  }
+);
+
+export const loginWithGoogle = createAsyncThunk(
+  'auth/loginWithGoogle',
+  async (credentialResponse: CredentialResponse, thunkAPI) => {
+    try {
+      const decodedUser: any = jwtDecode(credentialResponse.credential);
+      if (credentialResponse && credentialResponse.credential) {
+        const response = await authService.googleLogin(credentialResponse.credential);
+        console.log('1111',response.data, decodedUser, credentialResponse)
+        return response.data;
+      }
+      else {
+        return null;
+      }
+    } catch (error) {
+      console.error('Google login failed', error);
+      return thunkAPI.rejectWithValue(error);
     }
   }
 );
@@ -355,3 +387,7 @@ const userSlice = createSlice({
 export const { updateImage, clearAuthState } = userSlice.actions;
 
 export default userSlice.reducer;
+function jwtDecode(credential: string | undefined): any {
+  throw new Error("Function not implemented.");
+}
+
