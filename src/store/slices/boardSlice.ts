@@ -837,17 +837,17 @@ const boardSlice = createSlice({
           workspaceId,
           updatedAt,
         };
-        const index = state.boards.findIndex(
+        const index = state.boards?.findIndex(
           (board) => board._id === currentWorkspace._id
         );
         if (index !== -1) {
           state.loading = false;
           state.editError = null;
           state.boards[index] = {
-            ...state.boards[index],
+            ...state.boards?.[index],
             ...currentWorkspace,
             workspace: {
-              ...state.boards[index].workspace,
+              ...state.boards?.[index].workspace,
               _id: currentWorkspace.workspaceId,
             },
           };
@@ -876,11 +876,11 @@ const boardSlice = createSlice({
       })
       .addCase(deleteBoard.fulfilled, (state, action) => {
         const { _id } = action.payload;
-        const index = state.boards.findIndex((board) => board._id === _id);
+        const index = state.boards?.findIndex((board) => board._id === _id);
         if (index !== -1) {
           state.loading = false;
           state.error = null;
-          state.boards.splice(index, 1);
+          state.boards?.splice(index, 1);
           state.success = "Board deleted successfully.";
         } else {
           state.loading = false;
@@ -943,7 +943,7 @@ const boardSlice = createSlice({
       })
       .addCase(removeBoardMemberFromListById.fulfilled, (state, action) => {
         const { _id } = action.payload;
-        const index = state.boards.findIndex(
+        const index = state.boards?.findIndex(
           (invitedMemberList) => invitedMemberList._id === _id
         );
         state.invitedMemberList = state.invitedMemberList.filter(

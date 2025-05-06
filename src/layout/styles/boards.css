@@ -101,6 +101,8 @@
 }
 
 .board-name {
+  cursor: pointer;
+  text-align: left;
   margin: 0 !important;
   line-height: 1.4 !important;
 }

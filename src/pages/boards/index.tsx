@@ -58,6 +58,7 @@ const Boards: React.FC = () => {
   const { modal } = App.useApp();
   const location = useLocation();
   const dispatch = useDispatch<AppDispatch>();
+  const { currentUser } = useSelector((state: RootState) => state.user);
   const { boards, addError, editError, loading, boardPagination } = useSelector(
     (state: RootState) => state.board
   );
@@ -199,6 +200,7 @@ const Boards: React.FC = () => {
   };
 
   const renderBoardCard = (board: IBoard) => {
+    const isOwner = getOwnerDetails(board)?._id === currentUser?.id;
     const background = generateGradient(board.name);
     const moreMenu: MenuProps["items"] = [
       {
@@ -231,23 +233,25 @@ const Boards: React.FC = () => {
                 </Title>
               </button>
             </div>
-            <div className="board-card-actions">
-              <Dropdown
-                menu={{
-                  items: moreMenu,
-                  onClick: ({ key }) => handleMenuClick(key, board),
-                }}
-                placement="bottomRight"
-                trigger={["click"]}
-              >
-                <Button
-                  type="text"
-                  shape="circle"
-                  icon={<EllipsisOutlined />}
-                  className="more-btn"
-                />
-              </Dropdown>
-            </div>
+            {isOwner ? (
+              <div className="board-card-actions">
+                <Dropdown
+                  menu={{
+                    items: moreMenu,
+                    onClick: ({ key }) => handleMenuClick(key, board),
+                  }}
+                  placement="bottomRight"
+                  trigger={["click"]}
+                >
+                  <Button
+                    type="text"
+                    shape="circle"
+                    icon={<EllipsisOutlined />}
+                    className="more-btn"
+                  />
+                </Dropdown>
+              </div>
+            ) : null}
           </div>
 
           <Paragraph
@@ -275,7 +279,6 @@ const Boards: React.FC = () => {
   };
 
   const renderBoards = (boards: IBoard[]) => {
-    console.log("sss", boards)
     if (boards?.length === 0) {
       let emptyMessage = "No boards found";
 

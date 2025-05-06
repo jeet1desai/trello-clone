@@ -297,7 +297,7 @@ const workspaceSlice = createSlice({
           description,
           updatedAt,
         };
-        const index = state.workspaces.findIndex(
+        const index = state.workspaces?.findIndex(
           (workspace) => workspace._id === currentWorkspace._id
         );
         if (index !== -1) {
@@ -305,7 +305,7 @@ const workspaceSlice = createSlice({
           state.editError = null;
           state.error = null;
           state.workspaces[index] = {
-            ...state.workspaces[index],
+            ...state.workspaces?.[index],
             ...currentWorkspace,
           };
           state.success = "Workspace updated successfully.";
@@ -332,13 +332,13 @@ const workspaceSlice = createSlice({
       })
       .addCase(deleteWorkspace.fulfilled, (state, action) => {
         const { _id } = action.payload;
-        const index = state.workspaces.findIndex(
+        const index = state.workspaces?.findIndex(
           (workspace) => workspace._id === _id
         );
         if (index !== -1) {
           state.loading = false;
           state.error = null;
-          state.workspaces.splice(index, 1);
+          state.workspaces?.splice(index, 1);
           state.success = "Workspace deleted successfully.";
         } else {
           state.loading = false;
