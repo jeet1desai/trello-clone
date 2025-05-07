@@ -229,7 +229,10 @@ const Workspaces: React.FC = () => {
                 <Dropdown
                   menu={{
                     items: moreMenu,
-                    onClick: ({ key }) => handleMenuClick(key, workspace),
+                    onClick: ({ key, domEvent }) => {
+                      domEvent.stopPropagation();
+                      handleMenuClick(key, workspace);
+                    },
                   }}
                   placement="bottomRight"
                   trigger={["click"]}

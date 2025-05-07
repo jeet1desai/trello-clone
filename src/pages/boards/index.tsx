@@ -238,7 +238,10 @@ const Boards: React.FC = () => {
                 <Dropdown
                   menu={{
                     items: moreMenu,
-                    onClick: ({ key }) => handleMenuClick(key, board),
+                    onClick: ({ key, domEvent }) => {
+                      domEvent.stopPropagation();
+                      handleMenuClick(key, board);
+                    },
                   }}
                   placement="bottomRight"
                   trigger={["click"]}
