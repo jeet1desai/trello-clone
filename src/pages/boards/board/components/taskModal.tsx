@@ -329,6 +329,13 @@ const TaskModal: React.FC<TaskModalProps> = ({
           memberId: id,
         })
       );
+      if (id === selectedTask?.assigned_to?._id) {
+        dispatch(
+          unassignMember({
+            taskId: selectedTask?._id,
+          })
+        );
+      }
     }
   };
 

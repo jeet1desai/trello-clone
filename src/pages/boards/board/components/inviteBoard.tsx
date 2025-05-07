@@ -199,7 +199,7 @@ const InviteBoard: React.FC<InviteBoardProps> = ({ isOpen, onClose }) => {
 
             <Text
               style={{
-                padding: "0 5px",
+                padding: "1px 7px",
                 fontSize: "12px",
                 borderRadius: "50%",
                 background: "grey",
