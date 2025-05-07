@@ -217,21 +217,21 @@ const Boards: React.FC = () => {
     ];
 
     return (
-      <Card hoverable className="board-card">
+      <Card
+        hoverable
+        className="board-card"
+        bodyStyle={{ padding: "0 0 20px 0" }}
+        onClick={() =>
+          navigate(generatePath(PRIVATE_ROUTE.BOARD, { id: board._id }))
+        }
+      >
         <div className="board-card-color-bar" style={{ background }} />
         <div className="board-card-content">
           <div className="board-card-header">
             <div className="board-card-title">
-              <button
-                onClick={() =>
-                  navigate(generatePath(PRIVATE_ROUTE.BOARD, { id: board._id }))
-                }
-                className="board-link"
-              >
-                <Title level={4} className="board-name">
-                  {board.name}
-                </Title>
-              </button>
+              <Title level={4} className="board-name">
+                {board.name}
+              </Title>
             </div>
             {isOwner ? (
               <div className="board-card-actions">
@@ -312,7 +312,7 @@ const Boards: React.FC = () => {
         </Row>
         <Pagination
           align="center"
-          style={{ marginTop: "60px" }}
+          style={{ marginTop: "40px" }}
           defaultCurrent={1}
           pageSize={boardPagination.limit}
           current={boardPagination.currentPage}
@@ -391,7 +391,7 @@ const Boards: React.FC = () => {
                   allowClear
                   value={searchText}
                   className="form-input"
-                  style={{ width: 220, marginTop: "8px" }}
+                  style={{ width: 220 }}
                   onChange={(e) => setSearchText(e.target.value)}
                   onClear={async () =>
                     await dispatch(
@@ -421,6 +421,7 @@ const Boards: React.FC = () => {
                 <CustomButton
                   type="default"
                   className="button"
+                  style={{ marginTop: 0 }}
                   icon={<SortAscendingOutlined />}
                   breakPoint={720}
                 >
@@ -432,6 +433,7 @@ const Boards: React.FC = () => {
                 icon={<PlusOutlined />}
                 onClick={showAddModal}
                 className="button"
+                style={{ marginTop: 0 }}
                 breakPoint={740}
               >
                 Create New Board

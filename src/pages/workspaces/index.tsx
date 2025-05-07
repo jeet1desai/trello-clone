@@ -11,24 +11,23 @@ import {
   Dropdown,
   Modal,
   Form,
-  Tag,
   Empty,
-  Tooltip,
   App,
   Spin,
   Pagination,
 } from "antd";
 import {
   PlusOutlined,
-  ClockCircleOutlined,
   UserOutlined,
-  EllipsisOutlined,
   SearchOutlined,
   SortAscendingOutlined,
   CheckOutlined,
   DeleteOutlined,
   ExclamationCircleOutlined,
   EditOutlined,
+  FolderOpenOutlined,
+  CalendarOutlined,
+  MoreOutlined,
 } from "@ant-design/icons";
 import type { MenuProps } from "antd";
 import { useDispatch, useSelector } from "react-redux";
@@ -44,10 +43,10 @@ import {
 } from "../../store/slices/workspaceSlice";
 import "../../layout/styles/workspaces.css";
 import { SORT_OPTIONS, SORT_OPTIONS_VALUES } from "../../config";
-import { generateGradient } from "../../utils";
 import { PRIVATE_ROUTE } from "../../utils/enums/route";
 import CustomButton from "../../components/ui/button";
 import ResponsiveSearch from "../../components/ui/searchResponsive";
+import dayjs from "dayjs";
 
 const { Title, Paragraph } = Typography;
 
@@ -186,7 +185,6 @@ const Workspaces: React.FC = () => {
   };
 
   const renderWorkspaceCard = (workspace: IWorkspace) => {
-    const background = generateGradient(workspace.name);
     let moreMenu: MenuProps["items"] = [
       {
         key: "edit",
@@ -205,24 +203,26 @@ const Workspaces: React.FC = () => {
       <Card
         hoverable
         className="workspace-card"
-        styles={{ header: { background, padding: 0 } }}
+        bodyStyle={{ padding: "24px 24px 20px 24px" }}
       >
-        <div className="workspace-card-color-bar" style={{ background }} />
-        <div className="workspace-card-content">
+        <div
+          className="workspace-card-content"
+          onClick={() =>
+            navigate(
+              generatePath(PRIVATE_ROUTE.WORKSPACE, {
+                id: workspace._id,
+              })
+            )
+          }
+        >
           <div className="workspace-card-header">
-            <div className="workspace-card-title">
-              <button
-                onClick={() =>
-                  navigate(
-                    generatePath(PRIVATE_ROUTE.WORKSPACE, { id: workspace._id })
-                  )
-                }
-                className="workspace-link"
-              >
+            <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+              <FolderOpenOutlined className="workspace-icon" />
+              <div className="workspace-card-title">
                 <Title level={4} className="workspace-name">
                   {workspace.name}
                 </Title>
-              </button>
+              </div>
             </div>
             {workspace.createdBy._id === currentUser?.id ? (
               <div className="workspace-card-actions">
@@ -237,7 +237,7 @@ const Workspaces: React.FC = () => {
                   <Button
                     type="text"
                     shape="circle"
-                    icon={<EllipsisOutlined />}
+                    icon={<MoreOutlined />}
                     className="more-btn"
                   />
                 </Dropdown>
@@ -245,32 +245,20 @@ const Workspaces: React.FC = () => {
             ) : null}
           </div>
 
-          <Paragraph
-            ellipsis={{ rows: 2 }}
-            className="workspace-description color-inherit"
-          >
-            {workspace.description || "No description"}
-          </Paragraph>
-
           <div className="workspace-card-footer">
-            <Space wrap>
-              <Tooltip title={workspace.createdBy.email}>
-                <Tag icon={<UserOutlined />}>
-                  {workspace.createdBy.first_name +
-                    " " +
-                    workspace.createdBy.last_name}
-                </Tag>
-              </Tooltip>
-              <Tooltip
-                title={`Created on ${new Date(
-                  workspace.createdAt
-                ).toLocaleDateString()}`}
-              >
-                <Tag icon={<ClockCircleOutlined />}>
-                  {new Date(workspace.createdAt).toLocaleDateString()}
-                </Tag>
-              </Tooltip>
-            </Space>
+            <Paragraph className="workspace-description color-inherit">
+              <UserOutlined />{" "}
+              {workspace.createdBy.first_name +
+                " " +
+                workspace.createdBy.last_name}
+            </Paragraph>
+            <Paragraph className="workspace-description color-inherit">
+              <CalendarOutlined />{" "}
+              {dayjs(workspace.createdAt).format("MMM DD, YYYY")}
+            </Paragraph>
+            <Paragraph className="workspace-description color-inherit">
+              {workspace.boards} boards
+            </Paragraph>
           </div>
         </div>
       </Card>
@@ -309,7 +297,7 @@ const Workspaces: React.FC = () => {
         </Row>
         <Pagination
           align="center"
-          style={{ marginTop: "60px" }}
+          style={{ marginTop: "40px" }}
           defaultCurrent={1}
           pageSize={workspacePagination.limit}
           current={workspacePagination.currentPage}
@@ -417,6 +405,7 @@ const Workspaces: React.FC = () => {
                 <CustomButton
                   type="default"
                   className="button"
+                  style={{ marginTop: 0 }}
                   icon={<SortAscendingOutlined />}
                   breakPoint={800}
                 >
@@ -428,6 +417,7 @@ const Workspaces: React.FC = () => {
                 icon={<PlusOutlined />}
                 onClick={showAddModal}
                 className="button"
+                style={{ marginTop: 0 }}
                 breakPoint={820}
               >
                 Create New Workspace

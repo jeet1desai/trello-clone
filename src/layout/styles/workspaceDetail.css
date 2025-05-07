@@ -55,11 +55,6 @@
   margin-bottom: 8px;
 }
 
-.workspace-description {
-  margin-bottom: 16px !important;
-  max-width: 800px;
-}
-
 .workspace-content {
   background-color: #fff;
   border-radius: 8px;

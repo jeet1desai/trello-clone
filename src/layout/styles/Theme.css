@@ -372,9 +372,11 @@ a:hover {
 
 /* Tag */
 .ant-tag {
-  padding: 8px 12px !important;
+  padding: 2px 10px !important;
   border-radius: 20px;
   margin-inline-end: 0 !important;
+  background: white;
+  font-weight: 600;
 }
 
 /* Menu */
@@ -487,10 +489,10 @@ a:hover {
 }
 
 /* Tag adjustments */
-.theme-dark .ant-tag.ant-tag-blue {
-  background: rgba(24, 144, 255, 0.2);
-  border-color: #4096ff;
-  color: #4096ff;
+.theme-dark .ant-tag {
+  background: var(--card-bg);
+  border-color: var(--text-primary);
+  color: var(--text-primary);
 }
 
 /* Tooltip */
