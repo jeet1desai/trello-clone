@@ -126,7 +126,9 @@ const ProfilePage = () => {
                 </Form.Item>
                 <div className="profile-name-wrapper">
                   <Title level={4} className="profile-name-text">
-                    {`${profileDetails?.first_name} ${profileDetails?.middle_name} ${profileDetails?.last_name}`}
+                    {`${profileDetails?.first_name} ${
+                      profileDetails?.middle_name ?? ""
+                    } ${profileDetails?.last_name ?? ""}`}
                   </Title>
                   <Text type="secondary">{profileDetails?.email}</Text>
                 </div>

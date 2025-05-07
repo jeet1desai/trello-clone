@@ -1,6 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { authService } from "../../services/authService";
-import { CredentialResponse } from "@react-oauth/google";
 export interface User {
   id: string;
   first_name: string;
@@ -17,7 +16,7 @@ export interface User {
 export interface AuthState {
   user: User | null;
   token: string | null;
-  status: 'idle' | 'loading' | 'succeeded' | 'failed';
+  status: "idle" | "loading" | "succeeded" | "failed";
   error: string | null;
 }
 
@@ -181,22 +180,15 @@ export const logoutUser = createAsyncThunk(
   }
 );
 
-export const loginWithGoogle = createAsyncThunk(
-  'auth/loginWithGoogle',
-  async (credentialResponse: CredentialResponse, thunkAPI) => {
+export const firebaseSocialLogin = createAsyncThunk(
+  "auth/firebaseSocialLogin",
+  async (token: string, { rejectWithValue }) => {
     try {
-      const decodedUser: any = jwtDecode(credentialResponse.credential);
-      if (credentialResponse && credentialResponse.credential) {
-        const response = await authService.googleLogin(credentialResponse.credential);
-        console.log('1111',response.data, decodedUser, credentialResponse)
-        return response.data;
-      }
-      else {
-        return null;
-      }
+      const response = await authService.firebaseLogin(token);
+      return response.data.user;
     } catch (error) {
-      console.error('Google login failed', error);
-      return thunkAPI.rejectWithValue(error);
+      console.error("Google login failed", error);
+      return rejectWithValue(error);
     }
   }
 );
@@ -229,6 +221,42 @@ const userSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
+      //Social Firebase Login
+      .addCase(firebaseSocialLogin.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.success = null;
+      })
+      .addCase(firebaseSocialLogin.fulfilled, (state, action) => {
+        const {
+          _id,
+          first_name,
+          middle_name,
+          last_name,
+          email,
+          profile_image,
+        } = action.payload;
+        const currentUser = {
+          id: _id,
+          first_name,
+          middle_name,
+          last_name,
+          email,
+          profile_image,
+        };
+        state.currentUser = currentUser;
+        state.isAuthenticated = true;
+        state.loading = false;
+        state.error = null;
+        state.success = "Login successful.";
+      })
+      .addCase(firebaseSocialLogin.rejected, (state, action) => {
+        state.loading = false;
+        state.currentUser = null;
+        state.isAuthenticated = false;
+        state.success = null;
+        state.error = (action.payload as string) || "Error while login.";
+      })
       // Login
       .addCase(loginUser.pending, (state) => {
         state.loading = true;
@@ -390,4 +418,3 @@ export default userSlice.reducer;
 function jwtDecode(credential: string | undefined): any {
   throw new Error("Function not implemented.");
 }
-

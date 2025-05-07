@@ -26,8 +26,9 @@ const googleProvider = new GoogleAuthProvider();
 googleProvider.setCustomParameters({ prompt: "select_account" });
 const facebookProvider = new FacebookAuthProvider();
 facebookProvider.setCustomParameters({ prompt: "select_account" });
-const githubProvider = new OAuthProvider("github.com");
+const githubProvider: OAuthProvider = new OAuthProvider("github.com");
 githubProvider.setCustomParameters({ prompt: "select_account" });
+githubProvider.addScope("user:email");
 const microsoftProvider = new OAuthProvider("microsoft.com");
 microsoftProvider.setCustomParameters({ prompt: "select_account" });
 export {

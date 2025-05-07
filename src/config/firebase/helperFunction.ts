@@ -33,12 +33,12 @@ export const handleAuthError = (error: unknown, providerName: string) => {
   if (error instanceof FirebaseError) {
     switch (error.code) {
       case "auth/cancelled-popup-request":
-        console.log(
+        console.warn(
           `Popup was cancelled before completing Social login. Provider Name ==> ${providerName}`
         );
         break;
       case "auth/popup-closed-by-user":
-        console.log(
+        console.warn(
           `Popup was closed before completing Social login. Provider Name ==> ${providerName}`
         );
         break;
@@ -66,6 +66,8 @@ export const handleSignIn = async (
 ) => {
   try {
     const result = await signInWithPopup(auth, provider);
+    // const token = await result.user.getIdToken();
+
     const token = getAccessToken(provider, result);
     const user = result.user;
     handleLoginResp(user, token, providerName, dispatch, goTo);
