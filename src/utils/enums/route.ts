@@ -31,4 +31,5 @@ export enum PRIVATE_ROUTE {
   WORKSPACE = "/workspace/:id",
   BOARDS = "/boards",
   BOARD = "/board/:id",
+  INVITATIONS = "invitations",
 }

@@ -182,7 +182,10 @@ export const logoutUser = createAsyncThunk(
 
 export const firebaseSocialLogin = createAsyncThunk(
   "auth/firebaseSocialLogin",
-  async ({ token, screenName }: { token: string, screenName: string }, { rejectWithValue }) => {
+  async (
+    { token, screenName }: { token: string; screenName: string },
+    { rejectWithValue }
+  ) => {
     try {
       const response = await authService.firebaseLogin(token, screenName);
       return response.data.user;
@@ -415,6 +418,3 @@ const userSlice = createSlice({
 export const { updateImage, clearAuthState } = userSlice.actions;
 
 export default userSlice.reducer;
-function jwtDecode(credential: string | undefined): any {
-  throw new Error("Function not implemented.");
-}

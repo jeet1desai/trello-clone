@@ -367,9 +367,12 @@ const Workspaces: React.FC = () => {
             <Title level={3} className="page-title">
               Your Workspaces
             </Title>
+            <Paragraph style={{ marginBottom: 0 }}>
+              List of workspaces you are part of
+            </Paragraph>
           </div>
           <div className="header-right">
-            <Space className="search-filter">
+            <Space>
               <ResponsiveSearch breakPoint={590}>
                 <Input
                   prefix={<SearchOutlined />}

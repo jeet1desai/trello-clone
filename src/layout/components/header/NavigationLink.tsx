@@ -21,6 +21,10 @@ const NavigationLinks = () => {
       label: "Boards",
       path: PRIVATE_ROUTE.BOARDS,
     },
+    {
+      label: "Invitations",
+      path: PRIVATE_ROUTE.INVITATIONS,
+    },
   ];
 
   const menu = (

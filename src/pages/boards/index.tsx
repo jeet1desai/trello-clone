@@ -382,9 +382,12 @@ const Boards: React.FC = () => {
             <Title level={3} className="page-title">
               Your Boards
             </Title>
+            <Paragraph style={{ marginBottom: 0 }}>
+              List of boards you are part of
+            </Paragraph>
           </div>
           <div className="boards-header-right">
-            <Space className="search-filter">
+            <Space>
               <ResponsiveSearch breakPoint={540}>
                 <Input
                   prefix={<SearchOutlined />}

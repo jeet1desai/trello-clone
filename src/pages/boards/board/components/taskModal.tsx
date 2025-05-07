@@ -525,6 +525,15 @@ const TaskModal: React.FC<TaskModalProps> = ({
   }, [visible, dispatch]);
 
   useEffect(() => {
+    if (taskId && visible) {
+      dispatch(getMembersByTaskId({ _id: taskId, search: "" }));
+      dispatch(getTaskCommentById(taskId));
+      dispatch(getTaskAttachmentById(taskId));
+      dispatch(getLabelsByTaskId(taskId));
+    }
+  }, [visible, dispatch]);
+
+  useEffect(() => {
     setIsCompleted(selectedTask?.status === TaskStatus.COMPLETED);
   }, [selectedTask]);
 

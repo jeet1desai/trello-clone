@@ -38,12 +38,6 @@
   margin: 0 auto;
 }
 
-.header-left {
-  display: flex;
-  align-items: center;
-  gap: 32px;
-}
-
 .header-right {
   display: flex;
   align-items: center;
@@ -311,10 +305,6 @@
 @media (max-width: 768px) {
   .search-input {
     display: none;
-  }
-
-  .header-left {
-    gap: 16px;
   }
 }
 
