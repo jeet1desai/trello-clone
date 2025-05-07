@@ -182,9 +182,9 @@ export const logoutUser = createAsyncThunk(
 
 export const firebaseSocialLogin = createAsyncThunk(
   "auth/firebaseSocialLogin",
-  async (token: string, { rejectWithValue }) => {
+  async ({ token, screenName }: { token: string, screenName: string }, { rejectWithValue }) => {
     try {
-      const response = await authService.firebaseLogin(token);
+      const response = await authService.firebaseLogin(token, screenName);
       return response.data.user;
     } catch (error) {
       console.error("Google login failed", error);

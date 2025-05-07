@@ -39,6 +39,7 @@ import {
 import { PRIVATE_ROUTE, PUBLIC_ROUTE } from "../../../utils/enums/route";
 import { companyLogo } from "../../../assets";
 import { getRandomColor } from "../../../utils";
+import { handleSocialLogout } from "../../../config/firebase/helperFunction";
 dayjs.extend(relativeTime);
 const { Header: AntHeader } = Layout;
 
@@ -59,6 +60,7 @@ const Header: React.FC = () => {
   const handleLogout = async () => {
     await dispatch(logoutUser());
     dispatch({ type: RESET_APP });
+    handleSocialLogout();
     await persistor.purge();
     navigate(PUBLIC_ROUTE.LOGIN);
   };

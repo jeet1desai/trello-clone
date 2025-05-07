@@ -9,7 +9,7 @@ import {
   signInWithPopup,
 } from "firebase/auth";
 import { auth } from "./firebaseConfig";
-import { handleLoginResp, handleLogoutResp } from "../../components/social";
+import { handleLoginResp } from "../../components/social";
 import { Dispatch } from "redux";
 
 export const getAccessToken = (
@@ -65,15 +65,12 @@ export const handleSignIn = async (
   goTo: (path: string) => void
 ) => {
   try {
-    const result = await signInWithPopup(auth, provider);
-    // const token = await result.user.getIdToken();
-
-    const token = getAccessToken(provider, result);
-    const user = result.user;
-    handleLoginResp(user, token, providerName, dispatch, goTo);
+    const result:any = await signInWithPopup(auth, provider);
+    const token = await result.user.getIdToken();
+    const screenName = result._tokenResponse?.screenName;
+    handleLoginResp(screenName, token, dispatch, goTo);
   } catch (error: unknown) {
     if (error instanceof FirebaseError) {
-      // Pass the error for centralized handling
       handleAuthError(error, providerName);
     } else {
       console.error("Unexpected error:", error);
@@ -81,13 +78,10 @@ export const handleSignIn = async (
   }
 };
 
-export const handleLogout = async (
-  dispatch: Dispatch,
-  goTo: (path: string) => void
+export const handleSocialLogout = async (
 ) => {
   try {
     await signOut(auth);
-    handleLogoutResp(dispatch, goTo);
   } catch (e) {
     console.error("Error during logout:", e);
   }

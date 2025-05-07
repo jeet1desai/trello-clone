@@ -72,11 +72,12 @@ export const authService = {
     return response.data;
   },
 
-  async firebaseLogin(idToken: string) {
+  async firebaseLogin(idToken: string, screenName: string) {
     const response = await axiosInstance.post(
       `${API_URL}/auth/social-firebase-login`,
       {
         idToken,
+        screenName
       }
     );
     return response.data;
