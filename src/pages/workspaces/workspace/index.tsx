@@ -47,6 +47,7 @@ import AddBoardForm from "../../boards/components/AddBoardForm";
 import { generateGradient } from "../../../utils";
 import { PRIVATE_ROUTE } from "../../../utils/enums/route";
 import CustomButton from "../../../components/ui/button";
+import dayjs from "dayjs";
 
 const { Title, Text, Paragraph } = Typography;
 
@@ -323,7 +324,7 @@ const WorkspaceDetail: React.FC = () => {
                     selectedWorkspace.createdBy.last_name}
                 </Tag>
                 <Tag icon={<ClockCircleOutlined />}>
-                  {new Date(selectedWorkspace.createdAt).toLocaleDateString()}
+                  {dayjs(selectedWorkspace.createdAt).format("MMM DD, YYYY")}
                 </Tag>
               </Space>
             </div>
@@ -359,9 +360,9 @@ const WorkspaceDetail: React.FC = () => {
                           </p>
                           <p>
                             <strong>Created at:</strong>{" "}
-                            {new Date(
+                            {dayjs(
                               selectedWorkspace.createdAt
-                            ).toLocaleString()}
+                            ).format("MMM DD,YYYY hh:mm A")}
                           </p>
                         </div>
                       </Card>

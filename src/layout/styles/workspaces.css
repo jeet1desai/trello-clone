@@ -117,7 +117,6 @@
 
 .workspace-description {
   margin-bottom: 4px !important;
-  flex-grow: 1;
   color: var(--text-secondary) !important;
 }
 

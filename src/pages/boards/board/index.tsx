@@ -188,7 +188,16 @@ const BoardDetail: React.FC = () => {
       const task = Object.values(tasksByStatus)
         .flat()
         .find((t) => t.board_id === id && t._id === taskId) as ITask;
-      handleTaskClick(task);
+
+      if (task) {
+        handleTaskClick(task);
+      } else {
+        dispatch(getTaskById(taskId)).then((result) => {
+          if (result.payload) {
+            handleTaskClick(result.payload as ITask);
+          }
+        });
+      }
     }
   }, [id, taskId, tasksByStatus]);
 
@@ -612,130 +621,133 @@ const BoardDetail: React.FC = () => {
         </div>
         <div>
           <Space size={16}>
-            <Popover
-              open={filterOpen}
-              content={
-                <div className="custom-filter-content">
-                  <Checkbox
-                    value="all"
-                    checked={
-                      selectedFilters.includes("all") ||
-                      selectedFilters?.length === invitedMemberList?.length
-                    }
-                    onChange={(e) => {
-                      handleMemberFilter(e);
-                    }}
-                  >
-                    All
-                  </Checkbox>
-                  <Checkbox checked={true}>Me</Checkbox>
-                  {invitedMemberList
-                    ?.filter(
-                      (member) => member.memberId._id !== currentUser?.id
-                    )
-                    ?.map((member) => (
-                      <Checkbox
-                        value={member.memberId._id}
-                        key={member._id}
-                        checked={
-                          selectedFilters.includes(member.memberId._id) ||
-                          selectedFilters.includes("all")
-                        }
-                        onChange={(e) => handleMemberFilter(e)}
-                      >
-                        <div
-                          style={{
-                            display: "flex",
-                            gap: 4,
-                            alignItems: "center",
-                          }}
-                        >
-                          <Avatar
-                            style={{
-                              background: getRandomColor(member.memberId._id),
-                              width: "26px",
-                              height: "26px",
-                            }}
-                          >
-                            <p style={{ fontSize: "11px" }}>
-                              {member.memberId.first_name?.[0].toUpperCase()}
-                              {member.memberId.last_name?.[0]?.toUpperCase()}
-                            </p>
-                          </Avatar>
-                          {member.memberId.first_name}{" "}
-                          {member.memberId.last_name}
-                        </div>
-                      </Checkbox>
-                    ))}
-                </div>
-              }
-              title={
-                <div className="custom-filter-popup">
-                  <p style={{ margin: 0 }}>Filter</p>
-                  <CloseOutlined
-                    style={{ cursor: "pointer" }}
-                    onClick={() => setFilterOpen(false)}
-                  />
-                </div>
-              }
-              trigger="click"
-              placement="bottom"
-              arrow={false}
-            >
-              <div
-                style={{
-                  background: "white",
-                  padding: 10,
-                  borderRadius: "8px",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 6,
-                }}
-              >
-                <Tooltip title="Filter">
-                  <div
-                    style={{
-                      marginTop: 0,
-                      cursor: "pointer",
-                      display: "flex",
-                      gap: 4,
-                      alignItems: "center",
-                    }}
-                    onClick={() => setFilterOpen((prev) => !prev)}
-                  >
-                    <Badge dot={selectedFilters.length > 1}>
-                      <FilterOutlined style={{ color: "black" }} />
-                    </Badge>
-                  </div>
-                </Tooltip>
-                {selectedFilters.length > 1 ? (
-                  <>
-                    <Divider type="vertical" />
-                    <span
-                      style={{ fontWeight: 600, cursor: "pointer" }}
-                      onClick={() => {
-                        setFilterOpen(false);
-                        if (statusList.length > 0 && currentUser) {
-                          setSelectedFilters([currentUser?.id]);
-                          statusList.forEach(async (status) => {
-                            if (status?._id) {
-                              await dispatch(
-                                getTasksByStatusId({
-                                  statusId: status._id,
-                                  filterBy: [currentUser?.id],
-                                })
-                              );
-                            }
-                          });
-                        }
+            <div onBlur={() => setFilterOpen(false)}>
+              <Popover
+                open={filterOpen}
+                content={
+                  <div className="custom-filter-content">
+                    <Checkbox
+                      value="all"
+                      checked={
+                        selectedFilters.includes("all") ||
+                        selectedFilters?.length === invitedMemberList?.length
+                      }
+                      onChange={(e) => {
+                        handleMemberFilter(e);
                       }}
                     >
-                      Clear all
-                    </span>
-                  </>
-                ) : null}
-              </div>
-            </Popover>
+                      All
+                    </Checkbox>
+                    <Checkbox checked={true}>Me</Checkbox>
+                    {invitedMemberList
+                      ?.filter(
+                        (member) => member.memberId._id !== currentUser?.id
+                      )
+                      ?.map((member) => (
+                        <Checkbox
+                          value={member.memberId._id}
+                          key={member._id}
+                          checked={
+                            selectedFilters.includes(member.memberId._id) ||
+                            selectedFilters.includes("all")
+                          }
+                          onChange={(e) => handleMemberFilter(e)}
+                        >
+                          <div
+                            style={{
+                              display: "flex",
+                              gap: 4,
+                              alignItems: "center",
+                            }}
+                          >
+                            <Avatar
+                              style={{
+                                background: getRandomColor(member.memberId._id),
+                                width: "26px",
+                                height: "26px",
+                              }}
+                            >
+                              <p style={{ fontSize: "11px" }}>
+                                {member.memberId.first_name?.[0].toUpperCase()}
+                                {member.memberId.last_name?.[0]?.toUpperCase()}
+                              </p>
+                            </Avatar>
+                            {member.memberId.first_name}{" "}
+                            {member.memberId.last_name}
+                          </div>
+                        </Checkbox>
+                      ))}
+                  </div>
+                }
+                title={
+                  <div className="custom-filter-popup">
+                    <p style={{ margin: 0 }}>Filter</p>
+                    <CloseOutlined
+                      style={{ cursor: "pointer" }}
+                      onClick={() => setFilterOpen(false)}
+                    />
+                  </div>
+                }
+                trigger="click"
+                placement="bottom"
+                arrow={false}
+              >
+                <div
+                  style={{
+                    background: "white",
+                    padding: 10,
+                    borderRadius: "8px",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 6,
+                  }}
+                  onClick={() => setFilterOpen((prev) => !prev)}
+                >
+                  <Tooltip title="Filter">
+                    <div
+                      style={{
+                        marginTop: 0,
+                        cursor: "pointer",
+                        display: "flex",
+                        gap: 4,
+                        alignItems: "center",
+                      }}
+                    >
+                      <Badge dot={selectedFilters.length > 1}>
+                        <FilterOutlined style={{ color: "black" }} />
+                      </Badge>
+                    </div>
+                  </Tooltip>
+                  {selectedFilters.length > 1 ? (
+                    <>
+                      <Divider type="vertical" />
+                      <span
+                        style={{ fontWeight: 600, cursor: "pointer" }}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setFilterOpen(false);
+                          if (statusList.length > 0 && currentUser) {
+                            setSelectedFilters([currentUser?.id]);
+                            statusList.forEach(async (status) => {
+                              if (status?._id) {
+                                await dispatch(
+                                  getTasksByStatusId({
+                                    statusId: status._id,
+                                    filterBy: [currentUser?.id],
+                                  })
+                                );
+                              }
+                            });
+                          }
+                        }}
+                      >
+                        Clear all
+                      </span>
+                    </>
+                  ) : null}
+                </div>
+              </Popover>
+            </div>
             <Avatar.Group maxCount={3}>
               {invitedMemberList?.map((member) => {
                 return (
@@ -877,7 +889,9 @@ const BoardDetail: React.FC = () => {
                                 />
                               ) : null}
 
-                              {statusTasks?.length === 0 ? (
+                              {statusTasks?.length === 0 &&
+                              !showAddTaskMap[list._id] &&
+                              selectedFilters.length === 1 ? (
                                 <Empty
                                   imageStyle={{ display: "none" }}
                                   description="No tasks"
