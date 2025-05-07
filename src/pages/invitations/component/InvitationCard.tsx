@@ -45,7 +45,18 @@ const InvitationCard = ({ invitation }: IProps) => {
           </Avatar>
           <div>
             <Title level={5} className="margin-0 name-wrap">
-              {user.first_name} {user.last_name} <Tag>{status}</Tag>
+              {user.first_name} {user.last_name}{" "}
+              <Tag
+                color={
+                  status === "Pending"
+                    ? "warning"
+                    : status === "Approved"
+                    ? "success"
+                    : "error"
+                }
+              >
+                {status}
+              </Tag>
             </Title>
             <Paragraph className="margin-0 email-text">{user.email}</Paragraph>
           </div>
@@ -53,7 +64,7 @@ const InvitationCard = ({ invitation }: IProps) => {
         <div className="card-actions">
           <Button
             type="default"
-            className="button margin-0 small-btn"
+            className="reject-button margin-0 small-btns"
             icon={<CloseOutlined />}
             breakPoint={720}
           >
@@ -61,7 +72,7 @@ const InvitationCard = ({ invitation }: IProps) => {
           </Button>
           <Button
             type="primary"
-            className="button margin-0 small-btn"
+            className="button success-button margin-0 small-btns"
             icon={<CheckOutlined />}
             breakPoint={720}
           >
@@ -74,7 +85,8 @@ const InvitationCard = ({ invitation }: IProps) => {
         by{" "}
         <span className="user-name">
           {invitedBy.first_name + " " + invitedBy.last_name}({invitedBy.email})
-        </span>.
+        </span>
+        .
       </Paragraph>
     </Card>
   );

@@ -704,7 +704,7 @@ const BoardDetail: React.FC = () => {
                     onClick={() => setFilterOpen((prev) => !prev)}
                   >
                     <Badge dot={selectedFilters.length > 1}>
-                      <FilterOutlined />
+                      <FilterOutlined style={{ color: "black" }} />
                     </Badge>
                   </div>
                 </Tooltip>
@@ -767,7 +767,7 @@ const BoardDetail: React.FC = () => {
         </div>
       </div>
 
-      {statusList?.length > 0 ? (
+      {statusList?.length > 0 || isOwner() ? (
         <div className="board-content">
           <DragDropContext onDragEnd={handleDragEnd}>
             <Droppable

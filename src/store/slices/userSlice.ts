@@ -181,11 +181,8 @@ export const logoutUser = createAsyncThunk(
 );
 
 export const firebaseSocialLogin = createAsyncThunk(
-  "auth/firebaseSocialLogin",
-  async (
-    { token, screenName }: { token: string; screenName: string },
-    { rejectWithValue }
-  ) => {
+  "auth/social-firebase-login",
+  async ({ token, screenName }: { token: string, screenName: string }, { rejectWithValue }) => {
     try {
       const response = await authService.firebaseLogin(token, screenName);
       return response.data.user;

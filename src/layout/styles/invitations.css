@@ -79,7 +79,46 @@
   gap: 8px;
 }
 
-.small-btn {
+.reject-button {
+  height: 42px;
+  font-weight: 600;
+  font-size: 16px;
+  transition: all 0.3s ease;
+  margin-top: 8px;
+  border-radius: 8px;
+}
+
+.success-button {
+  border-radius: 8px !important;
+}
+
+.reject-button:hover {
+  color: red !important;
+  border-color: red !important;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(255, 24, 24, 0.2);
+}
+
+.ant-tag {
+  padding: 0 8px !important;
+}
+
+.ant-tag-warning {
+  border-color: #ffe58f !important;
+  color: #d89614 !important;
+}
+
+.ant-tag-error {
+  border-color: #ffccc7 !important;
+  color: #ff4d4f !important;
+}
+
+.ant-tag-success {
+  border-color: #b7eb8f !important;
+  color: #52c41a !important;
+}
+
+.small-btns {
   margin-top: 0;
   height: 34px;
   font-size: 14px;
