@@ -246,6 +246,7 @@ const Boards: React.FC = () => {
                   <Button
                     type="text"
                     shape="circle"
+                    onClick={(e) => e.stopPropagation()}
                     icon={<EllipsisOutlined />}
                     className="more-btn"
                   />

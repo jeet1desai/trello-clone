@@ -237,6 +237,7 @@ const Workspaces: React.FC = () => {
                   <Button
                     type="text"
                     shape="circle"
+                    onClick={(e) => e.stopPropagation()}
                     icon={<MoreOutlined />}
                     className="more-btn"
                   />
