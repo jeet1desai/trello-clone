@@ -227,9 +227,10 @@ const BoardDetail: React.FC = () => {
       dispatch(removeStatus(payload));
     });
 
-    socketService.on("receive-new-task", (payload) => {
-      dispatch(addNewTask(payload));
-    });
+    if (isOwner() || selectedFilters.includes("all"))
+      socketService.on("receive-new-task", (payload) => {
+        dispatch(addNewTask(payload));
+      });
 
     socketService.on("receive-updated-task", (payload) => {
       dispatch(updateTaskPosition(payload));

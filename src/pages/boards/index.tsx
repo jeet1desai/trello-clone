@@ -141,7 +141,7 @@ const Boards: React.FC = () => {
           members: values?.members,
         })
       );
-      await dispatch(getAllBoards({ page: 1, search: "", sortType: 0 }));
+      await dispatch(getAllBoards({ page: 1, search: "", sortType: sortOption }));
     }
     if (!addError) {
       setIsModalVisible(false);
