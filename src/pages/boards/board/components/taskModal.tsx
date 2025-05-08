@@ -14,6 +14,8 @@ import {
   Row,
   Col,
   Checkbox,
+  message,
+  Space
 } from "antd";
 import {
   PlusOutlined,
@@ -31,6 +33,8 @@ import {
   FileOutlined,
   RiseOutlined,
   SearchOutlined,
+  ShareAltOutlined,
+  CopyOutlined
 } from "@ant-design/icons";
 import TaskDescriptionEditor from "../../../../components/ui/Editor";
 import type { UploadFile } from "antd";
@@ -252,6 +256,7 @@ const TaskModal: React.FC<TaskModalProps> = ({
   const [memberVisible, setMemberVisible] = useState(false);
   const [assignedMemberVisible, setAssignedMemberVisible] = useState(false);
   const [labelVisible, setLabelVisible] = useState(false);
+  const [shareLink, setShareLink] = useState(false);
   const [showEditor, setShowEditor] = useState(false);
   const [showAll, setShowAll] = useState(false);
   const [isCompleted, setIsCompleted] = useState(
@@ -519,6 +524,28 @@ const TaskModal: React.FC<TaskModalProps> = ({
           </List.Item>
         )}
       />
+    </div>
+  );
+
+  const shareCopiedLink = selectedTask?._id && selectedTask.board_id
+  ? `http://localhost:3000/board/${selectedTask.board_id}?task_id=${selectedTask._id}`
+  : "";
+  
+  const handleCopy = () => {
+    navigator.clipboard.writeText(shareCopiedLink).then(() => {
+      message.success("Link copied!");
+    });
+  };
+
+  const shareContent = (
+    <div style={{ width: 350 }}>
+      <div style={{ fontWeight: 600, marginBottom: 8 }}>Copy Link</div>
+      <Input value={shareCopiedLink} readOnly style={{ marginBottom: 12 }} />
+      <Space>
+        <Button type="primary" icon={<CopyOutlined />} onClick={handleCopy}>
+          Copy
+        </Button>
+      </Space>
     </div>
   );
 
@@ -954,6 +981,30 @@ const TaskModal: React.FC<TaskModalProps> = ({
       <div className="task-content task-body-margin-left">
         <div style={{ display: "flex", gap: "24px" }}>
           <div style={{ flex: 1 }}>
+            <div className="task-section">
+              <div className="task-section-title-desc">
+                <div
+                  style={{ display: "flex", alignItems: "center", gap: "8px" }}
+                >
+                  <ShareAltOutlined />
+                  <Text strong>Share</Text>
+                </div>
+                <Popover
+                  content={shareContent}
+                  title={null}
+                  trigger="click"
+                  open={shareLink}
+                  onOpenChange={setShareLink}
+                  placement="bottomRight"
+                >
+                  <Button
+                    shape="circle"
+                    icon={<ShareAltOutlined />}
+                    className="button small-btn"
+                  />
+                </Popover>
+              </div>
+            </div>
             <div className="task-section">
               <div className="task-section-title-desc">
                 <div
