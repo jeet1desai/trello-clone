@@ -79,6 +79,7 @@ import socketService from "../../../services/socketService";
 import { useSearchParams } from "react-router-dom";
 import dayjs from "dayjs";
 import { Priority } from "../../../utils/enums/task";
+import { openNotification } from "../../../services/notificationService";
 
 const { Title, Text } = Typography;
 
@@ -162,6 +163,12 @@ const BoardDetail: React.FC = () => {
           await dispatch(getBoardMemberListById({ _id: id, search: "" }));
           await dispatch(getAllLabels(id));
         } else {
+          openNotification({
+            type: "error",
+            message: "You are not authorized to view this board",
+            placement: "bottomRight",
+            duration: 2,
+          });
           navigate("/boards");
         }
       }
@@ -570,13 +577,11 @@ const BoardDetail: React.FC = () => {
                     {Array.from(
                       {
                         length:
-                          task.priority === Priority.LOW
+                          task.priority === Priority.HIGH
                             ? 1
-                            : task.priority === Priority.MEDIUM
+                            : task.priority === Priority.CRITICAL
                             ? 2
-                            : task.priority === Priority.HIGH
-                            ? 3
-                            : 4,
+                            : 0,
                       },
                       (_, i) => i + 1
                     ).map((alert) => (

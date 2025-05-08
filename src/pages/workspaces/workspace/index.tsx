@@ -48,6 +48,7 @@ import { generateGradient } from "../../../utils";
 import { PRIVATE_ROUTE } from "../../../utils/enums/route";
 import CustomButton from "../../../components/ui/button";
 import dayjs from "dayjs";
+import { openNotification } from "../../../services/notificationService";
 
 const { Title, Text, Paragraph } = Typography;
 
@@ -74,6 +75,12 @@ const WorkspaceDetail: React.FC = () => {
         if (!workspace.error) {
           await dispatch(getBoardsByWorkspaceId(id));
         } else {
+          openNotification({
+            type: "error",
+            message: "You are not authorized to view this workspace",
+            placement: "bottomRight",
+            duration: 2,
+          });
           navigate("/workspaces");
         }
       })();

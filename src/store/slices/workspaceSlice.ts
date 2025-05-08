@@ -107,7 +107,7 @@ export const getAllWorkspaces = createAsyncThunk(
 );
 
 export const getWorkspaceById = createAsyncThunk(
-  "workspace/get-workspace-by-id",
+  "notification/get-workspace-by-id",
   async (_id: string, { rejectWithValue }) => {
     try {
       const response = await workspaceService.getWorkspaceDetailById(_id);

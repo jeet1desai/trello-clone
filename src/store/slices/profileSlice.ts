@@ -18,7 +18,7 @@ const initialState: UserState = {
 
 // Async thunks
 export const getProfileData = createAsyncThunk(
-  "profile/get-profile",
+  "user/get-profile",
   async (_, { rejectWithValue }) => {
     try {
       const response = await profileService.getProfileData();
