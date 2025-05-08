@@ -939,7 +939,7 @@ const TaskModal: React.FC<TaskModalProps> = ({
           >
             {selectedTaskLabels?.map((label) => (
               <div
-                key={label._id}
+                key={label?._id}
                 style={{
                   background: label?.backgroundColor,
                   color: label?.textColor,

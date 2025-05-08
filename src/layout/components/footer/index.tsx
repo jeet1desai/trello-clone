@@ -84,16 +84,16 @@ const Footer: React.FC = () => {
               Product
             </Title>
             <Space direction="vertical" size="middle">
-              <Link to={PUBLIC_ROUTE.FEATURES} style={{ color: textColor }}>
+              <Link to={PUBLIC_ROUTE.PRIVACY_POLICY} style={{ color: textColor }}>
                 Features
               </Link>
-              <Link to={PUBLIC_ROUTE.PRICING} style={{ color: textColor }}>
+              <Link to={PUBLIC_ROUTE.PRIVACY_POLICY} style={{ color: textColor }}>
                 Pricing
               </Link>
-              <Link to={PUBLIC_ROUTE.TEMPLATES} style={{ color: textColor }}>
+              <Link to={PUBLIC_ROUTE.PRIVACY_POLICY} style={{ color: textColor }}>
                 Templates
               </Link>
-              <Link to={PUBLIC_ROUTE.INTEGRATIONS} style={{ color: textColor }}>
+              <Link to={PUBLIC_ROUTE.PRIVACY_POLICY} style={{ color: textColor }}>
                 Integrations
               </Link>
             </Space>
@@ -103,16 +103,16 @@ const Footer: React.FC = () => {
               Resources
             </Title>
             <Space direction="vertical" size="middle">
-              <Link to={PUBLIC_ROUTE.HELP} style={{ color: textColor }}>
+              <Link to={PUBLIC_ROUTE.PRIVACY_POLICY} style={{ color: textColor }}>
                 Help Center
               </Link>
-              <Link to={PUBLIC_ROUTE.GUIDE} style={{ color: textColor }}>
+              <Link to={PUBLIC_ROUTE.PRIVACY_POLICY} style={{ color: textColor }}>
                 Guides
               </Link>
-              <Link to={PUBLIC_ROUTE.API_DOC} style={{ color: textColor }}>
+              <Link to={PUBLIC_ROUTE.PRIVACY_POLICY} style={{ color: textColor }}>
                 API Documentation
               </Link>
-              <Link to={PUBLIC_ROUTE.COMMUNITY} style={{ color: textColor }}>
+              <Link to={PUBLIC_ROUTE.PRIVACY_POLICY} style={{ color: textColor }}>
                 Community
               </Link>
             </Space>
