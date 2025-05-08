@@ -530,7 +530,7 @@ const TaskModal: React.FC<TaskModalProps> = ({
   const shareCopiedLink = selectedTask?._id && selectedTask.board_id
   ? `http://localhost:3000/board/${selectedTask.board_id}?task_id=${selectedTask._id}`
   : "";
-  
+
   const handleCopy = () => {
     navigator.clipboard.writeText(shareCopiedLink).then(() => {
       message.success("Link copied!");
@@ -538,7 +538,7 @@ const TaskModal: React.FC<TaskModalProps> = ({
   };
 
   const shareContent = (
-    <div style={{ width: 350 }}>
+    <div style={{ width: 280 }}>
       <div style={{ fontWeight: 600, marginBottom: 8 }}>Copy Link</div>
       <Input value={shareCopiedLink} readOnly style={{ marginBottom: 12 }} />
       <Space>
