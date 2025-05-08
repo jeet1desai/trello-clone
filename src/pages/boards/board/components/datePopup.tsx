@@ -27,6 +27,7 @@ const DatePickerPopup: React.FC<DatePickerPopupProps> = ({
     return (
       <DatePicker
         value={end_date ? dayjs(end_date) : null}
+        minDate={dayjs()}
         onChange={handleDateChange}
         className="date-picker-container form-input"
         style={{ width: 130, borderRadius: "4px", height: "35px" }}
@@ -37,6 +38,7 @@ const DatePickerPopup: React.FC<DatePickerPopupProps> = ({
         autoFocus
         open
         format="MMM DD, YYYY"
+        onOpenChange={() => setIsEditing((prev) => !prev)}
       />
     );
   }

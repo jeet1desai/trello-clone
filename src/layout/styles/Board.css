@@ -373,6 +373,10 @@
   border-block-end: initial !important;
 }
 
+.theme-dark .filter-icon {
+  background-color: black !important;
+}
+
 /* Filter popup */
 .custom-filter-popup {
   display: flex;

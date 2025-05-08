@@ -124,7 +124,9 @@ const Workspaces: React.FC = () => {
       await dispatch(
         addNewWorkspace({ name: values.name, description: values?.description })
       );
-      await dispatch(getAllWorkspaces({ page: 1, search: "", sortType: 0 }));
+      await dispatch(
+        getAllWorkspaces({ page: 1, search: "", sortType: sortOption })
+      );
     }
     if (!addError) {
       setIsModalVisible(false);
