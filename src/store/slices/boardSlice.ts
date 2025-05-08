@@ -1,7 +1,9 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { boardService } from "../../services/boardService";
-import { updateWorkspaceBoards } from "./workspaceSlice";
+import { IWorkspace, updateWorkspaceBoards } from "./workspaceSlice";
 import { removeTaskLabel, updateTaskLabel } from "./taskSlice";
+import { Pagination } from "./dashboardSlice";
+import { workspaceService } from "../../services/workspaceService";
 
 export interface IMember {
   _id: string;
@@ -160,6 +162,7 @@ interface BoardState {
   boards: IBoard[];
   boardLabels: ILabel[];
   selectedTaskMembers: ITaskMember[];
+  searchTaskMembers: ITaskMember[];
   selectedTaskLabels: ILabel[];
   selectedBoard: IBoardDetails | null;
   loading: boolean;
@@ -168,13 +171,18 @@ interface BoardState {
   addError: string | null;
   editError: string | null;
   invitedMemberList: MemberData[];
+  invitedSearchMemberList: MemberData[];
   invitedMemberDetail: InvitationMember | null;
+  boardPagination: Pagination;
+  boardWorkspaces: IWorkspace[];
+  boardWorkspacesPagination: Pagination;
 }
 
 const initialState: BoardState = {
   boards: [],
   boardLabels: [],
   selectedTaskMembers: [],
+  searchTaskMembers: [],
   selectedTaskLabels: [],
   selectedBoard: null,
   loading: false,
@@ -183,14 +191,39 @@ const initialState: BoardState = {
   addError: null,
   editError: null,
   invitedMemberList: [],
+  invitedSearchMemberList: [],
   invitedMemberDetail: null,
+  boardPagination: {
+    currentPage: 0,
+    limit: 0,
+    totalPages: 0,
+    totalRecords: 0,
+  },
+  boardWorkspaces: [],
+  boardWorkspacesPagination: {
+    currentPage: 0,
+    limit: 0,
+    totalPages: 0,
+    totalRecords: 0,
+  },
 };
 
 export const getAllBoards = createAsyncThunk(
-  "board/get-all",
-  async (_, { rejectWithValue }) => {
+  "task/get-all",
+  async (
+    {
+      page,
+      search,
+      sortType,
+    }: {
+      page: number;
+      search: string;
+      sortType: number;
+    },
+    { rejectWithValue }
+  ) => {
     try {
-      const response = await boardService.getAllBoards();
+      const response = await boardService.getAllBoards(page, search, sortType);
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
@@ -201,7 +234,7 @@ export const getAllBoards = createAsyncThunk(
 );
 
 export const getBoardById = createAsyncThunk(
-  "board/get-board-by-id",
+  "task/get-board-by-id",
   async (_id: string, { rejectWithValue }) => {
     try {
       const response = await boardService.getBoardById(_id);
@@ -298,9 +331,29 @@ export const deleteBoard = createAsyncThunk(
 
 export const getBoardMemberListById = createAsyncThunk(
   "status/member-list",
-  async (_id: string, { rejectWithValue }) => {
+  async (data: { _id: string; search: string }, { rejectWithValue }) => {
     try {
-      const response = await boardService.getBoardMemberListById(_id);
+      const response = await boardService.getBoardMemberListById(
+        data._id,
+        data.search
+      );
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message ?? "Error while fetching members"
+      );
+    }
+  }
+);
+
+export const getBoardMemberListBySearchId = createAsyncThunk(
+  "status/member-list-search",
+  async (data: { _id: string; search: string }, { rejectWithValue }) => {
+    try {
+      const response = await boardService.getBoardMemberListById(
+        data._id,
+        data.search
+      );
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
@@ -538,7 +591,7 @@ export const removeLabelFromTask = createAsyncThunk(
   ) => {
     try {
       const response = await boardService.removeLabelFromTask(taskId, labelId);
-      dispatch(removeTaskLabel(response.data))
+      dispatch(removeTaskLabel(response.data));
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
@@ -549,10 +602,46 @@ export const removeLabelFromTask = createAsyncThunk(
 );
 
 export const getMembersByTaskId = createAsyncThunk(
-  "task/get-members-by-task",
-  async (_id: string, { rejectWithValue }) => {
+  "task/get-members-search-by-task",
+  async (data: { _id: string; search: string }, { rejectWithValue }) => {
     try {
-      const response = await boardService.getMembersByTaskId(_id);
+      const response = await boardService.getMembersByTaskId(
+        data._id,
+        data.search
+      );
+      return response.data?.map(
+        (members: {
+          member_id: {
+            _id: string;
+            first_name: string;
+            last_name: string;
+            email: string;
+          };
+        }) => {
+          return {
+            _id: members.member_id._id,
+            first_name: members.member_id.first_name,
+            last_name: members.member_id.last_name,
+            email: members.member_id.email,
+          };
+        }
+      );
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message ?? "Error while fetching members."
+      );
+    }
+  }
+);
+
+export const getMembersByTaskIdSearch = createAsyncThunk(
+  "task/get-members-by-task",
+  async (data: { _id: string; search: string }, { rejectWithValue }) => {
+    try {
+      const response = await boardService.getMembersByTaskId(
+        data._id,
+        data.search
+      );
       return response.data?.map(
         (members: {
           member_id: {
@@ -621,6 +710,35 @@ export const removeMemberFromTask = createAsyncThunk(
   }
 );
 
+export const getWorkspacesForBoards = createAsyncThunk(
+  "task/get-all-workspace",
+  async (
+    {
+      page,
+      search,
+      sortType,
+    }: {
+      page: number;
+      search: string;
+      sortType: number;
+    },
+    { rejectWithValue }
+  ) => {
+    try {
+      const response = await workspaceService.getAllWorkspaces(
+        page,
+        search,
+        sortType
+      );
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message ?? "Error while fetching workspaces."
+      );
+    }
+  }
+);
+
 const boardSlice = createSlice({
   name: "board",
   initialState,
@@ -633,6 +751,12 @@ const boardSlice = createSlice({
         { _id, first_name, last_name, email },
       ];
     },
+    removeSelectedMember: (state, action) => {
+      const updatedMembers = state.selectedTaskMembers.filter(
+        (member) => member._id !== action.payload.data.member_id
+      );
+      state.selectedTaskMembers = updatedMembers;
+    },
     addSelectedLabels: (state, action) => {
       const { _id, name, boardId, textColor, backgroundColor } =
         action.payload.data.label_id;
@@ -640,6 +764,12 @@ const boardSlice = createSlice({
         ...state.selectedTaskLabels,
         { _id, name, boardId, textColor, backgroundColor },
       ];
+    },
+    removeSelectedLabel: (state, action) => {
+      const { label_id } = action.payload.data;
+      state.selectedTaskLabels = state.selectedTaskLabels.filter(
+        (label) => label._id !== label_id
+      );
     },
     openBoardAddModal: (state) => {
       state.addError = null;
@@ -654,6 +784,15 @@ const boardSlice = createSlice({
       state.error = null;
       state.success = null;
     },
+    addNewInvitedMember: (state, action) => {
+      state.invitedMemberList = [...action.payload.data];
+    },
+    removeInvitedmember: (state, action) => {
+      const { _id } = action.payload.data;
+      state.invitedMemberList = state.invitedMemberList.filter(
+        (item) => item._id !== _id
+      );
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -664,7 +803,9 @@ const boardSlice = createSlice({
         state.success = null;
       })
       .addCase(getAllBoards.fulfilled, (state, action) => {
-        state.boards = action.payload;
+        const { boards, pagination } = action.payload;
+        state.boards = boards;
+        state.boardPagination = pagination;
         state.loading = false;
         state.error = null;
         state.success = "Boards fetched successfully.";
@@ -705,27 +846,6 @@ const boardSlice = createSlice({
         state.success = null;
       })
       .addCase(addNewBoard.fulfilled, (state, action) => {
-        const {
-          _id,
-          name,
-          description,
-          createdBy,
-          workspace,
-          createdAt,
-          updatedAt,
-          members,
-        } = action.payload.data;
-        const currentWorkspace = {
-          _id: _id,
-          name,
-          description,
-          createdBy,
-          workspace,
-          createdAt,
-          updatedAt,
-          members,
-        };
-        state.boards = [...state.boards, currentWorkspace];
         state.loading = false;
         state.addError = null;
         state.error = null;
@@ -756,17 +876,17 @@ const boardSlice = createSlice({
           workspaceId,
           updatedAt,
         };
-        const index = state.boards.findIndex(
+        const index = state.boards?.findIndex(
           (board) => board._id === currentWorkspace._id
         );
         if (index !== -1) {
           state.loading = false;
           state.editError = null;
           state.boards[index] = {
-            ...state.boards[index],
+            ...state.boards?.[index],
             ...currentWorkspace,
             workspace: {
-              ...state.boards[index].workspace,
+              ...state.boards?.[index].workspace,
               _id: currentWorkspace.workspaceId,
             },
           };
@@ -795,11 +915,11 @@ const boardSlice = createSlice({
       })
       .addCase(deleteBoard.fulfilled, (state, action) => {
         const { _id } = action.payload;
-        const index = state.boards.findIndex((board) => board._id === _id);
+        const index = state.boards?.findIndex((board) => board._id === _id);
         if (index !== -1) {
           state.loading = false;
           state.error = null;
-          state.boards.splice(index, 1);
+          state.boards?.splice(index, 1);
           state.success = "Board deleted successfully.";
         } else {
           state.loading = false;
@@ -821,6 +941,7 @@ const boardSlice = createSlice({
       })
       .addCase(getBoardMemberListById.fulfilled, (state, action) => {
         state.invitedMemberList = action.payload;
+        state.invitedSearchMemberList = action.payload;
         state.loading = false;
         state.error = null;
         state.success = "Members fetched successfully.";
@@ -828,6 +949,26 @@ const boardSlice = createSlice({
       .addCase(getBoardMemberListById.rejected, (state, action) => {
         state.loading = false;
         state.invitedMemberList = [];
+        state.success = null;
+        state.error =
+          (action.payload as string) || "Error while fetching members.";
+      })
+
+      // Get board member list
+      .addCase(getBoardMemberListBySearchId.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.success = null;
+      })
+      .addCase(getBoardMemberListBySearchId.fulfilled, (state, action) => {
+        state.invitedSearchMemberList = action.payload;
+        state.loading = false;
+        state.error = null;
+        state.success = "Members fetched successfully.";
+      })
+      .addCase(getBoardMemberListBySearchId.rejected, (state, action) => {
+        state.loading = false;
+        state.invitedSearchMemberList = [];
         state.success = null;
         state.error =
           (action.payload as string) || "Error while fetching members.";
@@ -841,7 +982,7 @@ const boardSlice = createSlice({
       })
       .addCase(removeBoardMemberFromListById.fulfilled, (state, action) => {
         const { _id } = action.payload;
-        const index = state.boards.findIndex(
+        const index = state.boards?.findIndex(
           (invitedMemberList) => invitedMemberList._id === _id
         );
         state.invitedMemberList = state.invitedMemberList.filter(
@@ -1138,11 +1279,32 @@ const boardSlice = createSlice({
       })
       .addCase(getMembersByTaskId.fulfilled, (state, action) => {
         state.selectedTaskMembers = action.payload;
+        state.searchTaskMembers = action.payload;
         state.loading = false;
         state.error = null;
         state.success = "Members fetched successfully.";
       })
       .addCase(getMembersByTaskId.rejected, (state, action) => {
+        state.loading = false;
+        state.boards = [];
+        state.success = null;
+        state.error =
+          (action.payload as string) || "Error while fetching members.";
+      })
+
+      // Get Search members for task
+      .addCase(getMembersByTaskIdSearch.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.success = null;
+      })
+      .addCase(getMembersByTaskIdSearch.fulfilled, (state, action) => {
+        state.searchTaskMembers = action.payload;
+        state.loading = false;
+        state.error = null;
+        state.success = "Members fetched successfully.";
+      })
+      .addCase(getMembersByTaskIdSearch.rejected, (state, action) => {
         state.loading = false;
         state.boards = [];
         state.success = null;
@@ -1198,7 +1360,7 @@ const boardSlice = createSlice({
         if (index !== -1) {
           state.loading = false;
           state.error = null;
-          state.selectedTaskMembers.splice(index, 1);
+          state.searchTaskMembers.splice(index, 1);
           state.success = "Member removed successfully.";
         } else {
           state.loading = false;
@@ -1210,15 +1372,41 @@ const boardSlice = createSlice({
         state.success = null;
         state.error =
           (action.payload as string) || "Error while removing member.";
+      })
+
+      // Workspaces for boards
+      .addCase(getWorkspacesForBoards.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.success = null;
+      })
+      .addCase(getWorkspacesForBoards.fulfilled, (state, action) => {
+        const { workspaces, pagination } = action.payload;
+        state.boardWorkspaces = workspaces;
+        state.boardWorkspacesPagination = pagination;
+        state.loading = false;
+        state.error = null;
+        state.success = "Workspace fetched successfully.";
+      })
+      .addCase(getWorkspacesForBoards.rejected, (state, action) => {
+        state.loading = false;
+        state.boardWorkspaces = [];
+        state.success = null;
+        state.error =
+          (action.payload as string) || "Error while fetching workspaces.";
       });
   },
 });
 
 export const {
   addSelectedMembers,
+  removeSelectedMember,
   addSelectedLabels,
+  removeSelectedLabel,
   openBoardAddModal,
   clearSelectedBoard,
+  addNewInvitedMember,
+  removeInvitedmember,
 } = boardSlice.actions;
 
 export default boardSlice.reducer;

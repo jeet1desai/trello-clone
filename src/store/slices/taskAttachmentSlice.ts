@@ -137,6 +137,9 @@ const taskAttachmentSlice = createSlice({
         state.taskAttachments = [...state.taskAttachments, ...newAttachments];
       }
     },
+    removeAttachment: (state, action) => {
+        state.taskAttachments = action.payload.data.attachment;
+    },
     addTaskAttachment: (state) => {
       state.addError = null;
       state.taskAttachmentLoading = false;
@@ -234,6 +237,7 @@ const taskAttachmentSlice = createSlice({
 
 export const {
   addNewAttachment,
+  removeAttachment,
   addTaskAttachment,
   clearSelectedTaskAttachment,
 } = taskAttachmentSlice.actions;

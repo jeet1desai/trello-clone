@@ -39,7 +39,13 @@ export interface ITask {
       description: string;
     };
   };
+  members: number;
   position?: number;
+  assigned_to: {
+    _id: string;
+    first_name: string;
+    last_name: string;
+  } | null;
 }
 
 interface TaskState {
@@ -60,9 +66,12 @@ const initialState: TaskState = {
 
 export const getTasksByStatusId = createAsyncThunk(
   "task/get-tasks-by-status",
-  async (statusId: string, { rejectWithValue }) => {
+  async (
+    data: { statusId: string; filterBy: string[] },
+    { rejectWithValue }
+  ) => {
     try {
-      const response = await taskService.getTasksByStatusId(statusId);
+      const response = await taskService.getTasksByStatusId(data.statusId, data.filterBy);
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
@@ -155,6 +164,43 @@ export const getTaskById = createAsyncThunk(
   }
 );
 
+export const assignMember = createAsyncThunk(
+  "task/assign-member-in-task",
+  async (
+    {
+      task_id,
+      member_id,
+    }: {
+      task_id: string;
+      member_id: string;
+    },
+    { rejectWithValue }
+  ) => {
+    try {
+      const response = await taskService.assignMember(task_id, member_id);
+      return response;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message ?? "Error while assigning member."
+      );
+    }
+  }
+);
+
+export const unassignMember = createAsyncThunk(
+  "task/unassign-member-from-task",
+  async ({ taskId }: { taskId: string }, { rejectWithValue }) => {
+    try {
+      const response = await taskService.unassignMember(taskId);
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message ?? "Error while unassigning member."
+      );
+    }
+  }
+);
+
 const taskSlice = createSlice({
   name: "task",
   initialState,
@@ -167,6 +213,15 @@ const taskSlice = createSlice({
         state.tasksByStatus[statusListId] = [];
       }
       state.tasksByStatus[statusListId].push(action.payload.data);
+    },
+    removeTask: (state, action) => {
+      const statusListId = action.payload.data.status_list_id;
+      if (!state.tasksByStatus[statusListId]) {
+        state.tasksByStatus[statusListId] = [];
+      }
+      state.tasksByStatus[statusListId] = state.tasksByStatus[
+        statusListId
+      ].filter((task) => task._id !== action.payload.data._id);
     },
     clearTaskState: (state) => {
       state.tasksByStatus = {};
@@ -248,10 +303,7 @@ const taskSlice = createSlice({
               ...state.tasksByStatus[statusId][taskIndex],
             };
             state.tasksByStatus[statusId].splice(taskIndex, 1);
-            const newStatusId =
-              typeof updatedTask.status_list_id === "object"
-                ? updatedTask.status_list_id._id
-                : updatedTask.status_list_id;
+            const newStatusId = updatedTask.status_list_id;
 
             if (!state.tasksByStatus[newStatusId]) {
               state.tasksByStatus[newStatusId] = [];
@@ -265,14 +317,14 @@ const taskSlice = createSlice({
             if (updatedTask.priority !== undefined) {
               taskToUpdate.priority = updatedTask.priority;
             }
+            if (updatedTask.assigned_to !== undefined) {
+              taskToUpdate.assigned_to = updatedTask.assigned_to;
+            }
             if (updatedTask.status !== undefined) {
               taskToUpdate.status = updatedTask.status;
             }
             if (updatedTask.end_date !== undefined) {
               taskToUpdate.end_date = updatedTask.end_date;
-            }
-            if (updatedTask.start_date !== undefined) {
-              taskToUpdate.start_date = updatedTask.start_date;
             }
             if (typeof updatedTask.status_list_id === "object") {
               taskToUpdate.status_list_id = updatedTask.status_list_id;
@@ -295,14 +347,14 @@ const taskSlice = createSlice({
             if (updatedTask.priority !== undefined) {
               task.priority = updatedTask.priority;
             }
+            if (updatedTask.assigned_to !== undefined) {
+              task.assigned_to = updatedTask.assigned_to;
+            }
             if (updatedTask.status !== undefined) {
               task.status = updatedTask.status;
             }
             if (updatedTask.end_date !== undefined) {
               task.end_date = updatedTask.end_date;
-            }
-            if (updatedTask.start_date !== undefined) {
-              task.start_date = updatedTask.start_date;
             }
           }
           if (state.selectedTask && state.selectedTask._id === taskId) {
@@ -315,14 +367,14 @@ const taskSlice = createSlice({
             if (updatedTask.priority !== undefined) {
               state.selectedTask.priority = updatedTask.priority;
             }
+            if (updatedTask.assigned_to !== undefined) {
+              state.selectedTask.assigned_to = updatedTask.assigned_to;
+            }
             if (updatedTask.status !== undefined) {
               state.selectedTask.status = updatedTask.status;
             }
             if (updatedTask.end_date !== undefined) {
               state.selectedTask.end_date = updatedTask.end_date;
-            }
-            if (updatedTask.start_date !== undefined) {
-              state.selectedTask.start_date = updatedTask.start_date;
             }
             if (updatedTask.status_list_id !== undefined) {
               if (typeof updatedTask.status_list_id === "object") {
@@ -414,7 +466,9 @@ const taskSlice = createSlice({
     removeTaskComments: (state, action) => {
       const { task_id } = action.payload;
       if (state.selectedTask) {
-        const updatedTasks = state.tasksByStatus[state.selectedTask.status_list_id._id].map((task) => {
+        const updatedTasks = state.tasksByStatus[
+          state.selectedTask.status_list_id._id
+        ].map((task) => {
           return task._id === task_id
             ? {
                 ...task,
@@ -428,6 +482,18 @@ const taskSlice = createSlice({
         };
       }
     },
+    assignTaskMember: (state, action) => {
+      state.selectedTask = {
+        ...state.selectedTask,
+        assigned_to: action.payload.data,
+      } as ITask;
+    },
+    unassignTaskMember: (state, action) => {
+      state.selectedTask = {
+        ...state.selectedTask,
+        assigned_to: null,
+      } as ITask;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -438,8 +504,8 @@ const taskSlice = createSlice({
         state.success = null;
       })
       .addCase(getTasksByStatusId.fulfilled, (state, action) => {
-        const statusId = action.meta.arg;
-        state.tasksByStatus[statusId] = action.payload;
+        const data = action.meta.arg;
+        state.tasksByStatus[data.statusId] = action.payload;
         state.loading = false;
         state.error = null;
         state.success = "Tasks fetched successfully.";
@@ -538,12 +604,57 @@ const taskSlice = createSlice({
         state.success = null;
         state.error =
           (action.payload as string) || "Error while fetching task.";
+      })
+
+      // Assign member into task
+      .addCase(assignMember.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.success = null;
+      })
+      .addCase(assignMember.fulfilled, (state, action) => {
+        state.selectedTask = {
+          ...state.selectedTask,
+          assigned_to: action.payload.data,
+        } as ITask;
+        state.loading = false;
+        state.error = null;
+        state.success = "Member assigned successfully.";
+      })
+      .addCase(assignMember.rejected, (state, action) => {
+        state.loading = false;
+        state.success = null;
+        state.error =
+          (action.payload as string) || "Error while assigning member.";
+      })
+
+      // Unassign member from task
+      .addCase(unassignMember.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.success = null;
+      })
+      .addCase(unassignMember.fulfilled, (state, action) => {
+        state.selectedTask = {
+          ...state.selectedTask,
+          assigned_to: null,
+        } as ITask;
+        state.loading = false;
+        state.error = null;
+        state.success = "Member unassigned successfully.";
+      })
+      .addCase(unassignMember.rejected, (state, action) => {
+        state.loading = false;
+        state.success = null;
+        state.error =
+          (action.payload as string) || "Error while unassigning member.";
       });
   },
 });
 
 export const {
   addNewTask,
+  removeTask,
   clearTaskState,
   setSelectedTask,
   clearSelectedTask,
@@ -554,6 +665,8 @@ export const {
   updateTaskAttachment,
   updateTaskComments,
   removeTaskComments,
+  assignTaskMember,
+  unassignTaskMember,
 } = taskSlice.actions;
 
 export default taskSlice.reducer;

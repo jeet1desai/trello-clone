@@ -11,7 +11,7 @@ import {
 import { MenuOutlined } from "@ant-design/icons";
 import { useState, useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { scrollToSectionWithOffset } from "../../../utils/helper";
+import { scrollToSectionWithOffset } from "../../../helper";
 import { useActiveSection } from "../../../hooks/useActiveSection";
 
 const { Content } = Layout;

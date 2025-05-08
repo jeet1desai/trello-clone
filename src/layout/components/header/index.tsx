@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState, persistor } from "../../../store";
@@ -39,6 +39,7 @@ import {
 import { PRIVATE_ROUTE, PUBLIC_ROUTE } from "../../../utils/enums/route";
 import { companyLogo } from "../../../assets";
 import { getRandomColor } from "../../../utils";
+import { handleSocialLogout } from "../../../config/firebase/helperFunction";
 dayjs.extend(relativeTime);
 const { Header: AntHeader } = Layout;
 
@@ -52,12 +53,14 @@ const Header: React.FC = () => {
     (state: RootState) => state.user
   );
   const { theme } = useTheme();
+  const [notificationOpen, setNotificationOpen] = useState(false);
 
   const isDarkMode = theme === "dark";
 
   const handleLogout = async () => {
     await dispatch(logoutUser());
     dispatch({ type: RESET_APP });
+    handleSocialLogout();
     await persistor.purge();
     navigate(PUBLIC_ROUTE.LOGIN);
   };
@@ -168,6 +171,7 @@ const Header: React.FC = () => {
 
       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
         <Popover
+          open={notificationOpen}
           overlayClassName="custom-notification-popover"
           content={
             <div className="notification-popover-content">
@@ -220,7 +224,10 @@ const Header: React.FC = () => {
               {allNotification.length > 0 && (
                 <Typography
                   className="notification-mark-as-read"
-                  onClick={() => dispatch(readAllNotifications())}
+                  onClick={() => {
+                    dispatch(readAllNotifications());
+                    setNotificationOpen(false);
+                  }}
                 >
                   <NotificationOutlined style={{ marginRight: 4 }} />
                   Mark all as read
@@ -230,6 +237,7 @@ const Header: React.FC = () => {
           }
           trigger="click"
           placement="bottomRight"
+          onOpenChange={() => setNotificationOpen((prev) => !prev)}
         >
           <Button
             type="text"

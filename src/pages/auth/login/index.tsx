@@ -2,9 +2,7 @@ import React, { useEffect } from "react";
 import { Form, Input, Button, Typography, Divider } from "antd";
 import {
   UserOutlined,
-  LockOutlined,
-  GoogleOutlined,
-  GithubOutlined,
+  LockOutlined
 } from "@ant-design/icons";
 import { Link, useNavigate } from "react-router-dom";
 import { AppDispatch, RootState } from "../../../store";
@@ -12,6 +10,7 @@ import { clearAuthState, loginUser } from "../../../store/slices/userSlice";
 import { useDispatch, useSelector } from "react-redux";
 import "../../../layout/styles/Auth.css";
 import { PRIVATE_ROUTE, PUBLIC_ROUTE } from "../../../utils/enums/route";
+import { GitHubSocialLogin, GoogleSocialLogin } from "../../../components/social";
 
 const { Title, Text } = Typography;
 
@@ -136,16 +135,8 @@ const Login: React.FC = () => {
           <div className="social-auth">
             <Divider className="social-auth-title">Or continue with</Divider>
             <div className="social-buttons">
-              <Button
-                icon={<GoogleOutlined />}
-                className="social-button"
-                onClick={() => handleSocialLogin("google")}
-              />
-              <Button
-                icon={<GithubOutlined />}
-                className="social-button"
-                onClick={() => handleSocialLogin("github")}
-              />
+              <GoogleSocialLogin/>
+              <GitHubSocialLogin/>
             </div>
           </div>
         </Form>

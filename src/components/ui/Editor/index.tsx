@@ -181,7 +181,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
         <button className="ql-script" value="super" />
         <button className="ql-link" />
         <button onClick={handleImageButton}>🖼️</button>
-        <button onClick={handleAttachmentButton}>📎</button>
+        {/* <button onClick={handleAttachmentButton}>📎</button> */}
         <button className="ql-clean" />
       </div>
 

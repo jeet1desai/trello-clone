@@ -17,6 +17,7 @@ import {
   App,
   Alert,
   Spin,
+  Pagination,
 } from "antd";
 import {
   PlusOutlined,
@@ -43,10 +44,9 @@ import {
   clearSelectedBoard,
 } from "../../store/slices/boardSlice";
 import "../../layout/styles/boards.css";
-import { SORT_OPTIONS } from "../../config";
+import { SORT_OPTIONS, SORT_OPTIONS_VALUES } from "../../config";
 import AddBoardForm from "./components/AddBoardForm";
 import { generateGradient } from "../../utils";
-import { getAllWorkspaces } from "../../store/slices/workspaceSlice";
 import { PRIVATE_ROUTE } from "../../utils/enums/route";
 import CustomButton from "../../components/ui/button";
 import ResponsiveSearch from "../../components/ui/searchResponsive";
@@ -58,15 +58,16 @@ const Boards: React.FC = () => {
   const { modal } = App.useApp();
   const location = useLocation();
   const dispatch = useDispatch<AppDispatch>();
-  const { workspaces } = useSelector((state: RootState) => state.workspace);
-  const { boards, addError, editError, loading } = useSelector(
+  const { currentUser } = useSelector((state: RootState) => state.user);
+  const { boards, addError, editError, loading, boardPagination } = useSelector(
     (state: RootState) => state.board
   );
 
   const [searchText, setSearchText] = useState("");
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [selectedBoard, setSelectedBoard] = useState<IBoard | null>(null);
-  const [sortOption, setSortOption] = useState<string>(SORT_OPTIONS.DEFAULT);
+  const [sortOption, setSortOption] = useState(SORT_OPTIONS_VALUES.DEFAULT);
+  const [debouncedSearch, setDebouncedSearch] = useState(searchText);
 
   // Get owner details
   const getOwnerDetails = (board: IBoard) => {
@@ -76,17 +77,12 @@ const Boards: React.FC = () => {
 
   const showAddModal = useCallback(() => {
     dispatch(openBoardAddModal());
-    if (!workspaces.length) dispatch(getAllWorkspaces());
     setSelectedBoard(null);
     form.resetFields();
     setIsModalVisible(true);
-  }, [form, dispatch, workspaces]);
+  }, [form, dispatch]);
 
   useEffect(() => {
-    (async () => {
-      await dispatch(getAllBoards());
-    })();
-
     return () => {
       dispatch(openBoardAddModal());
       dispatch(clearSelectedBoard());
@@ -101,38 +97,24 @@ const Boards: React.FC = () => {
     }
   }, [location, showAddModal]);
 
-  // Calculate processed boards
-  const processedBoards = React.useMemo(() => {
-    return boards
-      .filter((board) => {
-        // Filter by search text
-        const nameMatch = board.name
-          .toLowerCase()
-          .includes(searchText.toLowerCase());
-        const descMatch = board.description
-          .toLowerCase()
-          .includes(searchText.toLowerCase());
-        const textMatch = nameMatch || descMatch;
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearch(searchText);
+    }, 300);
 
-        return textMatch;
-      })
-      .sort((a, b) => {
-        if (sortOption === SORT_OPTIONS.NAME_ASC) {
-          return a.name.localeCompare(b.name);
-        } else if (sortOption === SORT_OPTIONS.NAME_DESC) {
-          return b.name.localeCompare(a.name);
-        } else if (sortOption === SORT_OPTIONS.CREATED_ASC) {
-          return (
-            new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
-          );
-        } else if (sortOption === SORT_OPTIONS.CREATED_DESC) {
-          return (
-            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-          );
-        }
-        return 0;
-      });
-  }, [boards, searchText, sortOption]);
+    return () => clearTimeout(handler);
+  }, [searchText]);
+
+  useEffect(() => {
+    (async () =>
+      await dispatch(
+        getAllBoards({ page: 1, search: searchText, sortType: 0 })
+      ))();
+
+    return () => {
+      dispatch(clearSelectedBoard());
+    };
+  }, [debouncedSearch]);
 
   const handleAddOrEditBoard = async (values: {
     name: string;
@@ -159,7 +141,7 @@ const Boards: React.FC = () => {
           members: values?.members,
         })
       );
-      await dispatch(getAllBoards());
+      await dispatch(getAllBoards({ page: 1, search: "", sortType: sortOption }));
     }
     if (!addError) {
       setIsModalVisible(false);
@@ -195,8 +177,11 @@ const Boards: React.FC = () => {
       cancelButtonProps: {
         className: "button",
       },
-      onOk() {
-        dispatch(deleteBoard(_id));
+      async onOk() {
+        await dispatch(deleteBoard(_id));
+        await dispatch(
+          getAllBoards({ page: 1, search: searchText, sortType: sortOption })
+        );
       },
     });
   };
@@ -215,6 +200,7 @@ const Boards: React.FC = () => {
   };
 
   const renderBoardCard = (board: IBoard) => {
+    const isOwner = getOwnerDetails(board)?._id === currentUser?.id;
     const background = generateGradient(board.name);
     const moreMenu: MenuProps["items"] = [
       {
@@ -231,39 +217,45 @@ const Boards: React.FC = () => {
     ];
 
     return (
-      <Card hoverable className="board-card">
+      <Card
+        hoverable
+        className="board-card"
+        bodyStyle={{ padding: "0 0 20px 0" }}
+        onClick={() =>
+          navigate(generatePath(PRIVATE_ROUTE.BOARD, { id: board._id }))
+        }
+      >
         <div className="board-card-color-bar" style={{ background }} />
         <div className="board-card-content">
           <div className="board-card-header">
             <div className="board-card-title">
-              <button
-                onClick={() =>
-                  navigate(generatePath(PRIVATE_ROUTE.BOARD, { id: board._id }))
-                }
-                className="board-link"
-              >
-                <Title level={4} className="board-name">
-                  {board.name}
-                </Title>
-              </button>
+              <Title level={4} className="board-name">
+                {board.name}
+              </Title>
             </div>
-            <div className="board-card-actions">
-              <Dropdown
-                menu={{
-                  items: moreMenu,
-                  onClick: ({ key }) => handleMenuClick(key, board),
-                }}
-                placement="bottomRight"
-                trigger={["click"]}
-              >
-                <Button
-                  type="text"
-                  shape="circle"
-                  icon={<EllipsisOutlined />}
-                  className="more-btn"
-                />
-              </Dropdown>
-            </div>
+            {isOwner ? (
+              <div className="board-card-actions">
+                <Dropdown
+                  menu={{
+                    items: moreMenu,
+                    onClick: ({ key, domEvent }) => {
+                      domEvent.stopPropagation();
+                      handleMenuClick(key, board);
+                    },
+                  }}
+                  placement="bottomRight"
+                  trigger={["click"]}
+                >
+                  <Button
+                    type="text"
+                    shape="circle"
+                    onClick={(e) => e.stopPropagation()}
+                    icon={<EllipsisOutlined />}
+                    className="more-btn"
+                  />
+                </Dropdown>
+              </div>
+            ) : null}
           </div>
 
           <Paragraph
@@ -291,7 +283,7 @@ const Boards: React.FC = () => {
   };
 
   const renderBoards = (boards: IBoard[]) => {
-    if (boards.length === 0) {
+    if (boards?.length === 0) {
       let emptyMessage = "No boards found";
 
       return (
@@ -314,53 +306,73 @@ const Boards: React.FC = () => {
     }
 
     return (
-      <Row gutter={[16, 16]} className="boards-grid">
-        {boards.map((board) => (
-          <Col xs={24} sm={12} md={8} lg={6} key={board._id}>
-            {renderBoardCard(board)}
-          </Col>
-        ))}
-        <Col xs={24} sm={12} md={8} lg={6}>
-          <Card hoverable className="create-board-card" onClick={showAddModal}>
-            <div className="create-card-content">
-              <PlusOutlined className="plus-icon" />
-              <div className="create-card-text">Create New Board</div>
-            </div>
-          </Card>
-        </Col>
-      </Row>
+      <div>
+        <Row gutter={[16, 16]} className="boards-grid">
+          {boards?.map((board) => (
+            <Col xs={24} sm={12} md={8} lg={6} key={board._id}>
+              {renderBoardCard(board)}
+            </Col>
+          ))}
+        </Row>
+        <Pagination
+          align="center"
+          style={{ marginTop: "40px" }}
+          defaultCurrent={1}
+          pageSize={boardPagination.limit}
+          current={boardPagination.currentPage}
+          total={boardPagination.totalRecords}
+          onChange={(page) => {
+            dispatch(
+              getAllBoards({
+                page,
+                search: searchText,
+                sortType: sortOption,
+              })
+            );
+          }}
+        />
+      </div>
     );
   };
 
   // Sort menu items
   const sortMenuItems: MenuProps["items"] = [
     {
-      key: SORT_OPTIONS.DEFAULT,
+      key: SORT_OPTIONS_VALUES.DEFAULT,
       label: "Default",
-      icon: sortOption === SORT_OPTIONS.DEFAULT ? <CheckOutlined /> : null,
+      icon:
+        sortOption === SORT_OPTIONS_VALUES.DEFAULT ? <CheckOutlined /> : null,
     },
     {
-      key: SORT_OPTIONS.NAME_ASC,
+      key: SORT_OPTIONS_VALUES.NAME_ASC,
       label: "Name (A-Z)",
-      icon: sortOption === SORT_OPTIONS.NAME_ASC ? <CheckOutlined /> : null,
+      icon:
+        sortOption === SORT_OPTIONS_VALUES.NAME_ASC ? <CheckOutlined /> : null,
     },
     {
-      key: SORT_OPTIONS.NAME_DESC,
+      key: SORT_OPTIONS_VALUES.NAME_DESC,
       label: "Name (Z-A)",
-      icon: sortOption === SORT_OPTIONS.NAME_DESC ? <CheckOutlined /> : null,
+      icon:
+        sortOption === SORT_OPTIONS_VALUES.NAME_DESC ? <CheckOutlined /> : null,
     },
     {
       type: "divider",
     },
     {
-      key: SORT_OPTIONS.CREATED_ASC,
+      key: SORT_OPTIONS_VALUES.CREATED_ASC,
       label: "Date Created (Oldest first)",
-      icon: sortOption === SORT_OPTIONS.CREATED_ASC ? <CheckOutlined /> : null,
+      icon:
+        sortOption === SORT_OPTIONS_VALUES.CREATED_ASC ? (
+          <CheckOutlined />
+        ) : null,
     },
     {
-      key: SORT_OPTIONS.CREATED_DESC,
+      key: SORT_OPTIONS_VALUES.CREATED_DESC,
       label: "Date Created (Newest first)",
-      icon: sortOption === SORT_OPTIONS.CREATED_DESC ? <CheckOutlined /> : null,
+      icon:
+        sortOption === SORT_OPTIONS_VALUES.CREATED_DESC ? (
+          <CheckOutlined />
+        ) : null,
     },
   ];
 
@@ -373,32 +385,50 @@ const Boards: React.FC = () => {
             <Title level={3} className="page-title">
               Your Boards
             </Title>
+            <Paragraph style={{ marginBottom: 0 }}>
+              List of boards you are part of
+            </Paragraph>
           </div>
           <div className="boards-header-right">
-            <Space className="search-filter">
+            <Space>
               <ResponsiveSearch breakPoint={540}>
                 <Input
                   prefix={<SearchOutlined />}
                   placeholder="Search boards"
                   allowClear
                   value={searchText}
-                  onChange={(e) => setSearchText(e.target.value)}
-                  style={{ width: 220, marginTop: "8px" }}
                   className="form-input"
+                  style={{ width: 220 }}
+                  onChange={(e) => setSearchText(e.target.value)}
+                  onClear={async () =>
+                    await dispatch(
+                      getAllBoards({ page: 1, search: "", sortType: 0 })
+                    )
+                  }
                 />
               </ResponsiveSearch>
               <Dropdown
                 menu={{
                   items: sortMenuItems,
-                  onClick: ({ key }) => setSortOption(key),
+                  onClick: ({ key }) => {
+                    setSortOption(Number(key));
+                    dispatch(
+                      getAllBoards({
+                        page: 1,
+                        search: searchText,
+                        sortType: Number(key),
+                      })
+                    );
+                  },
                   selectable: true,
-                  defaultSelectedKeys: [sortOption],
+                  defaultSelectedKeys: [SORT_OPTIONS.DEFAULT],
                 }}
                 trigger={["click"]}
               >
                 <CustomButton
                   type="default"
                   className="button"
+                  style={{ marginTop: 0 }}
                   icon={<SortAscendingOutlined />}
                   breakPoint={720}
                 >
@@ -410,6 +440,7 @@ const Boards: React.FC = () => {
                 icon={<PlusOutlined />}
                 onClick={showAddModal}
                 className="button"
+                style={{ marginTop: 0 }}
                 breakPoint={740}
               >
                 Create New Board
@@ -418,7 +449,7 @@ const Boards: React.FC = () => {
           </div>
         </div>
 
-        <div className="boards-content">{renderBoards(processedBoards)}</div>
+        <div className="boards-content">{renderBoards(boards)}</div>
 
         {/* Add/Edit Board Modal */}
         <Modal

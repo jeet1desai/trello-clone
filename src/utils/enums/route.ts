@@ -16,7 +16,7 @@ export enum PUBLIC_ROUTE {
   ABOUT_US = "/about",
   CAREERS = "/careers",
   BLOB = "/blog",
-  CONTACT_US = "/contact",
+  CONTACT_US = "/contact-us",
   COOKIES_POLICY = "/cookies",
   PRIVACY_POLICY = "/privacy",
   TERM_POLICY = "/terms",
@@ -31,4 +31,5 @@ export enum PRIVATE_ROUTE {
   WORKSPACE = "/workspace/:id",
   BOARDS = "/boards",
   BOARD = "/board/:id",
+  INVITATIONS = "invitations",
 }

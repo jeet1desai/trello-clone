@@ -81,14 +81,21 @@ export const addNewTaskComment = createAsyncThunk(
       taskId,
       comment,
       attachments,
-    }: { taskId: string; comment: string; attachments: File[] },
+      mentionedMembers,
+    }: {
+      taskId: string;
+      comment: string;
+      attachments: File[];
+      mentionedMembers: string[];
+    },
     { rejectWithValue, dispatch }
   ) => {
     try {
       const response = await taskCommentService.addTaskComment(
         taskId,
         comment,
-        attachments
+        attachments,
+        mentionedMembers
       );
       dispatch(updateTaskComments(response.data));
       return response;
@@ -112,6 +119,7 @@ export const updateTaskComment = createAsyncThunk(
         comment: string;
         newAttachments: File[];
         removedAttachments: string[];
+        mentionedMembers: string[];
       };
     },
     { rejectWithValue }
@@ -177,6 +185,13 @@ const taskCommentSlice = createSlice({
             __v,
           },
         ];
+    },
+    removeComment: (state, action) => {
+      const { _id } = action.payload.data;
+      const updatedComments = state.taskComments.filter(
+        (comment) => comment._id !== _id
+      );
+      state.taskComments = updatedComments;
     },
     updateComment: (state, action) => {
       state.taskComments = state.taskComments.map((comment) =>
@@ -292,6 +307,7 @@ const taskCommentSlice = createSlice({
 
 export const {
   addNewComment,
+  removeComment,
   updateComment,
   addTaskComment,
   clearSelectedTaskComment,

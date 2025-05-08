@@ -7,6 +7,8 @@ import {
   MemberData,
   inviteBoardMember,
   getBoardMemberListById,
+  addNewInvitedMember,
+  removeInvitedmember,
 } from "../../../../store/slices/boardSlice";
 import {
   Modal,
@@ -14,15 +16,17 @@ import {
   Button,
   List,
   Avatar,
-  Space,
   Typography,
   Divider,
   App,
   Spin,
 } from "antd";
-import { LinkOutlined, ExclamationCircleOutlined } from "@ant-design/icons";
+import { ExclamationCircleOutlined } from "@ant-design/icons";
 import "../../../../layout/styles/Board.css";
 import { getRandomColor } from "../../../../utils";
+import socketService from "../../../../services/socketService";
+import { useNavigate } from "react-router-dom";
+import { PRIVATE_ROUTE } from "../../../../utils/enums/route";
 
 const { Text } = Typography;
 
@@ -36,9 +40,11 @@ const InviteBoard: React.FC<InviteBoardProps> = ({ isOpen, onClose }) => {
 
   const { id } = useParams<{ id: string }>();
   const dispatch = useDispatch<AppDispatch>();
+  const navigate = useNavigate();
   const { invitedMemberList, loading: memberLoading } = useSelector(
     (state: RootState) => state.board
   );
+  const { currentUser } = useSelector((state: RootState) => state.user);
   const [loading, setLoading] = useState(false);
   const [emails, setEmails] = useState<string[]>([]);
   const [emailError, setEmailError] = useState<string>("");
@@ -78,10 +84,6 @@ const InviteBoard: React.FC<InviteBoardProps> = ({ isOpen, onClose }) => {
     setEmails([]);
   };
 
-  const handleCreateLink = () => {
-    console.log("Creating share link");
-  };
-
   const handleRemoveMember = (member: MemberData) => {
     modal.confirm({
       title: `Are you sure you want to remove "${member.memberId.first_name} ${member.memberId.last_name}" from the board?`,
@@ -110,10 +112,34 @@ const InviteBoard: React.FC<InviteBoardProps> = ({ isOpen, onClose }) => {
     });
   };
 
+  const checkRedirectBoard = (payload: any): any => {
+    if (payload.data.memberId === currentUser?.id) {
+      navigate(PRIVATE_ROUTE.BOARDS);
+    } else {
+      dispatch(removeInvitedmember(payload));
+    }
+  };
+
   useEffect(() => {
     if (id && isOpen)
-      (async () => await dispatch(getBoardMemberListById(id)))();
+      (async () =>
+        await dispatch(getBoardMemberListById({ _id: id, search: "" })))();
   }, [dispatch, id, isOpen]);
+
+  useEffect(() => {
+    socketService.on("receive_new_member", (payload) => {
+      dispatch(addNewInvitedMember(payload));
+    });
+
+    socketService.on("remove_member", (payload) => {
+      checkRedirectBoard(payload);
+    });
+
+    return () => {
+      socketService.off("receive_new_member");
+      socketService.off("remove_member");
+    };
+  });
 
   return (
     <Modal
@@ -167,24 +193,13 @@ const InviteBoard: React.FC<InviteBoardProps> = ({ isOpen, onClose }) => {
         </div>
         <span className="color-red">{emailError}</span>
 
-        <div className="link-section">
-          <Space align="center">
-            <Button type="default" icon={<LinkOutlined />} className="button" />
-            <div className="link-content">
-              <Text>Share this board with a link</Text>
-              <p className="display-start" onClick={handleCreateLink}>
-                Create link
-              </p>
-            </div>
-          </Space>
-        </div>
         <div className="members-section">
           <div className="member-count">
             <Text strong>Board members</Text>
 
             <Text
               style={{
-                padding: "0 5px",
+                padding: "1px 7px",
                 fontSize: "12px",
                 borderRadius: "50%",
                 background: "grey",

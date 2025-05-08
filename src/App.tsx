@@ -11,6 +11,7 @@ import "./App.css";
 import "./layout/styles/Theme.css";
 import { NotificationProvider } from "./contexts/NotificationContext";
 import { SocketProvider } from "./contexts/SocketContext";
+import '@ant-design/v5-patch-for-react-19';
 
 const { defaultAlgorithm, darkAlgorithm } = theme;
 

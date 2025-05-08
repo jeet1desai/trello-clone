@@ -9,6 +9,11 @@ import {
   Spin,
   App,
   Checkbox,
+  Popover,
+  Empty,
+  Result,
+  Divider,
+  Badge,
 } from "antd";
 import {
   PlusOutlined,
@@ -18,6 +23,11 @@ import {
   ExclamationCircleOutlined,
   MessageOutlined,
   PaperClipOutlined,
+  ClockCircleOutlined,
+  UserOutlined,
+  AlertFilled,
+  FilterOutlined,
+  SmileOutlined,
 } from "@ant-design/icons";
 import type {
   DraggableProvided,
@@ -28,7 +38,7 @@ import type {
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../../store";
-import { useParams } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import {
   IBoardDetails,
   getAllLabels,
@@ -43,6 +53,7 @@ import {
   createNewStatus,
   deleteStatus,
   getStatusListByBoardId,
+  removeStatus,
   setSelectedStatus,
   updateStatus,
   updateStatusPosition,
@@ -59,10 +70,16 @@ import {
   updateTask,
   updateTaskPosition,
   updateTaskInState,
+  removeTask,
+  getTaskById,
 } from "../../../store/slices/taskSlice";
 import TaskModal from "./components/taskModal";
 import { getRandomColor } from "../../../utils";
 import socketService from "../../../services/socketService";
+import { useSearchParams } from "react-router-dom";
+import dayjs from "dayjs";
+import { Priority, TaskStatus } from "../../../utils/enums/task";
+import { openNotification } from "../../../services/notificationService";
 
 const { Title, Text } = Typography;
 
@@ -76,9 +93,13 @@ export interface Attachment {
 const BoardDetail: React.FC = () => {
   const { modal } = App.useApp();
   const { id } = useParams<{ id: string }>();
+  const [searchParams] = useSearchParams();
+  const taskId = searchParams.get("task_id");
   const wrapperRef = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
 
   const dispatch = useDispatch<AppDispatch>();
+  const { currentUser } = useSelector((state: RootState) => state.user);
   const { selectedBoard, invitedMemberList } = useSelector(
     (state: RootState) => state.board
   );
@@ -105,6 +126,8 @@ const BoardDetail: React.FC = () => {
   const [visibleTaskCardForm, setVisibleTaskCardForm] =
     useState<boolean>(false);
   const [hoveredTaskId, setHoveredTaskId] = useState<string | null>(null);
+  const [filterOpen, setFilterOpen] = useState(false);
+  const [selectedFilters, setSelectedFilters] = useState([currentUser?.id]);
 
   useEffect(() => {
     async function handleClickOutside(event: MouseEvent) {
@@ -132,23 +155,65 @@ const BoardDetail: React.FC = () => {
   }, [dispatch, isEditStatus, newStatusTitle, id]);
 
   useEffect(() => {
-    if (id) {
-      dispatch(getBoardById(id));
-      dispatch(getStatusListByBoardId(id));
-      dispatch(getBoardMemberListById(id));
-      dispatch(getAllLabels(id));
-    }
+    (async () => {
+      if (id) {
+        const board: any = await dispatch(getBoardById(id));
+        if (!board.error) {
+          await dispatch(getStatusListByBoardId(id));
+          await dispatch(getBoardMemberListById({ _id: id, search: "" }));
+          await dispatch(getAllLabels(id));
+        } else {
+          openNotification({
+            type: "error",
+            message: "You are not authorized to view this board",
+            placement: "bottomRight",
+            duration: 2,
+          });
+          navigate("/boards");
+        }
+      }
+    })();
   }, [dispatch, id]);
 
   useEffect(() => {
-    if (statusList.length > 0) {
-      statusList.forEach((status) => {
+    if (statusList.length > 0 && currentUser) {
+      statusList.forEach(async (status) => {
         if (status?._id) {
-          dispatch(getTasksByStatusId(status._id));
+          await dispatch(
+            getTasksByStatusId({
+              statusId: status._id,
+              filterBy: [currentUser?.id],
+            })
+          );
         }
       });
     }
   }, [dispatch, statusList]);
+
+  useEffect(() => {
+    if (id && taskId) {
+      const task = Object.values(tasksByStatus)
+        .flat()
+        .find((t) => t.board_id === id && t._id === taskId) as ITask;
+
+      if (task) {
+        handleTaskClick(task);
+      } else {
+        dispatch(getTaskById(taskId)).then((result) => {
+          if (result.payload) {
+            handleTaskClick(result.payload as ITask);
+          }
+        });
+      }
+    }
+  }, [id, taskId, tasksByStatus]);
+
+  // Update board ID when it changes
+  useEffect(() => {
+    if (id) {
+      socketService.setBoardId(id);
+    }
+  }, [id]);
 
   useEffect(() => {
     if (selectedBoard) {
@@ -165,20 +230,31 @@ const BoardDetail: React.FC = () => {
       dispatch(updateStatusPosition(payload));
     });
 
-    socketService.on("receive-new-task", (payload) => {
-      dispatch(addNewTask(payload));
+    socketService.on("remove_status", (payload) => {
+      dispatch(removeStatus(payload));
     });
+
+    if (isOwner() || selectedFilters.includes("all"))
+      socketService.on("receive-new-task", (payload) => {
+        dispatch(addNewTask(payload));
+      });
 
     socketService.on("receive-updated-task", (payload) => {
       dispatch(updateTaskPosition(payload));
       dispatch(updateTaskInState(payload));
     });
 
+    socketService.on("remove_task", (payload) => {
+      dispatch(removeTask(payload));
+    });
+
     return () => {
       socketService.off("receive_status");
       socketService.off("receive_updated_status");
+      socketService.off("remove_status");
       socketService.off("receive-new-task");
       socketService.off("receive-updated-task");
+      socketService.off("remove_task");
     };
   });
 
@@ -221,13 +297,15 @@ const BoardDetail: React.FC = () => {
 
     // Moving lists
     if (type === "list" && selectedStatus) {
-      dispatch(updateStatusPosition({
-        data: {
-          _id: selectedStatus._id,
-          position: destination.index + 1
-        }
-      }));
-      
+      dispatch(
+        updateStatusPosition({
+          data: {
+            _id: selectedStatus._id,
+            position: destination.index + 1,
+          },
+        })
+      );
+
       await dispatch(
         updateStatus({
           statusId: selectedStatus._id,
@@ -254,13 +332,15 @@ const BoardDetail: React.FC = () => {
 
     if (!taskToMove) return;
 
-    dispatch(updateTaskPosition({
-      data: {
-        ...taskToMove,
-        position: destination.index + 1,
-        status_list_id: destination.droppableId
-      }
-    }));
+    dispatch(
+      updateTaskPosition({
+        data: {
+          ...taskToMove,
+          position: destination.index + 1,
+          status_list_id: destination.droppableId,
+        },
+      })
+    );
 
     if (source.droppableId === destination.droppableId) {
       // Same list movement
@@ -291,7 +371,6 @@ const BoardDetail: React.FC = () => {
           name: newStatusTitle,
         })
       );
-      await dispatch(getStatusListByBoardId(id));
       setNewStatusTitle("");
       setShowAddList(false);
     }
@@ -338,9 +417,32 @@ const BoardDetail: React.FC = () => {
       },
       async onOk() {
         await dispatch(deleteStatus(list._id));
-        id && (await dispatch(getStatusListByBoardId(id)));
       },
     });
+  };
+
+  const handleMemberFilter = (e: any) => {
+    if (statusList.length > 0 && currentUser) {
+      const filterBy =
+        e.target.checked === true
+          ? [...selectedFilters, e.target.value]
+          : selectedFilters.filter((filter) => filter !== e.target.value);
+      setSelectedFilters(filterBy);
+      statusList.forEach(async (status) => {
+        if (status?._id) {
+          await dispatch(
+            getTasksByStatusId({ statusId: status._id, filterBy })
+          );
+        }
+      });
+    }
+  };
+
+  const isOwner = () => {
+    const owner = boardData.members?.find(
+      (user) => user.role === "ADMIN"
+    )?.user;
+    return owner?._id === currentUser?.id;
   };
 
   // Render task card component
@@ -357,7 +459,7 @@ const BoardDetail: React.FC = () => {
             opacity: snapshot.isDragging ? 0.8 : 1,
           }}
           onClick={() => handleTaskClick(task)}
-          onMouseDown={() => dispatch(setSelectedTask(task))}
+          onMouseDown={() => dispatch(getTaskById(task._id))}
           onMouseEnter={() => setHoveredTaskId(task._id)}
           onMouseLeave={() => setHoveredTaskId(null)}
         >
@@ -366,6 +468,7 @@ const BoardDetail: React.FC = () => {
             style={{
               boxShadow: "0 1px 2px rgba(0, 0, 0, 0.1)",
               cursor: "pointer",
+              background: task.status === "Completed" ? "#6bf16b26" : "",
             }}
             bodyStyle={{ padding: "8px 12px" }}
           >
@@ -396,12 +499,11 @@ const BoardDetail: React.FC = () => {
                     gap: 4,
                   }}
                 >
-                  {hoveredTaskId === task._id && (
-                    <Checkbox
-                      checked={task.status === "Completed"}
-                      prefixCls="status-checkbox"
-                    />
-                  )}
+                  {task.status === "Completed" ? (
+                    <Checkbox checked={true} prefixCls="status-checkbox" />
+                  ) : hoveredTaskId === task._id ? (
+                    <Checkbox checked={false} prefixCls="status-checkbox" />
+                  ) : null}
                   {task.title}
                 </Paragraph>
                 <div style={{ display: "flex", gap: 8 }}>
@@ -433,9 +535,74 @@ const BoardDetail: React.FC = () => {
                       {task.attachment.length}
                     </Paragraph>
                   ) : null}
+                  {task.members > 0 ? (
+                    <Paragraph
+                      style={{
+                        marginBottom: 0,
+                        display: "flex",
+                        gap: 4,
+                        alignItems: "center",
+                        fontSize: "12px",
+                      }}
+                    >
+                      <UserOutlined />
+                      {task.members}
+                    </Paragraph>
+                  ) : null}
+                </div>
+                <div style={{ display: "flex", gap: 8, marginTop: 4 }}>
+                  {task.end_date && (
+                    <Paragraph
+                      style={{
+                        marginBottom: 0,
+                        display: "flex",
+                        gap: 4,
+                        alignItems: "center",
+                        fontSize: "12px",
+                        background:
+                          dayjs().isAfter(task.end_date) &&
+                          task.status !== TaskStatus.COMPLETED
+                            ? "#d32029"
+                            : "transparent",
+                        padding:
+                          dayjs().isAfter(task.end_date) &&
+                          task.status !== TaskStatus.COMPLETED
+                            ? "2px 4px"
+                            : 0,
+                        borderRadius: "4px",
+                        color:
+                          dayjs().isAfter(task.end_date) &&
+                          task.status !== TaskStatus.COMPLETED
+                            ? "rgb(255 174 167)"
+                            : "inherit",
+                      }}
+                    >
+                      <ClockCircleOutlined />
+                      {dayjs(task.end_date).format("MMM DD")}
+                    </Paragraph>
+                  )}
+                  <div>
+                    {Array.from(
+                      {
+                        length:
+                          task.priority === Priority.HIGH
+                            ? 1
+                            : task.priority === Priority.CRITICAL
+                            ? 2
+                            : 0,
+                      },
+                      (_, i) => i + 1
+                    ).map((alert) => (
+                      <AlertFilled
+                        style={{
+                          color: "rgb(255 64 64)",
+                        }}
+                      />
+                    ))}
+                  </div>
                 </div>
               </div>
-              {hoveredTaskId === task._id && (
+              {isOwner() && hoveredTaskId === task._id && (
                 <Button
                   type="text"
                   size="small"
@@ -468,6 +635,132 @@ const BoardDetail: React.FC = () => {
         </div>
         <div>
           <Space size={16}>
+            <Popover
+              open={filterOpen}
+              content={
+                <div className="custom-filter-content">
+                  <Checkbox
+                    value="all"
+                    checked={
+                      selectedFilters.includes("all") ||
+                      selectedFilters?.length === invitedMemberList?.length
+                    }
+                    onChange={(e) => {
+                      handleMemberFilter(e);
+                    }}
+                  >
+                    All
+                  </Checkbox>
+                  <Checkbox checked={true}>Me</Checkbox>
+                  {invitedMemberList
+                    ?.filter(
+                      (member) => member.memberId._id !== currentUser?.id
+                    )
+                    ?.map((member) => (
+                      <Checkbox
+                        value={member.memberId._id}
+                        key={member._id}
+                        checked={
+                          selectedFilters.includes(member.memberId._id) ||
+                          selectedFilters.includes("all")
+                        }
+                        onChange={(e) => handleMemberFilter(e)}
+                      >
+                        <div
+                          style={{
+                            display: "flex",
+                            gap: 4,
+                            alignItems: "center",
+                          }}
+                        >
+                          <Avatar
+                            style={{
+                              background: getRandomColor(member.memberId._id),
+                              width: "26px",
+                              height: "26px",
+                            }}
+                          >
+                            <p style={{ fontSize: "11px" }}>
+                              {member.memberId.first_name?.[0].toUpperCase()}
+                              {member.memberId.last_name?.[0]?.toUpperCase()}
+                            </p>
+                          </Avatar>
+                          {member.memberId.first_name}{" "}
+                          {member.memberId.last_name}
+                        </div>
+                      </Checkbox>
+                    ))}
+                </div>
+              }
+              title={
+                <div className="custom-filter-popup">
+                  <p style={{ margin: 0 }}>Filter</p>
+                  <CloseOutlined
+                    style={{ cursor: "pointer" }}
+                    onClick={() => setFilterOpen(false)}
+                  />
+                </div>
+              }
+              trigger="click"
+              placement="bottom"
+              arrow={false}
+              onOpenChange={() => setFilterOpen((prev) => !prev)}
+            >
+              <div
+                style={{
+                  background: "white",
+                  padding: 10,
+                  borderRadius: "8px",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 6,
+                }}
+                className="filter-icon"
+              >
+                <Tooltip title="Filter">
+                  <div
+                    style={{
+                      marginTop: 0,
+                      cursor: "pointer",
+                      display: "flex",
+                      gap: 4,
+                      alignItems: "center",
+                    }}
+                  >
+                    <Badge dot={selectedFilters.length > 1}>
+                      <FilterOutlined />
+                    </Badge>
+                  </div>
+                </Tooltip>
+                {selectedFilters.length > 1 ? (
+                  <>
+                    <Divider type="vertical" />
+                    <span
+                      style={{ fontWeight: 600, cursor: "pointer" }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setFilterOpen(false);
+                        if (statusList.length > 0 && currentUser) {
+                          setSelectedFilters([currentUser?.id]);
+                          statusList.forEach(async (status) => {
+                            if (status?._id) {
+                              await dispatch(
+                                getTasksByStatusId({
+                                  statusId: status._id,
+                                  filterBy: [currentUser?.id],
+                                })
+                              );
+                            }
+                          });
+                        }
+                      }}
+                    >
+                      Clear all
+                    </span>
+                  </>
+                ) : null}
+              </div>
+            </Popover>
             <Avatar.Group maxCount={3}>
               {invitedMemberList?.map((member) => {
                 return (
@@ -499,217 +792,279 @@ const BoardDetail: React.FC = () => {
         </div>
       </div>
 
-      <div className="board-content">
-        <DragDropContext onDragEnd={handleDragEnd}>
-          <Droppable
-            droppableId={id ? id : "all-lists"}
-            direction="horizontal"
-            type="list"
-          >
-            {(provided: DroppableProvided) => (
-              <div
-                {...provided.droppableProps}
-                ref={provided.innerRef}
-                style={{ display: "flex", gap: "16px" }}
-              >
-                {statusList?.map((list: IStatusList, index: number) => (
-                  <Draggable
-                    key={list._id}
-                    draggableId={list._id}
-                    index={index}
-                  >
-                    {(provided: DraggableProvided) => (
-                      <div
-                        ref={provided.innerRef}
-                        {...provided.draggableProps}
-                        {...provided.dragHandleProps}
-                        style={{
-                          minWidth: 280,
-                          ...provided.draggableProps.style,
-                        }}
-                        onMouseDown={() => dispatch(setSelectedStatus(list))}
+      {statusList?.length > 0 || isOwner() ? (
+        <div className="board-content">
+          <DragDropContext onDragEnd={handleDragEnd}>
+            <Droppable
+              droppableId={id ? id : "all-lists"}
+              direction="horizontal"
+              type="list"
+              isDropDisabled={!isOwner()}
+            >
+              {(provided: DroppableProvided) => (
+                <div
+                  {...provided.droppableProps}
+                  ref={provided.innerRef}
+                  style={{ display: "flex", gap: "16px" }}
+                >
+                  {statusList?.map((list: IStatusList, index: number) => {
+                    const statusTasks = getTasksByStatus(list._id);
+                    return (
+                      <Draggable
+                        key={list._id}
+                        draggableId={list._id}
+                        index={index}
+                        isDragDisabled={!isOwner()}
                       >
-                        <div
-                          style={{
-                            backgroundColor: "#80808026",
-                            borderRadius: 6,
-                            padding: "8px 8px 0 8px",
-                            height: "100%",
-                            maxWidth: "300px",
-                          }}
-                        >
+                        {(provided: DraggableProvided) => (
                           <div
+                            ref={provided.innerRef}
+                            {...provided.draggableProps}
+                            {...provided.dragHandleProps}
                             style={{
-                              display: "flex",
-                              justifyContent: "space-between",
-                              alignItems: "center",
+                              minWidth: 280,
+                              ...provided.draggableProps.style,
                             }}
-                            ref={wrapperRef}
+                            onMouseDown={() =>
+                              dispatch(setSelectedStatus(list))
+                            }
                           >
-                            {isEditStatus[list._id] ? (
-                              <Input
-                                defaultValue={newStatusTitle}
-                                className="form-input"
-                                style={{
-                                  marginRight: "8px",
-                                  borderRadius: "4px",
-                                  margin: "8px 8px 8px 0",
-                                }}
-                                autoFocus
-                                onChange={(e) =>
-                                  setNewStatusTitle(e.target.value)
-                                }
-                                onKeyDown={handleKeyDown}
-                              />
-                            ) : (
-                              <Text
-                                strong
-                                style={{ fontSize: "16px", margin: "8px" }}
-                                onClick={() =>
-                                  toggleStatusName(list._id, list.name, true)
-                                }
-                              >
-                                {list.name}
-                              </Text>
-                            )}
-                            <Button
-                              type="text"
-                              size="small"
-                              danger
-                              icon={<DeleteOutlined />}
-                              onClick={() => handleDelete(list)}
-                            />
-                          </div>
-
-                          <Droppable droppableId={list._id} type="card">
-                            {(
-                              provided: DroppableProvided,
-                              snapshot: { isDraggingOver: boolean }
-                            ) => {
-                              const statusTasks = getTasksByStatus(list._id);
-                              return (
-                                <div
-                                  ref={provided.innerRef}
-                                  {...provided.droppableProps}
-                                  style={{
-                                    borderRadius: 6,
-                                    minHeight: 10,
-                                    maxHeight: "62vh",
-                                    overflow: "auto",
-                                  }}
-                                >
-                                  {statusTasks.map((task, index) =>
-                                    renderTaskCard(task, index)
-                                  )}
-                                  {provided.placeholder}
-                                </div>
-                              );
-                            }}
-                          </Droppable>
-
-                          {showAddTaskMap[list._id] ? (
-                            <AddTaskForm
-                              boardId={id || ""}
-                              statusId={list._id}
-                              onCancel={() => toggleAddTask(list._id, false)}
-                              onSuccess={() => toggleAddTask(list._id, false)}
-                            />
-                          ) : (
-                            <Button
-                              type="text"
-                              className="button"
-                              icon={<PlusOutlined />}
-                              block
-                              style={{ borderRadius: "4px" }}
-                              onClick={() => toggleAddTask(list._id, true)}
+                            <div
+                              style={{
+                                backgroundColor: "#80808026",
+                                borderRadius: 6,
+                                padding: "8px 8px 0 8px",
+                                height: "100%",
+                                maxWidth: "300px",
+                              }}
                             >
-                              Add a card
-                            </Button>
-                          )}
-                        </div>
-                      </div>
-                    )}
-                  </Draggable>
-                ))}
-                {provided.placeholder}
-              </div>
-            )}
-          </Droppable>
+                              <div
+                                style={{
+                                  display: "flex",
+                                  justifyContent: "space-between",
+                                  alignItems: "center",
+                                }}
+                                ref={wrapperRef}
+                              >
+                                {isEditStatus[list._id] && isOwner() ? (
+                                  <Input
+                                    defaultValue={newStatusTitle}
+                                    className="form-input"
+                                    style={{
+                                      marginRight: "8px",
+                                      borderRadius: "4px",
+                                      margin: "8px 8px 8px 0",
+                                    }}
+                                    autoFocus
+                                    onChange={(e) =>
+                                      setNewStatusTitle(e.target.value)
+                                    }
+                                    onKeyDown={handleKeyDown}
+                                  />
+                                ) : (
+                                  <Text
+                                    strong
+                                    style={{ fontSize: "16px", margin: "8px" }}
+                                    onClick={() =>
+                                      isOwner() &&
+                                      toggleStatusName(
+                                        list._id,
+                                        list.name,
+                                        true
+                                      )
+                                    }
+                                  >
+                                    {list.name}
+                                  </Text>
+                                )}
+                                {isOwner() ? (
+                                  <Button
+                                    type="text"
+                                    size="small"
+                                    danger
+                                    icon={<DeleteOutlined />}
+                                    onClick={() => handleDelete(list)}
+                                  />
+                                ) : null}
+                              </div>
+                              {selectedFilters.length > 1 ? (
+                                <Empty
+                                  imageStyle={{ display: "none" }}
+                                  description={
+                                    getTasksByStatus(list._id)?.length +
+                                    " tasks match filters"
+                                  }
+                                  style={{
+                                    fontSize: "12px",
+                                    textAlign: "start",
+                                    marginBottom: "4px",
+                                  }}
+                                />
+                              ) : null}
 
-          <div style={{ minWidth: 280 }}>
-            {showAddList ? (
-              <div
-                style={{
-                  borderRadius: 6,
-                  padding: "8px 16px",
-                }}
-              >
-                <Input
-                  placeholder="Enter list title..."
-                  className="form-input"
-                  style={{ borderRadius: "4px" }}
-                  value={newStatusTitle}
-                  onChange={(e) => setNewStatusTitle(e.target.value)}
-                  onPressEnter={handleAddStatus}
-                  autoFocus
-                />
+                              {statusTasks?.length === 0 &&
+                              !showAddTaskMap[list._id] &&
+                              selectedFilters.length === 1 ? (
+                                <Empty
+                                  imageStyle={{ display: "none" }}
+                                  description="No tasks"
+                                  style={{
+                                    fontSize: "12px",
+                                    textAlign: "start",
+                                  }}
+                                />
+                              ) : null}
+
+                              <Droppable droppableId={list._id} type="card">
+                                {(
+                                  provided: DroppableProvided,
+                                  snapshot: { isDraggingOver: boolean }
+                                ) => {
+                                  return (
+                                    <div
+                                      ref={provided.innerRef}
+                                      {...provided.droppableProps}
+                                      style={{
+                                        borderRadius: 6,
+                                        minHeight: 10,
+                                        maxHeight: "62vh",
+                                        overflow: "auto",
+                                      }}
+                                    >
+                                      {statusTasks.map((task, index) =>
+                                        renderTaskCard(task, index)
+                                      )}
+                                      {provided.placeholder}
+                                    </div>
+                                  );
+                                }}
+                              </Droppable>
+
+                              {showAddTaskMap[list._id] ? (
+                                <AddTaskForm
+                                  boardId={id || ""}
+                                  statusId={list._id}
+                                  onCancel={() =>
+                                    toggleAddTask(list._id, false)
+                                  }
+                                  onSuccess={() =>
+                                    toggleAddTask(list._id, false)
+                                  }
+                                />
+                              ) : isOwner() ? (
+                                <Button
+                                  type="text"
+                                  className="button"
+                                  icon={<PlusOutlined />}
+                                  block
+                                  style={{ borderRadius: "4px" }}
+                                  onClick={() => toggleAddTask(list._id, true)}
+                                >
+                                  Add a card
+                                </Button>
+                              ) : null}
+                            </div>
+                          </div>
+                        )}
+                      </Draggable>
+                    );
+                  })}
+                  {provided.placeholder}
+                </div>
+              )}
+            </Droppable>
+
+            <div style={{ minWidth: 280 }}>
+              {showAddList ? (
                 <div
                   style={{
-                    display: "flex",
-                    alignItems: "center",
-                    marginTop: 8,
-                    gap: 5,
+                    borderRadius: 6,
+                    padding: "8px 16px",
                   }}
                 >
-                  <Button
-                    type="primary"
-                    size="small"
-                    className="button"
-                    onClick={handleAddStatus}
-                    style={{ height: 32, marginTop: 0, borderRadius: "4px" }}
+                  <Input
+                    placeholder="Enter list title..."
+                    className="form-input"
+                    style={{ borderRadius: "4px" }}
+                    value={newStatusTitle}
+                    onChange={(e) => setNewStatusTitle(e.target.value)}
+                    onPressEnter={handleAddStatus}
+                    autoFocus
+                  />
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      marginTop: 8,
+                      gap: 5,
+                    }}
                   >
-                    Add List
-                  </Button>
+                    <Button
+                      type="primary"
+                      size="small"
+                      className="button"
+                      onClick={handleAddStatus}
+                      style={{ height: 32, marginTop: 0, borderRadius: "4px" }}
+                    >
+                      Add List
+                    </Button>
+                    <Button
+                      type="text"
+                      size="small"
+                      icon={<CloseOutlined />}
+                      onClick={() => {
+                        setShowAddList(false);
+                        setNewStatusTitle("");
+                      }}
+                    />
+                  </div>
+                </div>
+              ) : isOwner() ? (
+                <div
+                  style={{
+                    borderRadius: 6,
+                    padding: "8px 16px",
+                    opacity: 0.8,
+                  }}
+                >
                   <Button
                     type="text"
-                    size="small"
-                    icon={<CloseOutlined />}
+                    block
+                    className="button"
+                    style={{ marginTop: 0, borderRadius: "4px" }}
+                    icon={<PlusOutlined />}
                     onClick={() => {
-                      setShowAddList(false);
                       setNewStatusTitle("");
+                      setShowAddList(true);
                     }}
-                  />
+                  >
+                    Add another list
+                  </Button>
                 </div>
-              </div>
-            ) : (
-              <div
-                style={{
-                  borderRadius: 6,
-                  padding: "8px 16px",
-                  opacity: 0.8,
-                }}
-              >
-                <Button
-                  type="text"
-                  block
-                  className="button"
-                  style={{ marginTop: 0, borderRadius: "4px" }}
-                  icon={<PlusOutlined />}
-                  onClick={() => {
-                    setNewStatusTitle("");
-                    setShowAddList(true);
-                  }}
-                >
-                  Add another list
-                </Button>
-              </div>
-            )}
-          </div>
-        </DragDropContext>
-      </div>
+              ) : null}
+            </div>
+          </DragDropContext>
+        </div>
+      ) : (
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            height: "70vh",
+            flexDirection: "column",
+          }}
+        >
+          <Result
+            icon={<SmileOutlined />}
+            title="Your board looks empty, but full of love!"
+          />
+        </div>
+      )}
 
       <TaskModal
         boardId={id ? id : ""}
+        taskId={taskId}
         visible={visibleTaskCardForm}
         onClose={() => setVisibleTaskCardForm(false)}
       />

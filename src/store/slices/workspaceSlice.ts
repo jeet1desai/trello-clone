@@ -1,5 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { workspaceService } from "../../services/workspaceService";
+import { Pagination } from "./dashboardSlice";
 
 export interface IUser {
   _id: string;
@@ -15,6 +16,7 @@ export interface IWorkspace {
   createdBy: IUser;
   createdAt: string;
   updatedAt: string;
+  boards: number;
 }
 
 export interface IWorkspaceBoard {
@@ -55,6 +57,7 @@ interface WorkspaceState {
   success: string | null;
   addError: string | null;
   editError: string | null;
+  workspacePagination: Pagination;
 }
 
 const initialState: WorkspaceState = {
@@ -66,13 +69,34 @@ const initialState: WorkspaceState = {
   success: null,
   addError: null,
   editError: null,
+  workspacePagination: {
+    currentPage: 0,
+    limit: 0,
+    totalPages: 0,
+    totalRecords: 0,
+  },
 };
 
 export const getAllWorkspaces = createAsyncThunk(
-  "workspace/get-all",
-  async (_, { rejectWithValue }) => {
+  "task/get-all",
+  async (
+    {
+      page,
+      search,
+      sortType,
+    }: {
+      page: number;
+      search: string;
+      sortType: number;
+    },
+    { rejectWithValue }
+  ) => {
     try {
-      const response = await workspaceService.getAllWorkspaces();
+      const response = await workspaceService.getAllWorkspaces(
+        page,
+        search,
+        sortType
+      );
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
@@ -83,7 +107,7 @@ export const getAllWorkspaces = createAsyncThunk(
 );
 
 export const getWorkspaceById = createAsyncThunk(
-  "workspace/get-workspace-by-id",
+  "notification/get-workspace-by-id",
   async (_id: string, { rejectWithValue }) => {
     try {
       const response = await workspaceService.getWorkspaceDetailById(_id);
@@ -154,7 +178,7 @@ export const deleteWorkspace = createAsyncThunk(
 );
 
 export const getBoardsByWorkspaceId = createAsyncThunk(
-  "workspace/get-boards",
+  "task/get-boards",
   async (_id: string, { rejectWithValue }) => {
     try {
       const response = await workspaceService.getBoardsByWorkspaceId(_id);
@@ -201,7 +225,9 @@ const workspaceSlice = createSlice({
         state.success = null;
       })
       .addCase(getAllWorkspaces.fulfilled, (state, action) => {
-        state.workspaces = action.payload;
+        const { workspaces, pagination } = action.payload;
+        state.workspaces = workspaces;
+        state.workspacePagination = pagination;
         state.loading = false;
         state.error = null;
         state.success = "Workspace fetched successfully.";
@@ -243,17 +269,6 @@ const workspaceSlice = createSlice({
         state.error = null;
       })
       .addCase(addNewWorkspace.fulfilled, (state, action) => {
-        const { _id, name, description, createdBy, createdAt, updatedAt } =
-          action.payload.data;
-        const currentWorkspace = {
-          _id: _id,
-          name,
-          description,
-          createdBy,
-          createdAt,
-          updatedAt,
-        };
-        state.workspaces = [...state.workspaces, currentWorkspace];
         state.loading = false;
         state.addError = null;
         state.error = null;
@@ -283,7 +298,7 @@ const workspaceSlice = createSlice({
           description,
           updatedAt,
         };
-        const index = state.workspaces.findIndex(
+        const index = state.workspaces?.findIndex(
           (workspace) => workspace._id === currentWorkspace._id
         );
         if (index !== -1) {
@@ -291,7 +306,7 @@ const workspaceSlice = createSlice({
           state.editError = null;
           state.error = null;
           state.workspaces[index] = {
-            ...state.workspaces[index],
+            ...state.workspaces?.[index],
             ...currentWorkspace,
           };
           state.success = "Workspace updated successfully.";
@@ -318,13 +333,13 @@ const workspaceSlice = createSlice({
       })
       .addCase(deleteWorkspace.fulfilled, (state, action) => {
         const { _id } = action.payload;
-        const index = state.workspaces.findIndex(
+        const index = state.workspaces?.findIndex(
           (workspace) => workspace._id === _id
         );
         if (index !== -1) {
           state.loading = false;
           state.error = null;
-          state.workspaces.splice(index, 1);
+          state.workspaces?.splice(index, 1);
           state.success = "Workspace deleted successfully.";
         } else {
           state.loading = false;

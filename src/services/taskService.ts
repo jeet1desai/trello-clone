@@ -3,10 +3,11 @@ import axiosInstance from "../helper/axiosInstance";
 import { Priority } from "../utils/enums/task";
 
 export const taskService = {
-  async getTasksByStatusId(statusId: string) {
-    const response = await axiosInstance.get(
-      `${API_URL}/task/get-task?statusId=${statusId}`
-    );
+  async getTasksByStatusId(statusId: string, filterBy: string[]) {
+    const response = await axiosInstance.post(`${API_URL}/task/get-task`, {
+      statusId: statusId,
+      filterBy: filterBy?.length > 0 ? filterBy : [""],
+    });
     return response.data;
   },
 
@@ -47,6 +48,24 @@ export const taskService = {
   async getTaskById(taskId: string) {
     const response = await axiosInstance.get(
       `${API_URL}/task/get-task/${taskId}`
+    );
+    return response.data;
+  },
+
+  async assignMember(task_id: string, member_id: string) {
+    const response = await axiosInstance.post(
+      `${API_URL}/task-member/assign-member`,
+      {
+        task_id,
+        member_id,
+      }
+    );
+    return response.data;
+  },
+
+  async unassignMember(taskId: string) {
+    const response = await axiosInstance.delete(
+      `${API_URL}/task-member/unassign-member?taskId=${taskId}`
     );
     return response.data;
   },

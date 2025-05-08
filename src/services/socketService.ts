@@ -4,6 +4,7 @@ class SocketService {
   private socket: ReturnType<InstanceType<typeof Manager>['socket']> | null = null;
   private static instance: SocketService;
   private userId: string | null = null;
+  private boardId: string | null = null;
 
   private constructor() {}
 
@@ -18,6 +19,13 @@ class SocketService {
     this.userId = userId;
     if (this.socket?.connected) {
       this.socket.emit('register', userId);
+    }
+  }
+
+  public setBoardId(boardId: string): void {
+    this.boardId = boardId;
+    if (this.socket?.connected) {
+      this.socket.emit('join_board', boardId);
     }
   }
 
@@ -37,6 +45,9 @@ class SocketService {
         console.log('Socket connected');
         if (this.userId) {
           this.socket?.emit('register', this.userId);
+        }
+        if (this.boardId) {
+          this.socket?.emit('join_board', this.boardId);
         }
       });
 
@@ -80,4 +91,4 @@ class SocketService {
   }
 }
 
-export default SocketService.getInstance(); 
+export default SocketService.getInstance();

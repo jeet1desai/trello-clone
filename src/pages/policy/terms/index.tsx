@@ -10,7 +10,7 @@ import {
 } from "antd";
 import { MenuOutlined } from "@ant-design/icons";
 import { useLocation, useNavigate } from "react-router-dom";
-import { scrollToSectionWithOffset } from "../../../utils/helper";
+import { scrollToSectionWithOffset } from "../../../helper";
 import { useActiveSection } from "../../../hooks/useActiveSection";
 
 const { useBreakpoint } = Grid;

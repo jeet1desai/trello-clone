@@ -1,5 +1,5 @@
-import { Button, Drawer, Dropdown, Menu, MenuProps } from "antd";
-import { MenuOutlined, MoreOutlined } from "@ant-design/icons";
+import { Button, Drawer, Menu } from "antd";
+import { MenuOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import { useMedia } from "../../../hooks/useMedia";
 import { useIsActivePath } from "../../../hooks/useNavigation";
@@ -20,6 +20,10 @@ const NavigationLinks = () => {
     {
       label: "Boards",
       path: PRIVATE_ROUTE.BOARDS,
+    },
+    {
+      label: "Invitations",
+      path: PRIVATE_ROUTE.INVITATIONS,
     },
   ];
 

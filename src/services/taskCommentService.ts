@@ -9,13 +9,22 @@ export const taskCommentService = {
     return response.data;
   },
 
-  async addTaskComment(taskId: string, comment: string, attachments: File[]) {
+  async addTaskComment(
+    taskId: string,
+    comment: string,
+    attachments: File[],
+    mentionedMembers: string[]
+  ) {
     const formData = new FormData();
     formData.append("comment", comment);
     formData.append("task_id", taskId);
     if (attachments.length > 0)
       attachments.map((attachment) =>
         formData.append("attachment", attachment)
+      );
+    if (mentionedMembers.length > 0)
+      mentionedMembers.map((member) =>
+        formData.append("member", member)
       );
 
     const response = await axiosInstance.post(
@@ -43,7 +52,8 @@ export const taskCommentService = {
       comment: string;
       newAttachments: File[];
       removedAttachments: string[];
-    }
+      mentionedMembers: string[];
+    },
   ) {
     const formData = new FormData();
     formData.append("comment", updateTask.comment);
@@ -57,6 +67,10 @@ export const taskCommentService = {
         JSON.stringify(updateTask.removedAttachments)
       );
     }
+    if (updateTask.mentionedMembers.length > 0)
+    updateTask.mentionedMembers.map((member) =>
+        formData.append("member", member)
+      );
 
     const response = await axiosInstance.put(
       `${API_URL}/comment/update/${taskId}`,

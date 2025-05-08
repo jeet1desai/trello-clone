@@ -1,6 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { authService } from "../../services/authService";
-
 export interface User {
   id: string;
   first_name: string;
@@ -12,6 +11,18 @@ export interface User {
     imageName: string;
     url: string;
   };
+}
+
+export interface AuthState {
+  user: User | null;
+  token: string | null;
+  status: "idle" | "loading" | "succeeded" | "failed";
+  error: string | null;
+}
+
+export interface GoogleAuthResponse {
+  user: User;
+  token: string;
 }
 
 interface UserState {
@@ -169,6 +180,19 @@ export const logoutUser = createAsyncThunk(
   }
 );
 
+export const firebaseSocialLogin = createAsyncThunk(
+  "auth/social-firebase-login",
+  async ({ token, screenName }: { token: string, screenName: string }, { rejectWithValue }) => {
+    try {
+      const response = await authService.firebaseLogin(token, screenName);
+      return response.data.user;
+    } catch (error) {
+      console.error("Google login failed", error);
+      return rejectWithValue(error);
+    }
+  }
+);
+
 const userSlice = createSlice({
   name: "user",
   initialState,
@@ -197,6 +221,42 @@ const userSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
+      //Social Firebase Login
+      .addCase(firebaseSocialLogin.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.success = null;
+      })
+      .addCase(firebaseSocialLogin.fulfilled, (state, action) => {
+        const {
+          _id,
+          first_name,
+          middle_name,
+          last_name,
+          email,
+          profile_image,
+        } = action.payload;
+        const currentUser = {
+          id: _id,
+          first_name,
+          middle_name,
+          last_name,
+          email,
+          profile_image,
+        };
+        state.currentUser = currentUser;
+        state.isAuthenticated = true;
+        state.loading = false;
+        state.error = null;
+        state.success = "Login successful.";
+      })
+      .addCase(firebaseSocialLogin.rejected, (state, action) => {
+        state.loading = false;
+        state.currentUser = null;
+        state.isAuthenticated = false;
+        state.success = null;
+        state.error = (action.payload as string) || "Error while login.";
+      })
       // Login
       .addCase(loginUser.pending, (state) => {
         state.loading = true;

@@ -4,10 +4,7 @@ import { CloseOutlined } from "@ant-design/icons";
 import { Input } from "../../../../components";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "../../../../store";
-import {
-  createTask,
-  getTasksByStatusId,
-} from "../../../../store/slices/taskSlice";
+import { createTask } from "../../../../store/slices/taskSlice";
 
 interface AddTaskFormProps {
   boardId: string;
@@ -46,7 +43,6 @@ const AddTaskForm: React.FC<AddTaskFormProps> = ({
           status_list_id: statusId,
         })
       );
-      await dispatch(getTasksByStatusId(statusId));
       form.resetFields();
       if (onSuccess) {
         onSuccess();

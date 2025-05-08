@@ -2,8 +2,10 @@ import { API_URL } from "../config";
 import axiosInstance from "../helper/axiosInstance";
 
 export const boardService = {
-  async getAllBoards() {
-    const response = await axiosInstance.get(`${API_URL}/board/get-boards`);
+  async getAllBoards(page: number, search: string, sortType: number) {
+    const response = await axiosInstance.get(
+      `${API_URL}/board/get-boards?page=${page}&search=${search}&sortType=${sortType}`
+    );
     return response.data;
   },
 
@@ -55,9 +57,9 @@ export const boardService = {
     return response.data;
   },
 
-  async getBoardMemberListById(boardId: string) {
+  async getBoardMemberListById(boardId: string, search: string) {
     const response = await axiosInstance.get(
-      `${API_URL}/member/member-list/${boardId}`
+      `${API_URL}/member/member-list/${boardId}?search=${search}`
     );
     return response.data;
   },
@@ -165,18 +167,21 @@ export const boardService = {
     return response.data;
   },
 
-  async getMembersByTaskId(taskId: string) {
+  async getMembersByTaskId(taskId: string, search: string) {
     const response = await axiosInstance.get(
-      `${API_URL}/task-member/get-task-member/${taskId}`
+      `${API_URL}/task-member/get-task-member/${taskId}?search=${search}`
     );
     return response.data;
   },
 
   async addMemberInTask(task_id: string, member_id: string) {
-    const response = await axiosInstance.post(`${API_URL}/task-member/add-member`, {
-      task_id,
-      member_id,
-    });
+    const response = await axiosInstance.post(
+      `${API_URL}/task-member/add-member`,
+      {
+        task_id,
+        member_id,
+      }
+    );
     return response.data;
   },
 

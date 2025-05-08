@@ -47,6 +47,8 @@ import AddBoardForm from "../../boards/components/AddBoardForm";
 import { generateGradient } from "../../../utils";
 import { PRIVATE_ROUTE } from "../../../utils/enums/route";
 import CustomButton from "../../../components/ui/button";
+import dayjs from "dayjs";
+import { openNotification } from "../../../services/notificationService";
 
 const { Title, Text, Paragraph } = Typography;
 
@@ -69,8 +71,18 @@ const WorkspaceDetail: React.FC = () => {
   useEffect(() => {
     if (id)
       (async () => {
-        await dispatch(getWorkspaceById(id));
-        await dispatch(getBoardsByWorkspaceId(id));
+        const workspace: any = await dispatch(getWorkspaceById(id));
+        if (!workspace.error) {
+          await dispatch(getBoardsByWorkspaceId(id));
+        } else {
+          openNotification({
+            type: "error",
+            message: "You are not authorized to view this workspace",
+            placement: "bottomRight",
+            duration: 2,
+          });
+          navigate("/workspaces");
+        }
       })();
   }, [dispatch, id]);
 
@@ -297,6 +309,7 @@ const WorkspaceDetail: React.FC = () => {
                 <CustomButton
                   className="button"
                   danger
+                  style={{ marginTop: 0 }}
                   icon={<DeleteOutlined />}
                   onClick={handleDelete}
                   breakPoint={460}
@@ -307,7 +320,7 @@ const WorkspaceDetail: React.FC = () => {
             </div>
 
             <Paragraph className="workspace-description">
-              {selectedWorkspace.description}
+              {selectedWorkspace.description ?? "No description"}
             </Paragraph>
 
             <div className="workspace-meta">
@@ -318,7 +331,7 @@ const WorkspaceDetail: React.FC = () => {
                     selectedWorkspace.createdBy.last_name}
                 </Tag>
                 <Tag icon={<ClockCircleOutlined />}>
-                  {new Date(selectedWorkspace.createdAt).toLocaleDateString()}
+                  {dayjs(selectedWorkspace.createdAt).format("MMM DD, YYYY")}
                 </Tag>
               </Space>
             </div>
@@ -354,9 +367,9 @@ const WorkspaceDetail: React.FC = () => {
                           </p>
                           <p>
                             <strong>Created at:</strong>{" "}
-                            {new Date(
+                            {dayjs(
                               selectedWorkspace.createdAt
-                            ).toLocaleString()}
+                            ).format("MMM DD,YYYY hh:mm A")}
                           </p>
                         </div>
                       </Card>

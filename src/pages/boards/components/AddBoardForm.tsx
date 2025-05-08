@@ -1,7 +1,8 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Button, Form, FormInstance, Input, Select, Space } from "antd";
-import { useSelector } from "react-redux";
-import { RootState } from "../../../store";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "../../../store";
+import { getWorkspacesForBoards } from "../../../store/slices/boardSlice";
 
 interface IProps {
   form: FormInstance<any>;
@@ -20,7 +21,28 @@ const AddBoardForm = ({
   onCancel,
   onFinish,
 }: IProps) => {
-  const { workspaces } = useSelector((state: RootState) => state.workspace);
+  const dispatch = useDispatch<AppDispatch>();
+  const { boardWorkspaces } = useSelector(
+    (state: RootState) => state.board
+  );
+
+  const [searchText, setSearchText] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState(searchText);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearch(searchText);
+    }, 300);
+
+    return () => clearTimeout(handler);
+  }, [searchText]);
+
+  useEffect(() => {
+    (async () =>
+      await dispatch(
+        getWorkspacesForBoards({ page: 1, search: searchText, sortType: 1 })
+      ))();
+  }, [debouncedSearch]);
 
   return (
     <Form
@@ -43,11 +65,7 @@ const AddBoardForm = ({
         <Input placeholder="Enter board name" className="form-input" />
       </Form.Item>
       <Form.Item
-        label={
-          <span className="input-label">
-            Description
-          </span>
-        }
+        label={<span className="input-label">Description</span>}
         name="description"
       >
         <Input.TextArea
@@ -73,10 +91,11 @@ const AddBoardForm = ({
           filterOption={(input, option) =>
             (option?.label ?? "").toLowerCase().includes(input.toLowerCase())
           }
+          onSearch={(value) => setSearchText(value)}
           className="form-input"
           defaultValue={defaultWorkspace}
           disabled={!!defaultWorkspace}
-          options={workspaces.map((workspace) => {
+          options={boardWorkspaces?.map((workspace) => {
             return { value: workspace._id, label: workspace.name };
           })}
         />

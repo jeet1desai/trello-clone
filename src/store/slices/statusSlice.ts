@@ -130,6 +130,9 @@ const statusSlice = createSlice({
     addNewStatus: (state, action) => {
       state.statusList = [...state.statusList, action.payload.data];
     },
+    removeStatus: (state, action) => {
+      state.statusList = state.statusList.filter(status => status._id !== action.payload.data._id);
+    },
     setSelectedStatus: (state, action) => {
       state.selectedStatus = action.payload;
     },
@@ -235,6 +238,6 @@ const statusSlice = createSlice({
   },
 });
 
-export const { addNewStatus, setSelectedStatus, clearStatusState, updateStatusPosition } = statusSlice.actions;
+export const { addNewStatus, removeStatus, setSelectedStatus, clearStatusState, updateStatusPosition } = statusSlice.actions;
 
 export default statusSlice.reducer;

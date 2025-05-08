@@ -10,6 +10,15 @@ export const SORT_OPTIONS = {
   CREATED_DESC: "created_desc",
 };
 
+export const SORT_OPTIONS_VALUES = {
+  DEFAULT: 0,
+  NAME_ASC: 1,
+  NAME_DESC: 2,
+  CREATED_ASC: 3,
+  CREATED_DESC: 4,
+};
+
+
 export const AVATAR_COLORS = [
   "#f56a00",
   "#7265e6",

@@ -14,6 +14,8 @@ import {
   Row,
   Col,
   Checkbox,
+  message,
+  Space
 } from "antd";
 import {
   PlusOutlined,
@@ -30,12 +32,21 @@ import {
   FilePdfOutlined,
   FileOutlined,
   RiseOutlined,
+  SearchOutlined,
+  ShareAltOutlined,
+  CopyOutlined
 } from "@ant-design/icons";
 import TaskDescriptionEditor from "../../../../components/ui/Editor";
 import type { UploadFile } from "antd";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../../../store";
-import { ITask, updateTask } from "../../../../store/slices/taskSlice";
+import {
+  assignMember,
+  assignTaskMember,
+  unassignMember,
+  unassignTaskMember,
+  updateTask,
+} from "../../../../store/slices/taskSlice";
 import { Priority, TaskStatus } from "../../../../utils/enums/task";
 import Search from "antd/es/transfer/search";
 import LabelPopup from "./labelPopup";
@@ -46,6 +57,7 @@ import {
   addNewTaskComment,
   deleteTaskComment,
   getTaskCommentById,
+  removeComment,
   updateComment,
   updateTaskComment,
 } from "../../../../store/slices/taskCommentSlice";
@@ -56,6 +68,7 @@ import {
   deleteTaskAttachment,
   getTaskAttachmentById,
   IAttachment,
+  removeAttachment,
 } from "../../../../store/slices/taskAttachmentSlice";
 import { handleDownload } from "../../../../services/downloadService";
 import {
@@ -65,18 +78,24 @@ import {
   removeMemberFromTask,
   addSelectedLabels,
   addSelectedMembers,
+  removeSelectedMember,
+  removeSelectedLabel,
+  getMembersByTaskIdSearch,
+  getBoardMemberListBySearchId,
 } from "../../../../store/slices/boardSlice";
 import { getRandomColor } from "../../../../utils";
 import AttachmentActions from "./attachmentAction";
 import "quill/dist/quill.snow.css";
 import socketService from "../../../../services/socketService";
 import MentionTextComment from "../../../../components/ui/mention";
+import { useNavigate } from "react-router-dom";
 
 const { Text } = Typography;
 const { Option } = Select;
 
 interface TaskModalProps {
   boardId: string;
+  taskId: string | null;
   visible: boolean;
   onClose: () => void;
 }
@@ -200,15 +219,20 @@ const handleOpenFile = (fileUrl: string, fileName: string) => {
   }
 };
 
-const TaskModal: React.FC<TaskModalProps> = ({ boardId, visible, onClose }) => {
+const TaskModal: React.FC<TaskModalProps> = ({
+  boardId,
+  taskId,
+  visible,
+  onClose,
+}) => {
+  const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
   const { currentUser } = useSelector((state: RootState) => state.user);
   const [msg, setMsg] = useState<string>("");
   const [mentionedMembers, setMentionedMembers] = useState<string[]>([]);
 
-  const handleMentionChange = (value: string, mentions: string[]) => {
+  const handleMentionChange = (value: string) => {
     setMsg(value);
-    setMentionedMembers(mentions);
   };
   const { selectedTask, loading } = useSelector(
     (state: RootState) => state.task
@@ -219,22 +243,77 @@ const TaskModal: React.FC<TaskModalProps> = ({ boardId, visible, onClose }) => {
   const { taskAttachments, taskAttachmentLoading } = useSelector(
     (state: RootState) => state.taskAttachment
   );
-  const { selectedTaskLabels, selectedTaskMembers, invitedMemberList } =
-    useSelector((state: RootState) => state.board);
+  const {
+    selectedTaskLabels,
+    selectedTaskMembers,
+    invitedMemberList,
+    searchTaskMembers,
+    invitedSearchMemberList,
+  } = useSelector((state: RootState) => state.board);
   const [isEditTitle, setIsEditTitle] = useState(false);
-  const [taskDetails, setTaskDetails] = useState<ITask | null>(null);
+  const [taskName, setTaskName] = useState("");
   const [fileList, setFileList] = useState<UploadFile[]>([]);
   const [memberVisible, setMemberVisible] = useState(false);
+  const [assignedMemberVisible, setAssignedMemberVisible] = useState(false);
   const [labelVisible, setLabelVisible] = useState(false);
+  const [shareLink, setShareLink] = useState(false);
   const [showEditor, setShowEditor] = useState(false);
   const [showAll, setShowAll] = useState(false);
   const [isCompleted, setIsCompleted] = useState(
-    taskDetails?.status === TaskStatus.COMPLETED
-  );
-  const [priority, setPriority] = useState<Priority>(
-    selectedTask?.priority ?? Priority.MEDIUM
+    selectedTask?.status === TaskStatus.COMPLETED
   );
   const [showAllComments, setShowAllComments] = useState(false);
+  const [searchMembers, setSearchMembers] = useState("");
+  const [debouncedSearchMembers, setDebouncedSearchMembers] =
+    useState(searchMembers);
+  const [searchAssigned, setSearchAssigned] = useState("");
+  const [debouncedSearchAssigned, setDebouncedSearchAssigned] =
+    useState(searchAssigned);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearchAssigned(searchAssigned);
+    }, 300);
+
+    return () => clearTimeout(handler);
+  }, [searchAssigned]);
+
+  useEffect(() => {
+    if (visible && selectedTask)
+      (async () =>
+        await dispatch(
+          getMembersByTaskIdSearch({
+            _id: selectedTask?._id ?? "",
+            search: searchAssigned,
+          })
+        ))();
+  }, [debouncedSearchAssigned]);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearchMembers(searchMembers);
+    }, 300);
+
+    return () => clearTimeout(handler);
+  }, [searchMembers]);
+
+  useEffect(() => {
+    async function fetchData() {
+      await dispatch(
+        getMembersByTaskIdSearch({
+          _id: selectedTask?._id ?? "",
+          search: searchMembers,
+        })
+      );
+      await dispatch(
+        getBoardMemberListBySearchId({
+          _id: boardId,
+          search: searchMembers,
+        })
+      );
+    }
+    if (visible && selectedTask) fetchData();
+  }, [debouncedSearchMembers]);
 
   const handleAddMemberToTask = (member_id: string) => {
     if (selectedTask) {
@@ -253,6 +332,34 @@ const TaskModal: React.FC<TaskModalProps> = ({ boardId, visible, onClose }) => {
         removeMemberFromTask({
           taskId: selectedTask?._id,
           memberId: id,
+        })
+      );
+      if (id === selectedTask?.assigned_to?._id) {
+        dispatch(
+          unassignMember({
+            taskId: selectedTask?._id,
+          })
+        );
+      }
+    }
+  };
+
+  const handleAssignMember = (member_id: string) => {
+    if (selectedTask) {
+      dispatch(
+        assignMember({
+          task_id: selectedTask._id,
+          member_id,
+        })
+      );
+    }
+  };
+
+  const handleUnassignMember = () => {
+    if (selectedTask) {
+      dispatch(
+        unassignMember({
+          taskId: selectedTask?._id,
         })
       );
     }
@@ -274,15 +381,20 @@ const TaskModal: React.FC<TaskModalProps> = ({ boardId, visible, onClose }) => {
   const memberContent = (
     <div style={{ width: 250 }}>
       <div style={{ fontWeight: 600, marginBottom: 8 }}>Members</div>
-      <Search
-        prefixCls="form-input form-input-small"
+      <Input
+        prefix={<SearchOutlined />}
         placeholder="Search members"
+        allowClear
+        className="form-input form-input-small"
+        value={searchMembers}
+        onClear={async () => setSearchMembers("")}
+        onChange={(e) => setSearchMembers(e.target.value)}
       />
-      {selectedTaskMembers?.length > 0 ? (
+      {(searchMembers ? searchTaskMembers : selectedTaskMembers)?.length > 0 ? (
         <>
           <div className="member-title">Card members</div>
           <List
-            dataSource={selectedTaskMembers}
+            dataSource={searchMembers ? searchTaskMembers : selectedTaskMembers}
             renderItem={(member) => (
               <List.Item className="members-list">
                 <div style={{ display: "flex", alignItems: "center" }}>
@@ -312,18 +424,18 @@ const TaskModal: React.FC<TaskModalProps> = ({ boardId, visible, onClose }) => {
         </>
       ) : null}
 
-      {invitedMemberList.filter(
+      {invitedSearchMemberList.filter(
         (addedMember: { memberId: { _id: string } }) =>
-          !selectedTaskMembers.some(
+          !(searchMembers ? searchTaskMembers : selectedTaskMembers).some(
             (member) => member._id === addedMember.memberId._id
           )
       ).length > 0 ? (
         <>
           <div className="member-title">Board members</div>
           <List
-            dataSource={invitedMemberList.filter(
+            dataSource={invitedSearchMemberList.filter(
               (addedMember: { memberId: { _id: string } }) =>
-                !selectedTaskMembers.some(
+                !(searchMembers ? searchTaskMembers : selectedTaskMembers).some(
                   (member) => member._id === addedMember.memberId._id
                 )
             )}
@@ -357,40 +469,107 @@ const TaskModal: React.FC<TaskModalProps> = ({ boardId, visible, onClose }) => {
     </div>
   );
 
+  const assignedMemberContent = (
+    <div style={{ width: 250 }}>
+      <div style={{ fontWeight: 600, marginBottom: 8 }}>Assigned to</div>
+      <Search
+        prefixCls="form-input form-input-small"
+        placeholder="Search members"
+        value={searchAssigned}
+        handleClear={() => setSearchAssigned("")}
+        onChange={(e) => setSearchAssigned(e.target.value)}
+      />
+      <List.Item
+        style={{
+          marginTop: "6px",
+          color: "grey",
+          fontWeight: 600,
+          cursor: "pointer",
+          padding: "6px",
+        }}
+        onClick={handleUnassignMember}
+      >
+        Unassigned
+      </List.Item>
+      <List
+        dataSource={searchAssigned ? searchTaskMembers : selectedTaskMembers}
+        renderItem={(member) => (
+          <List.Item
+            style={{
+              cursor: "pointer",
+              padding: "6px",
+              borderRadius: "4px",
+              borderBlockEnd: "initial !important",
+              background:
+                selectedTask?.assigned_to?._id === member._id
+                  ? "#77b7ec42"
+                  : "",
+            }}
+            onClick={() => handleAssignMember(member._id)}
+          >
+            <div style={{ display: "flex", alignItems: "center" }}>
+              <Avatar
+                style={{
+                  backgroundColor: getRandomColor(member._id),
+                  marginRight: 8,
+                }}
+              >
+                {member.first_name[0].toUpperCase() +
+                  member.last_name[0].toUpperCase()}
+              </Avatar>
+              <span className="color-inherit">
+                {member.first_name + " " + member.last_name}
+              </span>
+            </div>
+          </List.Item>
+        )}
+      />
+    </div>
+  );
+
+  const shareCopiedLink = selectedTask?._id && selectedTask.board_id
+  ? `http://localhost:3000/board/${selectedTask.board_id}?task_id=${selectedTask._id}`
+  : "";
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(shareCopiedLink).then(() => {
+      message.success("Link copied!");
+    });
+  };
+
+  const shareContent = (
+    <div style={{ width: 280 }}>
+      <div style={{ fontWeight: 600, marginBottom: 8 }}>Copy Link</div>
+      <Input value={shareCopiedLink} readOnly style={{ marginBottom: 12 }} />
+      <Space>
+        <Button type="primary" icon={<CopyOutlined />} onClick={handleCopy}>
+          Copy
+        </Button>
+      </Space>
+    </div>
+  );
+
   useEffect(() => {
     if (selectedTask && visible) {
-      dispatch(getMembersByTaskId(selectedTask?._id));
+      dispatch(getMembersByTaskId({ _id: selectedTask?._id, search: "" }));
       dispatch(getTaskCommentById(selectedTask?._id));
       dispatch(getTaskAttachmentById(selectedTask._id));
       dispatch(getLabelsByTaskId(selectedTask?._id));
-      setTaskDetails((prevState) => {
-        if (!selectedTask?.status_list_id?._id) return prevState;
-
-        return {
-          ...prevState!,
-          _id: selectedTask._id,
-          title: selectedTask.title,
-          description: selectedTask.description,
-          status_id: selectedTask.status_list_id._id,
-          priority: selectedTask.priority,
-          status: selectedTask.status,
-          end_date: selectedTask.end_date ?? "",
-        };
-      });
     }
-  }, [selectedTask, visible, dispatch]);
+  }, [visible, dispatch]);
 
   useEffect(() => {
-    setIsCompleted(taskDetails?.status === TaskStatus.COMPLETED);
-  }, [taskDetails]);
+    if (taskId && visible) {
+      dispatch(getMembersByTaskId({ _id: taskId, search: "" }));
+      dispatch(getTaskCommentById(taskId));
+      dispatch(getTaskAttachmentById(taskId));
+      dispatch(getLabelsByTaskId(taskId));
+    }
+  }, [visible, dispatch]);
 
-  const updateTaskName = (taskName: string) =>
-    setTaskDetails((prevState) => {
-      return {
-        ...prevState!,
-        title: taskName,
-      };
-    });
+  useEffect(() => {
+    setIsCompleted(selectedTask?.status === TaskStatus.COMPLETED);
+  }, [selectedTask]);
 
   const sendMessage = () => {
     if (msg.trim()) {
@@ -405,12 +584,13 @@ const TaskModal: React.FC<TaskModalProps> = ({ boardId, visible, onClose }) => {
             taskId: selectedTask?._id,
             comment: msg,
             attachments: files,
-            //mentionedMembers: mentionedMembers,
-        })
+            mentionedMembers,
+          })
         );
 
       setMsg("");
       setFileList([]);
+      setMentionedMembers([]);
     }
   };
 
@@ -419,8 +599,16 @@ const TaskModal: React.FC<TaskModalProps> = ({ boardId, visible, onClose }) => {
       dispatch(addSelectedMembers(payload));
     });
 
+    socketService.on("task-member-removed", (payload) => {
+      dispatch(removeSelectedMember(payload));
+    });
+
     socketService.on("receive-new-task-label", (payload) => {
       dispatch(addSelectedLabels(payload));
+    });
+
+    socketService.on("remove_task_label", (payload) => {
+      dispatch(removeSelectedLabel(payload));
     });
 
     socketService.on("receive_new_comment", (payload) => {
@@ -431,11 +619,33 @@ const TaskModal: React.FC<TaskModalProps> = ({ boardId, visible, onClose }) => {
       dispatch(updateComment(payload));
     });
 
+    socketService.on("remove_comment", (payload) => {
+      dispatch(removeComment(payload));
+    });
+
+    socketService.on("remove_task_attachment", (payload) => {
+      dispatch(removeAttachment(payload));
+    });
+
+    socketService.on("receive_task_assigned_member", (payload) => {
+      dispatch(assignTaskMember(payload));
+    });
+
+    socketService.on("unassigned_task_member", (payload) => {
+      dispatch(unassignTaskMember(payload));
+    });
+
     return () => {
       socketService.off("receive_new_task-member");
+      socketService.off("task-member-removed");
       socketService.off("receive-new-task-label");
+      socketService.off("remove_task_label");
       socketService.off("receive_new_comment");
       socketService.off("receive_updated_comment");
+      socketService.off("remove_comment");
+      socketService.off("remove_task_attachment");
+      socketService.off("receive_task_assigned_member");
+      socketService.off("unassigned_task_member");
     };
   });
 
@@ -450,7 +660,7 @@ const TaskModal: React.FC<TaskModalProps> = ({ boardId, visible, onClose }) => {
   const handleSave = (content: string) => {
     dispatch(
       updateTask({
-        taskId: taskDetails?._id ?? "",
+        taskId: selectedTask?._id ?? "",
         description: content,
       })
     );
@@ -460,21 +670,17 @@ const TaskModal: React.FC<TaskModalProps> = ({ boardId, visible, onClose }) => {
   const handleDateSave = (end_date: any) => {
     dispatch(
       updateTask({
-        taskId: taskDetails?._id ?? "",
+        taskId: selectedTask?._id ?? "",
         end_date,
       })
     );
-    setTaskDetails((prev: any) => {
-      if (!prev) return prev;
-      return { ...prev, end_date: end_date.toString() };
-    });
     setIsCompleted((prev) => !prev);
   };
 
   const handleChange = () => {
     dispatch(
       updateTask({
-        taskId: taskDetails?._id ?? "",
+        taskId: selectedTask?._id ?? "",
         status: !isCompleted ? TaskStatus.COMPLETED : TaskStatus.INCOMPLETE,
       })
     );
@@ -489,17 +695,18 @@ const TaskModal: React.FC<TaskModalProps> = ({ boardId, visible, onClose }) => {
       comment: string;
       newAttachments: File[];
       removedAttachments: string[];
+      mentionedMembers: string[];
     }
   ) => dispatch(updateTaskComment({ taskId: commentId, updateTask }));
 
   useEffect(() => {
     async function handleClickOutside(event: MouseEvent) {
       setIsEditTitle(false);
-      if (isEditTitle && selectedTask?.title !== taskDetails?.title) {
+      if (isEditTitle) {
         dispatch(
           updateTask({
-            taskId: taskDetails?._id ?? "",
-            title: taskDetails?.title,
+            taskId: selectedTask?._id ?? "",
+            title: taskName,
           })
         );
       }
@@ -509,10 +716,9 @@ const TaskModal: React.FC<TaskModalProps> = ({ boardId, visible, onClose }) => {
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [dispatch, isEditTitle, taskDetails, selectedTask]);
+  }, [dispatch, isEditTitle, selectedTask, taskName]);
 
   const setPriorityValue = (value: Priority) => {
-    setPriority(value);
     dispatch(updateTask({ taskId: selectedTask?._id ?? "", priority: value }));
   };
 
@@ -522,23 +728,23 @@ const TaskModal: React.FC<TaskModalProps> = ({ boardId, visible, onClose }) => {
       open={visible}
       onCancel={() => {
         onClose();
-        setTaskDetails(null);
         setFileList([]);
         setMsg("");
         setIsEditTitle(false);
         setShowEditor(false);
         setMemberVisible(false);
         setLabelVisible(false);
+        navigate(window.location.pathname);
       }}
       onClose={() => {
         onClose();
-        setTaskDetails(null);
         setFileList([]);
         setMsg("");
         setIsEditTitle(false);
         setShowEditor(false);
         setMemberVisible(false);
         setLabelVisible(false);
+        navigate(window.location.pathname);
       }}
       footer={null}
       className="task-modal"
@@ -555,7 +761,7 @@ const TaskModal: React.FC<TaskModalProps> = ({ boardId, visible, onClose }) => {
         />
         {isEditTitle ? (
           <Input
-            value={taskDetails?.title}
+            defaultValue={selectedTask?.title}
             className="form-input"
             style={{
               marginRight: "8px",
@@ -564,15 +770,14 @@ const TaskModal: React.FC<TaskModalProps> = ({ boardId, visible, onClose }) => {
               width: "calc(100% - 55px)",
             }}
             autoFocus
-            onChange={(e) => updateTaskName(e.target.value)}
+            onChange={(e) => setTaskName(e.target.value)}
             onKeyDown={(e) => {
               if (e.key === "Enter") {
                 setIsEditTitle(false);
-                if (selectedTask?.title === taskDetails?.title) return;
                 dispatch(
                   updateTask({
-                    taskId: taskDetails?._id ?? "",
-                    title: taskDetails?.title,
+                    taskId: selectedTask?._id ?? "",
+                    title: taskName,
                   })
                 );
               }
@@ -584,12 +789,12 @@ const TaskModal: React.FC<TaskModalProps> = ({ boardId, visible, onClose }) => {
             style={{ fontSize: "16px", margin: "8px" }}
             onClick={() => setIsEditTitle(true)}
           >
-            {taskDetails?.title}
+            {selectedTask?.title}
           </Text>
         )}
       </div>
       <Row>
-        <Col xs={24} sm={12} md={8}>
+        <Col xs={24} sm={12} md={6}>
           <Text strong style={{ fontSize: "12px", color: "#44546f" }}>
             Members
           </Text>
@@ -635,7 +840,57 @@ const TaskModal: React.FC<TaskModalProps> = ({ boardId, visible, onClose }) => {
             </Popover>
           </div>
         </Col>
-        <Col xs={24} sm={12} md={8}>
+        <Col xs={24} sm={12} md={6}>
+          <Text strong style={{ fontSize: "12px", color: "#44546f" }}>
+            Assigned to
+          </Text>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 4,
+              marginTop: "4px",
+            }}
+          >
+            <Popover
+              content={assignedMemberContent}
+              title={null}
+              trigger="click"
+              open={assignedMemberVisible}
+              onOpenChange={setAssignedMemberVisible}
+              placement="bottomLeft"
+            >
+              {selectedTask?.assigned_to ? (
+                <Tooltip
+                  title={
+                    selectedTask?.assigned_to?.first_name +
+                    " " +
+                    selectedTask?.assigned_to?.last_name
+                  }
+                >
+                  <Avatar
+                    style={{
+                      background: getRandomColor(
+                        selectedTask?.assigned_to?._id ?? ""
+                      ),
+                      cursor: "pointer",
+                    }}
+                  >
+                    {selectedTask.assigned_to.first_name?.[0].toUpperCase() +
+                      selectedTask.assigned_to.last_name?.[0].toUpperCase()}
+                  </Avatar>
+                </Tooltip>
+              ) : (
+                <Button
+                  shape="circle"
+                  icon={<PlusOutlined />}
+                  className="button small-btn"
+                />
+              )}
+            </Popover>
+          </div>
+        </Col>
+        <Col xs={24} sm={12} md={6}>
           <Text strong style={{ fontSize: "12px", color: "#44546f" }}>
             Due date
           </Text>
@@ -647,12 +902,12 @@ const TaskModal: React.FC<TaskModalProps> = ({ boardId, visible, onClose }) => {
             }}
           >
             <DatePickerPopup
-              end_date={taskDetails?.end_date ?? ""}
+              end_date={selectedTask?.end_date ?? ""}
               onSave={handleDateSave}
             />
           </div>
         </Col>
-        <Col xs={24} sm={12} md={8}>
+        <Col xs={24} sm={12} md={6}>
           <Text strong style={{ fontSize: "12px", color: "#44546f" }}>
             Priority
           </Text>
@@ -664,7 +919,10 @@ const TaskModal: React.FC<TaskModalProps> = ({ boardId, visible, onClose }) => {
               marginTop: "4px",
             }}
           >
-            <PrioritySelect value={priority} onChange={setPriorityValue} />
+            <PrioritySelect
+              value={selectedTask?.priority ?? Priority.MEDIUM}
+              onChange={setPriorityValue}
+            />
           </div>
         </Col>
         <Col xs={24} sm={24} md={24} style={{ marginTop: "6px" }}>
@@ -723,6 +981,30 @@ const TaskModal: React.FC<TaskModalProps> = ({ boardId, visible, onClose }) => {
       <div className="task-content task-body-margin-left">
         <div style={{ display: "flex", gap: "24px" }}>
           <div style={{ flex: 1 }}>
+            <div className="task-section">
+              <div className="task-section-title-desc">
+                <div
+                  style={{ display: "flex", alignItems: "center", gap: "8px" }}
+                >
+                  <ShareAltOutlined />
+                  <Text strong>Share</Text>
+                </div>
+                <Popover
+                  content={shareContent}
+                  title={null}
+                  trigger="click"
+                  open={shareLink}
+                  onOpenChange={setShareLink}
+                  placement="bottomRight"
+                >
+                  <Button
+                    shape="circle"
+                    icon={<ShareAltOutlined />}
+                    className="button small-btn"
+                  />
+                </Popover>
+              </div>
+            </div>
             <div className="task-section">
               <div className="task-section-title-desc">
                 <div
@@ -888,7 +1170,7 @@ const TaskModal: React.FC<TaskModalProps> = ({ boardId, visible, onClose }) => {
                   }}
                 >
                   <Avatar
-                    src={currentUser?.profile_image.url}
+                    src={currentUser?.profile_image?.url}
                     style={{
                       background: getRandomColor(currentUser?.id ?? ""),
                     }}
@@ -901,8 +1183,9 @@ const TaskModal: React.FC<TaskModalProps> = ({ boardId, visible, onClose }) => {
                       placeholder="Write a comment with @ or # for mention someone..."
                       className="form-input-mention"
                       value={msg}
-                      onChange={handleMentionChange}
                       members={invitedMemberList.map((item) => item.memberId)}
+                      setMentions={setMentionedMembers}
+                      onChange={handleMentionChange}
                     />
                     <Upload
                       beforeUpload={() => false} // Prevent auto upload

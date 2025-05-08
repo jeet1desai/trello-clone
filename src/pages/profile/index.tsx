@@ -13,14 +13,18 @@ import {
 } from "antd";
 import { CameraOutlined, UserOutlined } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
-import { AppDispatch, RootState } from "../../store";
+import { AppDispatch, persistor, RootState } from "../../store";
 import {
   getProfileData,
   resetPassword,
   updateProfile,
 } from "../../store/slices/profileSlice";
 import "../../layout/styles/Profile.css";
-import { User } from "../../store/slices/userSlice";
+import { logoutUser, User } from "../../store/slices/userSlice";
+import { useNavigate } from "react-router-dom";
+import { PUBLIC_ROUTE } from "../../utils/enums/route";
+import { RESET_APP } from "../../config";
+import { handleSocialLogout } from "../../config/firebase/helperFunction";
 
 const { Title, Text } = Typography;
 
@@ -28,6 +32,7 @@ const ProfilePage = () => {
   const [profileForm] = Form.useForm();
   const [passwordForm] = Form.useForm();
   const dispatch = useDispatch<AppDispatch>();
+  const navigate = useNavigate();
   const { currentUser } = useSelector((state: RootState) => state.user);
   const { profileDetails, loading } = useSelector(
     (state: RootState) => state.profile
@@ -66,13 +71,25 @@ const ProfilePage = () => {
     setEditMode(false);
   };
 
+  const handleLogout = async () => {
+      await dispatch(logoutUser());
+      dispatch({ type: RESET_APP });
+      handleSocialLogout();
+      await persistor.purge();
+      navigate(PUBLIC_ROUTE.FORGOT_PASSWORD);
+    };
+
   const handleResetPassword = async (values: {
     old_password: string;
     new_password: string;
   }) => {
-    await dispatch(resetPassword(values));
-    passwordForm.resetFields();
-    setResetPasswordFlag(false);
+    try {
+      await dispatch(resetPassword(values)).unwrap();
+      passwordForm.resetFields();
+      setResetPasswordFlag(false);
+    } catch (error) {
+      handleLogout();
+    }
   };
 
   return (
@@ -126,7 +143,9 @@ const ProfilePage = () => {
                 </Form.Item>
                 <div className="profile-name-wrapper">
                   <Title level={4} className="profile-name-text">
-                    {`${profileDetails?.first_name} ${profileDetails?.middle_name} ${profileDetails?.last_name}`}
+                    {`${profileDetails?.first_name} ${
+                      profileDetails?.middle_name ?? ""
+                    } ${profileDetails?.last_name ?? ""}`}
                   </Title>
                   <Text type="secondary">{profileDetails?.email}</Text>
                 </div>
@@ -150,10 +169,6 @@ const ProfilePage = () => {
                   name="first_name"
                   rules={[
                     { required: true, message: "First Name is required" },
-                    {
-                      min: 2,
-                      message: "First Name must be at least 2 characters",
-                    },
                     {
                       max: 50,
                       message: "First Name must not exceed 50 characters",
@@ -179,10 +194,6 @@ const ProfilePage = () => {
                   rules={[
                     { required: true, message: "Middle Name is required" },
                     {
-                      min: 2,
-                      message: "Middle Name must be at least 2 characters",
-                    },
-                    {
                       max: 50,
                       message: "Middle Name must not exceed 50 characters",
                     },
@@ -206,10 +217,6 @@ const ProfilePage = () => {
                   name="last_name"
                   rules={[
                     { required: true, message: "Last Name is required" },
-                    {
-                      min: 2,
-                      message: "Last Name must be at least 2 characters",
-                    },
                     {
                       max: 50,
                       message: "Last Name must not exceed 50 characters",

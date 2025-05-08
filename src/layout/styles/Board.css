@@ -373,6 +373,23 @@
   border-block-end: initial !important;
 }
 
+.theme-dark .filter-icon {
+  background-color: black !important;
+}
+
+/* Filter popup */
+.custom-filter-popup {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.custom-filter-content {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
 /* Comment list style */
 
 .comment-list-container {

@@ -11,23 +11,23 @@ import {
   Dropdown,
   Modal,
   Form,
-  Tag,
   Empty,
-  Tooltip,
   App,
   Spin,
+  Pagination,
 } from "antd";
 import {
   PlusOutlined,
-  ClockCircleOutlined,
   UserOutlined,
-  EllipsisOutlined,
   SearchOutlined,
   SortAscendingOutlined,
   CheckOutlined,
   DeleteOutlined,
   ExclamationCircleOutlined,
   EditOutlined,
+  FolderOpenOutlined,
+  CalendarOutlined,
+  MoreOutlined,
 } from "@ant-design/icons";
 import type { MenuProps } from "antd";
 import { useDispatch, useSelector } from "react-redux";
@@ -42,11 +42,11 @@ import {
   clearSelectedWorkspace,
 } from "../../store/slices/workspaceSlice";
 import "../../layout/styles/workspaces.css";
-import { SORT_OPTIONS } from "../../config";
-import { generateGradient } from "../../utils";
+import { SORT_OPTIONS, SORT_OPTIONS_VALUES } from "../../config";
 import { PRIVATE_ROUTE } from "../../utils/enums/route";
 import CustomButton from "../../components/ui/button";
 import ResponsiveSearch from "../../components/ui/searchResponsive";
+import dayjs from "dayjs";
 
 const { Title, Paragraph } = Typography;
 
@@ -56,16 +56,17 @@ const Workspaces: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useDispatch<AppDispatch>();
-  const { workspaces, addError, editError, loading } = useSelector(
-    (state: RootState) => state.workspace
-  );
+  const { currentUser } = useSelector((state: RootState) => state.user);
+  const { workspaces, addError, editError, loading, workspacePagination } =
+    useSelector((state: RootState) => state.workspace);
 
   const [searchText, setSearchText] = useState("");
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingWorkspace, setEditingWorkspace] = useState<IWorkspace | null>(
     null
   );
-  const [sortOption, setSortOption] = useState<string>(SORT_OPTIONS.DEFAULT);
+  const [sortOption, setSortOption] = useState(SORT_OPTIONS_VALUES.DEFAULT);
+  const [debouncedSearch, setDebouncedSearch] = useState(searchText);
 
   const showAddModal = useCallback(() => {
     dispatch(openWorkspaceAddModal());
@@ -83,44 +84,29 @@ const Workspaces: React.FC = () => {
   }, [location, showAddModal]);
 
   useEffect(() => {
-    (async () => await dispatch(getAllWorkspaces()))();
     return () => {
       dispatch(clearSelectedWorkspace());
     };
   }, [dispatch]);
 
-  // Calculate processed workspaces
-  const processedWorkspaces = React.useMemo(() => {
-    return workspaces
-      .filter((workspace) => {
-        // Filter by search text
-        const nameMatch = workspace.name
-          .toLowerCase()
-          .includes(searchText.toLowerCase());
-        const descMatch = workspace.description
-          .toLowerCase()
-          .includes(searchText.toLowerCase());
-        const textMatch = nameMatch || descMatch;
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearch(searchText);
+    }, 300);
 
-        return textMatch;
-      })
-      .sort((a, b) => {
-        if (sortOption === SORT_OPTIONS.NAME_ASC) {
-          return a.name.localeCompare(b.name);
-        } else if (sortOption === SORT_OPTIONS.NAME_DESC) {
-          return b.name.localeCompare(a.name);
-        } else if (sortOption === SORT_OPTIONS.CREATED_ASC) {
-          return (
-            new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
-          );
-        } else if (sortOption === SORT_OPTIONS.CREATED_DESC) {
-          return (
-            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-          );
-        }
-        return 0;
-      });
-  }, [workspaces, searchText, sortOption]);
+    return () => clearTimeout(handler);
+  }, [searchText]);
+
+  useEffect(() => {
+    (async () =>
+      await dispatch(
+        getAllWorkspaces({ page: 1, search: searchText, sortType: 0 })
+      ))();
+
+    return () => {
+      dispatch(clearSelectedWorkspace());
+    };
+  }, [debouncedSearch]);
 
   const handleAddOrEditWorkspace = async (values: {
     name: string;
@@ -138,7 +124,9 @@ const Workspaces: React.FC = () => {
       await dispatch(
         addNewWorkspace({ name: values.name, description: values?.description })
       );
-      await dispatch(getAllWorkspaces());
+      await dispatch(
+        getAllWorkspaces({ page: 1, search: "", sortType: sortOption })
+      );
     }
     if (!addError) {
       setIsModalVisible(false);
@@ -172,8 +160,15 @@ const Workspaces: React.FC = () => {
       cancelButtonProps: {
         className: "button",
       },
-      onOk() {
-        dispatch(deleteWorkspace(_id));
+      async onOk() {
+        await dispatch(deleteWorkspace(_id));
+        await dispatch(
+          getAllWorkspaces({
+            page: 1,
+            search: searchText,
+            sortType: sortOption,
+          })
+        );
       },
     });
   };
@@ -192,7 +187,6 @@ const Workspaces: React.FC = () => {
   };
 
   const renderWorkspaceCard = (workspace: IWorkspace) => {
-    const background = generateGradient(workspace.name);
     let moreMenu: MenuProps["items"] = [
       {
         key: "edit",
@@ -211,70 +205,66 @@ const Workspaces: React.FC = () => {
       <Card
         hoverable
         className="workspace-card"
-        styles={{ header: { background, padding: 0 } }}
+        bodyStyle={{ padding: "24px 24px 20px 24px" }}
       >
-        <div className="workspace-card-color-bar" style={{ background }} />
-        <div className="workspace-card-content">
+        <div
+          className="workspace-card-content"
+          onClick={() =>
+            navigate(
+              generatePath(PRIVATE_ROUTE.WORKSPACE, {
+                id: workspace._id,
+              })
+            )
+          }
+        >
           <div className="workspace-card-header">
-            <div className="workspace-card-title">
-              <button
-                onClick={() =>
-                  navigate(
-                    generatePath(PRIVATE_ROUTE.WORKSPACE, { id: workspace._id })
-                  )
-                }
-                className="workspace-link"
-              >
+            <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+              <FolderOpenOutlined className="workspace-icon" />
+              <div className="workspace-card-title">
                 <Title level={4} className="workspace-name">
                   {workspace.name}
                 </Title>
-              </button>
+              </div>
             </div>
-            <div className="workspace-card-actions">
-              <Dropdown
-                menu={{
-                  items: moreMenu,
-                  onClick: ({ key }) => handleMenuClick(key, workspace),
-                }}
-                placement="bottomRight"
-                trigger={["click"]}
-              >
-                <Button
-                  type="text"
-                  shape="circle"
-                  icon={<EllipsisOutlined />}
-                  className="more-btn"
-                />
-              </Dropdown>
-            </div>
+            {workspace.createdBy._id === currentUser?.id ? (
+              <div className="workspace-card-actions">
+                <Dropdown
+                  menu={{
+                    items: moreMenu,
+                    onClick: ({ key, domEvent }) => {
+                      domEvent.stopPropagation();
+                      handleMenuClick(key, workspace);
+                    },
+                  }}
+                  placement="bottomRight"
+                  trigger={["click"]}
+                >
+                  <Button
+                    type="text"
+                    shape="circle"
+                    onClick={(e) => e.stopPropagation()}
+                    icon={<MoreOutlined />}
+                    className="more-btn"
+                  />
+                </Dropdown>
+              </div>
+            ) : null}
           </div>
 
-          <Paragraph
-            ellipsis={{ rows: 2 }}
-            className="workspace-description color-inherit"
-          >
-            {workspace.description || "No description"}
-          </Paragraph>
-
           <div className="workspace-card-footer">
-            <Space wrap>
-              <Tooltip title={workspace.createdBy.email}>
-                <Tag icon={<UserOutlined />}>
-                  {workspace.createdBy.first_name +
-                    " " +
-                    workspace.createdBy.last_name}
-                </Tag>
-              </Tooltip>
-              <Tooltip
-                title={`Created on ${new Date(
-                  workspace.createdAt
-                ).toLocaleDateString()}`}
-              >
-                <Tag icon={<ClockCircleOutlined />}>
-                  {new Date(workspace.createdAt).toLocaleDateString()}
-                </Tag>
-              </Tooltip>
-            </Space>
+            <Paragraph className="workspace-description color-inherit">
+              <UserOutlined />{" "}
+              {workspace.createdBy.first_name +
+                " " +
+                workspace.createdBy.last_name}
+            </Paragraph>
+            <Paragraph className="workspace-description color-inherit">
+              <CalendarOutlined />{" "}
+              {dayjs(workspace.createdAt).format("MMM DD, YYYY")}
+            </Paragraph>
+            <Paragraph className="workspace-description color-inherit">
+              {workspace.boards} boards
+            </Paragraph>
           </div>
         </div>
       </Card>
@@ -282,7 +272,7 @@ const Workspaces: React.FC = () => {
   };
 
   const renderWorkspaces = (workspaces: IWorkspace[]) => {
-    if (workspaces.length === 0) {
+    if (workspaces?.length === 0) {
       return (
         <div className="empty-state">
           <Empty
@@ -303,57 +293,73 @@ const Workspaces: React.FC = () => {
     }
 
     return (
-      <Row gutter={[16, 16]} className="workspaces-grid">
-        {workspaces.map((workspace) => (
-          <Col xs={24} sm={12} md={8} lg={6} key={workspace._id}>
-            {renderWorkspaceCard(workspace)}
-          </Col>
-        ))}
-        <Col xs={24} sm={12} md={8} lg={6}>
-          <Card
-            hoverable
-            className="create-workspace-card"
-            onClick={showAddModal}
-          >
-            <div className="create-card-content">
-              <PlusOutlined className="plus-icon" />
-              <div className="create-card-text">Create New Workspace</div>
-            </div>
-          </Card>
-        </Col>
-      </Row>
+      <div>
+        <Row gutter={[16, 16]} className="workspaces-grid">
+          {workspaces?.map((workspace) => (
+            <Col xs={24} sm={12} md={8} lg={6} key={workspace._id}>
+              {renderWorkspaceCard(workspace)}
+            </Col>
+          ))}
+        </Row>
+        <Pagination
+          align="center"
+          style={{ marginTop: "40px" }}
+          defaultCurrent={1}
+          pageSize={workspacePagination.limit}
+          current={workspacePagination.currentPage}
+          total={workspacePagination.totalRecords}
+          onChange={(page) => {
+            dispatch(
+              getAllWorkspaces({
+                page,
+                search: searchText,
+                sortType: sortOption,
+              })
+            );
+          }}
+        />
+      </div>
     );
   };
 
   // Sort menu items
   const sortMenuItems: MenuProps["items"] = [
     {
-      key: SORT_OPTIONS.DEFAULT,
+      key: SORT_OPTIONS_VALUES.DEFAULT,
       label: "Default",
-      icon: sortOption === SORT_OPTIONS.DEFAULT ? <CheckOutlined /> : null,
+      icon:
+        sortOption === SORT_OPTIONS_VALUES.DEFAULT ? <CheckOutlined /> : null,
     },
     {
-      key: SORT_OPTIONS.NAME_ASC,
+      key: SORT_OPTIONS_VALUES.NAME_ASC,
       label: "Name (A-Z)",
-      icon: sortOption === SORT_OPTIONS.NAME_ASC ? <CheckOutlined /> : null,
+      icon:
+        sortOption === SORT_OPTIONS_VALUES.NAME_ASC ? <CheckOutlined /> : null,
     },
     {
-      key: SORT_OPTIONS.NAME_DESC,
+      key: SORT_OPTIONS_VALUES.NAME_DESC,
       label: "Name (Z-A)",
-      icon: sortOption === SORT_OPTIONS.NAME_DESC ? <CheckOutlined /> : null,
+      icon:
+        sortOption === SORT_OPTIONS_VALUES.NAME_DESC ? <CheckOutlined /> : null,
     },
     {
       type: "divider",
     },
     {
-      key: SORT_OPTIONS.CREATED_ASC,
+      key: SORT_OPTIONS_VALUES.CREATED_ASC,
       label: "Date Created (Oldest first)",
-      icon: sortOption === SORT_OPTIONS.CREATED_ASC ? <CheckOutlined /> : null,
+      icon:
+        sortOption === SORT_OPTIONS_VALUES.CREATED_ASC ? (
+          <CheckOutlined />
+        ) : null,
     },
     {
-      key: SORT_OPTIONS.CREATED_DESC,
+      key: SORT_OPTIONS_VALUES.CREATED_DESC,
       label: "Date Created (Newest first)",
-      icon: sortOption === SORT_OPTIONS.CREATED_DESC ? <CheckOutlined /> : null,
+      icon:
+        sortOption === SORT_OPTIONS_VALUES.CREATED_DESC ? (
+          <CheckOutlined />
+        ) : null,
     },
   ];
 
@@ -366,31 +372,49 @@ const Workspaces: React.FC = () => {
             <Title level={3} className="page-title">
               Your Workspaces
             </Title>
+            <Paragraph style={{ marginBottom: 0 }}>
+              List of workspaces you are part of
+            </Paragraph>
           </div>
           <div className="header-right">
-            <Space className="search-filter">
+            <Space>
               <ResponsiveSearch breakPoint={590}>
                 <Input
                   prefix={<SearchOutlined />}
                   placeholder="Search workspaces"
                   allowClear
                   value={searchText}
-                  onChange={(e) => setSearchText(e.target.value)}
                   className="form-input small-input"
+                  onChange={(e) => setSearchText(e.target.value)}
+                  onClear={async () =>
+                    await dispatch(
+                      getAllWorkspaces({ page: 1, search: "", sortType: 0 })
+                    )
+                  }
                 />
               </ResponsiveSearch>
               <Dropdown
                 menu={{
                   items: sortMenuItems,
-                  onClick: ({ key }) => setSortOption(key),
+                  onClick: ({ key }) => {
+                    setSortOption(Number(key));
+                    dispatch(
+                      getAllWorkspaces({
+                        page: 1,
+                        search: searchText,
+                        sortType: Number(key),
+                      })
+                    );
+                  },
                   selectable: true,
-                  defaultSelectedKeys: [sortOption],
+                  defaultSelectedKeys: [SORT_OPTIONS.DEFAULT],
                 }}
                 trigger={["click"]}
               >
                 <CustomButton
                   type="default"
                   className="button"
+                  style={{ marginTop: 0 }}
                   icon={<SortAscendingOutlined />}
                   breakPoint={800}
                 >
@@ -402,6 +426,7 @@ const Workspaces: React.FC = () => {
                 icon={<PlusOutlined />}
                 onClick={showAddModal}
                 className="button"
+                style={{ marginTop: 0 }}
                 breakPoint={820}
               >
                 Create New Workspace
@@ -410,9 +435,7 @@ const Workspaces: React.FC = () => {
           </div>
         </div>
 
-        <div className="workspaces-content">
-          {renderWorkspaces(processedWorkspaces)}
-        </div>
+        <div className="workspaces-content">{renderWorkspaces(workspaces)}</div>
 
         {/* Add/Edit Workspace Modal */}
         <Modal
