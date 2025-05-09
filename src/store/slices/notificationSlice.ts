@@ -15,6 +15,7 @@ export interface Notification {
   };
   createdAt: string;
   updatedAt: string;
+  link: string;
   __v: number;
 }
 

@@ -190,18 +190,28 @@ const Header: React.FC = () => {
                           background: getRandomColor(item?.sender?._id),
                         }}
                       >
-                        {item.sender.first_name?.[0]?.toUpperCase() +
-                          item.sender.last_name?.[0]?.toUpperCase()}
+                        {item.sender?.first_name?.[0]?.toUpperCase() +
+                          item.sender?.last_name?.[0]?.toUpperCase()}
                       </Avatar>
                       <div className="notification-text">
                         <p>{item.message}</p>
-                        <span
-                          style={{
-                            color: "#727272",
-                          }}
-                        >
-                          {dayjs(item.createdAt).fromNow()}
-                        </span>
+                        <div className="flex-items">
+                          <span
+                            style={{
+                              color: "#727272",
+                            }}
+                          >
+                            {dayjs(item.createdAt).fromNow()}
+                          </span>
+                          {item.link && (
+                            <Link
+                              to={item.link}
+                              style={{ textDecoration: "underline" }}
+                            >
+                              See details
+                            </Link>
+                          )}
+                        </div>
                       </div>
                     </div>
                     <Button

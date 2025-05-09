@@ -1,58 +1,88 @@
-import React from "react";
-import { Typography, Space, Segmented } from "antd";
+import React, { useEffect, useState } from "react";
+import { Typography, Space, Segmented, Spin, Pagination, Empty } from "antd";
 import "../../layout/styles/invitations.css";
 import InvitationCard from "./component/InvitationCard";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "../../store";
+import { getInvitationsList } from "../../store/slices/invitationSlice";
+import { StatusType } from "../../utils/enums/invitaion";
 const { Title, Paragraph } = Typography;
 
 const Invitations = () => {
-  return (
-    <div className="invitations-container">
-      <div className="invitations-header">
-        <div className="invitations-header-left">
-          <Title level={3} className="page-title">
-            Invitation Requests
-          </Title>
-          <Paragraph style={{ marginBottom: 0 }}>
-            Review and manage pending invitation requests
-          </Paragraph>
-        </div>
-        <div className="invitations-header-right">
-          <Space>
-            <Segmented
-              size="large"
-              options={["All", "Pending", "Approved", "Rejected"]}
-              onChange={(value) => {
-                console.log(value);
-              }}
-            />
-          </Space>
-        </div>
-      </div>
+  const dispatch = useDispatch<AppDispatch>();
+  const { loading, invitationList, pagination } = useSelector(
+    (state: RootState) => state.invitation
+  );
+  const [selectedStatus, setSelectedStatus] = useState(StatusType.All);
 
-      <div className="invitations-grid">
-        {[1, 2, 3].map((invitation) => (
-          <InvitationCard
-            invitation={{
-              _id: "123",
-              board: { _id: "1234455", name: "Board" },
-              user: {
-                _id: "12333",
-                first_name: "Test",
-                last_name: "User",
-                email: "user@yopmail.com",
-              },
-              invitedBy: {
-                _id: "12333",
-                first_name: "Test",
-                last_name: "User",
-                email: "user@yopmail.com",
-              },
-              status: "Pending",
-            }}
+  useEffect(() => {
+    dispatch(getInvitationsList({ page: 1, status: "All" }));
+  }, [dispatch]);
+
+  return (
+    <>
+      <Spin spinning={loading} fullscreen />
+      <div className="invitations-container">
+        <div className="invitations-header">
+          <div className="invitations-header-left">
+            <Title level={3} className="page-title">
+              Invitation Requests
+            </Title>
+            <Paragraph style={{ marginBottom: 0 }}>
+              Review and manage pending invitation requests
+            </Paragraph>
+          </div>
+          <div className="invitations-header-right">
+            <Space>
+              <Segmented
+                size="large"
+                options={[
+                  StatusType.All,
+                  StatusType.PENDING,
+                  StatusType.APPROVED,
+                  StatusType.REJECTED,
+                ]}
+                onChange={(value) => {
+                  setSelectedStatus(value);
+                  dispatch(getInvitationsList({ page: 1, status: value }));
+                }}
+              />
+            </Space>
+          </div>
+        </div>
+
+        {invitationList?.length > 0 ? (
+          <div className="invitations-grid">
+            {invitationList.map((invitation) => (
+              <InvitationCard invitation={invitation} />
+            ))}
+          </div>
+        ) : (
+          <Empty
+            description="No Invitations found"
+            className="empty-container"
           />
-        ))}
+        )}
       </div>
-    </div>
+      {pagination.totalPages > 1 && (
+        <Pagination
+          align="center"
+          style={{ marginTop: "40px" }}
+          defaultCurrent={1}
+          pageSize={pagination.limit}
+          current={pagination.currentPage}
+          total={pagination.totalRecords}
+          onChange={(page) => {
+            dispatch(
+              getInvitationsList({
+                page,
+                status: selectedStatus,
+              })
+            );
+          }}
+        />
+      )}
+    </>
   );
 };
 

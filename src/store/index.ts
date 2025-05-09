@@ -21,6 +21,7 @@ import notificationReducer from "./slices/notificationSlice";
 import dashboardReducer from "./slices/dashboardSlice";
 import taskAttachmentReducer from "./slices/taskAttachmentSlice";
 import contactUsReducer from "./slices/contactUsSlice";
+import invitationReducer from "./slices/invitationSlice";
 import { notificationMiddleware } from "./middleware/notificationMiddleware";
 import { RESET_APP } from "../config";
 
@@ -43,6 +44,7 @@ const appReducer = combineReducers({
   taskAttachment: taskAttachmentReducer,
   dashboard: dashboardReducer,
   contactUs: contactUsReducer,
+  invitation: invitationReducer,
 });
 
 const rootReducer = (

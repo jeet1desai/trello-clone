@@ -592,6 +592,13 @@
   padding: 12px;
 }
 
+.flex-items {
+    display: flex;
+    justify-content: space-between;
+    align-items: end;
+    width: 130%;
+}
+
 /* 🌐 Responsive Styles */
 @media (max-width: 480px) {
   .custom-notification-popover {
@@ -612,6 +619,10 @@
 
   .notification-text {
     max-width: 65vw;
+  }
+
+  .flex-items {
+    width: 115%;
   }
 }
 
