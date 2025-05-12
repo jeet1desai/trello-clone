@@ -21,6 +21,7 @@
     "dayjs": "^1.11.13",
     "firebase": "^11.6.1",
     "google-auth-library": "^9.15.1",
+    "lucide-react": "^0.509.0",
     "quill": "^2.0.3",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",

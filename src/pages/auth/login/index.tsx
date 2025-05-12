@@ -1,9 +1,5 @@
 import React, { useEffect } from "react";
 import { Form, Input, Button, Typography, Divider } from "antd";
-import {
-  UserOutlined,
-  LockOutlined
-} from "@ant-design/icons";
 import { Link, useNavigate } from "react-router-dom";
 import { AppDispatch, RootState } from "../../../store";
 import { clearAuthState, loginUser } from "../../../store/slices/userSlice";
@@ -11,6 +7,7 @@ import { useDispatch, useSelector } from "react-redux";
 import "../../../layout/styles/Auth.css";
 import { PRIVATE_ROUTE, PUBLIC_ROUTE } from "../../../utils/enums/route";
 import { GitHubSocialLogin, GoogleSocialLogin } from "../../../components/social";
+import { LockKeyhole, UserRound } from "lucide-react";
 
 const { Title, Text } = Typography;
 
@@ -77,7 +74,7 @@ const Login: React.FC = () => {
             ]}
           >
             <Input
-              prefix={<UserOutlined className="form-icon" />}
+              prefix={<UserRound size={16} className="form-icon" />}
               placeholder="Enter your email"
               size="large"
               className="form-input"
@@ -97,7 +94,7 @@ const Login: React.FC = () => {
             ]}
           >
             <Input.Password
-              prefix={<LockOutlined className="form-icon" />}
+              prefix={<LockKeyhole size={16} className="form-icon" />}
               placeholder="Enter your password"
               size="large"
               className="form-input"

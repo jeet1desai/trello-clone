@@ -19,18 +19,6 @@ import {
   Spin,
   Pagination,
 } from "antd";
-import {
-  PlusOutlined,
-  UserOutlined,
-  EllipsisOutlined,
-  SearchOutlined,
-  SortAscendingOutlined,
-  CheckOutlined,
-  DeleteOutlined,
-  ExclamationCircleOutlined,
-  BranchesOutlined,
-  EditOutlined,
-} from "@ant-design/icons";
 import type { MenuProps } from "antd";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../store";
@@ -50,6 +38,18 @@ import { generateGradient } from "../../utils";
 import { PRIVATE_ROUTE } from "../../utils/enums/route";
 import CustomButton from "../../components/ui/button";
 import ResponsiveSearch from "../../components/ui/searchResponsive";
+import {
+  ArrowDownAZ,
+  Check,
+  CircleAlert,
+  Edit2,
+  GitBranch,
+  MoreHorizontal,
+  Plus,
+  Search,
+  Trash2,
+  UserRound,
+} from "lucide-react";
 const { Title, Paragraph } = Typography;
 
 const Boards: React.FC = () => {
@@ -141,7 +141,9 @@ const Boards: React.FC = () => {
           members: values?.members,
         })
       );
-      await dispatch(getAllBoards({ page: 1, search: "", sortType: sortOption }));
+      await dispatch(
+        getAllBoards({ page: 1, search: "", sortType: sortOption })
+      );
     }
     if (!addError) {
       setIsModalVisible(false);
@@ -165,7 +167,9 @@ const Boards: React.FC = () => {
   const handleDelete = (_id: string, name: string) => {
     modal.confirm({
       title: `Are you sure you want to delete "${name}"?`,
-      icon: <ExclamationCircleOutlined />,
+      icon: (
+        <CircleAlert size={36} color="#ffac40" style={{ marginRight: 8 }} />
+      ),
       content:
         "This action cannot be undone. All data will be permanently deleted.",
       okText: "Delete",
@@ -205,13 +209,13 @@ const Boards: React.FC = () => {
     const moreMenu: MenuProps["items"] = [
       {
         key: "edit",
-        icon: <EditOutlined />,
+        icon: <Edit2 size={14} />,
         label: "Edit",
       },
       {
         key: "delete",
         label: "Delete",
-        icon: <DeleteOutlined />,
+        icon: <Trash2 size={14} />,
         danger: true,
       },
     ];
@@ -250,7 +254,7 @@ const Boards: React.FC = () => {
                     type="text"
                     shape="circle"
                     onClick={(e) => e.stopPropagation()}
-                    icon={<EllipsisOutlined />}
+                    icon={<MoreHorizontal size={16} />}
                     className="more-btn"
                   />
                 </Dropdown>
@@ -268,13 +272,21 @@ const Boards: React.FC = () => {
           <div className="board-card-footer">
             <Space wrap>
               <Tooltip title={getOwnerDetails(board)?.email}>
-                <Tag icon={<UserOutlined />}>
+                <Tag
+                  icon={<UserRound size={14} />}
+                  style={{ display: "flex", alignItems: "center", gap: 2 }}
+                >
                   {getOwnerDetails(board)?.first_name +
                     " " +
-                    getOwnerDetails(board)?.last_name}
+                    (getOwnerDetails(board)?.last_name ?? "")}
                 </Tag>
               </Tooltip>
-              <Tag icon={<BranchesOutlined />}>{board?.workspace?.name}</Tag>
+              <Tag
+                icon={<GitBranch size={14} />}
+                style={{ display: "flex", alignItems: "center", gap: 2 }}
+              >
+                {board?.workspace?.name}
+              </Tag>
             </Space>
           </div>
         </div>
@@ -295,7 +307,7 @@ const Boards: React.FC = () => {
             <Button
               type="primary"
               className="button"
-              icon={<PlusOutlined />}
+              icon={<Plus size={16} />}
               onClick={showAddModal}
             >
               Create New Board
@@ -314,23 +326,25 @@ const Boards: React.FC = () => {
             </Col>
           ))}
         </Row>
-        <Pagination
-          align="center"
-          style={{ marginTop: "40px" }}
-          defaultCurrent={1}
-          pageSize={boardPagination.limit}
-          current={boardPagination.currentPage}
-          total={boardPagination.totalRecords}
-          onChange={(page) => {
-            dispatch(
-              getAllBoards({
-                page,
-                search: searchText,
-                sortType: sortOption,
-              })
-            );
-          }}
-        />
+        {boardPagination.totalPages > 1 && (
+          <Pagination
+            align="center"
+            style={{ marginTop: "40px" }}
+            defaultCurrent={1}
+            pageSize={boardPagination.limit}
+            current={boardPagination.currentPage}
+            total={boardPagination.totalRecords}
+            onChange={(page) => {
+              dispatch(
+                getAllBoards({
+                  page,
+                  search: searchText,
+                  sortType: sortOption,
+                })
+              );
+            }}
+          />
+        )}
       </div>
     );
   };
@@ -341,19 +355,23 @@ const Boards: React.FC = () => {
       key: SORT_OPTIONS_VALUES.DEFAULT,
       label: "Default",
       icon:
-        sortOption === SORT_OPTIONS_VALUES.DEFAULT ? <CheckOutlined /> : null,
+        sortOption === SORT_OPTIONS_VALUES.DEFAULT ? <Check size={16} /> : null,
     },
     {
       key: SORT_OPTIONS_VALUES.NAME_ASC,
       label: "Name (A-Z)",
       icon:
-        sortOption === SORT_OPTIONS_VALUES.NAME_ASC ? <CheckOutlined /> : null,
+        sortOption === SORT_OPTIONS_VALUES.NAME_ASC ? (
+          <Check size={16} />
+        ) : null,
     },
     {
       key: SORT_OPTIONS_VALUES.NAME_DESC,
       label: "Name (Z-A)",
       icon:
-        sortOption === SORT_OPTIONS_VALUES.NAME_DESC ? <CheckOutlined /> : null,
+        sortOption === SORT_OPTIONS_VALUES.NAME_DESC ? (
+          <Check size={16} />
+        ) : null,
     },
     {
       type: "divider",
@@ -363,7 +381,7 @@ const Boards: React.FC = () => {
       label: "Date Created (Oldest first)",
       icon:
         sortOption === SORT_OPTIONS_VALUES.CREATED_ASC ? (
-          <CheckOutlined />
+          <Check size={16} />
         ) : null,
     },
     {
@@ -371,7 +389,7 @@ const Boards: React.FC = () => {
       label: "Date Created (Newest first)",
       icon:
         sortOption === SORT_OPTIONS_VALUES.CREATED_DESC ? (
-          <CheckOutlined />
+          <Check size={16} />
         ) : null,
     },
   ];
@@ -393,7 +411,7 @@ const Boards: React.FC = () => {
             <Space>
               <ResponsiveSearch breakPoint={540}>
                 <Input
-                  prefix={<SearchOutlined />}
+                  prefix={<Search size={16} />}
                   placeholder="Search boards"
                   allowClear
                   value={searchText}
@@ -429,7 +447,7 @@ const Boards: React.FC = () => {
                   type="default"
                   className="button"
                   style={{ marginTop: 0 }}
-                  icon={<SortAscendingOutlined />}
+                  icon={<ArrowDownAZ size={16} />}
                   breakPoint={720}
                 >
                   <Space>Sort</Space>
@@ -437,7 +455,7 @@ const Boards: React.FC = () => {
               </Dropdown>
               <CustomButton
                 type="primary"
-                icon={<PlusOutlined />}
+                icon={<Plus size={16} />}
                 onClick={showAddModal}
                 className="button"
                 style={{ marginTop: 0 }}
@@ -469,7 +487,13 @@ const Boards: React.FC = () => {
               type="error"
               showIcon
               style={{ marginBottom: 10 }}
-              icon={<ExclamationCircleOutlined />}
+              icon={
+                <CircleAlert
+                  size={16}
+                  color="#ffac40"
+                  style={{ marginRight: 8 }}
+                />
+              }
             />
           )}
           {editError && (
@@ -478,7 +502,13 @@ const Boards: React.FC = () => {
               type="error"
               showIcon
               style={{ marginBottom: 10 }}
-              icon={<ExclamationCircleOutlined />}
+              icon={
+                <CircleAlert
+                  size={16}
+                  color="#ffac40"
+                  style={{ marginRight: 8 }}
+                />
+              }
             />
           )}
           <AddBoardForm

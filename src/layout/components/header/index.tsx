@@ -14,13 +14,6 @@ import {
   Empty,
   Typography,
 } from "antd";
-import {
-  BellOutlined,
-  UserOutlined,
-  LogoutOutlined,
-  EyeInvisibleOutlined,
-  NotificationOutlined,
-} from "@ant-design/icons";
 import { logoutUser } from "../../../store/slices/userSlice";
 import { ThemeToggle } from "../../../components/ui";
 import { useTheme } from "../../../contexts/ThemeContext";
@@ -40,6 +33,8 @@ import { PRIVATE_ROUTE, PUBLIC_ROUTE } from "../../../utils/enums/route";
 import { companyLogo } from "../../../assets";
 import { getRandomColor } from "../../../utils";
 import { handleSocialLogout } from "../../../config/firebase/helperFunction";
+import { Bell, CheckCheck, EyeOff, LogOut, UserRound } from "lucide-react";
+
 dayjs.extend(relativeTime);
 const { Header: AntHeader } = Layout;
 
@@ -83,13 +78,13 @@ const Header: React.FC = () => {
     {
       key: "profile",
       label: <span>Profile</span>,
-      icon: <UserOutlined />,
+      icon: <UserRound size={16} />,
       onClick: () => navigate(PRIVATE_ROUTE.USER_PROFILE),
     },
     {
       key: "logout",
       label: <span className="require-mark">Log Out</span>,
-      icon: <LogoutOutlined className="require-mark" />,
+      icon: <LogOut size={16} className="require-mark" />,
       onClick: handleLogout,
     },
   ];
@@ -195,7 +190,13 @@ const Header: React.FC = () => {
                       </Avatar>
                       <div className="notification-text">
                         <p>{item.message}</p>
-                        <div className="flex-items">
+                        <div
+                          style={{
+                            width: item.message?.length > 35 ? "100%" : "119%",
+                            display: "flex",
+                            justifyContent: "space-between",
+                          }}
+                        >
                           <span
                             style={{
                               color: "#727272",
@@ -206,7 +207,11 @@ const Header: React.FC = () => {
                           {item.link && (
                             <Link
                               to={item.link}
-                              style={{ textDecoration: "underline" }}
+                              className="link-text"
+                              onClick={() => {
+                                handleReadNotification(item._id);
+                                setNotificationOpen(false);
+                              }}
                             >
                               See details
                             </Link>
@@ -216,7 +221,7 @@ const Header: React.FC = () => {
                     </div>
                     <Button
                       type="text"
-                      icon={<EyeInvisibleOutlined />}
+                      icon={<EyeOff size={14} />}
                       onClick={() => handleReadNotification(item._id)}
                       className="notification-button"
                       style={{ color: isDarkMode ? "white" : "inherit" }}
@@ -230,7 +235,9 @@ const Header: React.FC = () => {
           }
           title={
             <div className="notification-header">
-              <Typography>Notification</Typography>
+              <Typography>
+                Notifications ({allNotification?.length ?? 0})
+              </Typography>
               {allNotification.length > 0 && (
                 <Typography
                   className="notification-mark-as-read"
@@ -239,7 +246,7 @@ const Header: React.FC = () => {
                     setNotificationOpen(false);
                   }}
                 >
-                  <NotificationOutlined style={{ marginRight: 4 }} />
+                  <CheckCheck size={14} style={{ marginRight: 4 }} />
                   Mark all as read
                 </Typography>
               )}
@@ -253,7 +260,7 @@ const Header: React.FC = () => {
             type="text"
             icon={
               <Badge dot={allNotification.some((n) => !n.read)}>
-                <BellOutlined />
+                <Bell size={16} />
               </Badge>
             }
             className="notification-trigger"

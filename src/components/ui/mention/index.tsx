@@ -38,12 +38,12 @@ const MentionTextComment: React.FC<MentionTextCommentProps> = ({
   const filteredMembers = useMemo(() => {
     return members
       .filter((member) => {
-        const fullName = `${member.first_name} ${member.last_name}`;
+        const fullName = `${member?.first_name} ${member?.last_name ?? ""}`;
         return !mentionedMembers.includes(fullName);
       })
       .sort((a, b) => {
-        const fullNameA = `${a.first_name} ${a.last_name}`;
-        const fullNameB = `${b.first_name} ${b.last_name}`;
+        const fullNameA = `${a?.first_name} ${a?.last_name ?? ""}`;
+        const fullNameB = `${b?.first_name} ${b?.last_name ?? ""}`;
         return fullNameA.localeCompare(fullNameB);
       });
   }, [mentionedMembers, members]);
@@ -69,8 +69,8 @@ const MentionTextComment: React.FC<MentionTextCommentProps> = ({
       prefix={["@", "#"]}
       options={filteredMembers.map((member) => {
         return {
-          label: member.first_name + " " + member.last_name,
-          value: member.first_name + " " + member.last_name,
+          label: member?.first_name + " " + (member?.last_name ?? ""),
+          value: member?.first_name + " " + (member?.last_name ?? ""),
           key: member._id,
         };
       })}

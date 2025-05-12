@@ -86,7 +86,7 @@ const InviteBoard: React.FC<InviteBoardProps> = ({ isOpen, onClose }) => {
 
   const handleRemoveMember = (member: MemberData) => {
     modal.confirm({
-      title: `Are you sure you want to remove "${member.memberId.first_name} ${member.memberId.last_name}" from the board?`,
+      title: `Are you sure you want to remove "${member.memberId.first_name} ${member.memberId.last_name ?? ""}" from the board?`,
       icon: <ExclamationCircleOutlined />,
       content:
         "This action can be done again by inviting the member back to the board.",
@@ -250,11 +250,11 @@ const InviteBoard: React.FC<InviteBoardProps> = ({ isOpen, onClose }) => {
                           background: getRandomColor(item.memberId._id),
                         }}
                       >
-                        {item.memberId.first_name.charAt(0).toUpperCase() +
-                          item.memberId.last_name.charAt(0).toUpperCase()}
+                        {item.memberId.first_name?.charAt(0)?.toUpperCase() +
+                          item.memberId.last_name?.charAt(0)?.toUpperCase()}
                       </Avatar>
                     }
-                    title={`${item.memberId.first_name} ${item.memberId.last_name}`}
+                    title={`${item.memberId.first_name} ${item.memberId.last_name ?? ""}`}
                     description={item.memberId.email}
                   />
                 </List.Item>

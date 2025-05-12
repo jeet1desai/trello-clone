@@ -122,7 +122,7 @@ const InvitationCard = ({ invitation }: IProps) => {
         has been invited to{" "}
         <Link to={`/board/${boardId._id}`}>{boardId.name}</Link> by{" "}
         <span className="user-name">
-          {invitedBy.first_name + " " + invitedBy.last_name}({invitedBy.email})
+          {invitedBy.first_name + " " + (invitedBy.last_name ?? "")}({invitedBy.email})
         </span>
         .
       </Paragraph>

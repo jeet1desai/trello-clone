@@ -1,5 +1,5 @@
 .board-header {
-  padding: 16px 24px;
+  padding: 14px 20px;
   background: #40a9ff;
   display: flex;
   justify-content: space-between;
@@ -216,6 +216,7 @@
 .attachment-actions {
   display: flex;
   gap: 8px;
+  align-items: center;
 }
 
 .activity-section {
@@ -351,6 +352,12 @@
   border-radius: 4px;
 }
 
+.btn-small {
+  margin-top: 0;
+  height: 36px;
+  font-size: 14px;
+}
+
 .dates-btn {
   font-size: 12px;
   margin-top: 4px;
@@ -375,6 +382,34 @@
 
 .theme-dark .filter-icon {
   background-color: black !important;
+}
+
+.text-wrapper {
+  font-size: 16px;
+  margin: 8px;
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.count-chip {
+  background-color: #504f4f12;
+  border-radius: 50%;
+  padding: 2px 6px;
+  font-size: 12px;
+  color: grey;
+}
+
+.add-card-button {
+  color: #504f4f;
+  font-weight: 500;
+  border: 1px dashed grey;
+  border-radius: 4px;
+  padding: 18px;
+}
+
+.add-card-button:hover {
+  background-color: #504f4f12 !important;
 }
 
 /* Filter popup */
@@ -443,12 +478,26 @@
   border-radius: 4px;
 }
 
+.edit-comment-btn {
+  font-size: 12px;
+  padding: 0 8px 0 15px;
+  cursor: pointer;
+}
+
+.edit-comment-btn:hover {
+  text-decoration: underline;
+}
+
 .delete-comment-btn {
   align-self: flex-start;
   padding: 0px;
   font-size: 12px;
   cursor: pointer;
   color: red;
+}
+
+.delete-comment-btn:hover {
+  text-decoration: underline;
 }
 
 .edit-container {
@@ -519,6 +568,24 @@
 .show-edit-btn-container {
   margin-left: -15px;
   margin-top: -8px;
+}
+
+.add-btn {
+  height: 32px;
+  margin-top: 0px;
+  border-radius: 4px;
+}
+
+.dashed {
+  border: 1px dashed #80808069;
+}
+
+.assign-member-avatar {
+  position: absolute;
+  top: 44px;
+  right: 7px;
+  width: 30px;
+  height: 30px;
 }
 
 /* Upload Attachment style */

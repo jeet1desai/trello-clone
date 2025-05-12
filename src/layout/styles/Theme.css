@@ -315,6 +315,17 @@ a:hover {
   box-shadow: 0 8px 16px rgba(24, 144, 255, 0.2);
 }
 
+.ant-btn-icon-only {
+  color: grey !important;
+}
+
+.add-list-card {
+  border-radius: 6px;
+  margin: 0px 8px;
+  padding: 8px;
+  background: var(--bg-primary);
+}
+
 /* Modal */
 .ant-modal-content,
 .ant-modal-close {

@@ -328,7 +328,7 @@ const WorkspaceDetail: React.FC = () => {
                 <Tag icon={<UserOutlined />}>
                   {selectedWorkspace.createdBy.first_name +
                     " " +
-                    selectedWorkspace.createdBy.last_name}
+                    (selectedWorkspace.createdBy.last_name ?? "")}
                 </Tag>
                 <Tag icon={<ClockCircleOutlined />}>
                   {dayjs(selectedWorkspace.createdAt).format("MMM DD, YYYY")}

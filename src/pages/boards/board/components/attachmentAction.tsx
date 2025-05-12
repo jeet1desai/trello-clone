@@ -1,10 +1,6 @@
 import { Dropdown, Button, MenuProps } from "antd";
-import {
-  EllipsisOutlined,
-  DownloadOutlined,
-  DeleteOutlined,
-} from "@ant-design/icons";
 import { IAttachment } from "../../../../store/slices/taskAttachmentSlice";
+import { ArrowDownToLine, EllipsisVertical, Trash2 } from "lucide-react";
 
 interface AttachmentActionsProps {
   attachment: IAttachment;
@@ -19,12 +15,12 @@ const AttachmentActions = ({
     {
       key: "download",
       label: "Download",
-      icon: <DownloadOutlined />,
+      icon: <ArrowDownToLine size={16} />,
     },
     {
       key: "delete",
       label: "Delete",
-      icon: <DeleteOutlined />,
+      icon: <Trash2 size={16} />,
       danger: true,
     },
   ];
@@ -38,7 +34,7 @@ const AttachmentActions = ({
       trigger={["click"]}
       placement="bottomRight"
     >
-      <Button type="text" icon={<EllipsisOutlined />} />
+      <Button type="text" icon={<EllipsisVertical size={16} />} />
     </Dropdown>
   );
 };

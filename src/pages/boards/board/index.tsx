@@ -15,20 +15,6 @@ import {
   Divider,
   Badge,
 } from "antd";
-import {
-  PlusOutlined,
-  CloseOutlined,
-  UserAddOutlined,
-  DeleteOutlined,
-  ExclamationCircleOutlined,
-  MessageOutlined,
-  PaperClipOutlined,
-  ClockCircleOutlined,
-  UserOutlined,
-  AlertFilled,
-  FilterOutlined,
-  SmileOutlined,
-} from "@ant-design/icons";
 import type {
   DraggableProvided,
   DraggableStateSnapshot,
@@ -80,6 +66,25 @@ import { useSearchParams } from "react-router-dom";
 import dayjs from "dayjs";
 import { Priority, TaskStatus } from "../../../utils/enums/task";
 import { openNotification } from "../../../services/notificationService";
+import {
+  Pencil,
+  Trash2,
+  Check,
+  X,
+  CirclePlus,
+  ChevronsUp,
+  ChevronUp,
+  ListFilter,
+  UserRoundPlus,
+  CircleAlert,
+  MessageSquare,
+  Paperclip,
+  Equal,
+  ChevronDown,
+  Clock,
+  UserRound,
+  Smile,
+} from "lucide-react";
 
 const { Title, Text } = Typography;
 
@@ -128,31 +133,6 @@ const BoardDetail: React.FC = () => {
   const [hoveredTaskId, setHoveredTaskId] = useState<string | null>(null);
   const [filterOpen, setFilterOpen] = useState(false);
   const [selectedFilters, setSelectedFilters] = useState([currentUser?.id]);
-
-  useEffect(() => {
-    async function handleClickOutside(event: MouseEvent) {
-      if (
-        wrapperRef.current &&
-        !wrapperRef.current.contains(event.target as Node) &&
-        Object.keys(isEditStatus).length > 0 &&
-        id
-      ) {
-        await dispatch(
-          updateStatus({
-            statusId: Object.keys(isEditStatus)[0],
-            name: newStatusTitle,
-          })
-        );
-        await dispatch(getStatusListByBoardId(id));
-        setIsEditStatus({});
-      }
-    }
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [dispatch, isEditStatus, newStatusTitle, id]);
 
   useEffect(() => {
     (async () => {
@@ -234,18 +214,59 @@ const BoardDetail: React.FC = () => {
       dispatch(removeStatus(payload));
     });
 
-    if (isOwner() || selectedFilters.includes("all"))
-      socketService.on("receive-new-task", (payload) => {
+    socketService.on("receive-new-task", (payload) => {
+      if (isOwner() || selectedFilters.includes("all")) {
         dispatch(addNewTask(payload));
-      });
+      }
+    });
 
     socketService.on("receive-updated-task", (payload) => {
-      dispatch(updateTaskPosition(payload));
-      dispatch(updateTaskInState(payload));
+      if (isOwner() || selectedFilters.includes("all")) {
+        dispatch(updateTaskPosition(payload));
+        dispatch(updateTaskInState(payload));
+      }
     });
 
     socketService.on("remove_task", (payload) => {
       dispatch(removeTask(payload));
+    });
+
+    socketService.on("receive_new_task-member", (payload: any) => {
+      if (payload.data.member_id._id === currentUser?.id) {
+        if (statusList.length > 0) {
+          statusList.forEach(async (status) => {
+            if (status?._id) {
+              await dispatch(
+                getTasksByStatusId({
+                  statusId: status._id,
+                  filterBy: selectedFilters.filter(
+                    (f): f is string => f !== undefined
+                  ),
+                })
+              );
+            }
+          });
+        }
+      }
+    });
+
+    socketService.on("task-member-removed", (payload: any) => {
+      if (payload.data.member_id === currentUser?.id) {
+        if (statusList.length > 0) {
+          statusList.forEach(async (status) => {
+            if (status?._id) {
+              await dispatch(
+                getTasksByStatusId({
+                  statusId: status._id,
+                  filterBy: selectedFilters.filter(
+                    (f): f is string => f !== undefined
+                  ),
+                })
+              );
+            }
+          });
+        }
+      }
     });
 
     return () => {
@@ -255,21 +276,10 @@ const BoardDetail: React.FC = () => {
       socketService.off("receive-new-task");
       socketService.off("receive-updated-task");
       socketService.off("remove_task");
+      socketService.off("receive_new_task-member");
+      socketService.off("task-member-removed");
     };
   });
-
-  const handleKeyDown = async (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter" && id) {
-      setIsEditStatus({});
-      await dispatch(
-        updateStatus({
-          statusId: Object.keys(isEditStatus)[0],
-          name: newStatusTitle,
-        })
-      );
-      await dispatch(getStatusListByBoardId(id));
-    }
-  };
 
   const toggleStatusName = (statusId: string, name: string, show?: boolean) => {
     setNewStatusTitle(name);
@@ -403,17 +413,19 @@ const BoardDetail: React.FC = () => {
   const handleDelete = (list: IStatusList) => {
     modal.confirm({
       title: `Are you sure you want to delete "${list.name}" list?`,
-      icon: <ExclamationCircleOutlined />,
+      icon: (
+        <CircleAlert size={25} color="#ffac40" style={{ marginRight: 8 }} />
+      ),
       content:
         "This action cannot be undone. All data will be permanently deleted.",
       okText: "Delete",
       okType: "danger",
       cancelText: "Cancel",
       okButtonProps: {
-        className: "button",
+        className: "button btn-small",
       },
       cancelButtonProps: {
-        className: "button",
+        className: "button btn-small",
       },
       async onOk() {
         await dispatch(deleteStatus(list._id));
@@ -479,8 +491,8 @@ const BoardDetail: React.FC = () => {
                     <div
                       style={{
                         background: label?.backgroundColor,
-                        height: "10px",
-                        width: "50px",
+                        height: "8px",
+                        width: "45px",
                         borderRadius: "8px",
                       }}
                     />
@@ -506,51 +518,14 @@ const BoardDetail: React.FC = () => {
                   ) : null}
                   {task.title}
                 </Paragraph>
-                <div style={{ display: "flex", gap: 8 }}>
-                  {task.comments > 0 ? (
-                    <Paragraph
-                      style={{
-                        marginBottom: 0,
-                        display: "flex",
-                        gap: 4,
-                        alignItems: "center",
-                        fontSize: "12px",
-                      }}
-                    >
-                      <MessageOutlined />
-                      {task.comments}
-                    </Paragraph>
-                  ) : null}
-                  {task.attachment.length > 0 ? (
-                    <Paragraph
-                      style={{
-                        marginBottom: 0,
-                        display: "flex",
-                        gap: 4,
-                        alignItems: "center",
-                        fontSize: "12px",
-                      }}
-                    >
-                      <PaperClipOutlined />
-                      {task.attachment.length}
-                    </Paragraph>
-                  ) : null}
-                  {task.members > 0 ? (
-                    <Paragraph
-                      style={{
-                        marginBottom: 0,
-                        display: "flex",
-                        gap: 4,
-                        alignItems: "center",
-                        fontSize: "12px",
-                      }}
-                    >
-                      <UserOutlined />
-                      {task.members}
-                    </Paragraph>
-                  ) : null}
-                </div>
-                <div style={{ display: "flex", gap: 8, marginTop: 4 }}>
+                <div
+                  style={{
+                    display: "flex",
+                    gap: 8,
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                  }}
+                >
                   {task.end_date && (
                     <Paragraph
                       style={{
@@ -577,29 +552,63 @@ const BoardDetail: React.FC = () => {
                             : "inherit",
                       }}
                     >
-                      <ClockCircleOutlined />
+                      <Clock size={14} />
                       {dayjs(task.end_date).format("MMM DD")}
                     </Paragraph>
                   )}
-                  <div>
-                    {Array.from(
-                      {
-                        length:
-                          task.priority === Priority.HIGH
-                            ? 1
-                            : task.priority === Priority.CRITICAL
-                            ? 2
-                            : 0,
-                      },
-                      (_, i) => i + 1
-                    ).map((alert) => (
-                      <AlertFilled
-                        style={{
-                          color: "rgb(255 64 64)",
-                        }}
-                      />
-                    ))}
-                  </div>
+                  {task.comments > 0 ? (
+                    <Paragraph
+                      style={{
+                        marginBottom: 0,
+                        display: "flex",
+                        gap: 4,
+                        alignItems: "center",
+                        fontSize: "12px",
+                      }}
+                    >
+                      <MessageSquare size={14} />
+                      {task.comments}
+                    </Paragraph>
+                  ) : null}
+                  {task.attachment.length > 0 ? (
+                    <Paragraph
+                      style={{
+                        marginBottom: 0,
+                        display: "flex",
+                        gap: 4,
+                        alignItems: "center",
+                        fontSize: "12px",
+                      }}
+                    >
+                      <Paperclip size={14} />
+                      {task.attachment.length}
+                    </Paragraph>
+                  ) : null}
+                  {task.priority === Priority.LOW ? (
+                    <ChevronDown
+                      style={{
+                        color: "#33cf40",
+                      }}
+                    />
+                  ) : task.priority === Priority.MEDIUM ? (
+                    <Equal
+                      style={{
+                        color: "#404dff",
+                      }}
+                    />
+                  ) : task.priority === Priority.HIGH ? (
+                    <ChevronUp
+                      style={{
+                        color: "#ffac40",
+                      }}
+                    />
+                  ) : (
+                    <ChevronsUp
+                      style={{
+                        color: "#ff4040",
+                      }}
+                    />
+                  )}
                 </div>
               </div>
               {isOwner() && hoveredTaskId === task._id && (
@@ -608,9 +617,18 @@ const BoardDetail: React.FC = () => {
                   size="small"
                   style={{ marginLeft: 4 }}
                   danger
-                  icon={<DeleteOutlined />}
+                  icon={<Trash2 size={16} />}
                   onClick={(e) => handleDeleteTask(e, task._id)}
                 />
+              )}
+              {task.assigned_to && (
+                <Avatar
+                  className="assign-member-avatar"
+                  style={{ background: getRandomColor(task.assigned_to._id) }}
+                >
+                  {task.assigned_to?.first_name?.[0]?.toUpperCase()}
+                  {task.assigned_to?.last_name?.[0]?.toUpperCase()}
+                </Avatar>
               )}
             </div>
           </Card>
@@ -675,18 +693,18 @@ const BoardDetail: React.FC = () => {
                         >
                           <Avatar
                             style={{
-                              background: getRandomColor(member.memberId._id),
+                              background: getRandomColor(member.memberId?._id),
                               width: "26px",
                               height: "26px",
                             }}
                           >
                             <p style={{ fontSize: "11px" }}>
-                              {member.memberId.first_name?.[0].toUpperCase()}
+                              {member.memberId.first_name?.[0]?.toUpperCase()}
                               {member.memberId.last_name?.[0]?.toUpperCase()}
                             </p>
                           </Avatar>
                           {member.memberId.first_name}{" "}
-                          {member.memberId.last_name}
+                          {member.memberId.last_name ?? ""}
                         </div>
                       </Checkbox>
                     ))}
@@ -695,7 +713,8 @@ const BoardDetail: React.FC = () => {
               title={
                 <div className="custom-filter-popup">
                   <p style={{ margin: 0 }}>Filter</p>
-                  <CloseOutlined
+                  <X
+                    size={16}
                     style={{ cursor: "pointer" }}
                     onClick={() => setFilterOpen(false)}
                   />
@@ -728,7 +747,7 @@ const BoardDetail: React.FC = () => {
                     }}
                   >
                     <Badge dot={selectedFilters.length > 1}>
-                      <FilterOutlined />
+                      <ListFilter size={16} />
                     </Badge>
                   </div>
                 </Tooltip>
@@ -766,13 +785,15 @@ const BoardDetail: React.FC = () => {
                 return (
                   <Tooltip
                     key={member._id}
-                    title={`${member?.memberId?.first_name} ${member?.memberId?.last_name} (${member?.memberId?.email})`}
+                    title={`${member?.memberId?.first_name} ${
+                      member?.memberId?.last_name ?? ""
+                    } (${member?.memberId?.email})`}
                   >
                     <Avatar
                       style={{
-                        background: getRandomColor(member.memberId._id),
+                        background: getRandomColor(member.memberId?._id),
                       }}
-                    >{`${member?.memberId?.first_name[0]?.toUpperCase()}${member?.memberId?.last_name[0]?.toUpperCase()}`}</Avatar>
+                    >{`${member?.memberId?.first_name?.[0]?.toUpperCase()}${member?.memberId?.last_name?.[0]?.toUpperCase()}`}</Avatar>
                   </Tooltip>
                 );
               })}
@@ -784,7 +805,7 @@ const BoardDetail: React.FC = () => {
               onClick={() => setShowInviteModal(true)}
             >
               <Space>
-                <UserAddOutlined />
+                <UserRoundPlus size={16} />
                 Invite
               </Space>
             </Button>
@@ -831,11 +852,12 @@ const BoardDetail: React.FC = () => {
                           >
                             <div
                               style={{
-                                backgroundColor: "#80808026",
                                 borderRadius: 6,
                                 padding: "8px 8px 0 8px",
                                 height: "100%",
                                 maxWidth: "300px",
+                                border: "1px solid rgba(0, 0, 0, 0.12)",
+                                boxShadow: "1px 1px #00000005",
                               }}
                             >
                               <div
@@ -854,37 +876,72 @@ const BoardDetail: React.FC = () => {
                                       marginRight: "8px",
                                       borderRadius: "4px",
                                       margin: "8px 8px 8px 0",
+                                      height: "32px",
                                     }}
                                     autoFocus
                                     onChange={(e) =>
                                       setNewStatusTitle(e.target.value)
                                     }
-                                    onKeyDown={handleKeyDown}
                                   />
                                 ) : (
-                                  <Text
-                                    strong
-                                    style={{ fontSize: "16px", margin: "8px" }}
-                                    onClick={() =>
-                                      isOwner() &&
-                                      toggleStatusName(
-                                        list._id,
-                                        list.name,
-                                        true
-                                      )
-                                    }
-                                  >
-                                    {list.name}
+                                  <Text className="text-wrapper" strong>
+                                    {list.name}{" "}
+                                    <span className="count-chip">
+                                      {statusTasks?.length ?? 0}
+                                    </span>
                                   </Text>
                                 )}
                                 {isOwner() ? (
-                                  <Button
-                                    type="text"
-                                    size="small"
-                                    danger
-                                    icon={<DeleteOutlined />}
-                                    onClick={() => handleDelete(list)}
-                                  />
+                                  isEditStatus[list._id] ? (
+                                    <div style={{ display: "flex", gap: 4 }}>
+                                      <Button
+                                        type="text"
+                                        size="small"
+                                        icon={<Check size={16} />}
+                                        onClick={async () => {
+                                          await dispatch(
+                                            updateStatus({
+                                              statusId:
+                                                Object.keys(isEditStatus)[0],
+                                              name: newStatusTitle,
+                                            })
+                                          );
+                                          await dispatch(
+                                            getStatusListByBoardId(id ?? "")
+                                          );
+                                          setIsEditStatus({});
+                                        }}
+                                      />
+                                      <Button
+                                        type="text"
+                                        size="small"
+                                        icon={<X size={16} />}
+                                        onClick={() => setIsEditStatus({})}
+                                      />
+                                    </div>
+                                  ) : (
+                                    <div style={{ display: "flex", gap: 4 }}>
+                                      <Button
+                                        type="text"
+                                        size="small"
+                                        icon={<Pencil size={16} />}
+                                        onClick={() =>
+                                          isOwner() &&
+                                          toggleStatusName(
+                                            list._id,
+                                            list.name,
+                                            true
+                                          )
+                                        }
+                                      />
+                                      <Button
+                                        type="text"
+                                        size="small"
+                                        icon={<Trash2 size={16} />}
+                                        onClick={() => handleDelete(list)}
+                                      />
+                                    </div>
+                                  )
                                 ) : null}
                               </div>
                               {selectedFilters.length > 1 ? (
@@ -898,6 +955,7 @@ const BoardDetail: React.FC = () => {
                                     fontSize: "12px",
                                     textAlign: "start",
                                     marginBottom: "4px",
+                                    fontStyle: "italic",
                                   }}
                                 />
                               ) : null}
@@ -907,10 +965,12 @@ const BoardDetail: React.FC = () => {
                               selectedFilters.length === 1 ? (
                                 <Empty
                                   imageStyle={{ display: "none" }}
-                                  description="No tasks"
+                                  description="No tasks in this column"
                                   style={{
-                                    fontSize: "12px",
-                                    textAlign: "start",
+                                    textAlign: "center",
+                                    margin: "20px 0",
+                                    fontSize: "14px",
+                                    fontStyle: "italic",
                                   }}
                                 />
                               ) : null}
@@ -929,6 +989,7 @@ const BoardDetail: React.FC = () => {
                                         minHeight: 10,
                                         maxHeight: "62vh",
                                         overflow: "auto",
+                                        marginTop: "8px",
                                       }}
                                     >
                                       {statusTasks.map((task, index) =>
@@ -954,13 +1015,12 @@ const BoardDetail: React.FC = () => {
                               ) : isOwner() ? (
                                 <Button
                                   type="text"
-                                  className="button"
-                                  icon={<PlusOutlined />}
+                                  className="add-card-button"
+                                  icon={<CirclePlus size={16} />}
                                   block
-                                  style={{ borderRadius: "4px" }}
                                   onClick={() => toggleAddTask(list._id, true)}
                                 >
-                                  Add a card
+                                  Add card
                                 </Button>
                               ) : null}
                             </div>
@@ -976,12 +1036,7 @@ const BoardDetail: React.FC = () => {
 
             <div style={{ minWidth: 280 }}>
               {showAddList ? (
-                <div
-                  style={{
-                    borderRadius: 6,
-                    padding: "8px 16px",
-                  }}
-                >
+                <div className="add-list-card">
                   <Input
                     placeholder="Enter list title..."
                     className="form-input"
@@ -995,28 +1050,32 @@ const BoardDetail: React.FC = () => {
                     style={{
                       display: "flex",
                       alignItems: "center",
+                      justifyContent: "flex-end",
                       marginTop: 8,
                       gap: 5,
                     }}
                   >
                     <Button
-                      type="primary"
-                      size="small"
-                      className="button"
-                      onClick={handleAddStatus}
-                      style={{ height: 32, marginTop: 0, borderRadius: "4px" }}
-                    >
-                      Add List
-                    </Button>
-                    <Button
                       type="text"
                       size="small"
-                      icon={<CloseOutlined />}
+                      className="add-btn dashed"
+                      icon={<X size={16} />}
                       onClick={() => {
                         setShowAddList(false);
                         setNewStatusTitle("");
                       }}
-                    />
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      type="primary"
+                      size="small"
+                      className="button add-btn"
+                      icon={<Check size={16} />}
+                      onClick={handleAddStatus}
+                    >
+                      Add List
+                    </Button>
                   </div>
                 </div>
               ) : isOwner() ? (
@@ -1029,16 +1088,15 @@ const BoardDetail: React.FC = () => {
                 >
                   <Button
                     type="text"
+                    className="add-card-button"
+                    icon={<CirclePlus size={16} />}
                     block
-                    className="button"
-                    style={{ marginTop: 0, borderRadius: "4px" }}
-                    icon={<PlusOutlined />}
                     onClick={() => {
                       setNewStatusTitle("");
                       setShowAddList(true);
                     }}
                   >
-                    Add another list
+                    Add New List
                   </Button>
                 </div>
               ) : null}
@@ -1056,7 +1114,7 @@ const BoardDetail: React.FC = () => {
           }}
         >
           <Result
-            icon={<SmileOutlined />}
+            icon={<Smile size={100} />}
             title="Your board looks empty, but full of love!"
           />
         </div>

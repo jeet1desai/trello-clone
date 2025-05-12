@@ -70,13 +70,13 @@ const CommentCard: React.FC<CommentCardProps> = ({
           src={profile_image?.url}
           style={{ background: getRandomColor(_id) }}
         >
-          {first_name[0].toUpperCase()}
-          {last_name[0].toUpperCase()}
+          {first_name?.[0]?.toUpperCase()}
+          {last_name?.[0]?.toUpperCase()}
         </Avatar>
         <div className="comment-container">
           <div className="commenter-container">
             <Text strong>
-              {first_name} {last_name}
+              {first_name} {last_name ?? ""}
             </Text>
             <Text type="secondary" className="commenter-time">
               {dayjs(createdAt).fromNow()}
@@ -106,11 +106,7 @@ const CommentCard: React.FC<CommentCardProps> = ({
           </div>
           <div className="show-edit-btn-container">
             <span
-              style={{
-                fontSize: "12px",
-                padding: "0 8px 0 15px",
-                cursor: "pointer",
-              }}
+              className="edit-comment-btn"
               onClick={() => setIsEditing(true)}
             >
               Edit

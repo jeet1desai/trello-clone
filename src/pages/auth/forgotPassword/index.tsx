@@ -1,6 +1,5 @@
 import React, { useEffect } from "react";
 import { Form, Input, Button, Typography, Alert } from "antd";
-import { MailOutlined, LockOutlined } from "@ant-design/icons";
 import { Link, useNavigate } from "react-router-dom";
 import {
   changePassword,
@@ -11,6 +10,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../../store";
 import "../../../layout/styles/Auth.css";
 import { PUBLIC_ROUTE } from "../../../utils/enums/route";
+import { LockKeyhole, Mail } from "lucide-react";
 
 const { Title, Text } = Typography;
 
@@ -83,7 +83,7 @@ const ForgotPassword: React.FC = () => {
             ]}
           >
             <Input
-              prefix={<MailOutlined className="form-icon" />}
+              prefix={<Mail size={16} className="form-icon" />}
               placeholder="Enter your email"
               size="large"
               className="form-input"
@@ -102,7 +102,7 @@ const ForgotPassword: React.FC = () => {
                 rules={[{ required: true, message: "OTP is required" }]}
               >
                 <Input
-                  prefix={<LockOutlined className="form-icon" />}
+                  prefix={<LockKeyhole size={16} className="form-icon" />}
                   placeholder="Enter your email otp"
                   size="large"
                   className="form-input"
@@ -128,7 +128,7 @@ const ForgotPassword: React.FC = () => {
                 ]}
               >
                 <Input.Password
-                  prefix={<LockOutlined className="form-icon" />}
+                  prefix={<LockKeyhole size={16} className="form-icon" />}
                   placeholder="Enter your new password"
                   className="form-input"
                 />

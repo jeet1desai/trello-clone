@@ -89,12 +89,12 @@ const InviteMemberPage: React.FC = () => {
           </Space>
 
           <Text strong>
-            Hi {currentUser?.first_name} {currentUser?.last_name},
+            Hi {currentUser?.first_name} {currentUser?.last_name ?? ""},
           </Text>
 
           <Text>
             {invitedMemberDetails.invitedBy?.first_name}{" "}
-            {invitedMemberDetails.invitedBy?.last_name} has invited you to
+            {invitedMemberDetails.invitedBy?.last_name ?? ""} has invited you to
             collaborate on the board '{invitedMemberDetails.boardId?.name}' in
             the workspace '{invitedMemberDetails.workspaceId?.name}'.
           </Text>

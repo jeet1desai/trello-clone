@@ -1,7 +1,7 @@
 import { Popover, Button } from "antd";
-import { SearchOutlined } from "@ant-design/icons";
 import { useState } from "react";
 import { useMedia } from "../../hooks/useMedia";
+import { Search } from "lucide-react";
 
 const ResponsiveSearch = ({
   children,
@@ -20,7 +20,7 @@ const ResponsiveSearch = ({
       onOpenChange={setVisible}
       placement="bottomRight"
     >
-      <Button type="default" className="button" icon={<SearchOutlined />} />
+      <Button type="default" className="button" icon={<Search size={16} />} />
     </Popover>
   ) : (
     <>{children}</>

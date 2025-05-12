@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { Form, Button, Card } from "antd";
-import { CloseOutlined } from "@ant-design/icons";
 import { Input } from "../../../../components";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "../../../../store";
 import { createTask } from "../../../../store/slices/taskSlice";
+import { Check, X } from "lucide-react";
 
 interface AddTaskFormProps {
   boardId: string;
@@ -82,23 +82,26 @@ const AddTaskForm: React.FC<AddTaskFormProps> = ({
             style={{ borderRadius: "4px" }}
           />
         </Form.Item>
-        <div style={{ display: "flex", gap: 5 }}>
+        <div style={{ display: "flex", gap: 5, justifyContent: "flex-end" }}>
+          <Button
+            type="text"
+            size="small"
+            className="add-btn dashed"
+            icon={<X size={16} />}
+            style={{ height: 32 }}
+            onClick={onCancel}
+          >
+            Cancel
+          </Button>
           <Button
             type="primary"
             htmlType="submit"
-            className="button"
-            style={{ marginTop: 0, height: 32, borderRadius: "4px" }}
+            className="button add-btn"
+            icon={<Check size={16} />}
             loading={loading}
           >
             Add
           </Button>
-          <Button
-            type="text"
-            size="small"
-            style={{ height: 32 }}
-            onClick={onCancel}
-            icon={<CloseOutlined />}
-          />
         </div>
       </Form>
     </Card>

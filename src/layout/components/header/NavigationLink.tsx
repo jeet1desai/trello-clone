@@ -1,10 +1,10 @@
 import { Button, Drawer, Menu } from "antd";
-import { MenuOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import { useMedia } from "../../../hooks/useMedia";
 import { useIsActivePath } from "../../../hooks/useNavigation";
 import { PRIVATE_ROUTE } from "../../../utils/enums/route";
 import { useState } from "react";
+import { Menu as MenuIcon } from "lucide-react";
 
 const NavigationLinks = () => {
   const navigate = useNavigate();
@@ -28,10 +28,7 @@ const NavigationLinks = () => {
   ];
 
   const menu = (
-    <Menu
-      mode="inline"
-      style={{ borderRight: 0 }}
-    >
+    <Menu mode="inline" style={{ borderRight: 0 }}>
       {navItems.map((item) => {
         const isActive = isActivePath(item.path);
         return (
@@ -41,13 +38,14 @@ const NavigationLinks = () => {
                 setDrawerVisible(false);
                 navigate(item.path);
               }}
-              className={`navigate-btn ${isActive ? "active-link" : "navigate-link"
-                }`}
+              className={`navigate-btn ${
+                isActive ? "active-link" : "navigate-link"
+              }`}
             >
               {item.label}
             </Button>
           </Menu.Item>
-        )
+        );
       })}
     </Menu>
   );
@@ -55,7 +53,7 @@ const NavigationLinks = () => {
   return isMobile ? (
     <>
       <Button
-        icon={<MenuOutlined />}
+        icon={<MenuIcon size={20} />}
         onClick={() => setDrawerVisible(true)}
       />
       <Drawer
@@ -77,8 +75,9 @@ const NavigationLinks = () => {
           <Button
             key={item.path}
             type="text"
-            className={`navigate-btn-padding ${isActive ? "active-link" : "navigate-link"
-              }`}
+            className={`navigate-btn-padding ${
+              isActive ? "active-link" : "navigate-link"
+            }`}
             onClick={() => navigate(item.path)}
           >
             {item.label}

@@ -16,19 +16,6 @@ import {
   Spin,
   Pagination,
 } from "antd";
-import {
-  PlusOutlined,
-  UserOutlined,
-  SearchOutlined,
-  SortAscendingOutlined,
-  CheckOutlined,
-  DeleteOutlined,
-  ExclamationCircleOutlined,
-  EditOutlined,
-  FolderOpenOutlined,
-  CalendarOutlined,
-  MoreOutlined,
-} from "@ant-design/icons";
 import type { MenuProps } from "antd";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../store";
@@ -47,6 +34,19 @@ import { PRIVATE_ROUTE } from "../../utils/enums/route";
 import CustomButton from "../../components/ui/button";
 import ResponsiveSearch from "../../components/ui/searchResponsive";
 import dayjs from "dayjs";
+import {
+  ArrowDownAZ,
+  Calendar,
+  Edit2,
+  MoreVertical,
+  Plus,
+  Search,
+  UserRound,
+  Check,
+  Trash2,
+  FolderOpen,
+  CircleAlert,
+} from "lucide-react";
 
 const { Title, Paragraph } = Typography;
 
@@ -148,7 +148,9 @@ const Workspaces: React.FC = () => {
   const handleDelete = (_id: string, name: string) => {
     modal.confirm({
       title: `Are you sure you want to delete "${name}"?`,
-      icon: <ExclamationCircleOutlined />,
+      icon: (
+        <CircleAlert size={36} color="#ffac40" style={{ marginRight: 8 }} />
+      ),
       content:
         "This action cannot be undone. All boards and data will be permanently deleted.",
       okText: "Delete",
@@ -190,13 +192,13 @@ const Workspaces: React.FC = () => {
     let moreMenu: MenuProps["items"] = [
       {
         key: "edit",
-        icon: <EditOutlined />,
+        icon: <Edit2 size={14} />,
         label: "Edit",
       },
       {
         key: "delete",
         label: "Delete",
-        icon: <DeleteOutlined />,
+        icon: <Trash2 size={14} />,
         danger: true,
       },
     ];
@@ -219,7 +221,7 @@ const Workspaces: React.FC = () => {
         >
           <div className="workspace-card-header">
             <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-              <FolderOpenOutlined className="workspace-icon" />
+              <FolderOpen size={40} className="workspace-icon" />
               <div className="workspace-card-title">
                 <Title level={4} className="workspace-name">
                   {workspace.name}
@@ -243,7 +245,7 @@ const Workspaces: React.FC = () => {
                     type="text"
                     shape="circle"
                     onClick={(e) => e.stopPropagation()}
-                    icon={<MoreOutlined />}
+                    icon={<MoreVertical size={16} />}
                     className="more-btn"
                   />
                 </Dropdown>
@@ -253,13 +255,13 @@ const Workspaces: React.FC = () => {
 
           <div className="workspace-card-footer">
             <Paragraph className="workspace-description color-inherit">
-              <UserOutlined />{" "}
+              <UserRound size={14} />{" "}
               {workspace.createdBy.first_name +
                 " " +
-                workspace.createdBy.last_name}
+                (workspace.createdBy.last_name ?? "")}
             </Paragraph>
             <Paragraph className="workspace-description color-inherit">
-              <CalendarOutlined />{" "}
+              <Calendar size={14} />{" "}
               {dayjs(workspace.createdAt).format("MMM DD, YYYY")}
             </Paragraph>
             <Paragraph className="workspace-description color-inherit">
@@ -282,7 +284,7 @@ const Workspaces: React.FC = () => {
             <Button
               type="primary"
               className="button"
-              icon={<PlusOutlined />}
+              icon={<Plus size={16} />}
               onClick={showAddModal}
             >
               Create New Workspace
@@ -301,23 +303,25 @@ const Workspaces: React.FC = () => {
             </Col>
           ))}
         </Row>
-        <Pagination
-          align="center"
-          style={{ marginTop: "40px" }}
-          defaultCurrent={1}
-          pageSize={workspacePagination.limit}
-          current={workspacePagination.currentPage}
-          total={workspacePagination.totalRecords}
-          onChange={(page) => {
-            dispatch(
-              getAllWorkspaces({
-                page,
-                search: searchText,
-                sortType: sortOption,
-              })
-            );
-          }}
-        />
+        {workspacePagination.totalPages > 1 && (
+          <Pagination
+            align="center"
+            style={{ marginTop: "40px" }}
+            defaultCurrent={1}
+            pageSize={workspacePagination.limit}
+            current={workspacePagination.currentPage}
+            total={workspacePagination.totalRecords}
+            onChange={(page) => {
+              dispatch(
+                getAllWorkspaces({
+                  page,
+                  search: searchText,
+                  sortType: sortOption,
+                })
+              );
+            }}
+          />
+        )}
       </div>
     );
   };
@@ -328,19 +332,23 @@ const Workspaces: React.FC = () => {
       key: SORT_OPTIONS_VALUES.DEFAULT,
       label: "Default",
       icon:
-        sortOption === SORT_OPTIONS_VALUES.DEFAULT ? <CheckOutlined /> : null,
+        sortOption === SORT_OPTIONS_VALUES.DEFAULT ? <Check size={16} /> : null,
     },
     {
       key: SORT_OPTIONS_VALUES.NAME_ASC,
       label: "Name (A-Z)",
       icon:
-        sortOption === SORT_OPTIONS_VALUES.NAME_ASC ? <CheckOutlined /> : null,
+        sortOption === SORT_OPTIONS_VALUES.NAME_ASC ? (
+          <Check size={16} />
+        ) : null,
     },
     {
       key: SORT_OPTIONS_VALUES.NAME_DESC,
       label: "Name (Z-A)",
       icon:
-        sortOption === SORT_OPTIONS_VALUES.NAME_DESC ? <CheckOutlined /> : null,
+        sortOption === SORT_OPTIONS_VALUES.NAME_DESC ? (
+          <Check size={16} />
+        ) : null,
     },
     {
       type: "divider",
@@ -350,7 +358,7 @@ const Workspaces: React.FC = () => {
       label: "Date Created (Oldest first)",
       icon:
         sortOption === SORT_OPTIONS_VALUES.CREATED_ASC ? (
-          <CheckOutlined />
+          <Check size={16} />
         ) : null,
     },
     {
@@ -358,7 +366,7 @@ const Workspaces: React.FC = () => {
       label: "Date Created (Newest first)",
       icon:
         sortOption === SORT_OPTIONS_VALUES.CREATED_DESC ? (
-          <CheckOutlined />
+          <Check size={16} />
         ) : null,
     },
   ];
@@ -380,7 +388,7 @@ const Workspaces: React.FC = () => {
             <Space>
               <ResponsiveSearch breakPoint={590}>
                 <Input
-                  prefix={<SearchOutlined />}
+                  prefix={<Search size={16} />}
                   placeholder="Search workspaces"
                   allowClear
                   value={searchText}
@@ -415,7 +423,7 @@ const Workspaces: React.FC = () => {
                   type="default"
                   className="button"
                   style={{ marginTop: 0 }}
-                  icon={<SortAscendingOutlined />}
+                  icon={<ArrowDownAZ size={16} />}
                   breakPoint={800}
                 >
                   <Space>Sort</Space>
@@ -423,7 +431,7 @@ const Workspaces: React.FC = () => {
               </Dropdown>
               <CustomButton
                 type="primary"
-                icon={<PlusOutlined />}
+                icon={<Plus size={16} />}
                 onClick={showAddModal}
                 className="button"
                 style={{ marginTop: 0 }}

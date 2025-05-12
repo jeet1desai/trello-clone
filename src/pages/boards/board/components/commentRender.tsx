@@ -20,7 +20,7 @@ const CommentTextRenderer: React.FC<Props> = ({ comment, members }) => {
     if (part.startsWith("@")) {
       const member = members.find(
         (m) =>
-          `@${m.first_name} ${m.last_name}`.toLowerCase() === part.toLowerCase()
+          `@${m?.first_name} ${m?.last_name}`?.toLowerCase() === part.toLowerCase()
       );
 
       if (member) {
@@ -33,10 +33,10 @@ const CommentTextRenderer: React.FC<Props> = ({ comment, members }) => {
               textTransform: "capitalize",
             }}
           >
-            {member.first_name.charAt(0).toUpperCase() +
-              member.first_name.slice(1)}{" "}
-            {member.last_name.charAt(0).toUpperCase() +
-              member.last_name.slice(1)}
+            {member.first_name?.charAt(0)?.toUpperCase() +
+              member.first_name?.slice(1)}{" "}
+            {member.last_name?.charAt(0)?.toUpperCase() +
+              member.last_name?.slice(1)}
           </Text>
         );
       } else {

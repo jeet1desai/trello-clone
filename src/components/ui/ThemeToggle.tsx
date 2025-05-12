@@ -1,7 +1,7 @@
 import React from "react";
 import { Button } from "antd";
-import { SunOutlined, MoonOutlined } from "@ant-design/icons";
 import { useTheme } from "../../contexts/ThemeContext";
+import { Moon, Sun } from "lucide-react";
 
 interface ThemeToggleProps {
   style?: React.CSSProperties;
@@ -16,9 +16,9 @@ const ThemeToggle: React.FC<ThemeToggleProps> = ({ style }) => {
       type="text"
       icon={
         isDark ? (
-          <SunOutlined style={{ color: "white" }} />
+          <Sun size={16} style={{ color: "white" }} />
         ) : (
-          <MoonOutlined style={{ color: "rgba(0, 0, 0, 0.85)" }} />
+          <Moon size={16} style={{ color: "rgba(0, 0, 0, 0.85)" }} />
         )
       }
       onClick={toggleTheme}

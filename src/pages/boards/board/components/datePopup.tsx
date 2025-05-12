@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { DatePicker, Button } from "antd";
 import dayjs from "dayjs";
 import type { Dayjs } from "dayjs";
-import { CalendarOutlined } from "@ant-design/icons";
+import { Calendar } from "lucide-react";
 
 interface DatePickerPopupProps extends IDates {
   onSave: (date: Dayjs | null) => void;
@@ -32,7 +32,7 @@ const DatePickerPopup: React.FC<DatePickerPopupProps> = ({
         className="date-picker-container form-input"
         style={{ width: 130, borderRadius: "4px", height: "35px" }}
         placeholder="Select due date"
-        prefix={<CalendarOutlined />}
+        prefix={<Calendar size={16} />}
         suffixIcon={null}
         allowClear={false}
         autoFocus
@@ -46,7 +46,7 @@ const DatePickerPopup: React.FC<DatePickerPopupProps> = ({
   return (
     <Button
       key="dates"
-      icon={<CalendarOutlined />}
+      icon={<Calendar size={16} />}
       size="small"
       className="button small-btn dates-btn"
       onClick={() => setIsEditing(true)}

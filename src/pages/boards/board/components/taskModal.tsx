@@ -15,27 +15,9 @@ import {
   Col,
   Checkbox,
   message,
-  Space
+  Space,
 } from "antd";
-import {
-  PlusOutlined,
-  PaperClipOutlined,
-  PictureOutlined,
-  DiffOutlined,
-  CloseCircleFilled,
-  CloseOutlined,
-  ArrowDownOutlined,
-  ArrowUpOutlined,
-  FlagOutlined,
-  WarningOutlined,
-  FileTextOutlined,
-  FilePdfOutlined,
-  FileOutlined,
-  RiseOutlined,
-  SearchOutlined,
-  ShareAltOutlined,
-  CopyOutlined
-} from "@ant-design/icons";
+import { FilePdfOutlined } from "@ant-design/icons";
 import TaskDescriptionEditor from "../../../../components/ui/Editor";
 import type { UploadFile } from "antd";
 import { useDispatch, useSelector } from "react-redux";
@@ -89,6 +71,24 @@ import "quill/dist/quill.snow.css";
 import socketService from "../../../../services/socketService";
 import MentionTextComment from "../../../../components/ui/mention";
 import { useNavigate } from "react-router-dom";
+import {
+  PlusIcon,
+  ChevronUp,
+  ChevronsUp,
+  SquareChartGantt,
+  Copy,
+  Paperclip,
+  Share2,
+  Captions,
+  Image as ImageLine,
+  Equal,
+  ChevronDown,
+  Fullscreen,
+  Search as SearchIcon,
+  X,
+  CircleX,
+  File as FileIcon,
+} from "lucide-react";
 
 const { Text } = Typography;
 const { Option } = Select;
@@ -105,19 +105,19 @@ const priorityMeta: Record<
   { icon: JSX.Element; description: string }
 > = {
   [Priority.LOW]: {
-    icon: <ArrowDownOutlined style={{ color: "green" }} />,
+    icon: <ChevronDown size={16} style={{ color: "green" }} />,
     description: "Low priority – non-urgent",
   },
   [Priority.MEDIUM]: {
-    icon: <FlagOutlined style={{ color: "blue" }} />,
+    icon: <Equal size={16} style={{ color: "blue" }} />,
     description: "Medium priority – normal tasks",
   },
   [Priority.HIGH]: {
-    icon: <ArrowUpOutlined style={{ color: "orange" }} />,
+    icon: <ChevronUp size={16} style={{ color: "orange" }} />,
     description: "High priority – important tasks",
   },
   [Priority.CRITICAL]: {
-    icon: <WarningOutlined className="require-mark" />,
+    icon: <ChevronsUp size={16} className="require-mark" />,
     description: "Critical – requires immediate attention",
   },
 };
@@ -189,7 +189,7 @@ const renderPreview = (taskAttach: IAttachment) => {
   } else if (fileType === "application/pdf") {
     return <FilePdfOutlined style={{ fontSize: 24, color: "#f5222d" }} />;
   } else {
-    return <FileOutlined style={{ fontSize: 24 }} />;
+    return <FileIcon size={20} />;
   }
 };
 
@@ -382,7 +382,7 @@ const TaskModal: React.FC<TaskModalProps> = ({
     <div style={{ width: 250 }}>
       <div style={{ fontWeight: 600, marginBottom: 8 }}>Members</div>
       <Input
-        prefix={<SearchOutlined />}
+        prefix={<SearchIcon size={16} />}
         placeholder="Search members"
         allowClear
         className="form-input form-input-small"
@@ -404,16 +404,16 @@ const TaskModal: React.FC<TaskModalProps> = ({
                       marginRight: 8,
                     }}
                   >
-                    {member.first_name[0].toUpperCase() +
-                      member.last_name[0].toUpperCase()}
+                    {member.first_name?.[0]?.toUpperCase() +
+                      member.last_name?.[0]?.toUpperCase()}
                   </Avatar>
                   <span className="color-inherit">
-                    {member.first_name + " " + member.last_name}
+                    {member.first_name + " " + (member.last_name ?? "")}
                   </span>
                 </div>
                 <Button
                   type="text"
-                  icon={<CloseOutlined />}
+                  icon={<X size={16} />}
                   size="small"
                   onClick={() => handleRemove(member._id)}
                   className="color-inherit"
@@ -452,13 +452,13 @@ const TaskModal: React.FC<TaskModalProps> = ({
                       marginRight: 8,
                     }}
                   >
-                    {member.memberId.first_name[0].toUpperCase() +
-                      member.memberId.last_name[0].toUpperCase()}
+                    {member.memberId.first_name?.[0]?.toUpperCase() +
+                      member.memberId.last_name?.[0]?.toUpperCase()}
                   </Avatar>
                   <span className="color-inherit">
                     {member.memberId.first_name +
                       " " +
-                      member.memberId.last_name}
+                      (member.memberId.last_name ?? "")}
                   </span>
                 </div>
               </List.Item>
@@ -514,11 +514,11 @@ const TaskModal: React.FC<TaskModalProps> = ({
                   marginRight: 8,
                 }}
               >
-                {member.first_name[0].toUpperCase() +
-                  member.last_name[0].toUpperCase()}
+                {member.first_name?.[0]?.toUpperCase() +
+                  member.last_name?.[0]?.toUpperCase()}
               </Avatar>
               <span className="color-inherit">
-                {member.first_name + " " + member.last_name}
+                {member.first_name + " " + (member.last_name ?? "")}
               </span>
             </div>
           </List.Item>
@@ -527,9 +527,10 @@ const TaskModal: React.FC<TaskModalProps> = ({
     </div>
   );
 
-  const shareCopiedLink = selectedTask?._id && selectedTask.board_id
-  ? `http://localhost:3000/board/${selectedTask.board_id}?task_id=${selectedTask._id}`
-  : "";
+  const shareCopiedLink =
+    selectedTask?._id && selectedTask.board_id
+      ? `http://localhost:3000/board/${selectedTask.board_id}?task_id=${selectedTask._id}`
+      : "";
 
   const handleCopy = () => {
     navigator.clipboard.writeText(shareCopiedLink).then(() => {
@@ -542,7 +543,7 @@ const TaskModal: React.FC<TaskModalProps> = ({
       <div style={{ fontWeight: 600, marginBottom: 8 }}>Copy Link</div>
       <Input value={shareCopiedLink} readOnly style={{ marginBottom: 12 }} />
       <Space>
-        <Button type="primary" icon={<CopyOutlined />} onClick={handleCopy}>
+        <Button type="primary" icon={<Copy size={16} />} onClick={handleCopy}>
           Copy
         </Button>
       </Space>
@@ -809,13 +810,13 @@ const TaskModal: React.FC<TaskModalProps> = ({
             <Avatar.Group max={{ count: 3 }}>
               {selectedTaskMembers?.map((member, index) => {
                 const user =
-                  member.first_name[0].toUpperCase() +
-                  member.last_name[0].toUpperCase();
+                  member.first_name?.[0]?.toUpperCase() +
+                  member.last_name?.[0]?.toUpperCase();
 
                 return (
                   <Tooltip
                     key={member.email || index}
-                    title={member.first_name + " " + member.last_name}
+                    title={member.first_name + " " + (member.last_name ?? "")}
                   >
                     <Avatar style={{ background: getRandomColor(member._id) }}>
                       {user}
@@ -834,7 +835,7 @@ const TaskModal: React.FC<TaskModalProps> = ({
             >
               <Button
                 shape="circle"
-                icon={<PlusOutlined />}
+                icon={<PlusIcon size={16} />}
                 className="button small-btn"
               />
             </Popover>
@@ -865,7 +866,7 @@ const TaskModal: React.FC<TaskModalProps> = ({
                   title={
                     selectedTask?.assigned_to?.first_name +
                     " " +
-                    selectedTask?.assigned_to?.last_name
+                    (selectedTask?.assigned_to?.last_name ?? "")
                   }
                 >
                   <Avatar
@@ -876,14 +877,14 @@ const TaskModal: React.FC<TaskModalProps> = ({
                       cursor: "pointer",
                     }}
                   >
-                    {selectedTask.assigned_to.first_name?.[0].toUpperCase() +
-                      selectedTask.assigned_to.last_name?.[0].toUpperCase()}
+                    {selectedTask.assigned_to.first_name?.[0]?.toUpperCase() +
+                      selectedTask.assigned_to.last_name?.[0]?.toUpperCase()}
                   </Avatar>
                 </Tooltip>
               ) : (
                 <Button
                   shape="circle"
-                  icon={<PlusOutlined />}
+                  icon={<PlusIcon size={16} />}
                   className="button small-btn"
                 />
               )}
@@ -965,7 +966,7 @@ const TaskModal: React.FC<TaskModalProps> = ({
               placement="bottomLeft"
             >
               <Button
-                icon={<PlusOutlined />}
+                icon={<PlusIcon size={16} />}
                 size="small"
                 className="button small-btn"
                 style={{
@@ -986,7 +987,7 @@ const TaskModal: React.FC<TaskModalProps> = ({
                 <div
                   style={{ display: "flex", alignItems: "center", gap: "8px" }}
                 >
-                  <ShareAltOutlined />
+                  <Share2 size={16} />
                   <Text strong>Share</Text>
                 </div>
                 <Popover
@@ -999,7 +1000,7 @@ const TaskModal: React.FC<TaskModalProps> = ({
                 >
                   <Button
                     shape="circle"
-                    icon={<ShareAltOutlined />}
+                    icon={<Share2 size={16} />}
                     className="button small-btn"
                   />
                 </Popover>
@@ -1010,7 +1011,7 @@ const TaskModal: React.FC<TaskModalProps> = ({
                 <div
                   style={{ display: "flex", alignItems: "center", gap: "8px" }}
                 >
-                  <FileTextOutlined />
+                  <Captions size={16} />
                   <Text strong>Description</Text>
                 </div>
                 {selectedTask?.description && !showEditor && (
@@ -1052,7 +1053,7 @@ const TaskModal: React.FC<TaskModalProps> = ({
             <div className="task-section">
               <div className="task-section-title">
                 <div>
-                  <PaperClipOutlined />
+                  <Paperclip size={16} />
                   <Text strong>Attachments</Text>
                 </div>
                 <FileUploadModal />
@@ -1072,7 +1073,8 @@ const TaskModal: React.FC<TaskModalProps> = ({
                             <Text type="secondary">Added</Text>
                           </div>
                           <div className="attachment-actions">
-                            <RiseOutlined
+                            <Fullscreen
+                              size={16}
                               onClick={() =>
                                 handleOpenFile(
                                   taskAttach.url,
@@ -1110,7 +1112,7 @@ const TaskModal: React.FC<TaskModalProps> = ({
             <div className="activity-section">
               <div className="task-section-title">
                 <div>
-                  <DiffOutlined />
+                  <SquareChartGantt size={16} />
                   <Text strong>Comments</Text>
                 </div>
                 {[...taskComments].length > 5 ? (
@@ -1144,7 +1146,8 @@ const TaskModal: React.FC<TaskModalProps> = ({
                           style={{ objectFit: "cover", borderRadius: 6 }}
                           src={URL.createObjectURL(file.originFileObj as File)}
                         />
-                        <CloseCircleFilled
+                        <CircleX
+                          size={14}
                           onClick={() => handleRemoveImage(file.uid)}
                           className="require-mark"
                           style={{
@@ -1175,7 +1178,7 @@ const TaskModal: React.FC<TaskModalProps> = ({
                       background: getRandomColor(currentUser?.id ?? ""),
                     }}
                   >
-                    {currentUser?.first_name[0].toUpperCase()}
+                    {currentUser?.first_name?.[0]?.toUpperCase()}
                     {currentUser?.last_name?.[0]?.toUpperCase()}
                   </Avatar>
                   <div style={{ position: "relative", width: "100%" }}>
@@ -1195,7 +1198,8 @@ const TaskModal: React.FC<TaskModalProps> = ({
                       onChange={handleUploadChange}
                       showUploadList={false}
                     >
-                      <PictureOutlined
+                      <ImageLine
+                        size={16}
                         style={{
                           position: "absolute",
                           right: 10,

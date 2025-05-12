@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { EditOutlined, LeftOutlined } from "@ant-design/icons";
 import { Checkbox, Button, List, Typography } from "antd";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../../../store";
@@ -13,6 +12,7 @@ import {
   removeLabelFromTask,
 } from "../../../../store/slices/boardSlice";
 import Search from "antd/es/transfer/search";
+import { Pencil, ChevronLeft } from "lucide-react";
 
 const { Title } = Typography;
 
@@ -80,9 +80,17 @@ const LabelPopup = ({ boardId, selectedTaskId }: IProps) => {
     >
       {isAddFlag ? (
         <>
-          <Title style={{ marginTop: 0, fontSize: "16px" }}>
-            <LeftOutlined
+          <Title
+            style={{
+              marginTop: 0,
+              fontSize: "16px",
+              display: "flex",
+              alignItems: "center",
+            }}
+          >
+            <ChevronLeft
               className="color-inherit"
+              style={{ cursor: "pointer" }}
               onClick={() => {
                 setTitle("");
                 setSelectedColor("black");
@@ -205,7 +213,7 @@ const LabelPopup = ({ boardId, selectedTaskId }: IProps) => {
                 </div>
                 <Button
                   className="button small-btn"
-                  icon={<EditOutlined />}
+                  icon={<Pencil size={16} />}
                   size="small"
                   style={{ marginLeft: 8 }}
                   onClick={() => {

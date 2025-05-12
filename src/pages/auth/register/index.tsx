@@ -1,12 +1,12 @@
 import React, { useEffect } from "react";
 import { Form, Input, Button, Typography } from "antd";
-import { UserOutlined, LockOutlined, MailOutlined } from "@ant-design/icons";
 import { Link, useNavigate } from "react-router-dom";
 import type { RootState, AppDispatch } from "../../../store";
 import { useDispatch, useSelector } from "react-redux";
 import { clearAuthState, registerUser } from "../../../store/slices/userSlice";
 import "../../../layout/styles/Auth.css";
 import { PUBLIC_ROUTE } from "../../../utils/enums/route";
+import { LockKeyhole, Mail, UserRound } from "lucide-react";
 
 const { Title, Text } = Typography;
 
@@ -80,7 +80,7 @@ const Register: React.FC = () => {
             ]}
           >
             <Input
-              prefix={<UserOutlined className="form-icon" />}
+              prefix={<UserRound size={16} className="form-icon" />}
               placeholder="Enter your first name"
               className="form-input"
             />
@@ -99,7 +99,7 @@ const Register: React.FC = () => {
             ]}
           >
             <Input
-              prefix={<UserOutlined className="form-icon" />}
+              prefix={<UserRound size={16} className="form-icon" />}
               placeholder="Enter your middle name"
               className="form-input"
             />
@@ -118,7 +118,7 @@ const Register: React.FC = () => {
             ]}
           >
             <Input
-              prefix={<UserOutlined className="form-icon" />}
+              prefix={<UserRound size={16} className="form-icon" />}
               placeholder="Enter your last name"
               className="form-input"
             />
@@ -137,7 +137,7 @@ const Register: React.FC = () => {
             ]}
           >
             <Input
-              prefix={<MailOutlined className="form-icon" />}
+              prefix={<Mail size={16} className="form-icon" />}
               placeholder="Enter your email"
               className="form-input"
             />
@@ -162,7 +162,7 @@ const Register: React.FC = () => {
             ]}
           >
             <Input.Password
-              prefix={<LockOutlined className="form-icon" />}
+              prefix={<LockKeyhole size={16} className="form-icon" />}
               placeholder="Enter your password"
               className="form-input"
             />
@@ -189,7 +189,7 @@ const Register: React.FC = () => {
             ]}
           >
             <Input.Password
-              prefix={<LockOutlined className="form-icon" />}
+              prefix={<LockKeyhole size={16} className="form-icon" />}
               placeholder="Confirm your password"
               className="form-input"
             />

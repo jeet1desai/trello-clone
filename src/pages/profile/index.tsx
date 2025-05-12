@@ -11,7 +11,6 @@ import {
   Upload,
   Spin,
 } from "antd";
-import { CameraOutlined, UserOutlined } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, persistor, RootState } from "../../store";
 import {
@@ -25,6 +24,7 @@ import { useNavigate } from "react-router-dom";
 import { PUBLIC_ROUTE } from "../../utils/enums/route";
 import { RESET_APP } from "../../config";
 import { handleSocialLogout } from "../../config/firebase/helperFunction";
+import { Camera, UserRound } from "lucide-react";
 
 const { Title, Text } = Typography;
 
@@ -72,12 +72,12 @@ const ProfilePage = () => {
   };
 
   const handleLogout = async () => {
-      await dispatch(logoutUser());
-      dispatch({ type: RESET_APP });
-      handleSocialLogout();
-      await persistor.purge();
-      navigate(PUBLIC_ROUTE.FORGOT_PASSWORD);
-    };
+    await dispatch(logoutUser());
+    dispatch({ type: RESET_APP });
+    handleSocialLogout();
+    await persistor.purge();
+    navigate(PUBLIC_ROUTE.FORGOT_PASSWORD);
+  };
 
   const handleResetPassword = async (values: {
     old_password: string;
@@ -114,7 +114,7 @@ const ProfilePage = () => {
           <Card className="profile-card">
             <div className="profile-top-section">
               <div className="profile-name">
-                <Form.Item name="profile_image">
+                <Form.Item name="profile_image" style={{ margin: 0 }}>
                   <Upload
                     showUploadList={false}
                     accept="image/*"
@@ -131,11 +131,11 @@ const ProfilePage = () => {
                       <Avatar
                         size={80}
                         src={previewImage ?? profileDetails?.profile_image?.url}
-                        icon={<UserOutlined />}
+                        icon={<UserRound size={24} />}
                       />
                       {editMode && (
                         <div className="camera-overlay">
-                          <CameraOutlined className="camera-icon" />
+                          <Camera size={24} className="camera-icon" />
                         </div>
                       )}
                     </div>
@@ -153,6 +153,7 @@ const ProfilePage = () => {
               <Button
                 type={editMode ? "default" : "primary"}
                 className="button"
+                style={{ marginTop: 0 }}
                 onClick={() => setEditMode(!editMode)}
               >
                 {editMode ? "Cancel" : "Edit"}

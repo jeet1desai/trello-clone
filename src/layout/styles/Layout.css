@@ -584,6 +584,8 @@
 
 .notification-button {
   align-self: flex-start;
+  width: 20px !important;
+  height: 20px !important;
 }
 
 .notification-empty {
@@ -592,11 +594,14 @@
   padding: 12px;
 }
 
-.flex-items {
-    display: flex;
-    justify-content: space-between;
-    align-items: end;
-    width: 130%;
+.link-text {
+  width: fit-content !important;
+  position: relative;
+  left: 55px;
+}
+
+.link-text:hover {
+  text-decoration: underline;
 }
 
 /* 🌐 Responsive Styles */
@@ -619,10 +624,6 @@
 
   .notification-text {
     max-width: 65vw;
-  }
-
-  .flex-items {
-    width: 115%;
   }
 }
 
