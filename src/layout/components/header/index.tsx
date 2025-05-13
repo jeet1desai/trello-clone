@@ -76,6 +76,17 @@ const Header: React.FC = () => {
 
   const userMenuItems: MenuProps["items"] = [
     {
+      label: (
+        <span>
+          {currentUser?.first_name}
+        </span>
+      ),
+      type: "group",
+    },
+    {
+      type: "divider",
+    },
+    {
       key: "profile",
       label: <span>Profile</span>,
       icon: <UserRound size={16} />,
@@ -260,7 +271,7 @@ const Header: React.FC = () => {
             type="text"
             icon={
               <Badge dot={allNotification.some((n) => !n.read)}>
-                <Bell size={16} />
+                <Bell size={17} />
               </Badge>
             }
             className="notification-trigger"
@@ -270,9 +281,9 @@ const Header: React.FC = () => {
         <ThemeToggle style={{ marginRight: 8 }} />
 
         <Dropdown
-          menu={{ items: userMenuItems }}
+          menu={{ items: userMenuItems , className: "custom-user-menu" }}
           placement="bottomRight"
-          trigger={["click"]}
+          trigger={["click"]}   
         >
           <Avatar className="user-avatar" src={currentUser?.profile_image?.url}>
             {currentUser?.first_name?.[0]?.toUpperCase()}

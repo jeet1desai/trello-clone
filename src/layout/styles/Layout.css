@@ -169,6 +169,16 @@
   transition: all 0.3s ease;
 }
 
+.custom-user-menu {
+  padding: 5px;
+  min-width: 130px;
+}
+
+.custom-user-menu .ant-dropdown-menu-item {
+  padding: 8px 12px;
+  font-size: 14px;
+}
+
 .auth-buttons {
   display: flex;
   gap: 12px;
