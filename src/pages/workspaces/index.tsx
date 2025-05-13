@@ -305,7 +305,7 @@ const Workspaces: React.FC = () => {
         </Row>
         {workspacePagination.totalPages > 1 && (
           <Pagination
-            align="center"
+            align="end"
             style={{ marginTop: "40px" }}
             defaultCurrent={1}
             pageSize={workspacePagination.limit}

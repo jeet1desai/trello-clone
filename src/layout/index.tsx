@@ -54,7 +54,7 @@ const Layout: React.FC = () => {
         >
           <div
             style={{
-              maxWidth: isBoardDetailPage ? "100%" : 1200,
+              maxWidth: isBoardDetailPage ? "100%" : 1600,
               margin: "0 auto",
               height: "100%",
             }}
