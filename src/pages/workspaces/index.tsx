@@ -281,14 +281,6 @@ const Workspaces: React.FC = () => {
             image={Empty.PRESENTED_IMAGE_SIMPLE}
             description="No workspaces found"
           >
-            <Button
-              type="primary"
-              className="button"
-              icon={<Plus size={16} />}
-              onClick={showAddModal}
-            >
-              Create New Workspace
-            </Button>
           </Empty>
         </div>
       );

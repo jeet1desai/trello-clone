@@ -60,18 +60,18 @@ const ContactUs = () => {
               Contact Information
             </Title>
             <Paragraph className="text-color-secondary">
-              Say something to start a live chat!
+              We welcome your questions, comments, and feedback.
             </Paragraph>
             <div className="info-item">
               <PhoneOutlined />
               <Paragraph className="text-color-white margin-bottom-0">
-                +1 012 3456 789
+                +1 (012) 345-6789
               </Paragraph>
             </div>
             <div className="info-item">
               <MailOutlined />
               <Paragraph className="text-color-white margin-bottom-0">
-                demo@gmail.com
+                contact@example.com
               </Paragraph>
             </div>
             <div className="info-item">
