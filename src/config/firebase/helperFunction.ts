@@ -65,6 +65,7 @@ export const handleSignIn = async (
   goTo: (path: string) => void
 ) => {
   try {
+    await handleSocialLogout();
     const result:any = await signInWithPopup(auth, provider);
     const token = await result.user.getIdToken();
     const screenName = result._tokenResponse?.screenName;

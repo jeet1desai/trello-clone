@@ -275,7 +275,8 @@ const ProfilePage = () => {
           </Title>
           {!resetPasswordFlag ? (
             <Button
-              type="dashed"
+              type="primary"
+              htmlType="submit"
               className="button"
               onClick={() => setResetPasswordFlag(true)}
             >
@@ -391,14 +392,14 @@ const ProfilePage = () => {
                     </Button>
                   </Form.Item>
                   <Form.Item>
-                    <Button
-                      type="dashed"
-                      htmlType="submit"
-                      className="button"
-                      loading={loading}
-                    >
-                      Save Changes
-                    </Button>
+                      <Button
+                        type="primary"
+                        htmlType="submit"
+                        className="button"
+                        loading={loading}
+                      >
+                        Save Changes
+                      </Button>
                   </Form.Item>
                 </div>
               )}

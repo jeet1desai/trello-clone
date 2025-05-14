@@ -328,7 +328,7 @@ const Boards: React.FC = () => {
         </Row>
         {boardPagination.totalPages > 1 && (
           <Pagination
-            align="center"
+            align="end"
             style={{ marginTop: "40px" }}
             defaultCurrent={1}
             pageSize={boardPagination.limit}

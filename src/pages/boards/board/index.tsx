@@ -846,13 +846,12 @@ const BoardDetail: React.FC = () => {
                             }
                           >
                             <div
+                            className="task-border"
                               style={{
                                 borderRadius: 6,
-                                padding: "8px 8px 0 8px",
-                                height: "100%",
-                                maxWidth: "300px",
-                                border: "1px solid rgba(0, 0, 0, 0.12)",
-                                boxShadow: "1px 1px #00000005",
+                                padding: "8px 8px 24px 8px",
+                                height: "max-content",
+                                maxWidth: "300px"
                               }}
                             >
                               <div

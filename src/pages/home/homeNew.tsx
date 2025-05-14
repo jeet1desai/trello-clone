@@ -98,7 +98,7 @@ const Home: React.FC = () => {
       </div>
 
       {/* Stats Section */}
-      <Row justify="center" style={{ margin: '-40px auto 60px', maxWidth: 1200, padding: '0 20px' }}>
+      <Row justify="center" style={{ margin: '-40px auto 60px', maxWidth: 1600, padding: '0 20px' }}>
         <Col xs={24} sm={8} md={6}>
           <Card style={{ textAlign: 'center', borderRadius: '8px' }}>
             <Statistic 

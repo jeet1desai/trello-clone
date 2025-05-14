@@ -127,7 +127,7 @@ const RecentActivity: React.FC = () => {
                   <Space>
                     <Text strong>
                       {item.created_by.first_name?.charAt(0).toUpperCase() + item.created_by.first_name?.slice(1)}{" "}
-                      {item.created_by.last_name?.charAt(0).toUpperCase() + (item.created_by.last_name?.slice(1) ?? "")}
+                      {item.created_by.last_name && item.created_by.last_name?.charAt(0).toUpperCase() + (item.created_by.last_name?.slice(1) ?? "")}
                     </Text>
                     <Tag color={getTagColorForAction(item.action)}>{item.action}</Tag>
                   </Space>
