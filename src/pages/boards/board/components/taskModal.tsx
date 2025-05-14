@@ -17,7 +17,7 @@ import {
   message,
   Space,
 } from "antd";
-import { FilePdfOutlined } from "@ant-design/icons";
+import { CopyOutlined, FilePdfOutlined } from "@ant-design/icons";
 import TaskDescriptionEditor from "../../../../components/ui/Editor";
 import type { UploadFile } from "antd";
 import { useDispatch, useSelector } from "react-redux";
@@ -69,6 +69,7 @@ import {
   removeSelectedLabel,
   getMembersByTaskIdSearch,
   getBoardMemberListBySearchId,
+  duplicateTask,
 } from "../../../../store/slices/boardSlice";
 import { getRandomColor } from "../../../../utils";
 import AttachmentActions from "./attachmentAction";
@@ -472,7 +473,7 @@ const TaskModal: React.FC<TaskModalProps> = ({
           <div className="member-title">Card members</div>
           <List
             dataSource={searchMembers ? searchTaskMembers : selectedTaskMembers}
-            renderItem={(member) => (
+            renderItem={(member:any) => (
               <List.Item className="members-list">
                 <div style={{ display: "flex", alignItems: "center" }}>
                   <Avatar
@@ -1106,6 +1107,16 @@ const TaskModal: React.FC<TaskModalProps> = ({
                   />
                 </Popover>
               </div>
+              <Button
+                type="default"
+                className="button small-btn"
+                style={{ marginTop: 0, marginLeft: "-22px", color: 'gray' }}
+                onClick={() => dispatch(duplicateTask(selectedTask?._id ?? ""))}>
+                <Space>
+                  <CopyOutlined size={16} />
+                  Duplicate
+                </Space>
+              </Button>
             </div>
             <div className="task-section">
               <div className="task-section-title-desc">
