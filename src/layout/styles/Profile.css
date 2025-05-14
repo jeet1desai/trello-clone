@@ -14,9 +14,10 @@
 
 .profile-header-gradient {
   background: var(--welcome-gradient);
-  padding: 24px;
+  padding: 15px;
   border-radius: 16px;
   margin-bottom: 24px;
+  height:'20px'
 }
 
 .profile-card {

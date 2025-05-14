@@ -159,7 +159,6 @@
 }
 
 .user-avatar {
-  background: var(--primary-color);
   cursor: pointer;
   width: 38px;
   height: 38px;
@@ -167,6 +166,16 @@
   align-items: center;
   justify-content: center;
   transition: all 0.3s ease;
+}
+
+.custom-user-menu {
+  padding: 5px;
+  min-width: 130px;
+}
+
+.custom-user-menu .ant-dropdown-menu-item {
+  padding: 8px 12px;
+  font-size: 14px;
 }
 
 .auth-buttons {
@@ -567,10 +576,10 @@
 }
 
 .notification-text {
+  width: 100%;
   display: flex;
   flex-direction: column;
   gap: 4px;
-  max-width: 220px;
   word-break: break-word;
 }
 
@@ -594,14 +603,9 @@
   padding: 12px;
 }
 
-.link-text {
-  width: fit-content !important;
-  position: relative;
-  left: 55px;
-}
-
-.link-text:hover {
+.link-detail {
   text-decoration: underline;
+  font-size: 12px;
 }
 
 /* 🌐 Responsive Styles */
@@ -623,7 +627,7 @@
   }
 
   .notification-text {
-    max-width: 65vw;
+    max-width: 77vw;
   }
 }
 

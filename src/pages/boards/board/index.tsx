@@ -83,7 +83,6 @@ import {
   Equal,
   ChevronDown,
   Clock,
-  UserRound,
   Smile,
 } from "lucide-react";
 
@@ -512,21 +511,17 @@ const BoardDetail: React.FC = () => {
                 <Paragraph
                   ellipsis={{ rows: 2 }}
                   style={{
-                    marginBottom: 15,
+                    marginBottom: 8,
                     fontWeight: 500,
                     display: "flex",
                     gap: 4,
                   }}
                 >
-                  {task.status === "Completed" ? (
-                    <Checkbox checked={true} prefixCls="status-checkbox" />
-                  ) : hoveredTaskId === task._id ? (
-                    <Checkbox checked={false} prefixCls="status-checkbox" />
-                  ) : null}
                   {task.title}
                 </Paragraph>
                 <div
                   style={{
+                    margin: "12px 0 8px 0",
                     display: "flex",
                     gap: 8,
                     justifyContent: "space-between",
@@ -622,7 +617,7 @@ const BoardDetail: React.FC = () => {
                 <Button
                   type="text"
                   size="small"
-                  style={{ marginLeft: 4 }}
+                  style={{ marginLeft: 0 }}
                   danger
                   icon={<Trash2 size={16} />}
                   onClick={(e) => handleDeleteTask(e, task._id)}

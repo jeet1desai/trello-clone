@@ -76,6 +76,17 @@ const Header: React.FC = () => {
 
   const userMenuItems: MenuProps["items"] = [
     {
+      label: (
+        <span>
+          {currentUser?.first_name}
+        </span>
+      ),
+      type: "group",
+    },
+    {
+      type: "divider",
+    },
+    {
       key: "profile",
       label: <span>Profile</span>,
       icon: <UserRound size={16} />,
@@ -189,12 +200,27 @@ const Header: React.FC = () => {
                           item.sender?.last_name?.[0]?.toUpperCase()}
                       </Avatar>
                       <div className="notification-text">
-                        <p>{item.message}</p>
                         <div
                           style={{
-                            width: item.message?.length > 35 ? "100%" : "119%",
                             display: "flex",
                             justifyContent: "space-between",
+                            alignItems: "center",
+                          }}
+                        >
+                          <p>{item.message}</p>
+                          <Button
+                            type="text"
+                            icon={<EyeOff size={14} />}
+                            onClick={() => handleReadNotification(item._id)}
+                            className="notification-button"
+                            style={{ color: isDarkMode ? "white" : "inherit" }}
+                          />
+                        </div>
+                        <div
+                          style={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "end",
                           }}
                         >
                           <span
@@ -207,11 +233,9 @@ const Header: React.FC = () => {
                           {item.link && (
                             <Link
                               to={item.link}
-                              className="link-text"
-                              onClick={() => {
-                                handleReadNotification(item._id);
-                                setNotificationOpen(false);
-                              }}
+                              style={{ textDecoration: "underline" }}
+                              className="link-detail"
+                              onClick={() => setNotificationOpen(false)}
                             >
                               See details
                             </Link>
@@ -219,13 +243,6 @@ const Header: React.FC = () => {
                         </div>
                       </div>
                     </div>
-                    <Button
-                      type="text"
-                      icon={<EyeOff size={14} />}
-                      onClick={() => handleReadNotification(item._id)}
-                      className="notification-button"
-                      style={{ color: isDarkMode ? "white" : "inherit" }}
-                    />
                   </div>
                 ))
               ) : (
@@ -260,7 +277,7 @@ const Header: React.FC = () => {
             type="text"
             icon={
               <Badge dot={allNotification.some((n) => !n.read)}>
-                <Bell size={16} />
+                <Bell size={17} />
               </Badge>
             }
             className="notification-trigger"
@@ -270,12 +287,17 @@ const Header: React.FC = () => {
         <ThemeToggle style={{ marginRight: 8 }} />
 
         <Dropdown
-          menu={{ items: userMenuItems }}
+          menu={{ items: userMenuItems , className: "custom-user-menu" }}
           placement="bottomRight"
-          trigger={["click"]}
+          trigger={["click"]}   
         >
-          <Avatar className="user-avatar" src={currentUser?.profile_image?.url}>
-            {currentUser?.first_name?.[0]?.toUpperCase()}
+          <Avatar
+            className="user-avatar"
+            src={currentUser?.profile_image?.url}
+            style={{ background: getRandomColor(currentUser?.id ?? "") }}
+          >
+            {(currentUser?.first_name?.[0]?.toUpperCase() ?? "") +
+              (currentUser?.last_name?.[0]?.toUpperCase() ?? "")}
           </Avatar>
         </Dropdown>
       </div>
