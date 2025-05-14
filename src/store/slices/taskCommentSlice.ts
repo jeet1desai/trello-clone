@@ -50,20 +50,23 @@ interface WorkspaceState {
   taskLoading: boolean;
   error: string | null;
   success: string | null;
+  task_id: string;
 }
 
 const initialState: WorkspaceState = {
   taskComments: [],
   taskLoading: false,
+  task_id: "",
   error: null,
   success: null,
 };
 
 export const getTaskCommentById = createAsyncThunk(
   "taskComment/get-comment-by-task-id",
-  async (_id: string, { rejectWithValue }) => {
+  async (_id: string, { dispatch, rejectWithValue }) => {
     try {
       const response = await taskCommentService.getCommentsById(_id);
+      dispatch(selectedTaskId(_id));
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
@@ -88,7 +91,7 @@ export const addNewTaskComment = createAsyncThunk(
       attachments: File[];
       mentionedMembers: string[];
     },
-    { rejectWithValue, dispatch }
+    { rejectWithValue }
   ) => {
     try {
       const response = await taskCommentService.addTaskComment(
@@ -97,7 +100,6 @@ export const addNewTaskComment = createAsyncThunk(
         attachments,
         mentionedMembers
       );
-      dispatch(updateTaskComments(response.data));
       return response;
     } catch (error: any) {
       return rejectWithValue(
@@ -168,10 +170,13 @@ const taskCommentSlice = createSlice({
         updatedAt,
         __v,
       } = action.payload.data;
-      const existingComment = state.taskComments.findIndex(
-        (comment) => comment._id === _id
+
+      const taskExists = state.task_id === task_id;
+
+      const commentAlreadyExists = state.taskComments.some(
+        (c) => c._id === _id
       );
-      if (existingComment === -1)
+      if (taskExists && !commentAlreadyExists) {
         state.taskComments = [
           ...state.taskComments,
           {
@@ -185,6 +190,7 @@ const taskCommentSlice = createSlice({
             __v,
           },
         ];
+      }
     },
     removeComment: (state, action) => {
       const { _id } = action.payload.data;
@@ -206,6 +212,9 @@ const taskCommentSlice = createSlice({
       state.taskLoading = false;
       state.error = null;
       state.success = null;
+    },
+    selectedTaskId: (state, action) => {
+      state.task_id = action.payload;
     },
   },
   extraReducers: (builder) => {
@@ -311,6 +320,7 @@ export const {
   updateComment,
   addTaskComment,
   clearSelectedTaskComment,
+  selectedTaskId,
 } = taskCommentSlice.actions;
 
 export default taskCommentSlice.reducer;

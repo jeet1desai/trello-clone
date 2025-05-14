@@ -23,10 +23,15 @@ import type { UploadFile } from "antd";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../../../store";
 import {
+  addAssignMemberToTask,
+  addLabelToTask,
   assignMember,
   assignTaskMember,
+  removeAssignMemberTask,
+  removeLabelToTask,
   unassignMember,
   unassignTaskMember,
+  updateCommentCount,
   updateTask,
 } from "../../../../store/slices/taskSlice";
 import { Priority, TaskStatus } from "../../../../utils/enums/task";
@@ -98,6 +103,78 @@ interface TaskModalProps {
   taskId: string | null;
   visible: boolean;
   onClose: () => void;
+}
+
+interface ITaskAttachment {
+  imageName: string;
+  imageId: string;
+  url: string;
+  _id: string;
+}
+
+export interface ITask {
+  _id: string;
+  title: string;
+  description: string;
+  board_id: string;
+  status_list_id: string;
+  created_by: string;
+  assigned_to: string | null;
+  start_date: string | null;
+  end_date: string | null;
+  priority: Priority;
+  position: number;
+  status: TaskStatus;
+  attachment: ITaskAttachment[];
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
+}
+
+interface IRemoveTaskLabel {
+  data: {
+    _id: string;
+    task_id: ITask;
+    label_id: string;
+    createdAt: string;
+    updatedAt: string;
+    __v: number;
+  };
+}
+
+interface IAddTask {
+  _id: string;
+  title: string;
+  description: string;
+  board_id: string;
+  status_list_id: string;
+  position: number;
+}
+interface ITaskLabel {
+  _id: string;
+  name: string;
+  backgroundColor: string;
+  textColor: string;
+  boardId: string;
+}
+
+interface IAddTaskLabel {
+  data: {
+    _id: string;
+    task_id: IAddTask;
+    label_id: ITaskLabel;
+    createdAt: string;
+    updatedAt: string;
+    __v: number;
+  };
+}
+
+interface ITaskAssignMember {
+  _id: string;
+  first_name: string;
+  last_name: string;
+  status_list_id: string;
+  task_id: string;
 }
 
 const priorityMeta: Record<
@@ -605,15 +682,32 @@ const TaskModal: React.FC<TaskModalProps> = ({
     });
 
     socketService.on("receive-new-task-label", (payload) => {
+      const data = payload as IAddTaskLabel;
       dispatch(addSelectedLabels(payload));
+      const { label_id, task_id } = data.data;
+      const addLabelPayload = {
+        label_id: label_id,
+        task_id: task_id._id,
+        status_list_id: task_id.status_list_id,
+      };
+      dispatch(addLabelToTask(addLabelPayload));
     });
 
     socketService.on("remove_task_label", (payload) => {
+      const data = payload as IRemoveTaskLabel;
       dispatch(removeSelectedLabel(payload));
+      const { label_id, task_id } = data.data;
+      const removeLabelPayload = {
+        label_id: label_id,
+        task_id: task_id._id,
+        status_list_id: task_id.status_list_id,
+      };
+      dispatch(removeLabelToTask(removeLabelPayload));
     });
 
     socketService.on("receive_new_comment", (payload) => {
       dispatch(addNewComment(payload));
+      dispatch(updateCommentCount({ payload, dataScript: "add" }));
     });
 
     socketService.on("receive_updated_comment", (payload) => {
@@ -622,6 +716,7 @@ const TaskModal: React.FC<TaskModalProps> = ({
 
     socketService.on("remove_comment", (payload) => {
       dispatch(removeComment(payload));
+      dispatch(updateCommentCount({ payload, dataScript: "remove" }));
     });
 
     socketService.on("remove_task_attachment", (payload) => {
@@ -629,11 +724,17 @@ const TaskModal: React.FC<TaskModalProps> = ({
     });
 
     socketService.on("receive_task_assigned_member", (payload) => {
+      const data = payload as ITaskAssignMember;
+
       dispatch(assignTaskMember(payload));
+
+      dispatch(addAssignMemberToTask(data));
     });
 
     socketService.on("unassigned_task_member", (payload) => {
+      const data = payload as ITaskAssignMember;
       dispatch(unassignTaskMember(payload));
+      dispatch(removeAssignMemberTask(data));
     });
 
     return () => {
