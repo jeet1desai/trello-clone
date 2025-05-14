@@ -189,12 +189,27 @@ const Header: React.FC = () => {
                           item.sender?.last_name?.[0]?.toUpperCase()}
                       </Avatar>
                       <div className="notification-text">
-                        <p>{item.message}</p>
                         <div
                           style={{
-                            width: item.message?.length > 35 ? "100%" : "119%",
                             display: "flex",
                             justifyContent: "space-between",
+                            alignItems: "center",
+                          }}
+                        >
+                          <p>{item.message}</p>
+                          <Button
+                            type="text"
+                            icon={<EyeOff size={14} />}
+                            onClick={() => handleReadNotification(item._id)}
+                            className="notification-button"
+                            style={{ color: isDarkMode ? "white" : "inherit" }}
+                          />
+                        </div>
+                        <div
+                          style={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "end",
                           }}
                         >
                           <span
@@ -207,11 +222,9 @@ const Header: React.FC = () => {
                           {item.link && (
                             <Link
                               to={item.link}
-                              className="link-text"
-                              onClick={() => {
-                                handleReadNotification(item._id);
-                                setNotificationOpen(false);
-                              }}
+                              style={{ textDecoration: "underline" }}
+                              className="link-detail"
+                              onClick={() => setNotificationOpen(false)}
                             >
                               See details
                             </Link>
@@ -219,13 +232,6 @@ const Header: React.FC = () => {
                         </div>
                       </div>
                     </div>
-                    <Button
-                      type="text"
-                      icon={<EyeOff size={14} />}
-                      onClick={() => handleReadNotification(item._id)}
-                      className="notification-button"
-                      style={{ color: isDarkMode ? "white" : "inherit" }}
-                    />
                   </div>
                 ))
               ) : (
@@ -274,8 +280,13 @@ const Header: React.FC = () => {
           placement="bottomRight"
           trigger={["click"]}
         >
-          <Avatar className="user-avatar" src={currentUser?.profile_image?.url}>
-            {currentUser?.first_name?.[0]?.toUpperCase()}
+          <Avatar
+            className="user-avatar"
+            src={currentUser?.profile_image?.url}
+            style={{ background: getRandomColor(currentUser?.id ?? "") }}
+          >
+            {(currentUser?.first_name?.[0]?.toUpperCase() ?? "") +
+              (currentUser?.last_name?.[0]?.toUpperCase() ?? "")}
           </Avatar>
         </Dropdown>
       </div>

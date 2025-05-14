@@ -284,7 +284,6 @@ const userSlice = createSlice({
         state.isAuthenticated = true;
         state.loading = false;
         state.error = null;
-        state.success = "Login successful.";
       })
       .addCase(loginUser.rejected, (state, action) => {
         state.loading = false;
@@ -402,7 +401,6 @@ const userSlice = createSlice({
         state.isAuthenticated = false;
         state.loading = false;
         state.error = null;
-        state.success = "Logout successful.";
       })
       .addCase(logoutUser.rejected, (state) => {
         state.loading = false;

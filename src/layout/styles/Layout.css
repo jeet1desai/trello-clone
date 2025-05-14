@@ -159,7 +159,6 @@
 }
 
 .user-avatar {
-  background: var(--primary-color);
   cursor: pointer;
   width: 38px;
   height: 38px;
@@ -567,10 +566,10 @@
 }
 
 .notification-text {
+  width: 100%;
   display: flex;
   flex-direction: column;
   gap: 4px;
-  max-width: 220px;
   word-break: break-word;
 }
 
@@ -594,14 +593,9 @@
   padding: 12px;
 }
 
-.link-text {
-  width: fit-content !important;
-  position: relative;
-  left: 55px;
-}
-
-.link-text:hover {
+.link-detail {
   text-decoration: underline;
+  font-size: 12px;
 }
 
 /* 🌐 Responsive Styles */
@@ -623,7 +617,7 @@
   }
 
   .notification-text {
-    max-width: 65vw;
+    max-width: 77vw;
   }
 }
 

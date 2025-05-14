@@ -27,8 +27,7 @@ export const notificationMiddleware: Middleware<
       sliceName.includes("status") ||
       sliceName.includes("task") ||
       sliceName.includes("notification") ||
-      sliceName.includes("dashboard") ||
-      sliceName.includes("user")
+      sliceName.includes("dashboard")
     )
       return;
 
@@ -50,14 +49,15 @@ export const notificationMiddleware: Middleware<
       const successMessage =
         typeof action.payload === "string"
           ? action.payload
-          : sliceState?.success ?? "Action performed successfully.";
+          : sliceState?.success;
 
-      openNotification({
-        type: "success",
-        message: successMessage,
-        placement: "bottomRight",
-        duration: 2,
-      });
+      if (successMessage)
+        openNotification({
+          type: "success",
+          message: successMessage,
+          placement: "bottomRight",
+          duration: 2,
+        });
     }
 
     return result;

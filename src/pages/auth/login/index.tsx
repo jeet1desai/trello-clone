@@ -37,11 +37,6 @@ const Login: React.FC = () => {
     );
   };
 
-  const handleSocialLogin = (provider: string) => {
-    // Implement social login logic here
-    console.log(`Logging in with ${provider}`);
-  };
-
   return (
     <div className="auth-container">
       <div className="auth-form-container">
