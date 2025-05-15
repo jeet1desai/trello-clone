@@ -58,6 +58,7 @@ import {
   updateTaskInState,
   removeTask,
   getTaskById,
+  updateSocketTask,
 } from "../../../store/slices/taskSlice";
 import TaskModal from "./components/taskModal";
 import { getRandomColor } from "../../../utils";
@@ -92,6 +93,10 @@ export interface Attachment {
   url?: string;
   type?: string;
   size?: number;
+}
+
+interface ISocketUpdateTask {
+  data: ITask;
 }
 
 const BoardDetail: React.FC = () => {
@@ -220,10 +225,12 @@ const BoardDetail: React.FC = () => {
     });
 
     socketService.on("receive-updated-task", (payload) => {
+      const data = payload as ISocketUpdateTask;
       if (isOwner() || selectedFilters.includes("all")) {
         dispatch(updateTaskPosition(payload));
         dispatch(updateTaskInState(payload));
       }
+      dispatch(updateSocketTask(data));
     });
 
     socketService.on("remove_task", (payload) => {
@@ -231,41 +238,41 @@ const BoardDetail: React.FC = () => {
     });
 
     socketService.on("receive_new_task-member", (payload: any) => {
-      if (payload.data.member_id._id === currentUser?.id) {
-        if (statusList.length > 0) {
-          statusList.forEach(async (status) => {
-            if (status?._id) {
-              await dispatch(
-                getTasksByStatusId({
-                  statusId: status._id,
-                  filterBy: selectedFilters.filter(
-                    (f): f is string => f !== undefined
-                  ),
-                })
-              );
-            }
-          });
-        }
+      // if (payload.data.member_id._id === currentUser?.id) {
+      if (statusList.length > 0) {
+        statusList.forEach(async (status) => {
+          if (status?._id) {
+            await dispatch(
+              getTasksByStatusId({
+                statusId: status._id,
+                filterBy: selectedFilters.filter(
+                  (f): f is string => f !== undefined
+                ),
+              })
+            );
+          }
+        });
       }
+      // }
     });
 
     socketService.on("task-member-removed", (payload: any) => {
-      if (payload.data.member_id === currentUser?.id) {
-        if (statusList.length > 0) {
-          statusList.forEach(async (status) => {
-            if (status?._id) {
-              await dispatch(
-                getTasksByStatusId({
-                  statusId: status._id,
-                  filterBy: selectedFilters.filter(
-                    (f): f is string => f !== undefined
-                  ),
-                })
-              );
-            }
-          });
-        }
+      // if (payload.data.member_id === currentUser?.id) {
+      if (statusList.length > 0) {
+        statusList.forEach(async (status) => {
+          if (status?._id) {
+            await dispatch(
+              getTasksByStatusId({
+                statusId: status._id,
+                filterBy: selectedFilters.filter(
+                  (f): f is string => f !== undefined
+                ),
+              })
+            );
+          }
+        });
       }
+      // }
     });
 
     return () => {
@@ -845,12 +852,12 @@ const BoardDetail: React.FC = () => {
                             }
                           >
                             <div
-                            className="task-border"
+                              className="task-border"
                               style={{
                                 borderRadius: 6,
                                 padding: "8px 8px 16px 8px",
                                 height: "max-content",
-                                maxWidth: "300px"
+                                maxWidth: "300px",
                               }}
                             >
                               <div

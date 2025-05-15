@@ -186,14 +186,9 @@ const ProfilePage = () => {
 
               <Col span={8}>
                 <Form.Item
-                  label={
-                    <span className="input-label">
-                      Middle Name <span className="require-mark">*</span>
-                    </span>
-                  }
+                  label={<span className="input-label">Middle Name</span>}
                   name="middle_name"
                   rules={[
-                    { required: true, message: "Middle Name is required" },
                     {
                       max: 50,
                       message: "Middle Name must not exceed 50 characters",
@@ -392,14 +387,14 @@ const ProfilePage = () => {
                     </Button>
                   </Form.Item>
                   <Form.Item>
-                      <Button
-                        type="primary"
-                        htmlType="submit"
-                        className="button"
-                        loading={loading}
-                      >
-                        Save Changes
-                      </Button>
+                    <Button
+                      type="primary"
+                      htmlType="submit"
+                      className="button"
+                      loading={loading}
+                    >
+                      Save Changes
+                    </Button>
                   </Form.Item>
                 </div>
               )}

@@ -48,6 +48,7 @@ const CommentCard: React.FC<CommentCardProps> = ({
 }) => {
   const { _id, profile_image, first_name, last_name } = commentedBy;
   const { invitedMemberList } = useSelector((state: RootState) => state.board);
+  const { currentUser } = useSelector((state: RootState) => state.user);
   const [isEditing, setIsEditing] = React.useState(false);
   const [msg, setMsg] = React.useState<string>(comment);
   const [fileList, setFileList] = React.useState<File[]>([]);
@@ -104,23 +105,25 @@ const CommentCard: React.FC<CommentCardProps> = ({
               )}
             </Space>
           </div>
-          <div className="show-edit-btn-container">
-            <span
-              className="edit-comment-btn"
-              onClick={() => setIsEditing(true)}
-            >
-              Edit
-            </span>
-
-            {onDelete && (
+          {currentUser?.id === commentedBy._id && (
+            <div className="show-edit-btn-container">
               <span
-                className="delete-comment-btn"
-                onClick={() => onDelete(commentId)}
+                className="edit-comment-btn"
+                onClick={() => setIsEditing(true)}
               >
-                Delete
+                Edit
               </span>
-            )}
-          </div>
+
+              {onDelete && (
+                <span
+                  className="delete-comment-btn"
+                  onClick={() => onDelete(commentId)}
+                >
+                  Delete
+                </span>
+              )}
+            </div>
+          )}
         </div>
       </div>
       <>

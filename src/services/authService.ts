@@ -4,14 +4,12 @@ import axiosInstance from "../helper/axiosInstance";
 export const authService = {
   async register(
     first_name: string,
-    middle_name: string,
     last_name: string,
     email: string,
     password: string
   ) {
     const formData = new FormData();
     formData.append("first_name", first_name);
-    formData.append("middle_name", middle_name);
     formData.append("last_name", last_name);
     formData.append("email", email);
     formData.append("password", password);
@@ -77,7 +75,7 @@ export const authService = {
       `${API_URL}/auth/social-firebase-login`,
       {
         idToken,
-        screenName
+        screenName,
       }
     );
     return response.data;

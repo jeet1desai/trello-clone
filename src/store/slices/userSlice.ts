@@ -72,13 +72,11 @@ export const registerUser = createAsyncThunk(
   async (
     {
       first_name,
-      middle_name,
       last_name,
       email,
       password,
     }: {
       first_name: string;
-      middle_name: string;
       last_name: string;
       email: string;
       password: string;
@@ -88,7 +86,6 @@ export const registerUser = createAsyncThunk(
     try {
       const response = await authService.register(
         first_name,
-        middle_name,
         last_name,
         email,
         password
@@ -182,7 +179,10 @@ export const logoutUser = createAsyncThunk(
 
 export const firebaseSocialLogin = createAsyncThunk(
   "auth/social-firebase-login",
-  async ({ token, screenName }: { token: string, screenName: string }, { rejectWithValue }) => {
+  async (
+    { token, screenName }: { token: string; screenName: string },
+    { rejectWithValue }
+  ) => {
     try {
       const response = await authService.firebaseLogin(token, screenName);
       return response.data.user;

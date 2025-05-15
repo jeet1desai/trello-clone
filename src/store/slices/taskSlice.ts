@@ -410,6 +410,28 @@ const taskSlice = createSlice({
         [status_list_id]: updatedTasks,
       };
     },
+    addLabelToTask: (state, action) => {
+      const { label_id, task_id, status_list_id } = action.payload;
+      const task = state.tasksByStatus[status_list_id]?.find(
+        (t) => t._id === task_id
+      );
+      if (task) {
+        const exists = task.labels.some((l) => l._id === label_id._id);
+        if (!exists) {
+          task.labels.push(label_id);
+        }
+      }
+    },
+    removeLabelToTask: (state, action) => {
+      const { label_id, task_id, status_list_id } = action.payload;
+
+      const task = state.tasksByStatus[status_list_id]?.find(
+        (t) => t._id === task_id
+      );
+      if (task) {
+        task.labels = task.labels.filter((label) => label._id !== label_id);
+      }
+    },
     removeTaskLabel: (state, action) => {
       const { label_id, task_id } = action.payload;
       if (state.selectedTask) {
@@ -488,7 +510,7 @@ const taskSlice = createSlice({
     assignTaskMember: (state, action) => {
       state.selectedTask = {
         ...state.selectedTask,
-        assigned_to: action.payload.data,
+        assigned_to: action.payload.data.assigned_to,
       } as ITask;
     },
     unassignTaskMember: (state, action) => {
@@ -496,6 +518,61 @@ const taskSlice = createSlice({
         ...state.selectedTask,
         assigned_to: null,
       } as ITask;
+    },
+    addAssignMemberToTask: (state, action) => {
+      const { status_list_id, task_id, assigned_to } = action.payload.data;
+
+      const task = state.tasksByStatus[status_list_id]?.find(
+        (t) => t._id === task_id
+      );
+
+      if (task) {
+        task.assigned_to = assigned_to;
+      }
+    },
+    removeAssignMemberTask: (state, action) => {
+      const { status_list_id, task_id } = action.payload.data;
+      const task = state.tasksByStatus[status_list_id]?.find(
+        (t) => t._id === task_id
+      );
+
+      if (task) {
+        task.assigned_to = null;
+      }
+    },
+    updateSocketTask: (state, action) => {
+      const { data } = action.payload;
+      const { _id, status_list_id } = data;
+      const task = state.tasksByStatus[status_list_id]?.find(
+        (t) => t._id === _id
+      );
+      if (task) {
+        Object.assign(task, data);
+      }
+    },
+    updateCommentCount: (state, action) => {
+      const { task_id } = action.payload.payload.data;
+
+      const { _id, status_list_id } = task_id;
+      const task = state.tasksByStatus[status_list_id]?.find(
+        (t) => t._id === _id
+      );
+      if (task) {
+        task.comments =
+          action.payload.dataScript === "add"
+            ? task.comments + 1
+            : task.comments - 1;
+      }
+    },
+    updateAttachmentCount: (state, action) => {
+      const { _id, status_list_id, attachment } = action.payload.data;
+
+      const task = state.tasksByStatus[status_list_id]?.find(
+        (t) => t._id === _id
+      );
+      if (task) {
+        task.attachment = attachment;
+      }
     },
   },
   extraReducers: (builder) => {
@@ -618,7 +695,7 @@ const taskSlice = createSlice({
       .addCase(assignMember.fulfilled, (state, action) => {
         state.selectedTask = {
           ...state.selectedTask,
-          assigned_to: action.payload.data,
+          assigned_to: action.payload.data.assigned_to,
         } as ITask;
         state.loading = false;
         state.error = null;
@@ -670,6 +747,13 @@ export const {
   removeTaskComments,
   assignTaskMember,
   unassignTaskMember,
+  addLabelToTask,
+  removeLabelToTask,
+  addAssignMemberToTask,
+  removeAssignMemberTask,
+  updateSocketTask,
+  updateCommentCount,
+  updateAttachmentCount,
 } = taskSlice.actions;
 
 export default taskSlice.reducer;

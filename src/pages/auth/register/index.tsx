@@ -32,7 +32,6 @@ const Register: React.FC = () => {
 
   const handleSubmit = async (values: {
     first_name: string;
-    middle_name: string;
     last_name: string;
     email: string;
     password: string;
@@ -55,7 +54,6 @@ const Register: React.FC = () => {
           name="register"
           initialValues={{
             first_name: "",
-            middle_name: "",
             last_name: "",
             email: "",
             phone: "",
@@ -82,25 +80,6 @@ const Register: React.FC = () => {
             <Input
               prefix={<UserRound size={16} className="form-icon" />}
               placeholder="Enter your first name"
-              className="form-input"
-            />
-          </Form.Item>
-
-          <Form.Item
-            label={
-              <span className="input-label">
-                Middle Name <span className="require-mark">*</span>
-              </span>
-            }
-            name="middle_name"
-            rules={[
-              { required: true, message: "Middle Name is required" },
-              { max: 50, message: "Middle Name must not exceed 50 characters" },
-            ]}
-          >
-            <Input
-              prefix={<UserRound size={16} className="form-icon" />}
-              placeholder="Enter your middle name"
               className="form-input"
             />
           </Form.Item>
