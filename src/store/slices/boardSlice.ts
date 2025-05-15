@@ -573,7 +573,6 @@ export const addLabelInTask = createAsyncThunk(
   ) => {
     try {
       const response = await boardService.addLabelInTask(task_id, label_id);
-      dispatch(updateTaskLabel(response.data));
       return response;
     } catch (error: any) {
       return rejectWithValue(
@@ -591,7 +590,6 @@ export const removeLabelFromTask = createAsyncThunk(
   ) => {
     try {
       const response = await boardService.removeLabelFromTask(taskId, labelId);
-      dispatch(removeTaskLabel(response.data));
       return response.data;
     } catch (error: any) {
       return rejectWithValue(

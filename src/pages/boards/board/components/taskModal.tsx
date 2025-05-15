@@ -31,6 +31,7 @@ import {
   removeLabelToTask,
   unassignMember,
   unassignTaskMember,
+  updateAttachmentCount,
   updateCommentCount,
   updateTask,
 } from "../../../../store/slices/taskSlice";
@@ -721,6 +722,7 @@ const TaskModal: React.FC<TaskModalProps> = ({
 
     socketService.on("remove_task_attachment", (payload) => {
       dispatch(removeAttachment(payload));
+      dispatch(updateAttachmentCount(payload));
     });
 
     socketService.on("receive_task_assigned_member", (payload) => {

@@ -564,6 +564,16 @@ const taskSlice = createSlice({
             : task.comments - 1;
       }
     },
+    updateAttachmentCount: (state, action) => {
+      const { _id, status_list_id, attachment } = action.payload.data;
+
+      const task = state.tasksByStatus[status_list_id]?.find(
+        (t) => t._id === _id
+      );
+      if (task) {
+        task.attachment = attachment;
+      }
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -743,6 +753,7 @@ export const {
   removeAssignMemberTask,
   updateSocketTask,
   updateCommentCount,
+  updateAttachmentCount,
 } = taskSlice.actions;
 
 export default taskSlice.reducer;

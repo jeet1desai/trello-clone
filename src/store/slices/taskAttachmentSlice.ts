@@ -52,6 +52,7 @@ interface TaskAttachmentState {
   success: string | null;
   addError: string | null;
   editError: string | null;
+  task_id: string;
 }
 
 const initialState: TaskAttachmentState = {
@@ -61,13 +62,15 @@ const initialState: TaskAttachmentState = {
   success: null,
   addError: null,
   editError: null,
+  task_id: "",
 };
 
 export const getTaskAttachmentById = createAsyncThunk(
   "taskAttachment/get-comment-by-task-id",
-  async (_id: string, { rejectWithValue }) => {
+  async (_id: string, { dispatch, rejectWithValue }) => {
     try {
       const response = await taskAttachmentService.getAttachmentsById(_id);
+      dispatch(selectedTaskId(_id));
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
@@ -126,19 +129,23 @@ const taskAttachmentSlice = createSlice({
   initialState,
   reducers: {
     addNewAttachment: (state, action) => {
-      const newAttachments = action.payload.data.attachment.filter(
-        (newA: IAttachment) =>
-          !state.taskAttachments.some(
-            (existingA) => existingA.imageName === newA.imageName
-          )
-      );
+      if (state.task_id === action.payload.data._id) {
+        const newAttachments = action.payload.data.attachment.filter(
+          (newA: IAttachment) =>
+            !state.taskAttachments.some(
+              (existingA) => existingA.imageName === newA.imageName
+            )
+        );
 
-      if (newAttachments.length > 0) {
-        state.taskAttachments = [...state.taskAttachments, ...newAttachments];
+        if (newAttachments.length > 0) {
+          state.taskAttachments = [...state.taskAttachments, ...newAttachments];
+        }
       }
     },
     removeAttachment: (state, action) => {
+      if (state.task_id === action.payload.data._id) {
         state.taskAttachments = action.payload.data.attachment;
+      }
     },
     addTaskAttachment: (state) => {
       state.addError = null;
@@ -149,6 +156,9 @@ const taskAttachmentSlice = createSlice({
       state.taskAttachmentLoading = false;
       state.error = null;
       state.success = null;
+    },
+    selectedTaskId: (state, action) => {
+      state.task_id = action.payload;
     },
   },
   extraReducers: (builder) => {
@@ -240,6 +250,7 @@ export const {
   removeAttachment,
   addTaskAttachment,
   clearSelectedTaskAttachment,
+  selectedTaskId,
 } = taskAttachmentSlice.actions;
 
 export default taskAttachmentSlice.reducer;

@@ -18,6 +18,7 @@ import {
 } from "../../../../store/slices/taskAttachmentSlice";
 import { toNativeFile } from "./taskModal";
 import socketService from "../../../../services/socketService";
+import { updateAttachmentCount } from "../../../../store/slices/taskSlice";
 
 const allowedTypes = [
   "image/jpeg",
@@ -215,6 +216,7 @@ const FileUploadModal = () => {
   useEffect(() => {
     socketService.on("upload-attachment-task", (payload) => {
       dispatch(addNewAttachment(payload));
+      dispatch(updateAttachmentCount(payload));
     });
 
     return () => {
