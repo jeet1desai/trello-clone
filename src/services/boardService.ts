@@ -191,4 +191,11 @@ export const boardService = {
     );
     return response.data;
   },
+
+  async duplicateTask(taskId: string) {
+    const response = await axiosInstance.post(
+      `${API_URL}/task/duplicate-task`,{taskId}
+    );
+    return response.data;
+  },
 };

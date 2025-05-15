@@ -737,6 +737,20 @@ export const getWorkspacesForBoards = createAsyncThunk(
   }
 );
 
+export const duplicateTask = createAsyncThunk(
+  "task/duplicate-task",
+  async (_id: string, { rejectWithValue }) => {
+    try {
+      const response = await boardService.duplicateTask(_id);
+      return response;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message ?? "Error while adding member."
+      );
+    }
+  }
+);
+
 const boardSlice = createSlice({
   name: "board",
   initialState,
@@ -1392,7 +1406,26 @@ const boardSlice = createSlice({
         state.success = null;
         state.error =
           (action.payload as string) || "Error while fetching workspaces.";
-      });
+      })
+      
+       // duplicate ticket
+      .addCase(duplicateTask.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.success = null;
+      })
+      .addCase(duplicateTask.fulfilled, (state, action) => {
+        console.log('1111', action.payload)
+        state.loading = false;
+        state.error = null;
+        state.success = "Duplicate ticket created successfully.";
+      })
+      .addCase(duplicateTask.rejected, (state, action) => {
+        state.loading = false;
+        state.success = null;
+        state.error =
+          (action.payload as string) || "Error while fetching workspaces.";
+      });;
   },
 });
 

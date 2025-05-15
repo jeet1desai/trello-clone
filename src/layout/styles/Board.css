@@ -582,8 +582,8 @@
 
 .assign-member-avatar {
   position: absolute;
-  top: 56px;
   right: 12px;
+  bottom :8px;
   width: 30px;
   height: 30px;
 }
