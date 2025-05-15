@@ -32,7 +32,6 @@ import "../../layout/styles/workspaces.css";
 import { SORT_OPTIONS, SORT_OPTIONS_VALUES } from "../../config";
 import { PRIVATE_ROUTE } from "../../utils/enums/route";
 import CustomButton from "../../components/ui/button";
-import ResponsiveSearch from "../../components/ui/searchResponsive";
 import dayjs from "dayjs";
 import {
   ArrowDownAZ,
@@ -280,8 +279,7 @@ const Workspaces: React.FC = () => {
           <Empty
             image={Empty.PRESENTED_IMAGE_SIMPLE}
             description="No workspaces found"
-          >
-          </Empty>
+          ></Empty>
         </div>
       );
     }
@@ -378,21 +376,19 @@ const Workspaces: React.FC = () => {
           </div>
           <div className="header-right">
             <Space>
-              <ResponsiveSearch breakPoint={590}>
-                <Input
-                  prefix={<Search size={16} />}
-                  placeholder="Search workspaces"
-                  allowClear
-                  value={searchText}
-                  className="form-input small-input"
-                  onChange={(e) => setSearchText(e.target.value)}
-                  onClear={async () =>
-                    await dispatch(
-                      getAllWorkspaces({ page: 1, search: "", sortType: 0 })
-                    )
-                  }
-                />
-              </ResponsiveSearch>
+              <Input
+                prefix={<Search size={16} />}
+                placeholder="Search workspaces"
+                allowClear
+                value={searchText}
+                className="form-input small-input"
+                onChange={(e) => setSearchText(e.target.value)}
+                onClear={async () =>
+                  await dispatch(
+                    getAllWorkspaces({ page: 1, search: "", sortType: 0 })
+                  )
+                }
+              />
               <Dropdown
                 menu={{
                   items: sortMenuItems,
@@ -416,20 +412,20 @@ const Workspaces: React.FC = () => {
                   className="button"
                   style={{ marginTop: 0 }}
                   icon={<ArrowDownAZ size={16} />}
-                  breakPoint={800}
+                  breakPoint={575}
                 >
                   <Space>Sort</Space>
                 </CustomButton>
               </Dropdown>
               <CustomButton
                 type="primary"
-                icon={<Plus size={16} />}
+                icon={<Plus className="ant-btn-primary" size={16} />}
                 onClick={showAddModal}
                 className="button"
                 style={{ marginTop: 0 }}
-                breakPoint={820}
+                breakPoint={575}
               >
-                Create New Workspace
+                Create Workspace
               </CustomButton>
             </Space>
           </div>

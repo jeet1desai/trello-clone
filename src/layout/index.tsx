@@ -49,7 +49,7 @@ const Layout: React.FC = () => {
         <Content
           style={{
             ...contentStyle,
-            padding: !isBoardDetailPage && showHeader ? "24px" : 0,
+            padding: !isBoardDetailPage && showHeader && location.pathname !== "/" ? "24px" : 0,
           }}
         >
           <div

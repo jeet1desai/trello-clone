@@ -35,7 +35,7 @@ const PrivateRoute: React.FC<RouteProps> = ({ element }) => {
   const { isAuthenticated } = useSelector((state: RootState) => state.user);
   return (
     <>
-      {isAuthenticated ? element : <Navigate to={PUBLIC_ROUTE.LOGIN} replace />}
+      {isAuthenticated ? element : <Navigate to={PUBLIC_ROUTE.HOME} replace />}
     </>
   );
 };

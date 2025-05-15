@@ -1,6 +1,6 @@
 .board-header {
-  padding: 14px 20px;
-  background: #40a9ff;
+  padding: 12px 20px;
+  background: #40a8ff7a;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -406,6 +406,7 @@
   border: 1px dashed grey;
   border-radius: 4px;
   padding: 18px;
+  margin-top: 8px;
 }
 
 .add-card-button:hover {

@@ -517,7 +517,6 @@ const BoardDetail: React.FC = () => {
                     margin: "12px 0 8px 0",
                     display: "flex",
                     gap: 8,
-                    justifyContent: "space-between",
                     alignItems: "center",
                   }}
                 >
@@ -849,7 +848,7 @@ const BoardDetail: React.FC = () => {
                             className="task-border"
                               style={{
                                 borderRadius: 6,
-                                padding: "8px 8px 24px 8px",
+                                padding: "8px 8px 16px 8px",
                                 height: "max-content",
                                 maxWidth: "300px"
                               }}
@@ -981,7 +980,7 @@ const BoardDetail: React.FC = () => {
                                       style={{
                                         borderRadius: 6,
                                         minHeight: 10,
-                                        maxHeight: "62vh",
+                                        maxHeight: "61vh",
                                         overflow: "auto",
                                         marginTop: "8px",
                                       }}

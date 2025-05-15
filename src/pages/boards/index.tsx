@@ -409,7 +409,6 @@ const Boards: React.FC = () => {
           </div>
           <div className="boards-header-right">
             <Space>
-              <ResponsiveSearch breakPoint={540}>
                 <Input
                   prefix={<Search size={16} />}
                   placeholder="Search boards"
@@ -424,7 +423,6 @@ const Boards: React.FC = () => {
                     )
                   }
                 />
-              </ResponsiveSearch>
               <Dropdown
                 menu={{
                   items: sortMenuItems,
@@ -448,7 +446,7 @@ const Boards: React.FC = () => {
                   className="button"
                   style={{ marginTop: 0 }}
                   icon={<ArrowDownAZ size={16} />}
-                  breakPoint={720}
+                  breakPoint={575}
                 >
                   <Space>Sort</Space>
                 </CustomButton>
@@ -459,9 +457,9 @@ const Boards: React.FC = () => {
                 onClick={showAddModal}
                 className="button"
                 style={{ marginTop: 0 }}
-                breakPoint={740}
+                breakPoint={575}
               >
-                Create New Board
+                Create Board
               </CustomButton>
             </Space>
           </div>

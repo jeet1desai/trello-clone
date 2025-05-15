@@ -34,6 +34,7 @@ import { companyLogo } from "../../../assets";
 import { getRandomColor } from "../../../utils";
 import { handleSocialLogout } from "../../../config/firebase/helperFunction";
 import { Bell, CheckCheck, EyeOff, LogOut, UserRound } from "lucide-react";
+import { useMedia } from "../../../hooks/useMedia";
 
 dayjs.extend(relativeTime);
 const { Header: AntHeader } = Layout;
@@ -50,6 +51,7 @@ const Header: React.FC = () => {
   const { theme } = useTheme();
   const [notificationOpen, setNotificationOpen] = useState(false);
 
+  const isMobile = useMedia({ max: 650 });
   const isDarkMode = theme === "dark";
 
   const handleLogout = async () => {
@@ -57,7 +59,7 @@ const Header: React.FC = () => {
     dispatch({ type: RESET_APP });
     handleSocialLogout();
     await persistor.purge();
-    navigate(PUBLIC_ROUTE.LOGIN);
+    navigate(PUBLIC_ROUTE.HOME);
   };
 
   const handleReadNotification = async (id: string) => {
@@ -78,7 +80,9 @@ const Header: React.FC = () => {
     {
       label: (
         <span>
-          {currentUser?.first_name}
+          {(currentUser?.first_name ?? "") +
+            " " +
+            (currentUser?.last_name ?? "")}
         </span>
       ),
       type: "group",
@@ -112,20 +116,12 @@ const Header: React.FC = () => {
             width: "100%",
           }}
         >
-          <div className="logo">
-            <Link to={PUBLIC_ROUTE.HOME}>
-              <img
-                src={companyLogo}
-                alt="Base Team"
-                style={{
-                  width: "36px",
-                  height: "auto",
-                  display: "flex",
-                  alignItems: "center",
-                  borderRadius: "4px",
-                }}
-              />
-            </Link>
+          <div
+            className="logo-wrapper"
+            onClick={() => navigate(PUBLIC_ROUTE.HOME)}
+          >
+            <img src={companyLogo} alt="Base Team" className="app-logo" />
+            <Typography className="app-logo-title">BaseTeam</Typography>
           </div>
           <Space>
             <ThemeToggle />
@@ -142,10 +138,9 @@ const Header: React.FC = () => {
             <Button
               type="primary"
               style={{ borderRadius: "50px", padding: "18px" }}
+              onClick={() => navigate(PUBLIC_ROUTE.LOGIN)}
             >
-              <Link to={PUBLIC_ROUTE.LOGIN} className="color-inherit">
-                Log In
-              </Link>
+              Log In
             </Button>
           </Space>
         </div>
@@ -155,151 +150,148 @@ const Header: React.FC = () => {
 
   return (
     <AntHeader className="app-header" id="header-id">
-      <div style={{ display: "flex", alignItems: "center" }}>
-        <div className="logo" style={{ marginRight: 12 }}>
-          <Link to={PRIVATE_ROUTE.DASHBOARD}>
-            <img
-              src={companyLogo}
-              alt="Base Team"
-              style={{
-                width: "36px",
-                height: "auto",
-                display: "flex",
-                alignItems: "center",
-                borderRadius: "4px",
-              }}
-            />
-          </Link>
+      <div className="header-wrapper">
+        <div
+          className="logo-wrapper"
+          onClick={() => navigate(PRIVATE_ROUTE.DASHBOARD)}
+        >
+          <img src={companyLogo} alt="Base Team" className="app-logo" />
+          <Typography className="app-logo-title">BaseTeam</Typography>
         </div>
 
-        <NavigationLinks />
-      </div>
-
-      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-        <Popover
-          open={notificationOpen}
-          overlayClassName="custom-notification-popover"
-          content={
-            <div className="notification-popover-content">
-              {allNotification?.length > 0 ? (
-                allNotification?.map((item: Notification) => (
-                  <div
-                    className="notification-item"
-                    key={item._id}
-                    style={{
-                      background: isDarkMode ? "#181818" : "#efefef",
-                    }}
-                  >
-                    <div className="notification-left">
-                      <Avatar
-                        style={{
-                          background: getRandomColor(item?.sender?._id),
-                        }}
-                      >
-                        {item.sender?.first_name?.[0]?.toUpperCase() +
-                          item.sender?.last_name?.[0]?.toUpperCase()}
-                      </Avatar>
-                      <div className="notification-text">
-                        <div
+        {!isMobile && <NavigationLinks />}
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <Popover
+            open={notificationOpen}
+            overlayClassName="custom-notification-popover"
+            content={
+              <div className="notification-popover-content">
+                {allNotification?.length > 0 ? (
+                  allNotification?.map((item: Notification) => (
+                    <div
+                      className="notification-item"
+                      key={item._id}
+                      style={{
+                        background: isDarkMode ? "#181818" : "#efefef",
+                      }}
+                    >
+                      <div className="notification-left">
+                        <Avatar
                           style={{
-                            display: "flex",
-                            justifyContent: "space-between",
-                            alignItems: "center",
+                            background: getRandomColor(item?.sender?._id),
                           }}
                         >
-                          <p>{item.message}</p>
-                          <Button
-                            type="text"
-                            icon={<EyeOff size={14} />}
-                            onClick={() => handleReadNotification(item._id)}
-                            className="notification-button"
-                            style={{ color: isDarkMode ? "white" : "inherit" }}
-                          />
-                        </div>
-                        <div
-                          style={{
-                            display: "flex",
-                            justifyContent: "space-between",
-                            alignItems: "end",
-                          }}
-                        >
-                          <span
+                          {item.sender?.first_name?.[0]?.toUpperCase() +
+                            item.sender?.last_name?.[0]?.toUpperCase()}
+                        </Avatar>
+                        <div className="notification-text">
+                          <div
                             style={{
-                              color: "#727272",
+                              display: "flex",
+                              justifyContent: "space-between",
+                              alignItems: "center",
                             }}
                           >
-                            {dayjs(item.createdAt).fromNow()}
-                          </span>
-                          {item.link && (
-                            <Link
-                              to={item.link}
-                              style={{ textDecoration: "underline" }}
-                              className="link-detail"
-                              onClick={() => setNotificationOpen(false)}
+                            <p>{item.message}</p>
+                            <Button
+                              type="text"
+                              icon={<EyeOff size={14} />}
+                              onClick={() => handleReadNotification(item._id)}
+                              className="notification-button"
+                              style={{
+                                color: isDarkMode ? "white" : "inherit",
+                              }}
+                            />
+                          </div>
+                          <div
+                            style={{
+                              display: "flex",
+                              justifyContent: "space-between",
+                              alignItems: "end",
+                            }}
+                          >
+                            <span
+                              style={{
+                                color: "#727272",
+                              }}
                             >
-                              See details
-                            </Link>
-                          )}
+                              {dayjs(item.createdAt).fromNow()}
+                            </span>
+                            {item.link && (
+                              <Link
+                                to={item.link}
+                                style={{ textDecoration: "underline" }}
+                                className="link-detail"
+                                onClick={() => setNotificationOpen(false)}
+                              >
+                                See details
+                              </Link>
+                            )}
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                ))
-              ) : (
-                <Empty description="No new notification" />
-              )}
-            </div>
-          }
-          title={
-            <div className="notification-header">
-              <Typography>
-                Notifications ({allNotification?.length ?? 0})
-              </Typography>
-              {allNotification.length > 0 && (
-                <Typography
-                  className="notification-mark-as-read"
-                  onClick={() => {
-                    dispatch(readAllNotifications());
-                    setNotificationOpen(false);
-                  }}
-                >
-                  <CheckCheck size={14} style={{ marginRight: 4 }} />
-                  Mark all as read
-                </Typography>
-              )}
-            </div>
-          }
-          trigger="click"
-          placement="bottomRight"
-          onOpenChange={() => setNotificationOpen((prev) => !prev)}
-        >
-          <Button
-            type="text"
-            icon={
-              <Badge dot={allNotification.some((n) => !n.read)}>
-                <Bell size={17} />
-              </Badge>
+                  ))
+                ) : (
+                  <Empty description="No new notification" />
+                )}
+              </div>
             }
-            className="notification-trigger"
-          />
-        </Popover>
-
-        <ThemeToggle style={{ marginRight: 8 }} />
-
-        <Dropdown
-          menu={{ items: userMenuItems , className: "custom-user-menu" }}
-          placement="bottomRight"
-          trigger={["click"]}   
-        >
-          <Avatar
-            className="user-avatar"
-            src={currentUser?.profile_image?.url}
-            style={{ background: getRandomColor(currentUser?.id ?? "") }}
+            title={
+              <div className="notification-header">
+                <Typography>
+                  Notifications ({allNotification?.length ?? 0})
+                </Typography>
+                {allNotification.length > 0 && (
+                  <Typography
+                    className="notification-mark-as-read"
+                    onClick={() => {
+                      dispatch(readAllNotifications());
+                      setNotificationOpen(false);
+                    }}
+                  >
+                    <CheckCheck size={14} style={{ marginRight: 4 }} />
+                    Mark all as read
+                  </Typography>
+                )}
+              </div>
+            }
+            trigger="click"
+            placement="bottomRight"
+            onOpenChange={() => setNotificationOpen((prev) => !prev)}
           >
-            {(currentUser?.first_name?.[0]?.toUpperCase() ?? "") +
-              (currentUser?.last_name?.[0]?.toUpperCase() ?? "")}
-          </Avatar>
-        </Dropdown>
+            <Button
+              type="text"
+              icon={
+                <Badge dot={allNotification.some((n) => !n.read)}>
+                  <Bell size={17} />
+                </Badge>
+              }
+              className="notification-trigger"
+            />
+          </Popover>
+
+          <ThemeToggle style={{ marginRight: 8 }} />
+
+          {isMobile ? (
+            <NavigationLinks />
+          ) : (
+            <Dropdown
+              menu={{ items: userMenuItems, className: "custom-user-menu" }}
+              placement="bottomRight"
+              trigger={["click"]}
+            >
+              <Avatar
+                className="user-avatar"
+                src={currentUser?.profile_image?.url}
+                style={{ background: getRandomColor(currentUser?.id ?? "") }}
+              >
+                {(currentUser?.first_name?.[0]?.toUpperCase() ?? "") +
+                  (currentUser?.last_name?.[0]?.toUpperCase() ?? "")}
+              </Avatar>
+            </Dropdown>
+          )}
+        </div>
       </div>
     </AntHeader>
   );

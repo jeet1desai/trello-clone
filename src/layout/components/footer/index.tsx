@@ -51,7 +51,7 @@ const Footer: React.FC = () => {
                     alt="Base Team"
                     className="footer-company-logo"
                   />
-                  Base Team
+                  BaseTeam
                 </Title>
               </Link>
             </div>
@@ -149,7 +149,7 @@ const Footer: React.FC = () => {
 
         <div className="policy-container">
           <Text className="policy-text">
-            &copy; {new Date().getFullYear()} Base Team. All rights reserved.
+            &copy; {new Date().getFullYear()} BaseTeam. All rights reserved.
           </Text>
           <Space size="middle" className="policy-type-container">
             <input
