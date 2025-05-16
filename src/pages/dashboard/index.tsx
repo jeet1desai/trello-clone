@@ -1,27 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { Typography, Card, Row, Col, Segmented, Avatar, Button, Progress } from "antd";
-import {
-  ProjectOutlined,
-  TeamOutlined,
-  CheckCircleOutlined,
-  CalendarOutlined,
-  ClockCircleOutlined,
-} from "@ant-design/icons";
+import { ProjectOutlined, TeamOutlined, CheckCircleOutlined, CalendarOutlined, ClockCircleOutlined } from "@ant-design/icons";
 import { RootState, AppDispatch } from "../../store";
-import {
-  ActivityChart,
-  WorkspaceDistribution,
-  RecentActivity,
-} from "../../components";
+import { ActivityChart, WorkspaceDistribution, RecentActivity } from "../../components";
 import "../../layout/styles/Dashboard.css";
 import { getAllNotification } from "../../store/slices/notificationSlice";
-import {
-  getDashboardAnalytics,
-  getDashboardCount,
-  getDashboardRecentActivity,
-} from "../../store/slices/dashboardSlice";
-import { Plus, Logs } from 'lucide-react';
+import { getDashboardAnalytics, getDashboardCount, getDashboardRecentActivity } from "../../store/slices/dashboardSlice";
+import { Plus, Logs } from "lucide-react";
 
 const { Title, Text } = Typography;
 
@@ -63,30 +49,28 @@ const Dashboard: React.FC = () => {
               <Row gutter={24} align="middle" className="welcome-content">
                 <Col>
                   <div className="user-info-section">
-                    <div className="avatar-wrapper">
-                      <Avatar
-                        size={80}
-                        src={currentUser?.profile_image.url}
-                        className="user-avatar"
-                      >
-                        {currentUser?.first_name?.[0]}
-                      </Avatar>
-                      <div className="online-status"></div>
+                    <div className="user-info-avatar">
+                      <div className="avatar-wrapper">
+                        <Avatar size={80} src={currentUser?.profile_image.url} className="user-avatar">
+                          {currentUser?.first_name?.[0]}
+                        </Avatar>
+                        <div className="online-status"></div>
+                      </div>
+                      <div>
+                        <Title level={2} className="welcome-title">
+                          Welcome, {currentUser?.first_name ?? "User"} {currentUser?.last_name ?? "User"}!
+                        </Title>
+                        <Text className="welcome-subtitle">Let's organize your tasks for today</Text>
+                      </div>
                     </div>
                     <div className="welcome-text">
-                      <Title level={2} className="welcome-title">
-                        Welcome, {currentUser?.first_name ?? "User"} {currentUser?.last_name ?? "User"}!
-                      </Title>
-                      <Text className="welcome-subtitle">
-                        Let's organize your tasks for today
-                      </Text>
                       <div className="task-stats">
                         <div className="stat-item">
                           <div className="stat-value">
                             <CheckCircleOutlined /> {dashboardCount?.task ?? 0}
                             <span className="stat-label">Completed</span>
                           </div>
-                          <Progress 
+                          <Progress
                             percent={Math.round(((dashboardCount?.task ?? 0) / (dashboardCount?.totalTask || 1)) * 100)}
                             strokeColor="#52c41a"
                             showInfo={false}
@@ -98,12 +82,7 @@ const Dashboard: React.FC = () => {
                             <ClockCircleOutlined /> {dashboardCount?.totalTask ?? 0}
                             <span className="stat-label">Total Tasks</span>
                           </div>
-                          <Progress 
-                            percent={100}
-                            strokeColor="#1890ff"
-                            showInfo={false}
-                            size="small"
-                          />
+                          <Progress percent={100} strokeColor="#1890ff" showInfo={false} size="small" />
                         </div>
                       </div>
                     </div>
@@ -120,10 +99,10 @@ const Dashboard: React.FC = () => {
                   <Text className="today-label">Today's Date</Text>
                 </div>
                 <Title level={4} className="current-date">
-                  {new Date().toLocaleDateString('en-US', { 
-                    weekday: 'long',
-                    month: 'long',
-                    day: 'numeric'
+                  {new Date().toLocaleDateString("en-US", {
+                    weekday: "long",
+                    month: "long",
+                    day: "numeric",
                   })}
                 </Title>
                 <div className="quick-actions">
@@ -180,8 +159,8 @@ const Dashboard: React.FC = () => {
             <div className="stat-content">
               <Title level={2}>{dashboardCount?.task ?? 0}</Title>
               <Text type="secondary">Completed Tasks</Text>
-              <Progress 
-                percent={Math.round(((dashboardCount?.task??0) / (dashboardCount?.totalTask || 1)) * 100)}
+              <Progress
+                percent={Math.round(((dashboardCount?.task ?? 0) / (dashboardCount?.totalTask || 1)) * 100)}
                 strokeColor="#fa8c16"
                 status="active"
               />
@@ -192,22 +171,14 @@ const Dashboard: React.FC = () => {
 
       {/* Analytics */}
       <div className="dashboard-section">
-        <Row
-          justify="space-between"
-          align="middle"
-          style={{ marginBottom: 16 }}
-        >
+        <Row justify="space-between" align="middle" style={{ marginBottom: 16 }}>
           <Col>
             <Title level={4} style={{ margin: 0 }}>
               Analytics
             </Title>
           </Col>
           <Col>
-            <Segmented
-              options={[{ label: "Week", value: "week" }]}
-              value={timeframe}
-              onChange={setTimeframe}
-            />
+            <Segmented options={[{ label: "Week", value: "week" }]} value={timeframe} onChange={setTimeframe} />
           </Col>
         </Row>
 
