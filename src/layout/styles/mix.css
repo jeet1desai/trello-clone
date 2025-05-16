@@ -1,0 +1,1310 @@
+.dashboard-welcome {
+  margin-bottom: 24px;
+  background: var(--welcome-gradient);
+  color: white;
+  border-radius: 8px;
+  box-shadow: var(--shadow-md);
+}
+
+.dashboard-welcome-content {
+  padding: 24px;
+}
+
+.welcome-title {
+  color: white !important;
+  margin-top: 0px !important;
+  margin-bottom: 12px !important;
+}
+
+.welcome-subtitle {
+  color: rgba(255, 255, 255, 0.85) !important;
+  margin-bottom: 0 !important;
+}
+
+.dashboard-card {
+  height: 100%;
+  box-shadow: var(--shadow-sm);
+  border-radius: 8px;
+  background-color: var(--dashboard-card-bg) !important;
+}
+
+.stat-card {
+  height: 100%;
+  border-radius: 8px;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.3s;
+  background-color: var(--stat-card-bg) !important;
+}
+
+.stat-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-md);
+}
+
+.dashboard-section {
+  margin-bottom: 24px;
+}
+
+/* Make sure charts handle dark mode */
+.theme-dark .recharts-text {
+  fill: var(--text-primary);
+}
+
+.theme-dark .recharts-cartesian-grid line {
+  stroke: rgba(255, 255, 255, 0.15);
+}
+
+.theme-dark .recharts-cartesian-axis-line {
+  stroke: rgba(255, 255, 255, 0.25);
+}
+
+.font-24 {
+  font-size: 24px;
+}
+
+@media (max-width: 576px) {
+  .dashboard-welcome-content {
+    padding: 16px;
+  }
+}
+
+/* Custom Tooltip Styles */
+.recharts-tooltip-wrapper {
+  outline: none;
+  animation: tooltipFadeIn 0.2s ease-out;
+}
+
+.recharts-default-tooltip {
+  background-color: var(--tooltip-bg, #fff) !important;
+  border: none !important;
+  border-radius: 8px !important;
+  box-shadow: var(--shadow-md) !important;
+  padding: 12px !important;
+  min-width: 160px !important;
+}
+
+.recharts-tooltip-label {
+  color: var(--text-primary) !important;
+  font-weight: 600 !important;
+  font-size: 14px !important;
+  margin-bottom: 8px !important;
+  padding-bottom: 8px !important;
+  border-bottom: 1px solid var(--border-color, #f0f0f0) !important;
+}
+
+.recharts-tooltip-item {
+  font-size: 13px !important;
+  padding: 4px 0 !important;
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+}
+
+.recharts-tooltip-item-name {
+  margin-right: 8px !important;
+}
+
+.recharts-tooltip-item-value {
+  font-weight: 500 !important;
+  color: var(--text-primary) !important;
+}
+
+/* Dark mode adjustments */
+.theme-dark .recharts-default-tooltip {
+  background-color: var(--tooltip-bg-dark, #1f1f1f) !important;
+}
+
+.theme-dark .recharts-tooltip-label {
+  border-bottom-color: var(--border-color-dark, #333) !important;
+}
+
+/* Animation for tooltip */
+@keyframes tooltipFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Common styles for dashboard components */
+.dashboard-loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  min-height: 200px;
+}
+
+.dashboard-empty-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  min-height: 200px;
+}
+
+/* Welcome Section Styles */
+.welcome-section {
+  padding: 24px 0;
+}
+
+/* Make columns equal height */
+.welcome-section .ant-row {
+  height: 100%;
+}
+
+.welcome-col,
+.date-col {
+  display: flex;
+}
+
+/* Card Base Styles */
+.welcome-card,
+.date-card {
+  width: 100%;
+  border: none;
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+/* Gradient Options - Just change the class on the welcome-card to switch gradients */
+.gradient-1 {
+  background: linear-gradient(135deg, #1a2980 0%, #26d0ce 100%);
+}
+
+.gradient-2 {
+  background: linear-gradient(135deg, #141E30 0%, #243B55 100%);
+}
+
+.gradient-3 {
+  background: linear-gradient(135deg, #0F2027 0%, #203A43 50%, #2C5364 100%);
+}
+
+.gradient-4 {
+  background: linear-gradient(135deg, #2C3E50 0%, #3498db 100%);
+}
+
+.gradient-5 {
+  background: linear-gradient(135deg, #373B44 0%, #4286f4 100%);
+}
+
+.gradient-6 {
+  background: linear-gradient(135deg, #283c86 0%, #45a247 100%);
+}
+
+.gradient-7 {
+  background: linear-gradient(135deg, #004e92 0%, #000428 100%);
+}
+
+.gradient-8 {
+  background: linear-gradient(135deg, #16222A 0%, #3A6073 100%);
+}
+
+/* Date Card Styles */
+.date-card {
+  background: white;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+.date-content {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 24px;
+  text-align: center;
+}
+
+.date-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.calendar-icon {
+  font-size: 24px;
+  color: #1890ff;
+}
+
+.today-label {
+  color: #8c8c8c;
+  font-size: 14px;
+}
+
+.current-date {
+  color: #262626;
+  margin-bottom: 24px !important;
+}
+
+.quick-actions {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+  margin-top: auto; /* Pushes buttons to bottom */
+}
+
+.quick-actions .ant-btn {
+  flex: 1;
+  border-radius: 8px;
+  height: 40px;
+}
+
+.task-stats {
+
+  display: flex;
+
+  gap: 32px;
+
+  margin-top: 20px;
+
+}
+
+
+
+.stat-item {
+
+  background: rgba(255, 255, 255, 0.15);
+
+  padding: 12px 16px;
+
+  border-radius: 12px;
+
+  backdrop-filter: blur(5px);
+
+  width: 180px;
+
+  transition: transform 0.3s ease, background-color 0.3s ease;
+
+}
+
+
+
+.stat-value {
+
+  color: white;
+
+  font-size: 24px;
+
+  font-weight: 600;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 8px;
+
+  margin-bottom: 8px;
+
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+
+}
+
+
+
+.stat-value .anticon {
+
+  background: rgba(255, 255, 255, 0.1);
+
+  padding: 4px;
+
+  border-radius: 50%;
+
+  font-size: 16px;
+
+}
+
+
+
+.stat-label {
+
+  font-size: 14px;
+
+  margin-left: 8px;
+
+  opacity: 0.9;
+
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+  .welcome-section {
+    padding: 12px;
+  }
+
+  .date-content {
+    padding: 16px;
+  }
+
+  .quick-actions {
+    flex-direction: column;
+  }
+
+  .quick-actions .ant-btn {
+    width: 100%;
+  }
+
+  .user-info-section {
+
+    flex-direction: column;
+
+    align-items: center;
+
+    text-align: center;
+
+    gap: 16px;
+
+  }
+
+
+
+  .avatar-wrapper {
+
+    margin-bottom: 8px;
+
+  }
+
+
+
+  .user-avatar {
+
+    size: 64px;
+
+  }
+
+
+
+  .welcome-title {
+
+    font-size: 24px !important;
+
+    margin-bottom: 4px !important;
+
+  }
+
+
+
+  .welcome-subtitle {
+
+    font-size: 14px;
+
+    margin-bottom: 16px;
+
+  }
+
+
+
+  .task-stats {
+
+    flex-direction: column;
+
+    gap: 12px;
+
+    align-items: stretch;
+
+    width: 100%;
+
+  }
+
+
+
+  .stat-item {
+
+    width: 100%;
+
+    padding: 10px 12px;
+
+    margin: 0;
+
+  }
+
+
+
+  .stat-value {
+
+    font-size: 20px;
+
+    justify-content: center;
+
+  }
+
+
+
+  .stat-label {
+
+    font-size: 12px;
+
+  }
+}
+
+/* Extra Small Devices (phones under 480px) */ @media (max-width: 480px) {
+
+   .welcome-section {
+     padding: 8px;
+
+   }
+
+
+
+   .welcome-card,
+   .date-card {
+
+     border-radius: 16px;
+
+   }
+
+
+
+   .welcome-content {
+
+     padding: 16px;
+
+   }
+
+
+
+   .task-stats {
+
+     margin-top: 16px;
+
+   }
+
+
+
+   .stat-item {
+
+     padding: 8px 10px;
+
+     border-radius: 8px;
+
+   }
+
+
+
+   .date-content {
+
+     padding: 12px;
+
+   }
+
+
+
+   .current-date {
+
+     font-size: 16px !important;
+
+     margin-bottom: 16px !important;
+
+   }
+
+
+
+   .quick-actions {
+
+     margin-top: 16px;
+
+     gap: 8px;
+
+   }
+  }
+
+/* Updated stat-item styles for better visibility */
+.stat-item:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+}
+
+/* Enhanced progress bar visibility */
+.ant-progress-bg {
+  height: 6px !important;
+  box-shadow: 0 0 4px rgba(82, 196, 26, 0.4);
+}
+
+/* Custom progress colors for better visibility */
+.stat-item:first-child .ant-progress-bg {
+  background-color: #52c41a !important;
+}
+
+.stat-item:last-child .ant-progress-bg {
+  background-color: #40a9ff !important;
+}
+
+/* Enhanced stat values for better readability */
+.stat-value {
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.stat-value .anticon {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 4px;
+  border-radius: 50%;
+  font-size: 16px;
+}
+
+/* Date card enhancements for mobile */
+.date-card {
+  height: auto;
+}
+
+/* Quick actions responsive enhancement */
+.quick-actions {
+  flex-wrap: wrap;
+}
+
+.quick-actions .ant-btn {
+  flex: 1 1 auto;
+  min-width: 120px;
+}
+
+/* Add smooth transitions for all interactive elements */
+.welcome-card *,
+.date-card *,
+.stat-item *,
+.quick-actions * {
+  transition: all 0.3s ease;
+}
+
+/* Optional: Add loading state styles */
+.welcome-card.loading {
+  position: relative;
+}
+
+.welcome-card.loading::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(2px);
+}
+
+/* Enhanced task stats for better visibility */
+.task-stats .stat-item:first-child {
+  border-left: 3px solid #52c41a;
+}
+
+.task-stats .stat-item:last-child {
+  border-left: 3px solid #40a9ff;
+}
+
+/* Stats Cards Styles */
+.stats-section {
+  margin-top: 24px;
+}
+
+.stat-card {
+  border-radius: 16px;
+  border: 1px solid #f0f0f0;
+  transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+.stat-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.stat-icon-wrapper {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.stat-icon-wrapper.blue {
+  background: rgba(24, 144, 255, 0.1);
+}
+
+.stat-icon-wrapper.green {
+  background: rgba(82, 196, 26, 0.1);
+}
+
+.stat-icon-wrapper.orange {
+  background: rgba(250, 140, 22, 0.1);
+}
+
+.stat-icon {
+  font-size: 24px;
+}
+
+.blue .stat-icon {
+  color: #1890ff;
+}
+
+.green .stat-icon {
+  color: #52c41a;
+}
+
+.orange .stat-icon {
+  color: #fa8c16;
+}
+
+.stat-content {
+  margin-bottom: 16px;
+}
+
+.stat-content h2 {
+  margin-bottom: 4px !important;
+  font-size: 32px;
+}
+
+.stat-footer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Animation for hover effects */
+@keyframes float {
+  0% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+  100% {
+    transform: translateY(0px);
+  }
+}
+
+.stat-card:hover .stat-icon-wrapper {
+  animation: float 2s ease-in-out infinite;
+}
+
+
+
+
+
+
+
+
+
+.dashboard-welcome {
+  margin-bottom: 24px;
+  background: var(--welcome-gradient);
+  color: white;
+  border-radius: 8px;
+  box-shadow: var(--shadow-md);
+}
+
+.dashboard-welcome-content {
+  padding: 24px;
+}
+
+.welcome-title {
+  color: white !important;
+  margin-top: 0px !important;
+  margin-bottom: 12px !important;
+}
+
+.welcome-subtitle {
+  color: rgba(255, 255, 255, 0.85) !important;
+  margin-bottom: 0 !important;
+}
+
+.dashboard-card {
+  height: 100%;
+  box-shadow: var(--shadow-sm);
+  border-radius: 8px;
+  background-color: var(--dashboard-card-bg) !important;
+}
+
+.stat-card {
+  height: 100%;
+  border-radius: 8px;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.3s;
+  background-color: var(--stat-card-bg) !important;
+}
+
+.stat-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-md);
+}
+
+.dashboard-section {
+  margin-bottom: 24px;
+}
+
+/* Make sure charts handle dark mode */
+.theme-dark .recharts-text {
+  fill: var(--text-primary);
+}
+
+.theme-dark .recharts-cartesian-grid line {
+  stroke: rgba(255, 255, 255, 0.15);
+}
+
+.theme-dark .recharts-cartesian-axis-line {
+  stroke: rgba(255, 255, 255, 0.25);
+}
+
+.font-24 {
+  font-size: 24px;
+}
+
+@media (max-width: 576px) {
+  .dashboard-welcome-content {
+    padding: 16px;
+  }
+}
+
+/* Custom Tooltip Styles */
+.recharts-tooltip-wrapper {
+  outline: none;
+  animation: tooltipFadeIn 0.2s ease-out;
+}
+
+.recharts-default-tooltip {
+  background-color: var(--tooltip-bg, #fff) !important;
+  border: none !important;
+  border-radius: 8px !important;
+  box-shadow: var(--shadow-md) !important;
+  padding: 12px !important;
+  min-width: 160px !important;
+}
+
+.recharts-tooltip-label {
+  color: var(--text-primary) !important;
+  font-weight: 600 !important;
+  font-size: 14px !important;
+  margin-bottom: 8px !important;
+  padding-bottom: 8px !important;
+  border-bottom: 1px solid var(--border-color, #f0f0f0) !important;
+}
+
+.recharts-tooltip-item {
+  font-size: 13px !important;
+  padding: 4px 0 !important;
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+}
+
+.recharts-tooltip-item-name {
+  margin-right: 8px !important;
+}
+
+.recharts-tooltip-item-value {
+  font-weight: 500 !important;
+  color: var(--text-primary) !important;
+}
+
+/* Dark mode adjustments */
+.theme-dark .recharts-default-tooltip {
+  background-color: var(--tooltip-bg-dark, #1f1f1f) !important;
+}
+
+.theme-dark .recharts-tooltip-label {
+  border-bottom-color: var(--border-color-dark, #333) !important;
+}
+
+/* Animation for tooltip */
+@keyframes tooltipFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Common styles for dashboard components */
+.dashboard-loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  min-height: 200px;
+}
+
+.dashboard-empty-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  min-height: 200px;
+}
+
+/* Welcome Section Styles */
+.welcome-section {
+  padding: 24px 0;
+}
+
+.welcome-card {
+  border: none;
+  border-radius: 20px;
+  overflow: hidden;
+  position: relative;
+  background: linear-gradient(135deg, #1a2980 0%, #26d0ce 100%);
+}
+
+/* Animated background pattern */
+.welcome-background-pattern {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  opacity: 0.1;
+  background: 
+    linear-gradient(45deg, #ffffff 25%, transparent 25%),
+    linear-gradient(-45deg, #ffffff 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #ffffff 75%),
+    linear-gradient(-45deg, transparent 75%, #ffffff 75%);
+  background-size: 20px 20px;
+  background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+  animation: pattern-move 20s linear infinite;
+}
+
+@keyframes pattern-move {
+  0% {
+    background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+  }
+  100% {
+    background-position: 20px 20px, 20px 30px, 30px 10px, 10px 20px;
+  }
+}
+
+.welcome-content {
+  position: relative;
+  padding: 32px;
+}
+
+.user-info-section {
+  display: flex;
+  align-items: flex-start;
+  gap: 24px;
+}
+
+.avatar-wrapper {
+  position: relative;
+}
+
+.user-avatar {
+  border: 4px solid rgba(255, 255, 255, 0.9);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+}
+
+.user-avatar:hover {
+  transform: scale(1.05);
+}
+
+.online-status {
+  position: absolute;
+  bottom: 5px;
+  right: 5px;
+  width: 12px;
+  height: 12px;
+  background-color: #52c41a;
+  border: 2px solid white;
+  border-radius: 50%;
+  box-shadow: 0 0 0 2px rgba(82, 196, 26, 0.2);
+}
+
+.welcome-text {
+  flex: 1;
+}
+
+.welcome-title {
+  color: white !important;
+  margin-bottom: 8px !important;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.welcome-subtitle {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 16px;
+  display: block;
+  margin-bottom: 24px;
+}
+
+.task-stats {
+  display: flex;
+  gap: 32px;
+  margin-top: 20px;
+}
+
+.stat-item {
+  background: rgba(255, 255, 255, 0.15);
+  padding: 12px 16px;
+  border-radius: 12px;
+  backdrop-filter: blur(5px);
+  width: 180px;
+  transition: transform 0.3s ease, background-color 0.3s ease;
+}
+
+.stat-value {
+  color: white;
+  font-size: 24px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.stat-value .anticon {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 4px;
+  border-radius: 50%;
+  font-size: 16px;
+}
+
+.stat-label {
+  font-size: 14px;
+  margin-left: 8px;
+  opacity: 0.9;
+}
+
+/* Date Card Styling */
+.date-card-col  {
+  align-self: stretch;
+}
+
+.date-card {
+  height: 100% !important;
+  border-radius: 20px;
+  background: white;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  margin-bottom: 16px;
+}
+
+.date-content {
+  padding: 8px;
+}
+
+.date-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.calendar-icon {
+  font-size: 24px;
+  color: #1890ff;
+}
+
+.today-label {
+  color: #8c8c8c;
+  font-size: 14px;
+}
+
+.current-date {
+  color: #262626;
+  margin-bottom: 24px !important;
+}
+
+.quick-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 24px;
+  flex-wrap: wrap;
+}
+
+.quick-actions .ant-btn {
+  flex: 1 1 auto;
+  min-width: 120px;
+  border-radius: 8px;
+  height: 40px;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .welcome-section {
+    padding: 12px;
+  }
+
+  .welcome-content {
+    padding: 20px;
+  }
+
+  .user-info-section {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 16px;
+  }
+
+  .avatar-wrapper {
+    margin-bottom: 8px;
+  }
+
+  .user-avatar {
+    size: 64px;
+  }
+
+  .welcome-title {
+    font-size: 24px !important;
+    margin-bottom: 4px !important;
+  }
+
+  .welcome-subtitle {
+    font-size: 14px;
+    margin-bottom: 16px;
+  }
+
+  .task-stats {
+    flex-direction: column;
+    gap: 12px;
+    align-items: stretch;
+    width: 100%;
+  }
+
+  .stat-item {
+    width: 100%;
+    padding: 10px 12px;
+    margin: 0;
+  }
+
+  .stat-value {
+    font-size: 20px;
+    justify-content: center;
+  }
+
+  .stat-label {
+    font-size: 12px;
+  }
+
+  .quick-actions {
+    flex-direction: column;
+  }
+}
+
+/* Extra Small Devices (phones under 480px) */
+@media (max-width: 480px) {
+  .welcome-section {
+    padding: 8px;
+  }
+
+  .welcome-card, .date-card {
+    border-radius: 16px;
+  }
+
+  .welcome-content {
+    padding: 16px;
+  }
+
+  .task-stats {
+    margin-top: 16px;
+  }
+
+  .stat-item {
+    padding: 8px 10px;
+    border-radius: 8px;
+  }
+
+  .date-content {
+    padding: 12px;
+  }
+
+  .current-date {
+    font-size: 16px !important;
+    margin-bottom: 16px !important;
+  }
+
+  .quick-actions {
+    margin-top: 16px;
+    gap: 8px;
+  }
+
+  .quick-actions .ant-btn {
+    height: 36px;
+    font-size: 14px;
+  }
+}
+
+/* Updated stat-item styles for better visibility */
+.stat-item:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+}
+
+/* Enhanced progress bar visibility */
+.ant-progress-bg {
+  height: 6px !important;
+  box-shadow: 0 0 4px rgba(82, 196, 26, 0.4);
+}
+
+/* Custom progress colors for better visibility */
+.stat-item:first-child .ant-progress-bg {
+  background-color: #52c41a !important;
+}
+
+.stat-item:last-child .ant-progress-bg {
+  background-color: #40a9ff !important;
+}
+
+/* Enhanced stat values for better readability */
+.stat-value {
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.stat-value .anticon {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 4px;
+  border-radius: 50%;
+  font-size: 16px;
+}
+
+/* Date card enhancements for mobile */
+.date-card {
+  height: auto;
+  margin-bottom: 16px;
+}
+
+/* Quick actions responsive enhancement */
+.quick-actions {
+  flex-wrap: wrap;
+}
+
+.quick-actions .ant-btn {
+  flex: 1 1 auto;
+  min-width: 120px;
+}
+
+/* Add smooth transitions for all interactive elements */
+.welcome-card *,
+.date-card *,
+.stat-item *,
+.quick-actions * {
+  transition: all 0.3s ease;
+}
+
+/* Optional: Add loading state styles */
+.welcome-card.loading {
+  position: relative;
+}
+
+.welcome-card.loading::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(2px);
+}
+
+/* Enhanced task stats for better visibility */
+.task-stats .stat-item:first-child {
+  border-left: 3px solid #52c41a;
+}
+
+.task-stats .stat-item:last-child {
+  border-left: 3px solid #40a9ff;
+}
+
+/* Stats Cards Styles */
+.stats-section {
+  margin-top: 24px;
+}
+
+.stat-card {
+  border-radius: 16px;
+  border: 1px solid #f0f0f0;
+  transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+.stat-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.stat-icon-wrapper {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.stat-icon-wrapper.blue {
+  background: rgba(24, 144, 255, 0.1);
+}
+
+.stat-icon-wrapper.green {
+  background: rgba(82, 196, 26, 0.1);
+}
+
+.stat-icon-wrapper.orange {
+  background: rgba(250, 140, 22, 0.1);
+}
+
+.stat-icon {
+  font-size: 24px;
+}
+
+.blue .stat-icon {
+  color: #1890ff;
+}
+
+.green .stat-icon {
+  color: #52c41a;
+}
+
+.orange .stat-icon {
+  color: #fa8c16;
+}
+
+.stat-content {
+  margin-bottom: 16px;
+}
+
+.stat-content h2 {
+  margin-bottom: 4px !important;
+  font-size: 32px;
+}
+
+.stat-footer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Animation for hover effects */
+@keyframes float {
+  0% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+  100% {
+    transform: translateY(0px);
+  }
+}
+
+.stat-card:hover .stat-icon-wrapper {
+  animation: float 2s ease-in-out infinite;
+}
