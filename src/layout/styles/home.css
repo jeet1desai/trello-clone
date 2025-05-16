@@ -446,7 +446,7 @@
 }
 
 /* Statistics Section */
-.stat-item {
+.stat-items {
   text-align: center;
   padding: 20px;
 }
@@ -519,7 +519,7 @@
     top: -30px;
   }
 
-  .stat-item {
+  .stat-items {
     padding: 10px;
   }
 

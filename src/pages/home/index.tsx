@@ -161,7 +161,7 @@ const Home: React.FC = () => {
       <div className="stats-section">
         <Row gutter={[48, 24]} justify="center" className="stats-container">
           <Col xs={24} sm={8}>
-            <div className="stat-item">
+            <div className="stat-items">
               <Title level={2} className="stat-number">
                 2025
               </Title>
@@ -169,7 +169,7 @@ const Home: React.FC = () => {
             </div>
           </Col>
           <Col xs={24} sm={8}>
-            <div className="stat-item">
+            <div className="stat-items">
               <Title level={2} className="stat-number">
                 50+
               </Title>
@@ -177,7 +177,7 @@ const Home: React.FC = () => {
             </div>
           </Col>
           <Col xs={24} sm={8}>
-            <div className="stat-item">
+            <div className="stat-items">
               <Title level={2} className="stat-number">
                 1+
               </Title>
