@@ -11,6 +11,7 @@ import { AppDispatch, RootState } from "../../../store";
 import "../../../layout/styles/Auth.css";
 import { PUBLIC_ROUTE } from "../../../utils/enums/route";
 import { LockKeyhole, Mail } from "lucide-react";
+import OtpInput from "../../../components/ui/otpUI";
 
 const { Title, Text } = Typography;
 
@@ -87,27 +88,13 @@ const ForgotPassword: React.FC = () => {
               placeholder="Enter your email"
               size="large"
               className="form-input"
+              disabled={passwordChangeRequested}
             />
           </Form.Item>
 
           {passwordChangeRequested && (
             <>
-              <Form.Item
-                label={
-                  <span className="input-label">
-                    OTP <span className="require-mark">*</span>
-                  </span>
-                }
-                name="otp"
-                rules={[{ required: true, message: "OTP is required" }]}
-              >
-                <Input
-                  prefix={<LockKeyhole size={16} className="form-icon" />}
-                  placeholder="Enter your email otp"
-                  size="large"
-                  className="form-input"
-                />
-              </Form.Item>
+              <OtpInput form={form} name={"otp"} />
 
               <Form.Item
                 label={

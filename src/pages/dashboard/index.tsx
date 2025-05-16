@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { Typography, Card, Row, Col, Segmented, Avatar, Badge, Tag, Button, Progress } from "antd";
+import { Typography, Card, Row, Col, Segmented, Avatar, Button, Progress, Avatar, Badge, Tag, Button, Progress } from "antd";
 import {
   ProjectOutlined,
   TeamOutlined,
   CheckCircleOutlined,
+  CalendarOutlined,
+  ClockCircleOutlined,
   CalendarOutlined,
   MoreOutlined,
   ArrowUpOutlined,
@@ -16,7 +18,6 @@ import { RootState, AppDispatch } from "../../store";
 import {
   ActivityChart,
   WorkspaceDistribution,
-  StatCard,
   RecentActivity,
 } from "../../components";
 import "../../layout/styles/Dashboard.css";
@@ -26,8 +27,9 @@ import {
   getDashboardCount,
   getDashboardRecentActivity,
 } from "../../store/slices/dashboardSlice";
+import { Plus, Logs } from 'lucide-react';
 
-const { Title, Paragraph, Text } = Typography;
+const { Title, Text, Text } = Typography;
 
 const Dashboard: React.FC = () => {
   const { dashboardCount } = useSelector((state: RootState) => state.dashboard);
@@ -62,7 +64,7 @@ const Dashboard: React.FC = () => {
       <div className="welcome-section">
         <Row gutter={[24, 24]} align="stretch">
           <Col xs={24} lg={16} className="welcome-col">
-            <Card className="welcome-card gradient-1">
+            <Card className="welcome-card gradient-7">
               <div className="welcome-background-pattern"></div>
               <Row gutter={24} align="middle" className="welcome-content">
                 <Col>
@@ -131,10 +133,10 @@ const Dashboard: React.FC = () => {
                   })}
                 </Title>
                 <div className="quick-actions">
-                  <Button type="primary" icon={<PlusOutlined />}>
+                  <Button type="primary" className="button" icon={<Plus size={16} />}>
                     New Task
                   </Button>
-                  <Button icon={<UnorderedListOutlined />}>
+                  <Button className="button" icon={<Logs size={16} />}>
                     View All
                   </Button>
                 </div>
