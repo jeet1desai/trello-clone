@@ -30,7 +30,7 @@ const Home: React.FC = () => {
               <Title level={1} className="hero-title">
                 One tool to manage
                 <br />
-                <span className="highlight">contracts and your team</span>
+                contracts and <span className="highlight">your team</span>
               </Title>
               <Paragraph className="hero-description">
                 BaseTeam helps teams work faster, smarter and more efficiently,
@@ -45,7 +45,7 @@ const Home: React.FC = () => {
                 </Link>
                 <Link to={PUBLIC_ROUTE.LOGIN}>
                   <Button size="large" className="demo-button">
-                    Get a Demo
+                    Get Started
                   </Button>
                 </Link>
               </Space>
@@ -163,15 +163,15 @@ const Home: React.FC = () => {
           <Col xs={24} sm={8}>
             <div className="stat-item">
               <Title level={2} className="stat-number">
-                2021
+                2025
               </Title>
-              <Text className="stat-label">Clause Founded</Text>
+              <Text className="stat-label">Year of Introduction</Text>
             </div>
           </Col>
           <Col xs={24} sm={8}>
             <div className="stat-item">
               <Title level={2} className="stat-number">
-                50K+
+                50+
               </Title>
               <Text className="stat-label">Active Users</Text>
             </div>
@@ -179,7 +179,7 @@ const Home: React.FC = () => {
           <Col xs={24} sm={8}>
             <div className="stat-item">
               <Title level={2} className="stat-number">
-                1k+
+                1+
               </Title>
               <Text className="stat-label">Company Partners</Text>
             </div>

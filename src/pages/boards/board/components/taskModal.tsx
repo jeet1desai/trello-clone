@@ -608,7 +608,7 @@ const TaskModal: React.FC<TaskModalProps> = ({
 
   const shareCopiedLink =
     selectedTask?._id && selectedTask.board_id
-      ? `http://localhost:3000/board/${selectedTask.board_id}?task_id=${selectedTask._id}`
+      ? `${window.location}?task_id=${selectedTask._id}`
       : "";
 
   const handleCopy = () => {

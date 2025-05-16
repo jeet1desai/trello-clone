@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { taskCommentService } from "../../services/taskCommentService";
-import { removeTaskComments, updateTaskComments } from "./taskSlice";
+import { removeTaskComments } from "./taskSlice";
 
 export interface IAttachment {
   imageName: string;

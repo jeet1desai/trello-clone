@@ -1,7 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { boardService } from "../../services/boardService";
 import { IWorkspace, updateWorkspaceBoards } from "./workspaceSlice";
-import { removeTaskLabel, updateTaskLabel } from "./taskSlice";
 import { Pagination } from "./dashboardSlice";
 import { workspaceService } from "../../services/workspaceService";
 
