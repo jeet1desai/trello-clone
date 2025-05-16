@@ -1,16 +1,17 @@
 import React, { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { Typography, Card, Row, Col, Segmented } from "antd";
+import { Typography, Card, Row, Col, Segmented, Avatar, Button, Progress } from "antd";
 import {
   ProjectOutlined,
   TeamOutlined,
   CheckCircleOutlined,
+  CalendarOutlined,
+  ClockCircleOutlined,
 } from "@ant-design/icons";
 import { RootState, AppDispatch } from "../../store";
 import {
   ActivityChart,
   WorkspaceDistribution,
-  StatCard,
   RecentActivity,
 } from "../../components";
 import "../../layout/styles/Dashboard.css";
@@ -20,8 +21,9 @@ import {
   getDashboardCount,
   getDashboardRecentActivity,
 } from "../../store/slices/dashboardSlice";
+import { Plus, Logs } from 'lucide-react';
 
-const { Title, Paragraph } = Typography;
+const { Title, Text } = Typography;
 
 const Dashboard: React.FC = () => {
   const { dashboardCount } = useSelector((state: RootState) => state.dashboard);
@@ -52,49 +54,141 @@ const Dashboard: React.FC = () => {
 
   return (
     <div>
-      {/* Welcome Section */}
-      <Card className="dashboard-welcome">
-        <div className="dashboard-welcome-content">
-          <Title level={2} className="welcome-title">
-            Welcome, {currentUser?.first_name ?? "User"}!
-          </Title>
-          <Paragraph className="welcome-subtitle">
-            Here's what's happening with your projects today.
-          </Paragraph>
-        </div>
-      </Card>
-
-      {/* Stats Cards */}
-      <div className="dashboard-section">
-        <Row gutter={[16, 16]}>
-          <Col xs={24} sm={8} lg={8}>
-            <StatCard
-              title="Total Workspaces"
-              value={dashboardCount?.workspace ?? 0}
-              icon={<TeamOutlined className="font-24" />}
-              color="#1890ff"
-            />
+      {/* Modern Welcome Section */}
+      <div className="welcome-section">
+        <Row gutter={[24, 24]} align="stretch">
+          <Col xs={24} lg={16} className="welcome-col">
+            <Card className="welcome-card gradient-7">
+              <div className="welcome-background-pattern"></div>
+              <Row gutter={24} align="middle" className="welcome-content">
+                <Col>
+                  <div className="user-info-section">
+                    <div className="avatar-wrapper">
+                      <Avatar
+                        size={80}
+                        src={currentUser?.profile_image.url}
+                        className="user-avatar"
+                      >
+                        {currentUser?.first_name?.[0]}
+                      </Avatar>
+                      <div className="online-status"></div>
+                    </div>
+                    <div className="welcome-text">
+                      <Title level={2} className="welcome-title">
+                        Welcome, {currentUser?.first_name ?? "User"} {currentUser?.last_name ?? "User"}!
+                      </Title>
+                      <Text className="welcome-subtitle">
+                        Let's organize your tasks for today
+                      </Text>
+                      <div className="task-stats">
+                        <div className="stat-item">
+                          <div className="stat-value">
+                            <CheckCircleOutlined /> {dashboardCount?.task ?? 0}
+                            <span className="stat-label">Completed</span>
+                          </div>
+                          <Progress 
+                            percent={Math.round(((dashboardCount?.task ?? 0) / (dashboardCount?.totalTask || 1)) * 100)}
+                            strokeColor="#52c41a"
+                            showInfo={false}
+                            size="small"
+                          />
+                        </div>
+                        <div className="stat-item">
+                          <div className="stat-value">
+                            <ClockCircleOutlined /> {dashboardCount?.totalTask ?? 0}
+                            <span className="stat-label">Total Tasks</span>
+                          </div>
+                          <Progress 
+                            percent={100}
+                            strokeColor="#1890ff"
+                            showInfo={false}
+                            size="small"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </Col>
+              </Row>
+            </Card>
           </Col>
-          <Col xs={24} sm={8} lg={8}>
-            <StatCard
-              title="Total Boards"
-              value={dashboardCount?.board ?? 0}
-              icon={<ProjectOutlined className="font-24" />}
-              color="#52c41a"
-            />
-          </Col>
-          <Col xs={24} sm={8} lg={8}>
-            <StatCard
-              title="Completed Tasks"
-              value={`${dashboardCount?.task ?? 0}/${
-                dashboardCount?.totalTask ?? 0
-              }`}
-              icon={<CheckCircleOutlined className="font-24" />}
-              color="#fa8c16"
-            />
+          <Col xs={24} lg={8} className="date-col">
+            <Card className="date-card">
+              <div className="date-content">
+                <div className="date-header">
+                  <CalendarOutlined className="calendar-icon" />
+                  <Text className="today-label">Today's Date</Text>
+                </div>
+                <Title level={4} className="current-date">
+                  {new Date().toLocaleDateString('en-US', { 
+                    weekday: 'long',
+                    month: 'long',
+                    day: 'numeric'
+                  })}
+                </Title>
+                <div className="quick-actions">
+                  <Button type="primary" className="button" icon={<Plus size={16} />}>
+                    New Task
+                  </Button>
+                  <Button className="button" icon={<Logs size={16} />}>
+                    View All
+                  </Button>
+                </div>
+              </div>
+            </Card>
           </Col>
         </Row>
       </div>
+
+      {/* Enhanced Stats Cards */}
+      <Row gutter={[24, 24]} className="stats-section">
+        <Col xs={24} md={8}>
+          <Card className="stat-card workspace-card" hoverable>
+            <div className="stat-header">
+              <div className="stat-icon-wrapper blue">
+                <TeamOutlined className="stat-icon" />
+              </div>
+            </div>
+            <div className="stat-content">
+              <Title level={2}>{dashboardCount?.workspace ?? 0}</Title>
+              <Text type="secondary">Total Workspaces</Text>
+            </div>
+          </Card>
+        </Col>
+
+        <Col xs={24} md={8}>
+          <Card className="stat-card board-card" hoverable>
+            <div className="stat-header">
+              <div className="stat-icon-wrapper green">
+                <ProjectOutlined className="stat-icon" />
+              </div>
+            </div>
+            <div className="stat-content">
+              <Title level={2}>{dashboardCount?.board ?? 0}</Title>
+              <Text type="secondary">Total Boards</Text>
+            </div>
+          </Card>
+        </Col>
+
+        <Col xs={24} md={8}>
+          <Card className="stat-card task-card" hoverable>
+            <div className="stat-header">
+              <div className="stat-icon-wrapper orange">
+                <CheckCircleOutlined className="stat-icon" />
+              </div>
+            </div>
+            <div className="stat-content">
+              <Title level={2}>{dashboardCount?.task ?? 0}</Title>
+              <Text type="secondary">Completed Tasks</Text>
+              <Progress 
+                percent={Math.round(((dashboardCount?.task??0) / (dashboardCount?.totalTask || 1)) * 100)}
+                strokeColor="#fa8c16"
+                status="active"
+              />
+            </div>
+          </Card>
+        </Col>
+      </Row>
 
       {/* Analytics */}
       <div className="dashboard-section">

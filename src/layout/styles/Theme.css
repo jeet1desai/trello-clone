@@ -212,8 +212,7 @@ body {
 }
 
 .stats-section {
-  padding: 80px 20px;
-  background: var(--bg-primary);
+  padding: 40px 0px;
 }
 
 .stats-container {
