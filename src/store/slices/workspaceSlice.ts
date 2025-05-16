@@ -268,7 +268,7 @@ const workspaceSlice = createSlice({
         state.success = null;
         state.error = null;
       })
-      .addCase(addNewWorkspace.fulfilled, (state, action) => {
+      .addCase(addNewWorkspace.fulfilled, (state) => {
         state.loading = false;
         state.addError = null;
         state.error = null;

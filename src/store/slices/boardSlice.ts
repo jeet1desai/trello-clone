@@ -568,7 +568,7 @@ export const addLabelInTask = createAsyncThunk(
       task_id: string;
       label_id: string;
     },
-    { rejectWithValue, dispatch }
+    { rejectWithValue }
   ) => {
     try {
       const response = await boardService.addLabelInTask(task_id, label_id);
@@ -585,7 +585,7 @@ export const removeLabelFromTask = createAsyncThunk(
   "task/remove-label-from-task",
   async (
     { taskId, labelId }: { taskId: string; labelId: string },
-    { rejectWithValue, dispatch }
+    { rejectWithValue }
   ) => {
     try {
       const response = await boardService.removeLabelFromTask(taskId, labelId);
@@ -856,7 +856,7 @@ const boardSlice = createSlice({
         state.error = null;
         state.success = null;
       })
-      .addCase(addNewBoard.fulfilled, (state, action) => {
+      .addCase(addNewBoard.fulfilled, (state) => {
         state.loading = false;
         state.addError = null;
         state.error = null;
@@ -1061,7 +1061,7 @@ const boardSlice = createSlice({
         state.error = null;
         state.success = null;
       })
-      .addCase(updateInvitationMemberById.fulfilled, (state, action) => {
+      .addCase(updateInvitationMemberById.fulfilled, (state) => {
         state.loading = false;
         state.error = null;
         state.success = "Invitation accepted successfully.";
