@@ -47,7 +47,7 @@
 
 .welcome-title {
   color: white !important;
-  margin: 0 0 12px 0 !important;
+  margin: 0 0 6px 0 !important;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
@@ -73,19 +73,19 @@
 }
 
 .gradient-2 {
-  background: linear-gradient(135deg, #141E30 0%, #243B55 100%);
+  background: linear-gradient(135deg, #141e30 0%, #243b55 100%);
 }
 
 .gradient-3 {
-  background: linear-gradient(135deg, #0F2027 0%, #203A43 50%, #2C5364 100%);
+  background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
 }
 
 .gradient-4 {
-  background: linear-gradient(135deg, #2C3E50 0%, #3498db 100%);
+  background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
 }
 
 .gradient-5 {
-  background: linear-gradient(135deg, #373B44 0%, #4286f4 100%);
+  background: linear-gradient(135deg, #373b44 0%, #4286f4 100%);
 }
 
 .gradient-6 {
@@ -97,7 +97,7 @@
 }
 
 .gradient-8 {
-  background: linear-gradient(135deg, #16222A 0%, #3A6073 100%);
+  background: linear-gradient(135deg, #16222a 0%, #3a6073 100%);
 }
 
 .welcome-content {
@@ -112,11 +112,8 @@
   right: 0;
   bottom: 0;
   opacity: 0.1;
-  background: 
-    linear-gradient(45deg, #ffffff 25%, transparent 25%),
-    linear-gradient(-45deg, #ffffff 25%, transparent 25%),
-    linear-gradient(45deg, transparent 75%, #ffffff 75%),
-    linear-gradient(-45deg, transparent 75%, #ffffff 75%);
+  background: linear-gradient(45deg, #ffffff 25%, transparent 25%), linear-gradient(-45deg, #ffffff 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #ffffff 75%), linear-gradient(-45deg, transparent 75%, #ffffff 75%);
   background-size: 20px 20px;
   background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
   animation: pattern-move 20s linear infinite;
@@ -237,6 +234,13 @@
   display: flex;
   align-items: flex-start;
   gap: 24px;
+  flex-direction: column;
+}
+
+.user-info-avatar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
 }
 
 .avatar-wrapper {
@@ -267,16 +271,22 @@
 
 .welcome-text {
   flex: 1;
+  width: 100%;
 }
 
 /* Date Card Styles */
 .date-card {
   width: 100%;
   height: 100% !important;
-  margin-bottom: 16px;
   border-radius: 20px;
   background: white;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+.date-card .ant-card-body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
 }
 
 .date-content {
@@ -315,7 +325,6 @@
 .quick-actions {
   display: flex;
   gap: 12px;
-  margin-top: auto;
   flex-wrap: wrap;
 }
 
@@ -466,7 +475,7 @@
 }
 
 .welcome-card.loading::after {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: 0;
@@ -492,7 +501,7 @@
   }
 
   .user-info-section {
-    flex-direction: row;
+    flex-direction: column;
     align-items: center;
     text-align: center;
     gap: 16px;

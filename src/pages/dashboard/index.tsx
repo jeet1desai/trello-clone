@@ -1,6 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { Typography, Card, Row, Col, Segmented, Avatar, Button, Progress } from "antd";
+import {
+  Typography,
+  Card,
+  Row,
+  Col,
+  Segmented,
+  Avatar,
+  Button,
+  Progress,
+} from "antd";
 import { RootState, AppDispatch } from "../../store";
 import {
   ActivityChart,
@@ -14,7 +23,15 @@ import {
   getDashboardCount,
   getDashboardRecentActivity,
 } from "../../store/slices/dashboardSlice";
-import { Plus, Logs, Calendar, CircleCheck, Clock, UsersRound, SquareKanban } from 'lucide-react';
+import {
+  Plus,
+  Logs,
+  Calendar,
+  CircleCheck,
+  Clock,
+  UsersRound,
+  SquareKanban,
+} from "lucide-react";
 
 const { Title, Text } = Typography;
 
@@ -56,31 +73,41 @@ const Dashboard: React.FC = () => {
               <Row gutter={24} align="middle" className="welcome-content">
                 <Col>
                   <div className="user-info-section">
-                    <div className="avatar-wrapper">
-                      <Avatar
-                        size={80}
-                        src={currentUser?.profile_image.url}
-                        className="user-avatar"
-                      >
-                        {currentUser?.first_name?.[0]}
-                      </Avatar>
-                      <div className="online-status"></div>
+                    <div className="user-info-avatar">
+                      <div className="avatar-wrapper">
+                        <Avatar
+                          size={80}
+                          src={currentUser?.profile_image.url}
+                          className="user-avatar"
+                        >
+                          {currentUser?.first_name?.[0]}
+                        </Avatar>
+                        <div className="online-status"></div>
+                      </div>
+                      <div>
+                        <Title level={2} className="welcome-title">
+                          Welcome, {currentUser?.first_name ?? "User"}{" "}
+                          {currentUser?.last_name ?? "User"}!
+                        </Title>
+                        <Text className="welcome-subtitle">
+                          Let's organize your tasks for today
+                        </Text>
+                      </div>
                     </div>
                     <div className="welcome-text">
-                      <Title level={2} className="welcome-title">
-                        Welcome, {currentUser?.first_name ?? "User"} {currentUser?.last_name ?? "User"}!
-                      </Title>
-                      <Text className="welcome-subtitle">
-                        Let's organize your tasks for today
-                      </Text>
                       <div className="task-stats">
                         <div className="stat-item">
                           <div className="stat-value">
-                            <CircleCheck size={16} /> {dashboardCount?.task ?? 0}
+                            <CircleCheck size={16} />{" "}
+                            {dashboardCount?.task ?? 0}
                             <span className="stat-label">Completed</span>
                           </div>
-                          <Progress 
-                            percent={Math.round(((dashboardCount?.task ?? 0) / (dashboardCount?.totalTask || 1)) * 100)}
+                          <Progress
+                            percent={Math.round(
+                              ((dashboardCount?.task ?? 0) /
+                                (dashboardCount?.totalTask || 1)) *
+                                100
+                            )}
                             strokeColor="#52c41a"
                             showInfo={false}
                             size="small"
@@ -91,7 +118,7 @@ const Dashboard: React.FC = () => {
                             <Clock size={16} /> {dashboardCount?.totalTask ?? 0}
                             <span className="stat-label">Total Tasks</span>
                           </div>
-                          <Progress 
+                          <Progress
                             percent={100}
                             strokeColor="#1890ff"
                             showInfo={false}
@@ -113,14 +140,18 @@ const Dashboard: React.FC = () => {
                   <Text className="today-label">Today's Date</Text>
                 </div>
                 <Title level={4} className="current-date">
-                  {new Date().toLocaleDateString('en-US', { 
-                    weekday: 'long',
-                    month: 'long',
-                    day: 'numeric'
+                  {new Date().toLocaleDateString("en-US", {
+                    weekday: "long",
+                    month: "long",
+                    day: "numeric",
                   })}
                 </Title>
                 <div className="quick-actions">
-                  <Button type="primary" className="button" icon={<Plus size={16} />}>
+                  <Button
+                    type="primary"
+                    className="button"
+                    icon={<Plus size={16} />}
+                  >
                     New Task
                   </Button>
                   <Button className="button" icon={<Logs size={16} />}>
@@ -173,8 +204,12 @@ const Dashboard: React.FC = () => {
             <div className="stat-content">
               <Title level={2}>{dashboardCount?.task ?? 0}</Title>
               <Text type="secondary">Completed Tasks</Text>
-              <Progress 
-                percent={Math.round(((dashboardCount?.task??0) / (dashboardCount?.totalTask || 1)) * 100)}
+              <Progress
+                percent={Math.round(
+                  ((dashboardCount?.task ?? 0) /
+                    (dashboardCount?.totalTask || 1)) *
+                    100
+                )}
                 strokeColor="#fa8c16"
                 status="active"
               />
