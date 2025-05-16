@@ -325,6 +325,7 @@
 .quick-actions {
   display: flex;
   gap: 12px;
+  margin-top: auto;
   flex-wrap: wrap;
 }
 

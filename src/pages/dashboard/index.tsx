@@ -1,7 +1,17 @@
 import React, { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { Typography, Card, Row, Col, Segmented, Avatar, Button, Progress } from "antd";
-import { ProjectOutlined, TeamOutlined, CheckCircleOutlined, CalendarOutlined, ClockCircleOutlined } from "@ant-design/icons";
+import { Typography, Card, Row, Col, Segmented, Avatar, Badge, Tag, Button, Progress } from "antd";
+import {
+  ProjectOutlined,
+  TeamOutlined,
+  CheckCircleOutlined,
+  CalendarOutlined,
+  MoreOutlined,
+  ArrowUpOutlined,
+  ClockCircleOutlined,
+  PlusOutlined,
+  UnorderedListOutlined,
+} from "@ant-design/icons";
 import { RootState, AppDispatch } from "../../store";
 import { ActivityChart, WorkspaceDistribution, RecentActivity } from "../../components";
 import "../../layout/styles/Dashboard.css";
@@ -9,7 +19,7 @@ import { getAllNotification } from "../../store/slices/notificationSlice";
 import { getDashboardAnalytics, getDashboardCount, getDashboardRecentActivity } from "../../store/slices/dashboardSlice";
 import { Plus, Logs } from "lucide-react";
 
-const { Title, Text } = Typography;
+const { Title, Paragraph, Text } = Typography;
 
 const Dashboard: React.FC = () => {
   const { dashboardCount } = useSelector((state: RootState) => state.dashboard);
@@ -44,7 +54,7 @@ const Dashboard: React.FC = () => {
       <div className="welcome-section">
         <Row gutter={[24, 24]} align="stretch">
           <Col xs={24} lg={16} className="welcome-col">
-            <Card className="welcome-card gradient-7">
+            <Card className="welcome-card gradient-1">
               <div className="welcome-background-pattern"></div>
               <Row gutter={24} align="middle" className="welcome-content">
                 <Col>
@@ -106,12 +116,10 @@ const Dashboard: React.FC = () => {
                   })}
                 </Title>
                 <div className="quick-actions">
-                  <Button type="primary" className="button" icon={<Plus size={16} />}>
+                  <Button type="primary" icon={<PlusOutlined />}>
                     New Task
                   </Button>
-                  <Button className="button" icon={<Logs size={16} />}>
-                    View All
-                  </Button>
+                  <Button icon={<UnorderedListOutlined />}>View All</Button>
                 </div>
               </div>
             </Card>
