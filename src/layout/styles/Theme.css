@@ -123,11 +123,6 @@ body {
   color: var(--footer-text) !important;
 }
 
-.ant-card {
-  background-color: var(--card-bg);
-  color: var(--text-primary);
-}
-
 .ant-card-head {
   color: var(--text-primary);
 }
@@ -579,11 +574,6 @@ a:hover {
 }
 
 /* Cards in Dark Theme */
-.theme-dark .ant-card {
-  background-color: var(--card-bg);
-  color: var(--text-primary);
-}
-
 .theme-dark .ant-card-hoverable:hover {
   border-color: var(--primary-color);
 }
