@@ -71,28 +71,7 @@ const ForgotPassword: React.FC = () => {
           initialValues={{ email: "", otp: "", newPassword: "" }}
           requiredMark={false}
         >
-          <Form.Item
-            label={
-              <span className="input-label">
-                Email <span className="require-mark">*</span>
-              </span>
-            }
-            name="email"
-            rules={[
-              { required: true, message: "Email is required" },
-              { type: "email", message: "Please enter a valid email address" },
-            ]}
-          >
-            <Input
-              prefix={<Mail size={16} className="form-icon" />}
-              placeholder="Enter your email"
-              size="large"
-              className="form-input"
-              disabled={passwordChangeRequested}
-            />
-          </Form.Item>
-
-          {passwordChangeRequested && (
+          {passwordChangeRequested ? (
             <>
               <OtpInput form={form} name={"otp"} />
 
@@ -121,6 +100,30 @@ const ForgotPassword: React.FC = () => {
                 />
               </Form.Item>
             </>
+          ) : (
+            <Form.Item
+              label={
+                <span className="input-label">
+                  Email <span className="require-mark">*</span>
+                </span>
+              }
+              name="email"
+              rules={[
+                { required: true, message: "Email is required" },
+                {
+                  type: "email",
+                  message: "Please enter a valid email address",
+                },
+              ]}
+            >
+              <Input
+                prefix={<Mail size={16} className="form-icon" />}
+                placeholder="Enter your email"
+                size="large"
+                className="form-input"
+                disabled={passwordChangeRequested}
+              />
+            </Form.Item>
           )}
 
           <Form.Item>

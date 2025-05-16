@@ -54,7 +54,7 @@ const Invitations = () => {
         {invitationList?.length > 0 ? (
           <div className="invitations-grid">
             {invitationList.map((invitation) => (
-              <InvitationCard invitation={invitation} />
+              <InvitationCard key={invitation._id} invitation={invitation} />
             ))}
           </div>
         ) : (
