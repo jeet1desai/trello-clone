@@ -1,39 +1,42 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { Card, Typography, List, Avatar, Tag, Space, Spin, Empty } from 'antd';
-import { 
-  FileOutlined, 
-  FolderOutlined, 
+import React, { useEffect, useRef, useState } from "react";
+import { Card, Typography, List, Avatar, Tag, Space, Spin, Empty } from "antd";
+import {
+  FileOutlined,
+  FolderOutlined,
   ToolOutlined,
   TeamOutlined,
   TagOutlined,
   PaperClipOutlined,
-  AppstoreOutlined
-} from '@ant-design/icons';
-import { useDispatch, useSelector } from 'react-redux';
-import { AppDispatch, RootState } from '../../store';
-import dayjs from 'dayjs';
+  AppstoreOutlined,
+} from "@ant-design/icons";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "../../store";
+import dayjs from "dayjs";
 import socketService from "../../services/socketService";
-import '../../layout/styles/Dashboard.css';
-import { addNewRecentActivity, getDashboardRecentActivity } from '../../store/slices/dashboardSlice';
+import "../../layout/styles/Dashboard.css";
+import {
+  addNewRecentActivity,
+  getDashboardRecentActivity,
+} from "../../store/slices/dashboardSlice";
 import { getRandomColor } from "../../utils";
 
 const { Title, Text } = Typography;
 
 const getIconForType = (type: string) => {
   switch (type.toLowerCase()) {
-    case 'workspace':
+    case "workspace":
       return <ToolOutlined />;
-    case 'board':
+    case "board":
       return <FolderOutlined />;
-    case 'status':
+    case "status":
       return <AppstoreOutlined />;
-    case 'task':
+    case "task":
       return <FileOutlined />;
-    case 'task label':
+    case "task label":
       return <TagOutlined />;
-    case 'task member':
+    case "task member":
       return <TeamOutlined />;
-    case 'attachment':
+    case "attachment":
       return <PaperClipOutlined />;
     default:
       return <FileOutlined />;
@@ -42,32 +45,34 @@ const getIconForType = (type: string) => {
 
 const getTagColorForAction = (action: string) => {
   switch (action.toLowerCase()) {
-    case 'created':
-    case 'added':
-    case 'uploaded':
-      return 'green';
-    case 'updated':
-      return 'purple';
-    case 'deleted':
-      return 'red';
-    case 'joined':
-      return 'blue';
+    case "created":
+    case "added":
+    case "uploaded":
+      return "green";
+    case "updated":
+      return "purple";
+    case "deleted":
+      return "red";
+    case "joined":
+      return "blue";
     default:
-      return 'default';
+      return "default";
   }
 };
 
 const RecentActivity: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
 
-  const { recentActivity, loading, hasMore } = useSelector((state: RootState) => state.dashboard);
+  const { recentActivity, recentActivityLoading, hasMore } = useSelector(
+    (state: RootState) => state.dashboard
+  );
   const data = recentActivity.activities || [];
 
   const [loadingMore, setLoadingMore] = useState(false);
   const listRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    socketService.on('receive-recent-activity', (payload) => {
+    socketService.on("receive-recent-activity", (payload) => {
       dispatch(addNewRecentActivity(payload));
     });
 
@@ -77,7 +82,7 @@ const RecentActivity: React.FC = () => {
   });
 
   const renderContent = () => {
-    if (loading && !loadingMore) {
+    if (recentActivityLoading && !loadingMore) {
       return (
         <div className="dashboard-loading-container">
           <Spin size="large" />
@@ -95,23 +100,27 @@ const RecentActivity: React.FC = () => {
 
     const handleScroll = async () => {
       const container = listRef.current;
-      if (container && !loading && hasMore) {
+      if (container && !recentActivityLoading && hasMore) {
         const scrollTop = container.scrollTop;
         const scrollHeight = container.scrollHeight;
         const clientHeight = container.clientHeight;
         if (scrollTop + clientHeight >= scrollHeight - 100) {
-          setLoadingMore(true)
-          await dispatch(getDashboardRecentActivity(recentActivity.pagination.currentPage+1));
+          setLoadingMore(true);
+          await dispatch(
+            getDashboardRecentActivity(
+              recentActivity.pagination.currentPage + 1
+            )
+          );
         }
       } else if (loadingMore && !hasMore) {
-        setLoadingMore(false)
+        setLoadingMore(false);
       }
     };
 
     return (
       <div
         ref={listRef}
-        style={{ maxHeight: '460px', overflow: 'auto', padding: '0 16px' }}
+        style={{ maxHeight: "460px", overflow: "auto", padding: "0 16px" }}
         onScroll={handleScroll}
       >
         <List
@@ -120,27 +129,45 @@ const RecentActivity: React.FC = () => {
           renderItem={(item) => (
             <List.Item>
               <List.Item.Meta
-                avatar={<Avatar
-                  style={{ background: getRandomColor(item.created_by._id) }}
-                >{`${item.created_by.first_name?.[0]?.toUpperCase()}${item.created_by.last_name?.[0]?.toUpperCase()}`}</Avatar>}
+                avatar={
+                  <Avatar
+                    style={{ background: getRandomColor(item.created_by._id) }}
+                  >{`${item.created_by.first_name?.[0]?.toUpperCase()}${item.created_by.last_name?.[0]?.toUpperCase()}`}</Avatar>
+                }
                 title={
                   <Space>
                     <Text strong>
-                      {item.created_by.first_name?.charAt(0).toUpperCase() + item.created_by.first_name?.slice(1)}{" "}
-                      {item.created_by.last_name && item.created_by.last_name?.charAt(0).toUpperCase() + (item.created_by.last_name?.slice(1) ?? "")}
+                      {item.created_by.first_name?.charAt(0).toUpperCase() +
+                        item.created_by.first_name?.slice(1)}{" "}
+                      {item.created_by.last_name &&
+                        item.created_by.last_name?.charAt(0).toUpperCase() +
+                          (item.created_by.last_name?.slice(1) ?? "")}
                     </Text>
-                    <Tag color={getTagColorForAction(item.action)}>{item.action}</Tag>
+                    <Tag color={getTagColorForAction(item.action)}>
+                      {item.action}
+                    </Tag>
                   </Space>
                 }
                 description={
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: "4px",
+                    }}
+                  >
                     <Space>
                       <span>{getIconForType(item.module)}</span>
                       <Text>{item.module}</Text>
-                      <Text type="secondary" style={{ fontSize: '0.85rem' }}>• {dayjs(item.createdAt).fromNow()}</Text>
+                      <Text type="secondary" style={{ fontSize: "0.85rem" }}>
+                        • {dayjs(item.createdAt).fromNow()}
+                      </Text>
                     </Space>
                     {item.details && (
-                      <Text type="secondary" style={{ fontSize: '0.85rem', marginLeft: '24px' }}>
+                      <Text
+                        type="secondary"
+                        style={{ fontSize: "0.85rem", marginLeft: "24px" }}
+                      >
                         • {item.details}
                       </Text>
                     )}
@@ -151,7 +178,7 @@ const RecentActivity: React.FC = () => {
           )}
           footer={
             loadingMore && (
-              <div style={{ textAlign: 'center', padding: 12 }}>
+              <div style={{ textAlign: "center", padding: 12 }}>
                 <Spin />
               </div>
             )
@@ -160,7 +187,7 @@ const RecentActivity: React.FC = () => {
       </div>
     );
   };
-  
+
   return (
     <Card bordered={false} className="dashboard-card">
       <Title level={4}>Recent Activity</Title>
@@ -169,4 +196,4 @@ const RecentActivity: React.FC = () => {
   );
 };
 
-export default RecentActivity; 
+export default RecentActivity;
