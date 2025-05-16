@@ -117,7 +117,7 @@ const Login: React.FC = () => {
               </Link>
             </Text>
             <Text>
-              Don't have an account?{" "}
+              Don&apos;t have an account?{" "}
               <Link to={PUBLIC_ROUTE.REGISTRATION} className="auth-link">
                 Sign Up
               </Link>

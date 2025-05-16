@@ -513,7 +513,7 @@ const taskSlice = createSlice({
         assigned_to: action.payload.data.assigned_to,
       } as ITask;
     },
-    unassignTaskMember: (state, action) => {
+    unassignTaskMember: (state) => {
       state.selectedTask = {
         ...state.selectedTask,
         assigned_to: null,
@@ -714,7 +714,7 @@ const taskSlice = createSlice({
         state.error = null;
         state.success = null;
       })
-      .addCase(unassignMember.fulfilled, (state, action) => {
+      .addCase(unassignMember.fulfilled, (state) => {
         state.selectedTask = {
           ...state.selectedTask,
           assigned_to: null,

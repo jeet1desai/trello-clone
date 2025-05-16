@@ -145,7 +145,7 @@ const notificationSlice = createSlice({
         state.error = null;
         state.success = null;
       })
-      .addCase(readAllNotifications.fulfilled, (state, action) => {
+      .addCase(readAllNotifications.fulfilled, (state) => {
         state.allNotification = [];
         state.loading = false;
         state.error = null;

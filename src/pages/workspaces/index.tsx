@@ -188,7 +188,7 @@ const Workspaces: React.FC = () => {
   };
 
   const renderWorkspaceCard = (workspace: IWorkspace) => {
-    let moreMenu: MenuProps["items"] = [
+    const moreMenu: MenuProps["items"] = [
       {
         key: "edit",
         icon: <Edit2 size={14} />,

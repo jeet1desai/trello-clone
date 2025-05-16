@@ -10,6 +10,8 @@ import {
   Card,
   Upload,
   Spin,
+  Tabs,
+  Divider,
 } from "antd";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, persistor, RootState } from "../../store";
@@ -24,10 +26,12 @@ import { useNavigate } from "react-router-dom";
 import { PUBLIC_ROUTE } from "../../utils/enums/route";
 import { RESET_APP } from "../../config";
 import { handleSocialLogout } from "../../config/firebase/helperFunction";
-import { Camera, UserRound } from "lucide-react";
+import { Camera, Check, Lock, Mail, Pencil, UserRound, X, ShieldAlert } from "lucide-react";
 
 const { Title, Text } = Typography;
+const { TabPane } = Tabs;
 
+// Add type guard
 const ProfilePage = () => {
   const [profileForm] = Form.useForm();
   const [passwordForm] = Form.useForm();
@@ -38,7 +42,6 @@ const ProfilePage = () => {
     (state: RootState) => state.profile
   );
   const [editMode, setEditMode] = useState(false);
-  const [resetPasswordFlag, setResetPasswordFlag] = useState(false);
   const [previewImage, setPreviewImage] = useState<string | undefined>(
     profileDetails?.profile_image?.url
   );
@@ -86,323 +89,332 @@ const ProfilePage = () => {
     try {
       await dispatch(resetPassword(values)).unwrap();
       passwordForm.resetFields();
-      setResetPasswordFlag(false);
     } catch (error) {
       handleLogout();
     }
   };
 
   return (
-    <>
-      <Spin spinning={loading} fullscreen />
-      <div className="profile-container">
+    <div className="profile-container">
+      <Spin spinning={loading}>
+        {/* Header with gradient */}
         <div className="profile-header-gradient">
-          <Title level={3}>
+          <Title level={3} className="welcome-title">
             Welcome, {profileDetails?.first_name ?? "User"}
           </Title>
-          <Text type="secondary">Today, {new Date().toDateString()}</Text>
+          <Text className="date-text">
+            Today, {new Date().toLocaleDateString('en-US', {
+              weekday: 'long',
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric'
+            })}
+          </Text>
         </div>
 
-        <Form
-          form={profileForm}
-          name="profile"
-          initialValues={profileDetails || (currentUser as User)}
-          onFinish={handleUpdate}
-          layout="vertical"
-          requiredMark={false}
-        >
-          <Card className="profile-card">
-            <div className="profile-top-section">
-              <div className="profile-name">
-                <Form.Item name="profile_image" style={{ margin: 0 }}>
-                  <Upload
-                    showUploadList={false}
-                    accept="image/*"
-                    disabled={!editMode}
-                    beforeUpload={(file) => {
-                      const reader = new FileReader();
-                      reader.onload = () =>
-                        setPreviewImage(reader.result as string);
-                      reader.readAsDataURL(file);
-                      return false;
-                    }}
-                  >
-                    <div className="avatar-upload-wrapper">
-                      <Avatar
-                        size={80}
-                        src={previewImage ?? profileDetails?.profile_image?.url}
-                        icon={<UserRound size={24} />}
-                      />
-                      {editMode && (
-                        <div className="camera-overlay">
-                          <Camera size={24} className="camera-icon" />
-                        </div>
-                      )}
+        <div className="profile-content">
+          <Tabs 
+            defaultActiveKey="profile" 
+            className="profile-tabs"
+            onChange={(activeKey) => {
+              if (activeKey !== "profile") {
+                setEditMode(false);
+                profileForm.resetFields();
+              } else {
+                passwordForm.resetFields();
+              }
+            }}
+            >
+            <TabPane
+              tab={
+                <span className="icon-title">
+                  <UserRound size={16} />
+                  Profile Information
+                </span>
+              }
+              key="profile"
+            >
+              <Form
+                  form={profileForm}
+                  name="profile"
+                  layout="vertical"
+                  initialValues={profileDetails || (currentUser as User)}
+                  onFinish={handleUpdate}
+                  requiredMark={false}
+                >
+              <Card className="profile-card">
+                <div className="profile-header">
+                    <div className="profile-avatar-section">
+                      <Form.Item name="profile_image" style={{ margin: 0 }}>
+                        <Upload
+                          showUploadList={false}
+                          accept="image/*"
+                          disabled={!editMode}
+                          beforeUpload={(file) => {
+                            const reader = new FileReader();
+                            reader.onload = () => setPreviewImage(reader.result as string);
+                            reader.readAsDataURL(file);
+                            return false;
+                          }}
+                        >
+                          <div className="avatar-wrapper">
+                            <Avatar
+                              size={80}
+                              src={previewImage ?? profileDetails?.profile_image?.url}
+                              icon={<UserRound size={16} />}
+                              className="profile-avatar"
+                            />
+                            {editMode && (
+                              <div className="avatar-upload-overlay">
+                                <Camera size={16} className="camera-icon" />
+                              </div>
+                            )}
+                          </div>
+                        </Upload>
+                      </Form.Item>
+
+                    <div className="profile-info">
+                      <Title level={4} className="profile-name">
+                        {`${profileDetails?.first_name || ""} ${
+                          profileDetails?.middle_name || ""
+                        } ${profileDetails?.last_name || ""}`}
+                      </Title>
+                      <Text type="secondary" className="profile-email">
+                        <Mail size={16} /> {profileDetails?.email}
+                      </Text>
                     </div>
-                  </Upload>
-                </Form.Item>
-                <div className="profile-name-wrapper">
-                  <Title level={4} className="profile-name-text">
-                    {`${profileDetails?.first_name} ${
-                      profileDetails?.middle_name ?? ""
-                    } ${profileDetails?.last_name ?? ""}`}
-                  </Title>
-                  <Text type="secondary">{profileDetails?.email}</Text>
-                </div>
-              </div>
-              <Button
-                type={editMode ? "default" : "primary"}
-                className="button"
-                style={{ marginTop: 0 }}
-                onClick={() => setEditMode(!editMode)}
-              >
-                {editMode ? "Cancel" : "Edit"}
-              </Button>
-            </div>
-            <Row gutter={16}>
-              <Col span={8}>
-                <Form.Item
-                  label={
-                    <span className="input-label">
-                      First Name <span className="require-mark">*</span>
-                    </span>
-                  }
-                  name="first_name"
-                  rules={[
-                    { required: true, message: "First Name is required" },
-                    {
-                      max: 50,
-                      message: "First Name must not exceed 50 characters",
-                    },
-                  ]}
-                >
-                  <Input
-                    placeholder="Enter your first name"
-                    className="form-input"
-                    disabled={!editMode}
-                  />
-                </Form.Item>
-              </Col>
-
-              <Col span={8}>
-                <Form.Item
-                  label={<span className="input-label">Middle Name</span>}
-                  name="middle_name"
-                  rules={[
-                    {
-                      max: 50,
-                      message: "Middle Name must not exceed 50 characters",
-                    },
-                  ]}
-                >
-                  <Input
-                    placeholder="Enter your middle name"
-                    className="form-input"
-                    disabled={!editMode}
-                  />
-                </Form.Item>
-              </Col>
-
-              <Col span={8}>
-                <Form.Item
-                  label={
-                    <span className="input-label">
-                      Last Name <span className="require-mark">*</span>
-                    </span>
-                  }
-                  name="last_name"
-                  rules={[
-                    { required: true, message: "Last Name is required" },
-                    {
-                      max: 50,
-                      message: "Last Name must not exceed 50 characters",
-                    },
-                  ]}
-                >
-                  <Input
-                    placeholder="Enter your last name"
-                    className="form-input"
-                    disabled={!editMode}
-                  />
-                </Form.Item>
-              </Col>
-
-              <Col span={24}>
-                <Form.Item
-                  label={
-                    <span className="input-label">
-                      Email <span className="require-mark">*</span>
-                    </span>
-                  }
-                  name="email"
-                  rules={[
-                    { required: true, message: "Email is required" },
-                    { type: "email", message: "Invalid email address" },
-                  ]}
-                >
-                  <Input
-                    placeholder="Enter your email"
-                    className="form-input"
-                    disabled={!editMode}
-                  />
-                </Form.Item>
-              </Col>
-            </Row>
-
-            {editMode && (
-              <Form.Item>
-                <Button
-                  type="primary"
-                  htmlType="submit"
-                  className="button"
-                  loading={loading}
-                >
-                  Save Changes
-                </Button>
-              </Form.Item>
-            )}
-          </Card>
-        </Form>
-
-        <Card className="profile-card margintop-20">
-          <Title level={4} className="profile-name-text">
-            Password Settings
-          </Title>
-          {!resetPasswordFlag ? (
-            <Button
-              type="primary"
-              htmlType="submit"
-              className="button"
-              onClick={() => setResetPasswordFlag(true)}
-            >
-              Reset Password
-            </Button>
-          ) : (
-            <Form
-              form={passwordForm}
-              name="password"
-              initialValues={{
-                old_password: "",
-                new_password: "",
-              }}
-              onFinish={handleResetPassword}
-              layout="vertical"
-              requiredMark={false}
-            >
-              <Row gutter={16}>
-                <Col span={8}>
-                  <Form.Item
-                    label={
-                      <span className="input-label">
-                        Old Password <span className="require-mark">*</span>
-                      </span>
-                    }
-                    name="old_password"
-                    rules={[
-                      { required: true, message: "Please enter old password" },
-                      {
-                        min: 8,
-                        message: "Password must be at least 8 characters",
-                      },
-                    ]}
-                  >
-                    <Input.Password
-                      placeholder="Enter old password"
-                      size="large"
-                      className="form-input"
-                    />
-                  </Form.Item>
-                </Col>
-
-                <Col span={8}>
-                  <Form.Item
-                    label={
-                      <span className="input-label">
-                        New Password <span className="require-mark">*</span>
-                      </span>
-                    }
-                    name="new_password"
-                    rules={[
-                      { required: true, message: "Please enter new password" },
-                      {
-                        min: 8,
-                        message: "New password must be at least 8 characters",
-                      },
-                    ]}
-                  >
-                    <Input.Password
-                      placeholder="Enter new password"
-                      size="large"
-                      className="form-input"
-                    />
-                  </Form.Item>
-                </Col>
-
-                <Col span={8}>
-                  <Form.Item
-                    label={
-                      <span className="input-label">
-                        Confirm Password <span className="require-mark">*</span>
-                      </span>
-                    }
-                    name="confirm_password"
-                    dependencies={["new_password"]}
-                    rules={[
-                      {
-                        required: true,
-                        message: "Please confirm your password",
-                      },
-                      ({ getFieldValue }) => ({
-                        validator(_, value) {
-                          if (
-                            !value ||
-                            getFieldValue("new_password") === value
-                          ) {
-                            return Promise.resolve();
+                  </div>
+                    <div className="profile-actions">
+                      {editMode &&
+                        <Button
+                          type={"default"}
+                          htmlType={"button"}
+                          icon={<X size={16} />}
+                          onClick={() => {
+                            profileForm.resetFields();
+                            setEditMode(false);
+                          }}
+                          className="button"
+                        >
+                          Cancel
+                        </Button>
+                      }
+                      <Button
+                        type={editMode ? "default" : "primary"}
+                        htmlType={!editMode ? "submit" : "button"}
+                        loading={loading}
+                        icon={editMode ? <Check size={16} /> : <Pencil size={16} />}
+                        onClick={async () => {
+                          if (editMode) {
+                            try {
+                              await profileForm.validateFields();
+                              setEditMode(false);
+                            } catch (error) {
+                              console.error("Validation failed:", error);
+                            }
+                          } else {
+                            setEditMode(true);
                           }
-                          return Promise.reject(
-                            new Error("Passwords must match")
-                          );
-                        },
-                      }),
-                    ]}
-                  >
-                    <Input.Password
-                      placeholder="Confirm your password"
-                      className="form-input"
-                    />
-                  </Form.Item>
-                </Col>
-              </Row>
+                        }}
+                        className="button"
+                      >
+                        {editMode ? "Save" : "Edit Profile"}
+                      </Button>
+                    </div>
+                  </div>
 
-              {resetPasswordFlag && (
-                <div className="reset-password-btn-wrapper">
-                  <Form.Item>
-                    <Button
-                      type="default"
-                      className="button"
-                      onClick={() => setResetPasswordFlag(false)}
-                    >
-                      Cancel
-                    </Button>
-                  </Form.Item>
-                  <Form.Item>
+                <Divider />
+                  <Row gutter={24}>
+                    <Col xs={24} md={8}>
+                      <Form.Item
+                        label="First Name"
+                        name="first_name"
+                        rules={[
+                          { required: true, message: "First Name is required" },
+                          {
+                            max: 50,
+                            message: "First Name must not exceed 50 characters",
+                          },
+                        ]}
+                      >
+                        <Input
+                          prefix={<UserRound size={16} />}
+                          placeholder="Enter your first name"
+                          disabled={!editMode}
+                          className="profile-input"
+                        />
+                      </Form.Item>
+                    </Col>
+                    <Col xs={24} md={8}>
+                      <Form.Item
+                        label="Middle Name"
+                        name="middle_name"
+                        rules={[
+                          {
+                            max: 50,
+                            message: "Middle Name must not exceed 50 characters",
+                          },
+                        ]}
+                      >
+                        <Input
+                          prefix={<UserRound size={16} />}
+                          placeholder="Enter your middle name"
+                          disabled={!editMode}
+                          className="profile-input"
+                        />
+                      </Form.Item>
+                    </Col>
+                    <Col xs={24} md={8}>
+                      <Form.Item
+                        label="Last Name"
+                        name="last_name"
+                        rules={[
+                          { required: true, message: "Last Name is required" },
+                          {
+                            max: 50,
+                            message: "Last Name must not exceed 50 characters",
+                          },
+                        ]}
+                      >
+                        <Input
+                          prefix={<UserRound size={16} />}
+                          placeholder="Enter your last name"
+                          disabled={!editMode}
+                          className="profile-input"
+                        />
+                      </Form.Item>
+                    </Col>
+                    <Col span={24}>
+                      <Form.Item
+                        label="Email"
+                        name="email"
+                        rules={[
+                          { required: true, message: "Email is required" },
+                          { type: "email", message: "Invalid email address" },
+                        ]}
+                      >
+                        <Input
+                          prefix={<Mail size={16} />}
+                          placeholder="Enter your email"
+                          disabled={!editMode}
+                          className="profile-input"
+                        />
+                      </Form.Item>
+                    </Col>
+                  </Row>
+              </Card>
+                </Form>
+            </TabPane>
+
+            <TabPane
+              tab={
+                <span className="icon-title">
+                  <ShieldAlert size={16} />
+                  Security Settings
+                </span>
+              }
+              key="security"
+            >
+              <Card className="profile-card">
+                <Title level={4}>
+                  <Lock size={16} /> Password Settings
+                </Title>
+                <Text type="secondary" className="security-description">
+                  Update your password to keep your account secure
+                </Text>
+
+                <Divider />
+
+                <Form
+                  form={passwordForm}
+                  layout="vertical"
+                  onFinish={handleResetPassword}
+                  requiredMark={false}
+                >
+                  <Row gutter={24}>
+                    <Col xs={24} md={8}>
+                      <Form.Item
+                        label="Current Password"
+                        name="old_password"
+                        rules={[
+                          { required: true, message: "Current password is required" },
+                          { min: 8, message: "Password must be at least 8 characters" },
+                        ]}
+                      >
+                        <Input.Password
+                          prefix={<Lock size={16} />}
+                          placeholder="Enter current password"
+                          className="profile-input"
+                        />
+                      </Form.Item>
+                    </Col>
+                    <Col xs={24} md={8}>
+                      <Form.Item
+                        label="New Password"
+                        name="new_password"
+                        rules={[
+                          { required: true, message: "New password is required" },
+                          { min: 8, message: "Password must be at least 8 characters" },
+                          {
+                            pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
+                            message:
+                              "Password must contain uppercase, lowercase, and number",
+                          },
+                        ]}
+                      >
+                        <Input.Password
+                          prefix={<Lock size={16} />}
+                          placeholder="Enter new password"
+                          className="profile-input"
+                        />
+                      </Form.Item>
+                    </Col>
+                    <Col xs={24} md={8}>
+                      <Form.Item
+                        label="Confirm Password"
+                        name="confirm_password"
+                        dependencies={["new_password"]}
+                        rules={[
+                          { required: true, message: "Please confirm your password" },
+                          ({ getFieldValue }) => ({
+                            validator(_, value) {
+                              if (!value || getFieldValue("new_password") === value) {
+                                return Promise.resolve();
+                              }
+                              return Promise.reject(
+                                new Error("Passwords must match")
+                              );
+                            },
+                          }),
+                        ]}
+                      >
+                        <Input.Password
+                          prefix={<Lock size={16} />}
+                          placeholder="Confirm new password"
+                          className="profile-input"
+                        />
+                      </Form.Item>
+                    </Col>
+                  </Row>
+
+                  <div className="button-container">
                     <Button
                       type="primary"
                       htmlType="submit"
-                      className="button"
                       loading={loading}
+                      icon={<Lock size={16} />}
+                      className="button"
                     >
-                      Save Changes
+                      Update Password
                     </Button>
-                  </Form.Item>
-                </div>
-              )}
-            </Form>
-          )}
-        </Card>
-      </div>
-    </>
+                  </div>
+                </Form>
+              </Card>
+            </TabPane>
+          </Tabs>
+        </div>
+      </Spin>
+    </div>
   );
 };
 

@@ -19,7 +19,6 @@ const CustomUploadItem: React.FC<CustomUploadItemProps> = ({
   file,
   originNode,
   remove,
-  getFileIcon,
   handlePreview,
 }) => {
   const [hovered, setHovered] = useState<boolean>(false);

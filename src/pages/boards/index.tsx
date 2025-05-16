@@ -37,7 +37,6 @@ import AddBoardForm from "./components/AddBoardForm";
 import { generateGradient } from "../../utils";
 import { PRIVATE_ROUTE } from "../../utils/enums/route";
 import CustomButton from "../../components/ui/button";
-import ResponsiveSearch from "../../components/ui/searchResponsive";
 import {
   ArrowDownAZ,
   Check,
@@ -296,7 +295,7 @@ const Boards: React.FC = () => {
 
   const renderBoards = (boards: IBoard[]) => {
     if (boards?.length === 0) {
-      let emptyMessage = "No boards found";
+      const emptyMessage = "No boards found";
 
       return (
         <div className="empty-state">

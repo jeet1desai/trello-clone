@@ -72,10 +72,6 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
     input.click();
   };
 
-  const handleAttachmentButton = () => {
-    setShowUploadModal(true);
-  };
-
   const validateFileType = (file: File) =>
     [
       "image/jpeg",
