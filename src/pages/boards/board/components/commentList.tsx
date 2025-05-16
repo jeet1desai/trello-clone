@@ -43,7 +43,6 @@ const CommentCard: React.FC<CommentCardProps> = ({
   commentedBy,
   onDelete,
   onUpdate,
-  key,
   commentId,
 }) => {
   const { _id, profile_image, first_name, last_name } = commentedBy;

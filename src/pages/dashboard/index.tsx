@@ -1,25 +1,35 @@
 import React, { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { Typography, Card, Row, Col, Segmented, Avatar, Badge, Tag, Button, Progress } from "antd";
 import {
-  ProjectOutlined,
-  TeamOutlined,
-  CheckCircleOutlined,
-  CalendarOutlined,
-  MoreOutlined,
-  ArrowUpOutlined,
-  ClockCircleOutlined,
-  PlusOutlined,
-  UnorderedListOutlined,
-} from "@ant-design/icons";
+  Typography,
+  Card,
+  Row,
+  Col,
+  Segmented,
+  Avatar,
+  Button,
+  Progress,
+} from "antd";
 import { RootState, AppDispatch } from "../../store";
 import { ActivityChart, WorkspaceDistribution, RecentActivity } from "../../components";
 import "../../layout/styles/Dashboard.css";
 import { getAllNotification } from "../../store/slices/notificationSlice";
-import { getDashboardAnalytics, getDashboardCount, getDashboardRecentActivity } from "../../store/slices/dashboardSlice";
-import { Plus, Logs } from "lucide-react";
+import {
+  getDashboardAnalytics,
+  getDashboardCount,
+  getDashboardRecentActivity,
+} from "../../store/slices/dashboardSlice";
+import {
+  Plus,
+  Logs,
+  Calendar,
+  CircleCheck,
+  Clock,
+  UsersRound,
+  SquareKanban,
+} from "lucide-react";
 
-const { Title, Paragraph, Text } = Typography;
+const { Title, Text } = Typography;
 
 const Dashboard: React.FC = () => {
   const { dashboardCount } = useSelector((state: RootState) => state.dashboard);
@@ -54,34 +64,46 @@ const Dashboard: React.FC = () => {
       <div className="welcome-section">
         <Row gutter={[24, 24]} align="stretch">
           <Col xs={24} lg={16} className="welcome-col">
-            <Card className="welcome-card gradient-1">
+            <Card className="welcome-card gradient-7">
               <div className="welcome-background-pattern"></div>
               <Row gutter={24} align="middle" className="welcome-content">
                 <Col>
                   <div className="user-info-section">
                     <div className="user-info-avatar">
                       <div className="avatar-wrapper">
-                        <Avatar size={80} src={currentUser?.profile_image.url} className="user-avatar">
+                        <Avatar
+                          size={80}
+                          src={currentUser?.profile_image.url}
+                          className="user-avatar"
+                        >
                           {currentUser?.first_name?.[0]}
                         </Avatar>
                         <div className="online-status"></div>
                       </div>
                       <div>
                         <Title level={2} className="welcome-title">
-                          Welcome, {currentUser?.first_name ?? "User"} {currentUser?.last_name ?? "User"}!
+                          Welcome, {currentUser?.first_name ?? "User"}{" "}
+                          {currentUser?.last_name ?? "User"}!
                         </Title>
-                        <Text className="welcome-subtitle">Let's organize your tasks for today</Text>
+                        <Text className="welcome-subtitle">
+                          Let's organize your tasks for today
+                        </Text>
                       </div>
                     </div>
                     <div className="welcome-text">
                       <div className="task-stats">
                         <div className="stat-item">
                           <div className="stat-value">
-                            <CheckCircleOutlined /> {dashboardCount?.task ?? 0}
+                            <CircleCheck size={16} />{" "}
+                            {dashboardCount?.task ?? 0}
                             <span className="stat-label">Completed</span>
                           </div>
                           <Progress
-                            percent={Math.round(((dashboardCount?.task ?? 0) / (dashboardCount?.totalTask || 1)) * 100)}
+                            percent={Math.round(
+                              ((dashboardCount?.task ?? 0) /
+                                (dashboardCount?.totalTask || 1)) *
+                                100
+                            )}
                             strokeColor="#52c41a"
                             showInfo={false}
                             size="small"
@@ -89,10 +111,15 @@ const Dashboard: React.FC = () => {
                         </div>
                         <div className="stat-item">
                           <div className="stat-value">
-                            <ClockCircleOutlined /> {dashboardCount?.totalTask ?? 0}
+                            <Clock size={16} /> {dashboardCount?.totalTask ?? 0}
                             <span className="stat-label">Total Tasks</span>
                           </div>
-                          <Progress percent={100} strokeColor="#1890ff" showInfo={false} size="small" />
+                          <Progress
+                            percent={100}
+                            strokeColor="#1890ff"
+                            showInfo={false}
+                            size="small"
+                          />
                         </div>
                       </div>
                     </div>
@@ -105,7 +132,7 @@ const Dashboard: React.FC = () => {
             <Card className="date-card">
               <div className="date-content">
                 <div className="date-header">
-                  <CalendarOutlined className="calendar-icon" />
+                  <Calendar size={24} className="calendar-icon" />
                   <Text className="today-label">Today's Date</Text>
                 </div>
                 <Title level={4} className="current-date">
@@ -116,10 +143,16 @@ const Dashboard: React.FC = () => {
                   })}
                 </Title>
                 <div className="quick-actions">
-                  <Button type="primary" icon={<PlusOutlined />}>
+                  <Button
+                    type="primary"
+                    className="button"
+                    icon={<Plus size={16} />}
+                  >
                     New Task
                   </Button>
-                  <Button icon={<UnorderedListOutlined />}>View All</Button>
+                  <Button className="button" icon={<Logs size={16} />}>
+                    View All
+                  </Button>
                 </div>
               </div>
             </Card>
@@ -133,7 +166,7 @@ const Dashboard: React.FC = () => {
           <Card className="stat-card workspace-card" hoverable>
             <div className="stat-header">
               <div className="stat-icon-wrapper blue">
-                <TeamOutlined className="stat-icon" />
+                <UsersRound size={24} className="stat-icon" />
               </div>
             </div>
             <div className="stat-content">
@@ -147,7 +180,7 @@ const Dashboard: React.FC = () => {
           <Card className="stat-card board-card" hoverable>
             <div className="stat-header">
               <div className="stat-icon-wrapper green">
-                <ProjectOutlined className="stat-icon" />
+                <SquareKanban size={24} className="stat-icon" />
               </div>
             </div>
             <div className="stat-content">
@@ -161,14 +194,18 @@ const Dashboard: React.FC = () => {
           <Card className="stat-card task-card" hoverable>
             <div className="stat-header">
               <div className="stat-icon-wrapper orange">
-                <CheckCircleOutlined className="stat-icon" />
+                <CircleCheck size={24} className="stat-icon" />
               </div>
             </div>
             <div className="stat-content">
               <Title level={2}>{dashboardCount?.task ?? 0}</Title>
               <Text type="secondary">Completed Tasks</Text>
               <Progress
-                percent={Math.round(((dashboardCount?.task ?? 0) / (dashboardCount?.totalTask || 1)) * 100)}
+                percent={Math.round(
+                  ((dashboardCount?.task ?? 0) /
+                    (dashboardCount?.totalTask || 1)) *
+                    100
+                )}
                 strokeColor="#fa8c16"
                 status="active"
               />

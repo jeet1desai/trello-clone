@@ -193,7 +193,7 @@ body {
   font-size: 120px;
   line-height: 1;
   color: var(--text-primary);
-  opacity: 0.1;
+  opacity: 0.3;
   position: absolute;
   top: -60px;
   left: 50%;

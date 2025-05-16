@@ -237,7 +237,7 @@ const BoardDetail: React.FC = () => {
       dispatch(removeTask(payload));
     });
 
-    socketService.on("receive_new_task-member", (payload: any) => {
+    socketService.on("receive_new_task-member", () => {
       // if (payload.data.member_id._id === currentUser?.id) {
       if (statusList.length > 0) {
         statusList.forEach(async (status) => {
@@ -256,7 +256,7 @@ const BoardDetail: React.FC = () => {
       // }
     });
 
-    socketService.on("task-member-removed", (payload: any) => {
+    socketService.on("task-member-removed", () => {
       // if (payload.data.member_id === currentUser?.id) {
       if (statusList.length > 0) {
         statusList.forEach(async (status) => {
@@ -978,7 +978,6 @@ const BoardDetail: React.FC = () => {
                               <Droppable droppableId={list._id} type="card">
                                 {(
                                   provided: DroppableProvided,
-                                  snapshot: { isDraggingOver: boolean }
                                 ) => {
                                   return (
                                     <div

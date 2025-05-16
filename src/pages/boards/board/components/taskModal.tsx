@@ -608,7 +608,7 @@ const TaskModal: React.FC<TaskModalProps> = ({
 
   const shareCopiedLink =
     selectedTask?._id && selectedTask.board_id
-      ? `http://localhost:3000/board/${selectedTask.board_id}?task_id=${selectedTask._id}`
+      ? `${window.location}?task_id=${selectedTask._id}`
       : "";
 
   const handleCopy = () => {
@@ -736,7 +736,7 @@ const TaskModal: React.FC<TaskModalProps> = ({
 
     socketService.on("unassigned_task_member", (payload) => {
       const data = payload as ITaskAssignMember;
-      dispatch(unassignTaskMember(payload));
+      dispatch(unassignTaskMember());
       dispatch(removeAssignMemberTask(data));
     });
 
@@ -805,7 +805,7 @@ const TaskModal: React.FC<TaskModalProps> = ({
   ) => dispatch(updateTaskComment({ taskId: commentId, updateTask }));
 
   useEffect(() => {
-    async function handleClickOutside(event: MouseEvent) {
+    async function handleClickOutside() {
       setIsEditTitle(false);
       if (isEditTitle) {
         dispatch(

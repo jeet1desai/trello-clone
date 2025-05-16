@@ -1,86 +1,305 @@
+/* Profile Container */
 .profile-container {
-  max-width: 1550px;
-  margin: 0 auto;
+  min-height: 100vh;
+  padding: 24px;
 }
 
+/* Header Gradient */
+.profile-header-gradient {
+  position: relative;
+  padding: 32px;
+  margin-bottom: 32px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);
+  overflow: hidden;
+  box-shadow: 0 10px 30px -10px rgba(59, 130, 246, 0.2);
+}
+
+.profile-header-gradient::before {
+  content: '';
+  position: absolute;
+  top: -96px;
+  right: -64px;
+  width: 256px;
+  height: 256px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.15);
+  filter: blur(48px);
+}
+
+.profile-header-gradient::after {
+  content: '';
+  position: absolute;
+  bottom: -32px;
+  left: -32px;
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.15);
+  filter: blur(32px);
+}
+
+.welcome-title {
+  color: white !important;
+  margin-bottom: 8px !important;
+  position: relative;
+  z-index: 1;
+}
+
+.date-text {
+  color: rgba(255, 255, 255, 0.9) !important;
+  position: relative;
+  z-index: 1;
+}
+
+/* Profile Content */
+.profile-content {
+  max-width: 1400px;
+  margin: 0 auto;
+  animation: fadeIn 0.5s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Tabs */
+.profile-tabs .ant-tabs-nav {
+  margin-bottom: 24px !important;
+}
+
+.profile-tabs .ant-tabs-tab {
+  padding: 8px 16px;
+  transition: all 0.3s ease;
+}
+
+.profile-tabs .ant-tabs-tab-active {
+  background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);
+  border-radius: 6px;
+}
+
+.profile-tabs .ant-tabs-tab-active .ant-tabs-tab-btn {
+  color: white !important;
+}
+
+/* Cards */
+.profile-card {
+  border: none;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(59, 130, 246, 0.07);
+  overflow: hidden;
+  position: relative;
+}
+
+.profile-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 100%;
+  height: 4px;
+  background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);
+}
+
+/* Profile Header Section */
 .profile-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 24px;
-  flex-wrap: wrap;
   gap: 16px;
 }
 
-.profile-header-gradient {
-  background: var(--welcome-gradient);
-  padding: 15px;
-  border-radius: 16px;
-  margin-bottom: 24px;
-  height:'20px'
-}
-
-.profile-card {
-  border-radius: 16px;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
-  background-color: #ffffff;
-}
-
-.profile-top-section {
+.profile-avatar-section {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  margin-bottom: 32px;
+  gap: 16px;
 }
 
-.profile-name {
-  display: flex;
-  align-items: center;
-}
-
-.profile-name-wrapper {
-  margin-left: 16px;
-}
-
-.profile-name-text {
-  margin: 0;
-}
-
-.avatar-upload-wrapper {
+.avatar-wrapper {
   position: relative;
-  display: inline-block;
-  cursor: pointer;
 }
 
-.camera-overlay {
+.profile-avatar {
+  border: 4px solid white;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.12);
+  transition: all 0.3s ease;
+}
+
+.avatar-upload-overlay {
   position: absolute;
-  top: 0;
-  left: 0;
-  height: 100%;
-  width: 100%;
-  background-color: rgba(0, 0, 0, 0.4); /* semi-transparent overlay */
+  inset: 0;
   display: flex;
   align-items: center;
   justify-content: center;
+  background: rgba(59, 130, 246, 0.6);
   border-radius: 50%;
   opacity: 0;
   transition: opacity 0.3s ease;
+  cursor: pointer;
 }
 
-.avatar-upload-wrapper:hover .camera-overlay {
+.avatar-wrapper:hover .avatar-upload-overlay {
   opacity: 1;
 }
 
 .camera-icon {
   color: white;
-  font-size: 24px;
+  font-size: 20px;
 }
 
-.margintop-20 {
-  margin-top: 20px;
-}
-
-.reset-password-btn-wrapper {
+.profile-info {
   display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.profile-name {
+  margin: 0 !important;
+}
+
+.profile-email {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Form Inputs */
+.profile-input {
+  height: 40px;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.profile-input:hover {
+  border-color: #60a5fa;
+}
+
+.profile-input:focus,
+.profile-input-focused {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+}
+
+.profile-tabs .ant-tabs-tab {
+  margin: 0 !important;
+}
+
+.profile-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+/* Buttons */
+.edit-button {
+  display: flex;
+  align-items: center;
   gap: 8px;
+  height: 40px;
+  padding: 0 20px;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.edit-button.ant-btn-primary {
+  background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);
+  border: none;
+}
+
+.edit-button.ant-btn-primary:hover {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  transform: translateY(-1px);
+}
+
+.button-container {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 24px;
+}
+
+.update-password-button {
+  background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);
+  border: none;
+  height: 40px;
+  padding: 0 24px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+}
+
+.update-password-button:hover {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  transform: translateY(-1px);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .profile-container {
+    padding: 16px;
+  }
+
+  .profile-header-gradient {
+    padding: 24px;
+    margin-bottom: 24px;
+  }
+
+  .profile-header {
+    flex-direction: column;
+    gap: 16px;
+    align-items: flex-start;
+  }
+
+  .profile-avatar-section {
+    width: 100%;
+  }
+
+  .edit-button {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .update-password-button {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* Loading State */
+.ant-spin-spinning {
+  position: fixed;
+  z-index: 1000;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Form Labels */
+.ant-form-item-label > label {
+  font-weight: 500;
+}
+
+/* tab */
+.ant-tabs-ink-bar {
+  background: transparent !important;
+}
+
+/* Custom Tab Styles */
+.ant-tabs-nav .ant-tabs-tab:hover {
+  color: #3b82f6;
+}
+
+/* Input Icons */
+.ant-input-prefix {
+  color: #3b82f6;
 }
