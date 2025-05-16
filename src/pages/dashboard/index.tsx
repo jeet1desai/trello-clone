@@ -11,11 +11,7 @@ import {
   Progress,
 } from "antd";
 import { RootState, AppDispatch } from "../../store";
-import {
-  ActivityChart,
-  WorkspaceDistribution,
-  RecentActivity,
-} from "../../components";
+import { ActivityChart, WorkspaceDistribution, RecentActivity } from "../../components";
 import "../../layout/styles/Dashboard.css";
 import { getAllNotification } from "../../store/slices/notificationSlice";
 import {
@@ -220,22 +216,14 @@ const Dashboard: React.FC = () => {
 
       {/* Analytics */}
       <div className="dashboard-section">
-        <Row
-          justify="space-between"
-          align="middle"
-          style={{ marginBottom: 16 }}
-        >
+        <Row justify="space-between" align="middle" style={{ marginBottom: 16 }}>
           <Col>
             <Title level={4} style={{ margin: 0 }}>
               Analytics
             </Title>
           </Col>
           <Col>
-            <Segmented
-              options={[{ label: "Week", value: "week" }]}
-              value={timeframe}
-              onChange={setTimeframe}
-            />
+            <Segmented options={[{ label: "Week", value: "week" }]} value={timeframe} onChange={setTimeframe} />
           </Col>
         </Row>
 
