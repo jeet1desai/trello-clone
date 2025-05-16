@@ -1,18 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { Typography, Card, Row, Col, Segmented, Avatar, Button, Progress, Avatar, Badge, Tag, Button, Progress } from "antd";
+import { Typography, Card, Row, Col, Segmented, Avatar, Button, Progress } from "antd";
 import {
   ProjectOutlined,
   TeamOutlined,
   CheckCircleOutlined,
   CalendarOutlined,
   ClockCircleOutlined,
-  CalendarOutlined,
-  MoreOutlined,
-  ArrowUpOutlined,
-  ClockCircleOutlined,
-  PlusOutlined,
-  UnorderedListOutlined,
 } from "@ant-design/icons";
 import { RootState, AppDispatch } from "../../store";
 import {
@@ -29,7 +23,7 @@ import {
 } from "../../store/slices/dashboardSlice";
 import { Plus, Logs } from 'lucide-react';
 
-const { Title, Text, Text } = Typography;
+const { Title, Text } = Typography;
 
 const Dashboard: React.FC = () => {
   const { dashboardCount } = useSelector((state: RootState) => state.dashboard);
