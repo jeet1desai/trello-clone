@@ -1,6 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { Typography, Card, Row, Col, Segmented, Avatar, Button, Progress } from "antd";
+import {
+  Typography,
+  Card,
+  Row,
+  Col,
+  Segmented,
+  Avatar,
+  Button,
+  Progress,
+} from "antd";
 import {
   ProjectOutlined,
   TeamOutlined,
@@ -21,7 +30,7 @@ import {
   getDashboardCount,
   getDashboardRecentActivity,
 } from "../../store/slices/dashboardSlice";
-import { Plus, Logs } from 'lucide-react';
+import { Plus, Logs } from "lucide-react";
 
 const { Title, Text } = Typography;
 
@@ -66,7 +75,7 @@ const Dashboard: React.FC = () => {
                     <div className="avatar-wrapper">
                       <Avatar
                         size={80}
-                        src={currentUser?.profile_image.url}
+                        src={currentUser?.profile_image?.url}
                         className="user-avatar"
                       >
                         {currentUser?.first_name?.[0]}
@@ -75,7 +84,8 @@ const Dashboard: React.FC = () => {
                     </div>
                     <div className="welcome-text">
                       <Title level={2} className="welcome-title">
-                        Welcome, {currentUser?.first_name ?? "User"} {currentUser?.last_name ?? "User"}!
+                        Welcome, {currentUser?.first_name ?? "User"}{" "}
+                        {currentUser?.last_name ?? "User"}!
                       </Title>
                       <Text className="welcome-subtitle">
                         Let's organize your tasks for today
@@ -86,8 +96,12 @@ const Dashboard: React.FC = () => {
                             <CheckCircleOutlined /> {dashboardCount?.task ?? 0}
                             <span className="stat-label">Completed</span>
                           </div>
-                          <Progress 
-                            percent={Math.round(((dashboardCount?.task ?? 0) / (dashboardCount?.totalTask || 1)) * 100)}
+                          <Progress
+                            percent={Math.round(
+                              ((dashboardCount?.task ?? 0) /
+                                (dashboardCount?.totalTask || 1)) *
+                                100
+                            )}
                             strokeColor="#52c41a"
                             showInfo={false}
                             size="small"
@@ -95,10 +109,11 @@ const Dashboard: React.FC = () => {
                         </div>
                         <div className="stat-item">
                           <div className="stat-value">
-                            <ClockCircleOutlined /> {dashboardCount?.totalTask ?? 0}
+                            <ClockCircleOutlined />{" "}
+                            {dashboardCount?.totalTask ?? 0}
                             <span className="stat-label">Total Tasks</span>
                           </div>
-                          <Progress 
+                          <Progress
                             percent={100}
                             strokeColor="#1890ff"
                             showInfo={false}
@@ -120,14 +135,18 @@ const Dashboard: React.FC = () => {
                   <Text className="today-label">Today's Date</Text>
                 </div>
                 <Title level={4} className="current-date">
-                  {new Date().toLocaleDateString('en-US', { 
-                    weekday: 'long',
-                    month: 'long',
-                    day: 'numeric'
+                  {new Date().toLocaleDateString("en-US", {
+                    weekday: "long",
+                    month: "long",
+                    day: "numeric",
                   })}
                 </Title>
                 <div className="quick-actions">
-                  <Button type="primary" className="button" icon={<Plus size={16} />}>
+                  <Button
+                    type="primary"
+                    className="button"
+                    icon={<Plus size={16} />}
+                  >
                     New Task
                   </Button>
                   <Button className="button" icon={<Logs size={16} />}>
@@ -180,8 +199,12 @@ const Dashboard: React.FC = () => {
             <div className="stat-content">
               <Title level={2}>{dashboardCount?.task ?? 0}</Title>
               <Text type="secondary">Completed Tasks</Text>
-              <Progress 
-                percent={Math.round(((dashboardCount?.task??0) / (dashboardCount?.totalTask || 1)) * 100)}
+              <Progress
+                percent={Math.round(
+                  ((dashboardCount?.task ?? 0) /
+                    (dashboardCount?.totalTask || 1)) *
+                    100
+                )}
                 strokeColor="#fa8c16"
                 status="active"
               />
