@@ -10,7 +10,7 @@
 }
 
 .auth-container::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: 0;
@@ -22,11 +22,10 @@
 
 .auth-form-container {
   width: 100%;
-  max-width: 460px;
-  padding: 48px;
-  background: var(--component-bg);
-  border-radius: 16px;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  max-width: 480px;
+  padding: 32px 48px;
+  background: var(--bg-primary);
+  border-radius: 10px;
   position: relative;
   z-index: 1;
   backdrop-filter: blur(10px);
@@ -46,14 +45,10 @@
 .auth-subtitle {
   display: block;
   text-align: center;
-  margin-bottom: 32px !important;
+  margin-bottom: 24px !important;
   color: var(--text-color-secondary) !important;
   font-size: 16px !important;
   line-height: 1.5;
-}
-
-.auth-form {
-  margin-bottom: 24px;
 }
 
 .form-icon {
@@ -70,11 +65,31 @@
   gap: 4px;
 }
 
+.ant-form-item label {
+  width: 100%;
+}
+
+.ant-form-item label::after {
+  content: unset !important;
+}
+
 .auth-links {
   display: flex;
   justify-content: space-between;
   margin-top: 24px;
   gap: 16px;
+  width: 100%;
+}
+
+.ant-form-item label .auth-links {
+  margin-top: 4px;
+}
+
+.auth-signup-links {
+  margin-top: 24px;
+  text-align: center;
+  width: 100%;
+  display: block;
 }
 
 .auth-link {
@@ -108,7 +123,7 @@
 
 .social-auth-title::before,
 .social-auth-title::after {
-  content: '';
+  content: "";
   position: absolute;
   top: 50%;
   width: 30%;
