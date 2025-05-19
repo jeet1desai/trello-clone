@@ -26,6 +26,7 @@ import {
   openWorkspaceAddModal,
   getAllWorkspaces,
   clearSelectedWorkspace,
+  toggleFavorite,
 } from "../../store/slices/workspaceSlice";
 import "../../layout/styles/workspaces.css";
 import { SORT_OPTIONS, SORT_OPTIONS_VALUES } from "../../config";
@@ -44,6 +45,7 @@ import {
   Trash2,
   FolderOpen,
   CircleAlert,
+  Star,
 } from "lucide-react";
 import { Loader } from "../../components";
 
@@ -66,6 +68,7 @@ const Workspaces: React.FC = () => {
   );
   const [sortOption, setSortOption] = useState(SORT_OPTIONS_VALUES.DEFAULT);
   const [debouncedSearch, setDebouncedSearch] = useState(searchText);
+  const [hoveredBoardId, setHoveredBoardId] = useState<string | null>(null);
 
   const showAddModal = useCallback(() => {
     dispatch(openWorkspaceAddModal());
@@ -210,6 +213,8 @@ const Workspaces: React.FC = () => {
       >
         <div
           className="workspace-card-content"
+          onMouseEnter={() => setHoveredBoardId(workspace._id)}
+          onMouseLeave={() => setHoveredBoardId(null)}
           onClick={() =>
             navigate(
               generatePath(PRIVATE_ROUTE.WORKSPACE, {
@@ -228,7 +233,37 @@ const Workspaces: React.FC = () => {
               </div>
             </div>
             {workspace.createdBy._id === currentUser?.id ? (
-              <div className="workspace-card-actions">
+              <div className="workspace-card-actions"
+              onClick={(e) => {
+                          dispatch(toggleFavorite({ workspaceId: workspace._id, isFavorite: !workspace.isFavorite }));
+                          e.stopPropagation();
+                        }}
+                style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+                <div style={{
+                  display: 'flex',
+                  top: 0,
+                  right: 0,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  width: '24px',
+                  height: '24px',
+                  overflow: 'hidden',
+                  transition: 'transform 0.2s ease-in-out 0.2s',
+                  borderRadius: '6px',
+                  backgroundColor: workspace.isFavorite || hoveredBoardId === workspace._id ?'hsla(0, 0%, 0%, 0.25)' : ""
+                }}>
+                  <Star
+                    size={18}
+                    style={{
+                      fill: workspace.isFavorite ? "#fff" : "none",
+                      stroke: "#fff",
+                      visibility: workspace.isFavorite || hoveredBoardId === workspace._id ? "visible" : "hidden",
+                      right: "15px",
+                      top: "15px",
+                      transition: "fill 0.2s, stroke 0.2s",
+                    }}
+                  />
+                </div>
                 <Dropdown
                   menu={{
                     items: moreMenu,

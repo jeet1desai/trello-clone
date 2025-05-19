@@ -19,6 +19,7 @@ export interface IBoard {
     _id: string;
     name: string;
   };
+  isFavorite: boolean;
   members: IMember[];
   createdAt: string;
   updatedAt: string;
@@ -750,6 +751,26 @@ export const duplicateTask = createAsyncThunk(
   }
 );
 
+export const toggleFavorite = createAsyncThunk(
+  "board/favorite",
+  async ({
+      boardId,
+      isFavorite,
+    }: {
+      boardId: string;
+      isFavorite: boolean;
+    }, { rejectWithValue }) => {
+    try {
+      const response = await boardService.toggleFavorite(boardId, isFavorite);
+      return response;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message ?? "Error while favourite board."
+      );
+    }
+  }
+);
+
 const boardSlice = createSlice({
   name: "board",
   initialState,
@@ -1414,7 +1435,6 @@ const boardSlice = createSlice({
         state.success = null;
       })
       .addCase(duplicateTask.fulfilled, (state, action) => {
-        console.log('1111', action.payload)
         state.loading = false;
         state.error = null;
         state.success = "Duplicate ticket created successfully.";
@@ -1424,7 +1444,34 @@ const boardSlice = createSlice({
         state.success = null;
         state.error =
           (action.payload as string) || "Error while fetching workspaces.";
-      });;
+      })
+
+      // Board favourite
+      .addCase(toggleFavorite.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.success = null;
+      })
+      .addCase(toggleFavorite.fulfilled, (state, action) => {
+        state.boards = state.boards.map((item) =>
+          item._id === action.payload.data.boardId
+            ? {
+              ...item,
+              isFavorite: action.payload.data.isFavorite,
+            }
+            : item
+        );
+        state.loading = false;
+        state.error = null;
+        state.success = action.payload.message;
+      })
+      .addCase(toggleFavorite.rejected, (state, action) => {
+        state.loading = false;
+        state.boards = [];
+        state.success = null;
+        state.error =
+          (action.payload as string) || "Error while fetching workspace.";
+      });
   },
 });
 

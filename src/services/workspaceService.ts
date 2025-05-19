@@ -54,4 +54,11 @@ export const workspaceService = {
     );
     return response.data;
   },
+
+  async toggleFavorite(workspaceId: string, isFavorite: boolean) {
+    const response = await axiosInstance.put(
+      `${API_URL}/workspace/favorite/${workspaceId}`, {isFavorite}
+    );
+    return response.data;
+  },
 };

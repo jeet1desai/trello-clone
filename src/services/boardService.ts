@@ -198,4 +198,11 @@ export const boardService = {
     );
     return response.data;
   },
+
+  async toggleFavorite(boardId: string, isFavorite: boolean) {
+    const response = await axiosInstance.put(
+      `${API_URL}/board/favorite/${boardId}`, {isFavorite}
+    );
+    return response.data;
+  },
 };
