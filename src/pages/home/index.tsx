@@ -3,7 +3,12 @@ import { Typography, Space, Button, Row, Col, Avatar } from "antd";
 import { Link } from "react-router-dom";
 import "../../layout/styles/home.css";
 import { PUBLIC_ROUTE } from "../../utils/enums/route";
-import { partnerLogos, teamAvatars, integrationLogos } from "../../assets";
+import {
+  partnerLogos,
+  teamAvatars,
+  integrationLogos,
+  landingPageBackground,
+} from "../../assets";
 import { ArrowRight, LayoutDashboard, Split, Zap } from "lucide-react";
 
 const { Title, Paragraph, Text } = Typography;
@@ -12,7 +17,16 @@ const Home: React.FC = () => {
   return (
     <div className="home-container">
       {/* Hero Section */}
-      <div className="hero-wrapper">
+      <div
+        className="hero-wrapper"
+        style={{
+          backgroundImage: `url(${landingPageBackground})`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundBlendMode: "difference",
+          backgroundRepeat: "no-repeat",
+        }}
+      >
         <div className="floating-avatars">
           {teamAvatars.map((avatar, index) => (
             <div key={index} className={`avatar-wrapper avatar-${index + 1}`}>

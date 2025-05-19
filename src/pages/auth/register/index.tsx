@@ -7,6 +7,7 @@ import { clearAuthState, registerUser } from "../../../store/slices/userSlice";
 import "../../../layout/styles/Auth.css";
 import { PUBLIC_ROUTE } from "../../../utils/enums/route";
 import { LockKeyhole, Mail, UserRound } from "lucide-react";
+import { companyLogo } from "../../../assets";
 
 const { Title, Text } = Typography;
 
@@ -41,7 +42,12 @@ const Register: React.FC = () => {
 
   return (
     <div className="auth-container">
-      <div className="auth-form-container">
+      <div className="auth-form-container flex">
+        <img
+          src={companyLogo}
+          alt="BaseTeam"
+          style={{ width: "14%", borderRadius: "8px", marginBottom: "8px" }}
+        />
         <Title level={2} className="auth-title">
           Create Account
         </Title>
@@ -187,7 +193,7 @@ const Register: React.FC = () => {
           </Form.Item>
         </Form>
 
-        <div className="social-buttons">
+        <div className="social-buttons link">
           <Text>
             Already have an account?{" "}
             <Link to={PUBLIC_ROUTE.LOGIN} className="auth-link">

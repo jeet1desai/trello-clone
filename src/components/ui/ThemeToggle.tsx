@@ -13,6 +13,7 @@ const ThemeToggle: React.FC<ThemeToggleProps> = ({ style }) => {
 
   return (
     <Button
+      id="nav-theme"
       type="text"
       icon={
         isDark ? (

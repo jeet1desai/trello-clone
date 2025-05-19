@@ -9,7 +9,6 @@ import {
   App,
   Popover,
   Empty,
-  Result,
   Divider,
   Badge,
 } from "antd";
@@ -1068,10 +1067,7 @@ const BoardDetail: React.FC = () => {
             flexDirection: "column",
           }}
         >
-          <Result
-            icon={<Smile size={100} />}
-            title="Your board looks empty, but full of love!"
-          />
+          <Empty description="Nothing to show on board at the moment. Please try after some time." />
         </div>
       )}
 

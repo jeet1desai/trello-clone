@@ -268,6 +268,7 @@ const Header: React.FC = () => {
                 </Badge>
               }
               className="notification-trigger"
+              id="nav-notifications"
             />
           </Popover>
 

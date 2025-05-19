@@ -54,7 +54,7 @@ const NavigationLinks = () => {
       ].map((item) => {
         const isActive = isActivePath(item.path);
         return (
-          <Menu.Item key={item.label}>
+          <Menu.Item key={item.label} style={{ backgroundColor: "initial" }}>
             <Button
               onClick={() => {
                 setDrawerVisible(false);
@@ -93,6 +93,7 @@ const NavigationLinks = () => {
   return isMobile ? (
     <>
       <Button
+        id="nav-menu"
         icon={<MenuIcon size={20} />}
         onClick={() => setDrawerVisible(true)}
       />
@@ -111,6 +112,10 @@ const NavigationLinks = () => {
     <div className="navigation-container">
       {navItems.map((item) => {
         const isActive = isActivePath(item.path);
+        let navId = undefined;
+        if (item.label === "Workspaces") navId = "nav-workspaces";
+        if (item.label === "Boards") navId = "nav-boards";
+        if (item.label === "Invitations") navId = "nav-invitations";
         return (
           <Button
             key={item.path}
@@ -118,6 +123,7 @@ const NavigationLinks = () => {
             className={`navigate-btn-padding ${
               isActive ? "active-link" : "navigate-link"
             }`}
+            id={navId}
             onClick={() => navigate(item.path)}
           >
             {item.label}

@@ -20,7 +20,7 @@ import {
 } from "../../store/slices/dashboardSlice";
 import { getRandomColor } from "../../utils";
 
-const { Title, Text } = Typography;
+const { Text } = Typography;
 
 const getIconForType = (type: string) => {
   switch (type.toLowerCase()) {
@@ -189,8 +189,13 @@ const RecentActivity: React.FC = () => {
   };
 
   return (
-    <Card bordered={false} className="dashboard-card">
-      <Title level={4}>Recent Activity</Title>
+    <Card
+      title="Recent Activity"
+      style={{
+        marginBottom: 16,
+        borderRadius: 12,
+      }}
+    >
       {renderContent()}
     </Card>
   );

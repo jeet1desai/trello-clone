@@ -12,6 +12,7 @@ import "../../../layout/styles/Auth.css";
 import { PUBLIC_ROUTE } from "../../../utils/enums/route";
 import { LockKeyhole, Mail } from "lucide-react";
 import OtpInput from "../../../components/ui/otpUI";
+import { companyLogo } from "../../../assets";
 
 const { Title, Text } = Typography;
 
@@ -43,7 +44,12 @@ const ForgotPassword: React.FC = () => {
 
   return (
     <div className="auth-container">
-      <div className="auth-form-container">
+      <div className="auth-form-container flex">
+        <img
+          src={companyLogo}
+          alt="BaseTeam"
+          style={{ width: "14%", borderRadius: "8px", marginBottom: "8px" }}
+        />
         <Title level={2} className="auth-title">
           Forgot Password
         </Title>

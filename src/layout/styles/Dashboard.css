@@ -32,10 +32,6 @@
 }
 
 /* Welcome Section Styles */
-.welcome-section {
-  padding: 24px 0;
-}
-
 .welcome-section .ant-row {
   height: 100%;
 }
@@ -45,16 +41,27 @@
   display: flex;
 }
 
+.welcome-col {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.ant-card-body {
+  padding: 12px 24px 24px 24px;
+}
+
 .welcome-title {
   color: white !important;
   margin: 0 0 6px 0 !important;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  font-size: 22px !important;
 }
 
 .welcome-subtitle {
   color: rgba(255, 255, 255, 0.85) !important;
   margin-bottom: 0 !important;
-  font-size: 16px;
+  font-size: 14px;
   display: block;
   margin-bottom: 24px;
 }
@@ -62,7 +69,7 @@
 .welcome-card {
   width: 100%;
   border: none;
-  border-radius: 20px;
+  border-radius: 12px;
   overflow: hidden;
   position: relative;
 }
@@ -112,8 +119,10 @@
   right: 0;
   bottom: 0;
   opacity: 0.1;
-  background: linear-gradient(45deg, #ffffff 25%, transparent 25%), linear-gradient(-45deg, #ffffff 25%, transparent 25%),
-    linear-gradient(45deg, transparent 75%, #ffffff 75%), linear-gradient(-45deg, transparent 75%, #ffffff 75%);
+  background: linear-gradient(45deg, #ffffff 25%, transparent 25%),
+    linear-gradient(-45deg, #ffffff 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #ffffff 75%),
+    linear-gradient(-45deg, transparent 75%, #ffffff 75%);
   background-size: 20px 20px;
   background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
   animation: pattern-move 20s linear infinite;
@@ -144,7 +153,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 24px;
+  margin-bottom: 16px;
 }
 
 .stat-icon-wrapper {
@@ -158,10 +167,6 @@
 
 .stat-icon {
   font-size: 24px;
-}
-
-.stat-content {
-  margin-bottom: 16px;
 }
 
 .stat-content h2 {
@@ -218,7 +223,7 @@
 .task-stats {
   display: flex;
   gap: 32px;
-  margin-top: 20px;
+  margin-top: 8px;
 }
 
 .task-stats .stat-item:first-child {
@@ -278,7 +283,7 @@
 .date-card {
   width: 100%;
   height: 100% !important;
-  border-radius: 20px;
+  border-radius: 12px;
   background: white;
 }
 
@@ -299,9 +304,10 @@
 }
 
 .date-header {
+  margin-bottom: 12px;
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 4px;
 }
 
 .calendar-icon {
@@ -473,6 +479,43 @@
   backdrop-filter: blur(2px);
 }
 
+.guide-container {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  width: 100%;
+  border: none;
+  border-radius: 12px;
+  overflow: hidden;
+  background: linear-gradient(135deg, #e0e7ff 0%, #f0f5ff 100%);
+}
+
+.tip-item-1 {
+  background: #fffbe6;
+  border-radius: 8px;
+  padding: 12px;
+  font-style: italic;
+  color: #ad8b00;
+  font-size: 14px;
+  text-align: center;
+  box-shadow: 0 1px 4px #f0e6d2;
+}
+
+.tip-item-2 {
+  background: #ecffe6;
+  border-radius: 8px;
+  padding: 12px;
+  font-style: italic;
+  color: #1aad00;
+  font-size: 14px;
+  text-align: center;
+  box-shadow: 0 1px 4px #d8f0d2;
+}
+
+.theme-dark .ant-picker-panel {
+  background-color: #1d1d1d !important;
+}
+
 /* Utility Classes */
 .font-24 {
   font-size: 24px;
@@ -504,12 +547,12 @@
   }
 
   .welcome-title {
-    font-size: 24px !important;
+    font-size: 18px !important;
     margin-bottom: 4px !important;
   }
 
   .welcome-subtitle {
-    font-size: 14px;
+    font-size: 12px;
     margin-bottom: 16px;
   }
 
