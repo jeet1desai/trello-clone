@@ -25,11 +25,10 @@
 
 .auth-form-container {
   width: 100%;
-  max-width: 460px;
-  padding: 36px 42px;
-  background: var(--component-bg);
-  border-radius: 16px;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  max-width: 480px;
+  padding: 32px 36px 42px;
+  background: var(--bg-primary);
+  border-radius: 10px;
   position: relative;
   z-index: 1;
   backdrop-filter: blur(10px);
@@ -84,11 +83,31 @@
   margin-top: 16px;
 }
 
+.ant-form-item label {
+  width: 100%;
+}
+
+.ant-form-item label::after {
+  content: unset !important;
+}
+
 .auth-links {
   display: flex;
   justify-content: space-between;
   margin-top: 24px;
   gap: 16px;
+  width: 100%;
+}
+
+.ant-form-item label .auth-links {
+  margin-top: 4px;
+}
+
+.auth-signup-links {
+  margin-top: 24px;
+  text-align: center;
+  width: 100%;
+  display: block;
 }
 
 .auth-link {

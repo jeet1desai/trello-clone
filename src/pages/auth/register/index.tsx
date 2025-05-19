@@ -15,9 +15,7 @@ const Register: React.FC = () => {
   const [form] = Form.useForm();
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
-  const { loading, registrationSuccess } = useSelector(
-    (state: RootState) => state.user
-  );
+  const { loading, registrationSuccess } = useSelector((state: RootState) => state.user);
 
   useEffect(() => {
     // Clear any previous auth states
@@ -31,12 +29,7 @@ const Register: React.FC = () => {
     }
   }, [registrationSuccess, navigate]);
 
-  const handleSubmit = async (values: {
-    first_name: string;
-    last_name: string;
-    email: string;
-    password: string;
-  }) => {
+  const handleSubmit = async (values: { first_name: string; last_name: string; email: string; password: string }) => {
     await dispatch(registerUser(values));
   };
 
@@ -83,11 +76,7 @@ const Register: React.FC = () => {
               { max: 50, message: "First Name must not exceed 50 characters" },
             ]}
           >
-            <Input
-              prefix={<UserRound size={16} className="form-icon" />}
-              placeholder="Enter your first name"
-              className="form-input"
-            />
+            <Input prefix={<UserRound size={16} className="form-icon" />} placeholder="Enter your first name" className="form-input" />
           </Form.Item>
 
           <Form.Item
@@ -102,11 +91,7 @@ const Register: React.FC = () => {
               { max: 50, message: "Last Name must not exceed 50 characters" },
             ]}
           >
-            <Input
-              prefix={<UserRound size={16} className="form-icon" />}
-              placeholder="Enter your last name"
-              className="form-input"
-            />
+            <Input prefix={<UserRound size={16} className="form-icon" />} placeholder="Enter your last name" className="form-input" />
           </Form.Item>
 
           <Form.Item
@@ -121,11 +106,7 @@ const Register: React.FC = () => {
               { type: "email", message: "Invalid email address" },
             ]}
           >
-            <Input
-              prefix={<Mail size={16} className="form-icon" />}
-              placeholder="Enter your email"
-              className="form-input"
-            />
+            <Input prefix={<Mail size={16} className="form-icon" />} placeholder="Enter your email" className="form-input" />
           </Form.Item>
 
           <Form.Item
@@ -139,18 +120,12 @@ const Register: React.FC = () => {
               { required: true, message: "Password is required" },
               { min: 8, message: "Password must be at least 8 characters" },
               {
-                pattern:
-                  /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
-                message:
-                  "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character",
+                pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
+                message: "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character",
               },
             ]}
           >
-            <Input.Password
-              prefix={<LockKeyhole size={16} className="form-icon" />}
-              placeholder="Enter your password"
-              className="form-input"
-            />
+            <Input.Password prefix={<LockKeyhole size={16} className="form-icon" />} placeholder="Enter your password" className="form-input" />
           </Form.Item>
 
           <Form.Item
@@ -173,34 +148,22 @@ const Register: React.FC = () => {
               }),
             ]}
           >
-            <Input.Password
-              prefix={<LockKeyhole size={16} className="form-icon" />}
-              placeholder="Confirm your password"
-              className="form-input"
-            />
+            <Input.Password prefix={<LockKeyhole size={16} className="form-icon" />} placeholder="Confirm your password" className="form-input" />
           </Form.Item>
 
           <Form.Item>
-            <Button
-              type="primary"
-              htmlType="submit"
-              className="button"
-              loading={loading}
-              block
-            >
+            <Button type="primary" htmlType="submit" className="button" loading={loading} block>
               Create Account
             </Button>
           </Form.Item>
         </Form>
 
-        <div className="social-buttons link">
-          <Text>
-            Already have an account?{" "}
-            <Link to={PUBLIC_ROUTE.LOGIN} className="auth-link">
-              Login
-            </Link>
-          </Text>
-        </div>
+        <Text className="link">
+          Already have an account?{" "}
+          <Link to={PUBLIC_ROUTE.LOGIN} className="auth-link">
+            Login
+          </Link>
+        </Text>
       </div>
     </div>
   );

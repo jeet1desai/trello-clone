@@ -19,9 +19,7 @@ const Login: React.FC = () => {
   const [form] = Form.useForm();
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
-  const { loading, isAuthenticated } = useSelector(
-    (state: RootState) => state.user
-  );
+  const { loading, isAuthenticated } = useSelector((state: RootState) => state.user);
 
   useEffect(() => {
     // Clear any previous auth states
@@ -36,9 +34,7 @@ const Login: React.FC = () => {
   }, [isAuthenticated, navigate]);
 
   const handleSubmit = async (values: { email: string; password: string }) => {
-    await dispatch(
-      loginUser({ email: values.email, password: values.password })
-    );
+    await dispatch(loginUser({ email: values.email, password: values.password }));
   };
 
   return (
@@ -77,19 +73,21 @@ const Login: React.FC = () => {
               { type: "email", message: "Please enter a valid email address" },
             ]}
           >
-            <Input
-              prefix={<UserRound size={16} className="form-icon" />}
-              placeholder="Enter your email"
-              size="large"
-              className="form-input"
-            />
+            <Input prefix={<UserRound size={16} className="form-icon" />} placeholder="Enter your email" size="large" className="form-input" />
           </Form.Item>
 
           <Form.Item
             label={
-              <span className="input-label">
-                Password <span className="require-mark">*</span>
-              </span>
+              <div className="auth-links">
+                <span className="input-label">
+                  Password <span className="require-mark">*</span>
+                </span>
+                <Text>
+                  <Link to={PUBLIC_ROUTE.FORGOT_PASSWORD} className="auth-link">
+                    Forgot Password?
+                  </Link>
+                </Text>
+              </div>
             }
             name="password"
             rules={[
@@ -106,32 +104,17 @@ const Login: React.FC = () => {
           </Form.Item>
 
           <Form.Item>
-            <Button
-              type="primary"
-              htmlType="submit"
-              className="button"
-              loading={loading}
-              block
-              size="large"
-              disabled={loading}
-            >
+            <Button type="primary" htmlType="submit" className="button" loading={loading} block size="large" disabled={loading}>
               Sign In
             </Button>
           </Form.Item>
 
-          <div className="auth-links">
-            <Text>
-              <Link to={PUBLIC_ROUTE.FORGOT_PASSWORD} className="auth-link">
-                Forgot Password?
-              </Link>
-            </Text>
-            <Text>
-              Don&apos;t have an account?{" "}
-              <Link to={PUBLIC_ROUTE.REGISTRATION} className="auth-link">
-                Sign Up
-              </Link>
-            </Text>
-          </div>
+          <Text className="auth-signup-links">
+            Don't have an account?{" "}
+            <Link to={PUBLIC_ROUTE.REGISTRATION} className="auth-link">
+              Sign Up
+            </Link>
+          </Text>
 
           <div className="social-auth">
             <Divider className="social-auth-title">Or continue with</Divider>
