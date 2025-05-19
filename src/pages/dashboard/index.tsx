@@ -10,13 +10,6 @@ import {
   Button,
   Progress,
 } from "antd";
-import {
-  ProjectOutlined,
-  TeamOutlined,
-  CheckCircleOutlined,
-  CalendarOutlined,
-  ClockCircleOutlined,
-} from "@ant-design/icons";
 import { RootState, AppDispatch } from "../../store";
 import {
   ActivityChart,
@@ -30,7 +23,15 @@ import {
   getDashboardCount,
   getDashboardRecentActivity,
 } from "../../store/slices/dashboardSlice";
-import { Plus, Logs } from "lucide-react";
+import {
+  Plus,
+  Logs,
+  Calendar,
+  CircleCheck,
+  Clock,
+  UsersRound,
+  SquareKanban,
+} from "lucide-react";
 
 const { Title, Text } = Typography;
 
@@ -72,28 +73,33 @@ const Dashboard: React.FC = () => {
               <Row gutter={24} align="middle" className="welcome-content">
                 <Col>
                   <div className="user-info-section">
-                    <div className="avatar-wrapper">
-                      <Avatar
-                        size={80}
-                        src={currentUser?.profile_image?.url}
-                        className="user-avatar"
-                      >
-                        {currentUser?.first_name?.[0]}
-                      </Avatar>
-                      <div className="online-status"></div>
+                    <div className="user-info-avatar">
+                      <div className="avatar-wrapper">
+                        <Avatar
+                          size={80}
+                          src={currentUser?.profile_image.url}
+                          className="user-avatar"
+                        >
+                          {currentUser?.first_name?.[0]}
+                        </Avatar>
+                        <div className="online-status"></div>
+                      </div>
+                      <div>
+                        <Title level={2} className="welcome-title">
+                          Welcome, {currentUser?.first_name ?? "User"}{" "}
+                          {currentUser?.last_name ?? "User"}!
+                        </Title>
+                        <Text className="welcome-subtitle">
+                          Let's organize your tasks for today
+                        </Text>
+                      </div>
                     </div>
                     <div className="welcome-text">
-                      <Title level={2} className="welcome-title">
-                        Welcome, {currentUser?.first_name ?? "User"}{" "}
-                        {currentUser?.last_name ?? "User"}!
-                      </Title>
-                      <Text className="welcome-subtitle">
-                        Let's organize your tasks for today
-                      </Text>
                       <div className="task-stats">
                         <div className="stat-item">
                           <div className="stat-value">
-                            <CheckCircleOutlined /> {dashboardCount?.task ?? 0}
+                            <CircleCheck size={16} />{" "}
+                            {dashboardCount?.task ?? 0}
                             <span className="stat-label">Completed</span>
                           </div>
                           <Progress
@@ -109,8 +115,7 @@ const Dashboard: React.FC = () => {
                         </div>
                         <div className="stat-item">
                           <div className="stat-value">
-                            <ClockCircleOutlined />{" "}
-                            {dashboardCount?.totalTask ?? 0}
+                            <Clock size={16} /> {dashboardCount?.totalTask ?? 0}
                             <span className="stat-label">Total Tasks</span>
                           </div>
                           <Progress
@@ -131,7 +136,7 @@ const Dashboard: React.FC = () => {
             <Card className="date-card">
               <div className="date-content">
                 <div className="date-header">
-                  <CalendarOutlined className="calendar-icon" />
+                  <Calendar size={24} className="calendar-icon" />
                   <Text className="today-label">Today's Date</Text>
                 </div>
                 <Title level={4} className="current-date">
@@ -165,7 +170,7 @@ const Dashboard: React.FC = () => {
           <Card className="stat-card workspace-card" hoverable>
             <div className="stat-header">
               <div className="stat-icon-wrapper blue">
-                <TeamOutlined className="stat-icon" />
+                <UsersRound size={24} className="stat-icon" />
               </div>
             </div>
             <div className="stat-content">
@@ -179,7 +184,7 @@ const Dashboard: React.FC = () => {
           <Card className="stat-card board-card" hoverable>
             <div className="stat-header">
               <div className="stat-icon-wrapper green">
-                <ProjectOutlined className="stat-icon" />
+                <SquareKanban size={24} className="stat-icon" />
               </div>
             </div>
             <div className="stat-content">
@@ -193,7 +198,7 @@ const Dashboard: React.FC = () => {
           <Card className="stat-card task-card" hoverable>
             <div className="stat-header">
               <div className="stat-icon-wrapper orange">
-                <CheckCircleOutlined className="stat-icon" />
+                <CircleCheck size={24} className="stat-icon" />
               </div>
             </div>
             <div className="stat-content">

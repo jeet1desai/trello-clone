@@ -123,7 +123,7 @@ const Home: React.FC = () => {
           <br />
           That's why we integrate tools you use in your day-to-day work.
         </Paragraph>
-        <Link to="/integrations" className="all-integrations-link">
+        <Link to="/login" className="all-integrations-link">
           All Integrations <ArrowRight size={16} />
         </Link>
         <div className="carousel-container">
