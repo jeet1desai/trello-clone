@@ -1,42 +1,57 @@
-import React from 'react';
-import { Spin, SpinProps } from 'antd';
-import { LoadingOutlined } from '@ant-design/icons';
+import React, { useEffect, useState } from 'react';
+import { Wrench, BriefcaseBusiness, Check } from 'lucide-react';
+import './FunnelLoader.css';
 
-export interface LoaderProps extends Omit<SpinProps, 'size'> {
+export interface LoaderProps {
   fullScreen?: boolean;
-  size?: 'small' | 'default' | 'large' | number;
+  loading?: boolean;
+  children?: React.ReactNode;
 }
 
-const Loader: React.FC<LoaderProps> = ({ 
-  fullScreen = false, 
-  size = 'large',
-  ...props 
-}) => {
-  const antIcon = <LoadingOutlined style={{ fontSize: typeof size === 'number' ? size : 24 }} spin />;
-  
-  // Convert number size to standard size for Ant Design Spin
-  const spinSize = typeof size === 'number' ? 'large' : size;
+const icons = [Wrench, BriefcaseBusiness, Check];
+
+const MagicWandLoader: React.FC = () => {
+  const [iconIndex, setIconIndex] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setIconIndex((prev) => (prev + 1) % icons.length);
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const Icon = icons[iconIndex];
+
+  return (
+    <div className="magic-loader-container">
+      <div className="magic-loader-circle color-animate">
+        <Icon size={32} className="magic-wand-icon spin-animate" />
+      </div>
+      <div className="magic-loader-message">Loading...</div>
+    </div>
+  );
+};
+
+const Loader: React.FC<LoaderProps> = ({ fullScreen = false, loading = true, children }) => {
+  if (!loading) return <>{children}</>;
 
   if (fullScreen) {
     return (
-      <div style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        background: 'rgba(255, 255, 255, 0.8)',
-        zIndex: 9999
-      }}>
-        <Spin indicator={antIcon} size={spinSize} {...props} />
+      <div className="loader-fullscreen-bg">
+        <MagicWandLoader />
       </div>
     );
   }
-  
-  return <Spin indicator={antIcon} size={spinSize} {...props} />;
+
+  return (
+    <div className="loader-overlay-wrapper">
+      {children && <div className="loader-children">{children}</div>}
+      <div className="loader-overlay-bg" />
+      <div className="loader-overlay-center">
+        <MagicWandLoader />
+      </div>
+    </div>
+  );
 };
 
 export default Loader; 

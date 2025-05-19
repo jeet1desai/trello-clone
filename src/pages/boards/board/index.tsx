@@ -6,9 +6,7 @@ import {
   Space,
   Card,
   Tooltip,
-  Spin,
   App,
-  Checkbox,
   Popover,
   Empty,
   Result,
@@ -45,7 +43,7 @@ import {
   updateStatusPosition,
 } from "../../../store/slices/statusSlice";
 import Paragraph from "antd/es/typography/Paragraph";
-import { Input } from "../../../components";
+import { Input, Loader } from "../../../components";
 import AddTaskForm from "./components/addTaskForm";
 import {
   ITask,
@@ -85,6 +83,7 @@ import {
   Clock,
   Smile,
 } from "lucide-react";
+import BoardFilter from "./components/boardFilter";
 
 const { Title, Text } = Typography;
 
@@ -640,7 +639,7 @@ const BoardDetail: React.FC = () => {
 
   return (
     <>
-      <Spin spinning={statusLoading || taskLoading} fullscreen />
+      <Loader loading={statusLoading || taskLoading} fullScreen />
       <div className="board-header">
         <div>
           <Space size={16}>
@@ -657,69 +656,28 @@ const BoardDetail: React.FC = () => {
             <Popover
               open={filterOpen}
               content={
-                <div className="custom-filter-content">
-                  <Checkbox
-                    value="all"
-                    checked={
-                      selectedFilters.includes("all") ||
-                      selectedFilters?.length === invitedMemberList?.length
-                    }
-                    onChange={(e) => {
-                      handleMemberFilter(e);
-                    }}
-                  >
-                    All
-                  </Checkbox>
-                  <Checkbox checked={true}>Me</Checkbox>
-                  {invitedMemberList
-                    ?.filter(
-                      (member) => member.memberId._id !== currentUser?.id
-                    )
-                    ?.map((member) => (
-                      <Checkbox
-                        value={member.memberId._id}
-                        key={member._id}
-                        checked={
-                          selectedFilters.includes(member.memberId._id) ||
-                          selectedFilters.includes("all")
-                        }
-                        onChange={(e) => handleMemberFilter(e)}
-                      >
-                        <div
-                          style={{
-                            display: "flex",
-                            gap: 4,
-                            alignItems: "center",
-                          }}
-                        >
-                          <Avatar
-                            style={{
-                              background: getRandomColor(member.memberId?._id),
-                              width: "26px",
-                              height: "26px",
-                            }}
-                          >
-                            <p style={{ fontSize: "11px" }}>
-                              {member.memberId.first_name?.[0]?.toUpperCase()}
-                              {member.memberId.last_name?.[0]?.toUpperCase()}
-                            </p>
-                          </Avatar>
-                          {member.memberId.first_name}{" "}
-                          {member.memberId.last_name ?? ""}
-                        </div>
-                      </Checkbox>
-                    ))}
-                </div>
+                <BoardFilter
+                  selectedFilters={selectedFilters}
+                  handleMemberFilter={handleMemberFilter}
+                />
               }
               title={
-                <div className="custom-filter-popup">
-                  <p style={{ margin: 0 }}>Filter</p>
-                  <X
-                    size={16}
-                    style={{ cursor: "pointer" }}
-                    onClick={() => setFilterOpen(false)}
-                  />
-                </div>
+                <>
+                  <div className="custom-filter-popup">
+                    <div>
+                      <p style={{ margin: 0 }}>Filter Properties</p>
+                      <Text className="filter-subtext">
+                        Select properties that you want to see on the board.
+                      </Text>
+                    </div>
+                    <X
+                      size={16}
+                      style={{ cursor: "pointer" }}
+                      onClick={() => setFilterOpen(false)}
+                    />
+                  </div>
+                  <Divider />
+                </>
               }
               trigger="click"
               placement="bottom"
@@ -976,9 +934,7 @@ const BoardDetail: React.FC = () => {
                               ) : null}
 
                               <Droppable droppableId={list._id} type="card">
-                                {(
-                                  provided: DroppableProvided,
-                                ) => {
+                                {(provided: DroppableProvided) => {
                                   return (
                                     <div
                                       ref={provided.innerRef}

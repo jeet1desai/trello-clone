@@ -6,7 +6,6 @@ import {
   Typography,
   Image,
   Upload,
-  Spin,
   Popover,
   Tooltip,
   List,
@@ -50,7 +49,7 @@ import {
   updateTaskComment,
 } from "../../../../store/slices/taskCommentSlice";
 import { RcFile } from "antd/es/upload";
-import { Input } from "../../../../components";
+import { Input, Loader } from "../../../../components";
 import CommentCard from "./commentList";
 import {
   deleteTaskAttachment,
@@ -474,7 +473,7 @@ const TaskModal: React.FC<TaskModalProps> = ({
           <div className="member-title">Card members</div>
           <List
             dataSource={searchMembers ? searchTaskMembers : selectedTaskMembers}
-            renderItem={(member:any) => (
+            renderItem={(member: any) => (
               <List.Item className="members-list">
                 <div style={{ display: "flex", alignItems: "center" }}>
                   <Avatar
@@ -854,9 +853,9 @@ const TaskModal: React.FC<TaskModalProps> = ({
       footer={null}
       className="task-modal"
     >
-      <Spin
-        spinning={loading || taskLoading || taskAttachmentLoading}
-        fullscreen
+      <Loader
+        loading={loading || taskLoading || taskAttachmentLoading}
+        fullScreen
       />
       <div className="task-header">
         <Checkbox
@@ -1109,16 +1108,29 @@ const TaskModal: React.FC<TaskModalProps> = ({
                   />
                 </Popover>
               </div>
-              <Button
-                type="default"
-                className="button small-btn"
-                style={{ marginTop: 0, marginLeft: "-22px", color: 'gray' }}
-                onClick={() => dispatch(duplicateTask(selectedTask?._id ?? ""))}>
-                <Space>
-                  <CopyOutlined size={16} />
-                  Duplicate
-                </Space>
-              </Button>
+              <div className="task-section">
+                <div className="task-section-title-desc">
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "8px",
+                    }}
+                  >
+                    <CopyOutlined size={16} />
+                    <Text strong>Duplicate</Text>
+                  </div>
+                  <Button
+                    type="default"
+                    shape="circle"
+                    className="button small-btn"
+                    icon={<CopyOutlined size={16} />}
+                    onClick={() =>
+                      dispatch(duplicateTask(selectedTask?._id ?? ""))
+                    }
+                  />
+                </div>
+              </div>
             </div>
             <div className="task-section">
               <div className="task-section-title-desc">

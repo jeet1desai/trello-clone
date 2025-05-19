@@ -295,7 +295,6 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  padding: 24px;
   text-align: center;
 }
 
@@ -303,36 +302,25 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  margin-bottom: 16px;
 }
 
 .calendar-icon {
-  font-size: 24px;
-  color: #1890ff;
+  font-size: 28px;
+  color: #4f8cff;
+  animation: float 2.5s ease-in-out infinite;
 }
 
-.today-label {
-  color: #8c8c8c;
-  font-size: 14px;
+.motivational-quote {
+  color: #5f6caf;
+  font-size: 1rem;
+  font-style: italic;
+  margin-bottom: 18px;
+  margin-top: 0;
+  opacity: 0.85;
 }
 
-.current-date {
-  color: #262626;
-  margin-bottom: 24px !important;
-}
-
-/* Quick Actions */
-.quick-actions {
-  display: flex;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-
-.quick-actions .ant-btn {
-  flex: 1 1 auto;
-  min-width: 120px;
-  border-radius: 8px;
-  height: 40px;
+.margin-none {
+  margin: 0 !important;
 }
 
 /* Color Variants */

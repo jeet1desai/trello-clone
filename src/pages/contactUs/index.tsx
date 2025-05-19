@@ -1,4 +1,4 @@
-import { Button, Col, Form, Input, Row, Space, Spin, Typography } from "antd";
+import { Button, Col, Form, Input, Row, Space, Typography } from "antd";
 import {
   UserOutlined,
   MailOutlined,
@@ -8,6 +8,7 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../store";
 import { contactUsCreate } from "../../store/slices/contactUsSlice";
+import { Loader } from "../../components";
 
 const { Title, Paragraph } = Typography;
 
@@ -41,7 +42,7 @@ const ContactUs = () => {
 
   return (
     <div className="contact-us-container">
-      <Spin spinning={loading} fullscreen />
+      <Loader loading={loading} fullScreen />
       <div className="contact-container">
         <Title level={2} className="contact-us-title">
           Contact Us

@@ -70,7 +70,7 @@
 }
 
 .board-card-color-bar {
-  height: 8px;
+  height: 130px;
   width: 100%;
   position: relative;
 }
@@ -116,7 +116,7 @@
 }
 
 .board-card-footer {
-  margin-top: auto;
+  margin-top: 5px;
 }
 
 .more-btn:hover {

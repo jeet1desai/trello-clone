@@ -13,7 +13,6 @@ import {
   Form,
   Empty,
   App,
-  Spin,
   Pagination,
 } from "antd";
 import type { MenuProps } from "antd";
@@ -46,6 +45,7 @@ import {
   FolderOpen,
   CircleAlert,
 } from "lucide-react";
+import { Loader } from "../../components";
 
 const { Title, Paragraph } = Typography;
 
@@ -279,14 +279,14 @@ const Workspaces: React.FC = () => {
           <Empty
             image={Empty.PRESENTED_IMAGE_SIMPLE}
             description="No workspaces found"
-          ></Empty>
+          />
         </div>
       );
     }
 
     return (
       <div>
-        <Row gutter={[16, 16]} className="workspaces-grid">
+        <Row gutter={[20, 20]} className="workspaces-grid">
           {workspaces?.map((workspace) => (
             <Col xs={24} sm={12} md={8} lg={6} key={workspace._id}>
               {renderWorkspaceCard(workspace)}
@@ -363,7 +363,7 @@ const Workspaces: React.FC = () => {
 
   return (
     <>
-      <Spin spinning={loading} fullscreen />
+      <Loader loading={loading} fullScreen />
       <div className="workspaces-container">
         <div className="workspaces-header">
           <div className="header-left">

@@ -16,7 +16,6 @@ import {
   Tooltip,
   App,
   Alert,
-  Spin,
   Pagination,
 } from "antd";
 import type { MenuProps } from "antd";
@@ -49,6 +48,7 @@ import {
   Trash2,
   UserRound,
 } from "lucide-react";
+import { Loader } from "../../components";
 const { Title, Paragraph } = Typography;
 
 const Boards: React.FC = () => {
@@ -302,23 +302,14 @@ const Boards: React.FC = () => {
           <Empty
             image={Empty.PRESENTED_IMAGE_SIMPLE}
             description={emptyMessage}
-          >
-            <Button
-              type="primary"
-              className="button"
-              icon={<Plus size={16} />}
-              onClick={showAddModal}
-            >
-              Create New Board
-            </Button>
-          </Empty>
+          />
         </div>
       );
     }
 
     return (
       <div>
-        <Row gutter={[16, 16]} className="boards-grid">
+        <Row gutter={[20, 20]} className="boards-grid">
           {boards?.map((board) => (
             <Col xs={24} sm={12} md={8} lg={6} key={board._id}>
               {renderBoardCard(board)}
@@ -395,7 +386,7 @@ const Boards: React.FC = () => {
 
   return (
     <>
-      <Spin spinning={loading} fullscreen />
+      <Loader loading={loading} fullScreen />
       <div className="boards-container">
         <div className="boards-header">
           <div className="boards-header-left">
@@ -408,20 +399,20 @@ const Boards: React.FC = () => {
           </div>
           <div className="boards-header-right">
             <Space>
-                <Input
-                  prefix={<Search size={16} />}
-                  placeholder="Search boards"
-                  allowClear
-                  value={searchText}
-                  className="form-input"
-                  style={{ width: 220 }}
-                  onChange={(e) => setSearchText(e.target.value)}
-                  onClear={async () =>
-                    await dispatch(
-                      getAllBoards({ page: 1, search: "", sortType: 0 })
-                    )
-                  }
-                />
+              <Input
+                prefix={<Search size={16} />}
+                placeholder="Search boards"
+                allowClear
+                value={searchText}
+                className="form-input"
+                style={{ width: 220 }}
+                onChange={(e) => setSearchText(e.target.value)}
+                onClear={async () =>
+                  await dispatch(
+                    getAllBoards({ page: 1, search: "", sortType: 0 })
+                  )
+                }
+              />
               <Dropdown
                 menu={{
                   items: sortMenuItems,

@@ -17,7 +17,6 @@ import {
   Dropdown,
   Empty,
   MenuProps,
-  Spin,
 } from "antd";
 import {
   UserOutlined,
@@ -49,6 +48,7 @@ import { PRIVATE_ROUTE } from "../../../utils/enums/route";
 import CustomButton from "../../../components/ui/button";
 import dayjs from "dayjs";
 import { openNotification } from "../../../services/notificationService";
+import { Loader } from "../../../components";
 
 const { Title, Text, Paragraph } = Typography;
 
@@ -291,7 +291,7 @@ const WorkspaceDetail: React.FC = () => {
 
   return (
     <>
-      <Spin spinning={loading} fullscreen />
+      <Loader loading={loading} fullScreen />
       <div className="workspace-detail-container">
         <Card className="workspace-header">
           <div className="workspace-info">

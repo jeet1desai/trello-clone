@@ -11,7 +11,7 @@ import "./App.css";
 import "./layout/styles/Theme.css";
 import { NotificationProvider } from "./contexts/NotificationContext";
 import { SocketProvider } from "./contexts/SocketContext";
-import '@ant-design/v5-patch-for-react-19';
+import "@ant-design/v5-patch-for-react-19";
 
 const { defaultAlgorithm, darkAlgorithm } = theme;
 
@@ -31,9 +31,7 @@ const ThemedApp: React.FC = () => {
       }}
     >
       <AntdApp>
-        <Suspense
-          fallback={<SuspenseLoader message="Loading Application..." />}
-        >
+        <Suspense fallback={<SuspenseLoader />}>
           <RouterProvider router={router} />
         </Suspense>
       </AntdApp>
@@ -44,13 +42,12 @@ const ThemedApp: React.FC = () => {
 const App: React.FC = () => {
   return (
     <Provider store={store}>
-      <PersistGate
-        loading={<SuspenseLoader message="Loading Store..." />}
-        persistor={persistor}
-      >
+      <PersistGate loading={<SuspenseLoader />} persistor={persistor}>
         <ThemeProvider>
           <NotificationProvider>
-            <SocketProvider url={process.env.REACT_APP_SOCKET_URL || 'http://localhost:3001'}>
+            <SocketProvider
+              url={process.env.REACT_APP_SOCKET_URL || "http://localhost:3001"}
+            >
               <ThemedApp />
             </SocketProvider>
           </NotificationProvider>

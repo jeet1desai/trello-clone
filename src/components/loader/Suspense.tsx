@@ -1,27 +1,33 @@
-import React from 'react';
-import { Spin } from 'antd';
-import { LoadingOutlined } from '@ant-design/icons';
+import React, { useEffect, useRef } from "react";
+import { Typography } from "antd";
+import "./SuspenseLoader.css";
 
-type SuspenseLoaderProps = {
-  message?: string;
-};
+const { Title } = Typography;
 
-const SuspenseLoader: React.FC<SuspenseLoaderProps> = ({ message = 'Loading...' }) => {
-  const antIcon = <LoadingOutlined style={{ fontSize: 24 }} spin />;
+const SuspenseLoader = () => {
+  const progressRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    let width = 0;
+    const interval = setInterval(() => {
+      if (progressRef.current) {
+        width = (width + Math.random() * 5) % 100;
+        progressRef.current.style.width = `${width}%`;
+      }
+    }, 100);
+    return () => clearInterval(interval);
+  }, []);
 
   return (
-    <div style={{
-      display: 'flex',
-      flexDirection: 'column',
-      justifyContent: 'center',
-      alignItems: 'center',
-      height: '100vh',
-      width: '100%',
-    }}>
-      <Spin indicator={antIcon} />
-      <p style={{ marginTop: '16px', color: '#1890ff' }}>{message}</p>
+    <div className="custom-suspense-loader">
+      <Title level={2} className="app-title">
+        BaseTeam
+      </Title>
+      <div className="progress-bar-bg">
+        <div className="progress-bar-fg" ref={progressRef}></div>
+      </div>
     </div>
   );
 };
 
-export default SuspenseLoader; 
+export default SuspenseLoader;

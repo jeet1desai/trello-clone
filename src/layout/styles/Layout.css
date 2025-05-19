@@ -260,6 +260,10 @@
   gap: 24px;
 }
 
+.ant-btn-default {
+  background-color: initial !important;
+}
+
 .pop-search-width {
   max-width: 200px;
 }

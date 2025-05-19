@@ -1,17 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import {
-  Typography,
-  Card,
-  Row,
-  Col,
-  Segmented,
-  Avatar,
-  Button,
-  Progress,
-} from "antd";
+import { Typography, Card, Row, Col, Segmented, Avatar, Progress } from "antd";
 import { RootState, AppDispatch } from "../../store";
-import { ActivityChart, WorkspaceDistribution, RecentActivity } from "../../components";
+import {
+  ActivityChart,
+  WorkspaceDistribution,
+  RecentActivity,
+} from "../../components";
 import "../../layout/styles/Dashboard.css";
 import { getAllNotification } from "../../store/slices/notificationSlice";
 import {
@@ -20,14 +15,13 @@ import {
   getDashboardRecentActivity,
 } from "../../store/slices/dashboardSlice";
 import {
-  Plus,
-  Logs,
   Calendar,
   CircleCheck,
   Clock,
   UsersRound,
   SquareKanban,
 } from "lucide-react";
+import dayjs from "dayjs";
 
 const { Title, Text } = Typography;
 
@@ -132,28 +126,20 @@ const Dashboard: React.FC = () => {
             <Card className="date-card">
               <div className="date-content">
                 <div className="date-header">
-                  <Calendar size={24} className="calendar-icon" />
-                  <Text className="today-label">Today's Date</Text>
+                  <Calendar
+                    size={28}
+                    className="calendar-icon animated-calendar"
+                  />
                 </div>
-                <Title level={4} className="current-date">
-                  {new Date().toLocaleDateString("en-US", {
-                    weekday: "long",
-                    month: "long",
-                    day: "numeric",
-                  })}
+                <Title level={2} className="margin-none">
+                  {dayjs().format("MMM DD, YYYY")}
                 </Title>
-                <div className="quick-actions">
-                  <Button
-                    type="primary"
-                    className="button"
-                    icon={<Plus size={16} />}
-                  >
-                    New Task
-                  </Button>
-                  <Button className="button" icon={<Logs size={16} />}>
-                    View All
-                  </Button>
-                </div>
+                <Title level={4} className="margin-none">
+                  ({dayjs().format("dddd")})
+                </Title>
+                <Text className="motivational-quote">
+                  "Make your day amazing!"
+                </Text>
               </div>
             </Card>
           </Col>
@@ -216,14 +202,22 @@ const Dashboard: React.FC = () => {
 
       {/* Analytics */}
       <div className="dashboard-section">
-        <Row justify="space-between" align="middle" style={{ marginBottom: 16 }}>
+        <Row
+          justify="space-between"
+          align="middle"
+          style={{ marginBottom: 16 }}
+        >
           <Col>
             <Title level={4} style={{ margin: 0 }}>
               Analytics
             </Title>
           </Col>
           <Col>
-            <Segmented options={[{ label: "Week", value: "week" }]} value={timeframe} onChange={setTimeframe} />
+            <Segmented
+              options={[{ label: "Week", value: "week" }]}
+              value={timeframe}
+              onChange={setTimeframe}
+            />
           </Col>
         </Row>
 
