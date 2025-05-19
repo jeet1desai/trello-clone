@@ -678,10 +678,14 @@
 .contact-info {
   background-color: var(--button-primary-bg);
   color: #fff;
-  padding: 0 32px !important;
+  padding: 32px !important;
   border-radius: 12px 0 0 12px;
   display: flex;
   flex-direction: column;
+}
+
+.contact-us-content {
+  padding: 32px !important;
 }
 
 .text-color-white {
