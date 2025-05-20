@@ -248,8 +248,9 @@ const Boards: React.FC = () => {
         onClick={() =>
           navigate(generatePath(PRIVATE_ROUTE.BOARD, { id: board._id }))
         }
+        onMouseEnter={() => setHoveredBoardId(board._id)}
+        onMouseLeave={() => setHoveredBoardId(null)}
       >
-        {/* <div className="board-card-color-bar" style={{ background }} /> */}
         <div
           className="board-card-star-icon board-card-color-bar"
           onMouseEnter={() => setHoveredBoardId(board._id)}

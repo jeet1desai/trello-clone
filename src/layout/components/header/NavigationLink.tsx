@@ -29,16 +29,19 @@ const NavigationLinks = () => {
       icon: <Briefcase size={16} />,
       label: "Workspaces",
       path: PRIVATE_ROUTE.WORKSPACES,
+      includePath: [PRIVATE_ROUTE.WORKSPACES, PRIVATE_ROUTE.WORKSPACE]
     },
     {
       icon: <ClipboardList size={16} />,
       label: "Boards",
       path: PRIVATE_ROUTE.BOARDS,
+      includePath: [PRIVATE_ROUTE.BOARDS, PRIVATE_ROUTE.BOARD]
     },
     {
       icon: <ShieldPlus size={16} />,
       label: "Invitations",
       path: PRIVATE_ROUTE.INVITATIONS,
+      includePath: [PRIVATE_ROUTE.INVITATIONS]
     },
   ];
 
@@ -50,9 +53,10 @@ const NavigationLinks = () => {
           icon: <UserRound size={16} />,
           label: "Profile",
           path: PRIVATE_ROUTE.USER_PROFILE,
+          includePath: [PRIVATE_ROUTE.USER_PROFILE]
         },
       ].map((item) => {
-        const isActive = isActivePath(item.path);
+        const isActive = isActivePath(item.includePath);
         return (
           <Menu.Item key={item.label} style={{ backgroundColor: "initial" }}>
             <Button
@@ -111,7 +115,7 @@ const NavigationLinks = () => {
   ) : (
     <div className="navigation-container">
       {navItems.map((item) => {
-        const isActive = isActivePath(item.path);
+        const isActive = isActivePath(item.includePath);
         let navId = undefined;
         if (item.label === "Workspaces") navId = "nav-workspaces";
         if (item.label === "Boards") navId = "nav-boards";
