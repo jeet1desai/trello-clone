@@ -752,7 +752,7 @@ export const duplicateTask = createAsyncThunk(
 );
 
 export const toggleFavorite = createAsyncThunk(
-  "board/favorite",
+  "task/favorite",
   async ({
       boardId,
       isFavorite,
@@ -1453,7 +1453,7 @@ const boardSlice = createSlice({
         state.success = null;
       })
       .addCase(toggleFavorite.fulfilled, (state, action) => {
-        state.boards = state.boards.map((item) =>
+        state.boards = state.boards?.map((item) =>
           item._id === action.payload.data.boardId
             ? {
               ...item,

@@ -297,6 +297,27 @@
   text-align: right;
 }
 
+.favorite-star {
+  position: absolute;
+  stroke: #fff;
+  fill: none;
+  opacity: 0;
+  transform: scale(0.8);
+  transition: fill 0.4s ease, stroke 0.4s ease, transform 0.4s ease, opacity 0.4s ease;
+  cursor: pointer;
+  z-index: 10;
+}
+
+.workspace-card:hover .favorite-star,
+.favorite-star.favorited {
+  opacity: 1;
+  transform: scale(1.2);
+}
+
+.favorite-star.favorited {
+  fill: #fff;
+}
+
 /* Responsive Styles */
 @media (max-width: 768px) {
   .workspaces-container {

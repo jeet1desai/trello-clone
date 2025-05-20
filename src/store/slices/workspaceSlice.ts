@@ -193,7 +193,7 @@ export const getBoardsByWorkspaceId = createAsyncThunk(
 );
 
 export const toggleFavorite = createAsyncThunk(
-  "workspace/favorite",
+  "status/favorite",
   async ({
       workspaceId,
       isFavorite,

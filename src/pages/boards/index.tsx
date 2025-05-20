@@ -230,16 +230,11 @@ const Boards: React.FC = () => {
         onClick={() =>
           navigate(generatePath(PRIVATE_ROUTE.BOARD, { id: board._id }))
         }
+        onMouseEnter={() => setHoveredBoardId(board._id)}
+        onMouseLeave={() => setHoveredBoardId(null)}
       >
-        {/* <div className="board-card-color-bar" style={{ background }} /> */}
         <div
           className="board-card-star-icon board-card-color-bar"
-          onMouseEnter={() => setHoveredBoardId(board._id)}
-          onMouseLeave={() => setHoveredBoardId(null)}
-          onClick={(e) => {
-            dispatch(toggleFavorite({ boardId: board._id, isFavorite: !board.isFavorite }));
-            e.stopPropagation();
-          }}
           style={{
             display: "flex",
             justifyContent: "flex-end",
@@ -248,33 +243,30 @@ const Boards: React.FC = () => {
             background
           }}
         >
-          <div style={{
-            display: 'flex',
-            position: 'absolute',
-            top: 0,
-            right: 0,
-            alignItems: 'center',
-            justifyContent: 'center',
-            width: '24px',
-            height: '24px',
-            margin: '8px 8px 0',
-            overflow: 'hidden',
-            transition: 'transform 0.2s ease-in-out 0.2s',
-            borderRadius: '6px',
-            backgroundColor: board.isFavorite || hoveredBoardId === board._id ? 'hsla(0, 0%, 0%, 0.25)' : ""
-          }}>
-          <Star
-            size={18}
-            style={{
-              fill: board.isFavorite ? "#fff" : "none",
-              stroke: "#fff",
-              visibility: board.isFavorite || hoveredBoardId === board._id ? "visible" : "hidden",
-              
-              right: "15px", 
-              top: "15px",
-              transition: "fill 0.2s, stroke 0.2s",
+          <div
+            onClick={(e) => {
+              dispatch(toggleFavorite({ boardId: board._id, isFavorite: !board.isFavorite }));
+              e.stopPropagation();
             }}
-          />
+            style={{
+              display: 'flex',
+              position: 'absolute',
+              top: 0,
+              right: 0,
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: '24px',
+              height: '24px',
+              margin: '8px 8px 0',
+              overflow: 'hidden',
+              transition: 'transform 0.4s ease-in-out 0.4s',
+              borderRadius: '6px',
+              backgroundColor: board.isFavorite || hoveredBoardId === board._id ? 'hsla(0, 0%, 0%, 0.25)' : ""
+            }}>
+            <Star
+              size={16}
+              className={`favorite-star ${board.isFavorite ? "favorited" : ""}`}
+            />
           </div>
         </div>
         <div className="board-card-content">
