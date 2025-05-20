@@ -205,4 +205,11 @@ export const boardService = {
     );
     return response.data;
   },
+
+  async getBackground() {
+    const response = await axiosInstance.get(
+      `${API_URL}/board/backgrounds`
+    );
+    return response.data;
+  },
 };

@@ -1,6 +1,7 @@
 /* Profile Container */
 .profile-container {
   min-height: 100vh;
+  padding: 0px;
 }
 
 /* Header Gradient */
@@ -244,7 +245,7 @@
 /* Responsive Design */
 @media (max-width: 768px) {
   .profile-container {
-    padding: 16px;
+    padding: 0px;
   }
 
   .profile-header-gradient {
