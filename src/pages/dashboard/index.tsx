@@ -120,7 +120,7 @@ const Dashboard: React.FC = () => {
       <div>
         <Row gutter={[24, 24]} align="stretch">
           <Col xs={24} lg={16} className="welcome-col">
-            <Card className="welcome-card gradient-7">
+            <Card className="welcome-card gradient-1">
               <div className="welcome-background-pattern"></div>
               <Row gutter={24} align="middle" className="welcome-content">
                 <Col>

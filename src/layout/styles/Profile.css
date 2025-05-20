@@ -1,7 +1,6 @@
 /* Profile Container */
 .profile-container {
   min-height: 100vh;
-  padding: 24px;
 }
 
 /* Header Gradient */
@@ -10,7 +9,7 @@
   padding: 32px;
   margin-bottom: 32px;
   border-radius: 12px;
-  background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);
+  background: linear-gradient(135deg, #0f325c 0%, #3e88b6 100%);
   overflow: hidden;
   box-shadow: 0 10px 30px -10px rgba(59, 130, 246, 0.2);
 }
@@ -54,7 +53,7 @@
 
 /* Profile Content */
 .profile-content {
-  max-width: 1400px;
+  max-width: 1450px;
   margin: 0 auto;
   animation: fadeIn 0.5s ease-out;
 }
@@ -81,7 +80,7 @@
 }
 
 .profile-tabs .ant-tabs-tab-active {
-  background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);
+  background: #0f325c;
   border-radius: 6px;
 }
 

@@ -23,7 +23,6 @@ const Home: React.FC = () => {
           backgroundImage: `url(${landingPageBackground})`,
           backgroundSize: "cover",
           backgroundPosition: "center",
-          backgroundBlendMode: "difference",
           backgroundRepeat: "no-repeat",
         }}
       >
@@ -185,7 +184,7 @@ const Home: React.FC = () => {
           <Col xs={24} sm={8}>
             <div className="stat-items">
               <Title level={2} className="stat-number">
-                50+
+                15+
               </Title>
               <Text className="stat-label">Active Users</Text>
             </div>

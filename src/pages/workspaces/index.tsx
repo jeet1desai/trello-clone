@@ -51,6 +51,24 @@ import { Loader } from "../../components";
 
 const { Title, Paragraph } = Typography;
 
+const WorkspaceHero: React.FC<{ onCreate: () => void }> = ({ onCreate }) => (
+  <div className="workspaces-header-hero gradient-bg">
+    <h1 className="workspaces-title">Your Workspaces</h1>
+    <p className="workspaces-subtitle">
+      Organize your projects and collaborate with your team.
+    </p>
+    <Button
+      type="primary"
+      icon={<Plus />}
+      size="large"
+      onClick={onCreate}
+      className="create-workspace-btn button"
+    >
+      Create Workspace
+    </Button>
+  </div>
+);
+
 const Workspaces: React.FC = () => {
   const { modal } = App.useApp();
   const [form] = Form.useForm();
@@ -233,31 +251,46 @@ const Workspaces: React.FC = () => {
               </div>
             </div>
             {workspace.createdBy._id === currentUser?.id ? (
-              <div className="workspace-card-actions"
-              onClick={(e) => {
-                          dispatch(toggleFavorite({ workspaceId: workspace._id, isFavorite: !workspace.isFavorite }));
-                          e.stopPropagation();
-                        }}
-                style={{ display: "flex", gap: "8px", alignItems: "center" }}>
-                <div style={{
-                  display: 'flex',
-                  top: 0,
-                  right: 0,
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  width: '24px',
-                  height: '24px',
-                  overflow: 'hidden',
-                  transition: 'transform 0.2s ease-in-out 0.2s',
-                  borderRadius: '6px',
-                  backgroundColor: workspace.isFavorite || hoveredBoardId === workspace._id ?'hsla(0, 0%, 0%, 0.25)' : ""
-                }}>
+              <div
+                className="workspace-card-actions"
+                onClick={(e) => {
+                  dispatch(
+                    toggleFavorite({
+                      workspaceId: workspace._id,
+                      isFavorite: !workspace.isFavorite,
+                    })
+                  );
+                  e.stopPropagation();
+                }}
+                style={{ display: "flex", gap: "8px", alignItems: "center" }}
+              >
+                <div
+                  style={{
+                    display: "flex",
+                    top: 0,
+                    right: 0,
+                    alignItems: "center",
+                    justifyContent: "center",
+                    width: "24px",
+                    height: "24px",
+                    overflow: "hidden",
+                    transition: "transform 0.2s ease-in-out 0.2s",
+                    borderRadius: "6px",
+                    backgroundColor:
+                      workspace.isFavorite || hoveredBoardId === workspace._id
+                        ? "hsla(0, 0%, 0%, 0.25)"
+                        : "",
+                  }}
+                >
                   <Star
                     size={18}
                     style={{
                       fill: workspace.isFavorite ? "#fff" : "none",
                       stroke: "#fff",
-                      visibility: workspace.isFavorite || hoveredBoardId === workspace._id ? "visible" : "hidden",
+                      visibility:
+                        workspace.isFavorite || hoveredBoardId === workspace._id
+                          ? "visible"
+                          : "hidden",
                       right: "15px",
                       top: "15px",
                       transition: "fill 0.2s, stroke 0.2s",
@@ -400,6 +433,7 @@ const Workspaces: React.FC = () => {
     <>
       <Loader loading={loading} fullScreen />
       <div className="workspaces-container">
+        <WorkspaceHero onCreate={showAddModal} />
         <div className="workspaces-header">
           <div className="header-left">
             <Title level={3} className="page-title">
@@ -452,16 +486,6 @@ const Workspaces: React.FC = () => {
                   <Space>Sort</Space>
                 </CustomButton>
               </Dropdown>
-              <CustomButton
-                type="primary"
-                icon={<Plus className="ant-btn-primary" size={16} />}
-                onClick={showAddModal}
-                className="button"
-                style={{ marginTop: 0 }}
-                breakPoint={575}
-              >
-                Create Workspace
-              </CustomButton>
             </Space>
           </div>
         </div>

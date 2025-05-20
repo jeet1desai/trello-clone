@@ -53,6 +53,24 @@ import {
 import { Loader } from "../../components";
 const { Title, Paragraph } = Typography;
 
+const BoardHero: React.FC<{ onCreate: () => void }> = ({ onCreate }) => (
+  <div className="boards-header-hero gradient-bg">
+    <h1 className="boards-title">Your Boards</h1>
+    <p className="boards-subtitle">
+      Organize your boards and manage your team work.
+    </p>
+    <Button
+      type="primary"
+      icon={<Plus />}
+      size="large"
+      onClick={onCreate}
+      className="create-board-btn button"
+    >
+      Create Board
+    </Button>
+  </div>
+);
+
 const Boards: React.FC = () => {
   const navigate = useNavigate();
   const [form] = Form.useForm();
@@ -237,7 +255,12 @@ const Boards: React.FC = () => {
           onMouseEnter={() => setHoveredBoardId(board._id)}
           onMouseLeave={() => setHoveredBoardId(null)}
           onClick={(e) => {
-            dispatch(toggleFavorite({ boardId: board._id, isFavorite: !board.isFavorite }));
+            dispatch(
+              toggleFavorite({
+                boardId: board._id,
+                isFavorite: !board.isFavorite,
+              })
+            );
             e.stopPropagation();
           }}
           style={{
@@ -245,36 +268,44 @@ const Boards: React.FC = () => {
             justifyContent: "flex-end",
             cursor: "pointer",
             position: "relative",
-            background
+            background,
           }}
         >
-          <div style={{
-            display: 'flex',
-            position: 'absolute',
-            top: 0,
-            right: 0,
-            alignItems: 'center',
-            justifyContent: 'center',
-            width: '24px',
-            height: '24px',
-            margin: '8px 8px 0',
-            overflow: 'hidden',
-            transition: 'transform 0.2s ease-in-out 0.2s',
-            borderRadius: '6px',
-            backgroundColor: board.isFavorite || hoveredBoardId === board._id ? 'hsla(0, 0%, 0%, 0.25)' : ""
-          }}>
-          <Star
-            size={18}
+          <div
             style={{
-              fill: board.isFavorite ? "#fff" : "none",
-              stroke: "#fff",
-              visibility: board.isFavorite || hoveredBoardId === board._id ? "visible" : "hidden",
-              
-              right: "15px", 
-              top: "15px",
-              transition: "fill 0.2s, stroke 0.2s",
+              display: "flex",
+              position: "absolute",
+              top: 0,
+              right: 0,
+              alignItems: "center",
+              justifyContent: "center",
+              width: "24px",
+              height: "24px",
+              margin: "8px 8px 0",
+              overflow: "hidden",
+              transition: "transform 0.2s ease-in-out 0.2s",
+              borderRadius: "6px",
+              backgroundColor:
+                board.isFavorite || hoveredBoardId === board._id
+                  ? "hsla(0, 0%, 0%, 0.25)"
+                  : "",
             }}
-          />
+          >
+            <Star
+              size={18}
+              style={{
+                fill: board.isFavorite ? "#fff" : "none",
+                stroke: "#fff",
+                visibility:
+                  board.isFavorite || hoveredBoardId === board._id
+                    ? "visible"
+                    : "hidden",
+
+                right: "15px",
+                top: "15px",
+                transition: "fill 0.2s, stroke 0.2s",
+              }}
+            />
           </div>
         </div>
         <div className="board-card-content">
@@ -436,6 +467,7 @@ const Boards: React.FC = () => {
     <>
       <Loader loading={loading} fullScreen />
       <div className="boards-container">
+        <BoardHero onCreate={showAddModal} />
         <div className="boards-header">
           <div className="boards-header-left">
             <Title level={3} className="page-title">
@@ -489,16 +521,6 @@ const Boards: React.FC = () => {
                   <Space>Sort</Space>
                 </CustomButton>
               </Dropdown>
-              <CustomButton
-                type="primary"
-                icon={<Plus size={16} />}
-                onClick={showAddModal}
-                className="button"
-                style={{ marginTop: 0 }}
-                breakPoint={575}
-              >
-                Create Board
-              </CustomButton>
             </Space>
           </div>
         </div>

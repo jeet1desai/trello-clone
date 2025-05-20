@@ -76,35 +76,7 @@
 
 /* Gradient Options */
 .gradient-1 {
-  background: linear-gradient(135deg, #1a2980 0%, #26d0ce 100%);
-}
-
-.gradient-2 {
-  background: linear-gradient(135deg, #141e30 0%, #243b55 100%);
-}
-
-.gradient-3 {
-  background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
-}
-
-.gradient-4 {
-  background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
-}
-
-.gradient-5 {
-  background: linear-gradient(135deg, #373b44 0%, #4286f4 100%);
-}
-
-.gradient-6 {
-  background: linear-gradient(135deg, #283c86 0%, #45a247 100%);
-}
-
-.gradient-7 {
-  background: linear-gradient(135deg, #004e92 0%, #000428 100%);
-}
-
-.gradient-8 {
-  background: linear-gradient(135deg, #16222a 0%, #3a6073 100%);
+  background: linear-gradient(135deg, #000428 0%, #004e92 100%);
 }
 
 .welcome-content {
@@ -512,7 +484,7 @@
 }
 
 .theme-dark .ant-picker-panel {
-  background-color: #1d1d1d !important;
+  background-color: #141414 !important;
 }
 
 /* Utility Classes */

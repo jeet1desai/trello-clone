@@ -169,14 +169,9 @@ body {
 
 .integration-section {
   padding: 80px 20px;
-  background: #1890ff6e;
+  background: linear-gradient(135deg, #0f325c 0%, #3e88b6 100%);
   text-align: center;
-  color: var(--text-primary);
   overflow: hidden;
-}
-
-.theme-dark .integration-section {
-  background: #3c95eae6;
 }
 
 .testimonial-section {
@@ -211,6 +206,7 @@ body {
 
 .stats-section {
   padding: 40px 0px;
+  background: var(--bg-primary);
 }
 
 .stats-container {
@@ -719,4 +715,5 @@ a:hover {
 .task-border {
   border: var(--task-border);
   box-shadow: 1px 1px #00000005;
+  background-color: var(--bg-primary);
 }
