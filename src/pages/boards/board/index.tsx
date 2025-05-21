@@ -102,7 +102,7 @@ const BoardDetail: React.FC = () => {
 
   const dispatch = useDispatch<AppDispatch>();
   const { currentUser } = useSelector((state: RootState) => state.user);
-  const { selectedBoard, invitedMemberList, boardLabels } = useSelector(
+  const { selectedBoard, invitedMemberList } = useSelector(
     (state: RootState) => state.board
   );
   const {
