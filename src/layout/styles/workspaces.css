@@ -103,7 +103,6 @@
 }
 
 .workspace-icon {
-  background: #80808040;
   padding: 8px;
   border-radius: 8px;
   font-size: 22px;
@@ -116,7 +115,7 @@
 }
 
 .workspace-description {
-  margin-bottom: 4px !important;
+  margin-bottom: 15px !important;
   color: var(--text-secondary) !important;
 }
 
