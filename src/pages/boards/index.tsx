@@ -16,7 +16,6 @@ import {
   Tooltip,
   App,
   Alert,
-  Spin,
   Pagination,
 } from "antd";
 import type { MenuProps } from "antd";
@@ -30,6 +29,7 @@ import {
   getAllBoards,
   openBoardAddModal,
   clearSelectedBoard,
+  toggleFavorite,
 } from "../../store/slices/boardSlice";
 import "../../layout/styles/boards.css";
 import { SORT_OPTIONS, SORT_OPTIONS_VALUES } from "../../config";
@@ -46,10 +46,30 @@ import {
   MoreHorizontal,
   Plus,
   Search,
+  Star,
   Trash2,
   UserRound,
 } from "lucide-react";
+import { Loader } from "../../components";
 const { Title, Paragraph } = Typography;
+
+const BoardHero: React.FC<{ onCreate: () => void }> = ({ onCreate }) => (
+  <div className="boards-header-hero gradient-bg">
+    <h1 className="boards-title">Your Boards</h1>
+    <p className="boards-subtitle">
+      Organize your boards and manage your team work.
+    </p>
+    <Button
+      type="primary"
+      icon={<Plus />}
+      size="large"
+      onClick={onCreate}
+      className="create-board-btn button"
+    >
+      Create Board
+    </Button>
+  </div>
+);
 
 const Boards: React.FC = () => {
   const navigate = useNavigate();
@@ -67,6 +87,7 @@ const Boards: React.FC = () => {
   const [selectedBoard, setSelectedBoard] = useState<IBoard | null>(null);
   const [sortOption, setSortOption] = useState(SORT_OPTIONS_VALUES.DEFAULT);
   const [debouncedSearch, setDebouncedSearch] = useState(searchText);
+  const [hoveredBoardId, setHoveredBoardId] = useState<string | null>(null);
 
   // Get owner details
   const getOwnerDetails = (board: IBoard) => {
@@ -227,8 +248,67 @@ const Boards: React.FC = () => {
         onClick={() =>
           navigate(generatePath(PRIVATE_ROUTE.BOARD, { id: board._id }))
         }
+        onMouseEnter={() => setHoveredBoardId(board._id)}
+        onMouseLeave={() => setHoveredBoardId(null)}
       >
-        <div className="board-card-color-bar" style={{ background }} />
+        <div
+          className="board-card-star-icon board-card-color-bar"
+          onMouseEnter={() => setHoveredBoardId(board._id)}
+          onMouseLeave={() => setHoveredBoardId(null)}
+          onClick={(e) => {
+            dispatch(
+              toggleFavorite({
+                boardId: board._id,
+                isFavorite: !board.isFavorite,
+              })
+            );
+            e.stopPropagation();
+          }}
+          style={{
+            display: "flex",
+            justifyContent: "flex-end",
+            cursor: "pointer",
+            position: "relative",
+            background,
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              position: "absolute",
+              top: 0,
+              right: 0,
+              alignItems: "center",
+              justifyContent: "center",
+              width: "24px",
+              height: "24px",
+              margin: "8px 8px 0",
+              overflow: "hidden",
+              transition: "transform 0.2s ease-in-out 0.2s",
+              borderRadius: "6px",
+              backgroundColor:
+                board.isFavorite || hoveredBoardId === board._id
+                  ? "hsla(0, 0%, 0%, 0.25)"
+                  : "",
+            }}
+          >
+            <Star
+              size={18}
+              style={{
+                fill: board.isFavorite ? "#fff" : "none",
+                stroke: "#fff",
+                visibility:
+                  board.isFavorite || hoveredBoardId === board._id
+                    ? "visible"
+                    : "hidden",
+
+                right: "15px",
+                top: "15px",
+                transition: "fill 0.2s, stroke 0.2s",
+              }}
+            />
+          </div>
+        </div>
         <div className="board-card-content">
           <div className="board-card-header">
             <div className="board-card-title">
@@ -302,23 +382,14 @@ const Boards: React.FC = () => {
           <Empty
             image={Empty.PRESENTED_IMAGE_SIMPLE}
             description={emptyMessage}
-          >
-            <Button
-              type="primary"
-              className="button"
-              icon={<Plus size={16} />}
-              onClick={showAddModal}
-            >
-              Create New Board
-            </Button>
-          </Empty>
+          />
         </div>
       );
     }
 
     return (
       <div>
-        <Row gutter={[16, 16]} className="boards-grid">
+        <Row gutter={[20, 20]} className="boards-grid">
           {boards?.map((board) => (
             <Col xs={24} sm={12} md={8} lg={6} key={board._id}>
               {renderBoardCard(board)}
@@ -395,8 +466,9 @@ const Boards: React.FC = () => {
 
   return (
     <>
-      <Spin spinning={loading} fullscreen />
+      <Loader loading={loading} fullScreen />
       <div className="boards-container">
+        <BoardHero onCreate={showAddModal} />
         <div className="boards-header">
           <div className="boards-header-left">
             <Title level={3} className="page-title">
@@ -408,20 +480,20 @@ const Boards: React.FC = () => {
           </div>
           <div className="boards-header-right">
             <Space>
-                <Input
-                  prefix={<Search size={16} />}
-                  placeholder="Search boards"
-                  allowClear
-                  value={searchText}
-                  className="form-input"
-                  style={{ width: 220 }}
-                  onChange={(e) => setSearchText(e.target.value)}
-                  onClear={async () =>
-                    await dispatch(
-                      getAllBoards({ page: 1, search: "", sortType: 0 })
-                    )
-                  }
-                />
+              <Input
+                prefix={<Search size={16} />}
+                placeholder="Search boards"
+                allowClear
+                value={searchText}
+                className="form-input"
+                style={{ width: 220 }}
+                onChange={(e) => setSearchText(e.target.value)}
+                onClear={async () =>
+                  await dispatch(
+                    getAllBoards({ page: 1, search: "", sortType: 0 })
+                  )
+                }
+              />
               <Dropdown
                 menu={{
                   items: sortMenuItems,
@@ -450,16 +522,6 @@ const Boards: React.FC = () => {
                   <Space>Sort</Space>
                 </CustomButton>
               </Dropdown>
-              <CustomButton
-                type="primary"
-                icon={<Plus size={16} />}
-                onClick={showAddModal}
-                className="button"
-                style={{ marginTop: 0 }}
-                breakPoint={575}
-              >
-                Create Board
-              </CustomButton>
             </Space>
           </div>
         </div>

@@ -19,6 +19,7 @@ export interface Invitation {
   };
   workspaceId: string;
   status: string;
+  is_approved_by_admin: boolean;
   role: string;
   createdAt: string;
   updatedAt: string;
@@ -89,7 +90,7 @@ export const manageInvitation = createAsyncThunk(
         status,
         inviteId
       );
-      return response.message;
+      return response;
     } catch (error: any) {
       return rejectWithValue(
         error.response?.data?.message ?? "Error while changing status."
@@ -139,10 +140,23 @@ const invitationSlice = createSlice({
         state.error = null;
         state.success = null;
       })
-      .addCase(manageInvitation.fulfilled, (state) => {
-        state.loading = false;
-        state.error = null;
-        state.success = "Invitation updated successfully.";
+      .addCase(manageInvitation.fulfilled, (state, action) => {
+        const { data } = action.payload;
+        return {
+          ...state,
+          loading: false,
+          error: null,
+          success: "Invitation updated successfully.",
+          invitationList: state.invitationList.map((item) =>
+            item._id === data._id
+              ? {
+                  ...item,
+                  status: data.status,
+                  is_approved_by_admin: data.is_approved_by_admin,
+                }
+              : item
+          ),
+        };
       })
       .addCase(manageInvitation.rejected, (state, action) => {
         state.loading = false;

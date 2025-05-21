@@ -8,7 +8,7 @@ import {
   Invitation,
   manageInvitation,
 } from "../../../store/slices/invitationSlice";
-import { InvitationStatus } from "../../../utils/enums/invitaion";
+import { InvitationStatus, StatusType } from "../../../utils/enums/invitaion";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "../../../store";
 const { Title, Paragraph } = Typography;
@@ -18,9 +18,31 @@ interface IProps {
 }
 
 const InvitationCard = ({ invitation }: IProps) => {
-  const { _id, boardId, invitedBy, invitees, status } =
+  const { _id, boardId, invitedBy, invitees, status, is_approved_by_admin } =
     invitation;
   const dispatch = useDispatch<AppDispatch>();
+
+  const getStatusTag = (status: string, isApprovedByAdmin: boolean) => {
+    switch (status) {
+      case InvitationStatus.ADMIN_PENDING:
+        return { label: "Pending", color: "warning" };
+
+      case InvitationStatus.ADMIN_APPROVED:
+        return { label: "Approved", color: "success" };
+
+      case InvitationStatus.COMPLETED:
+        if (isApprovedByAdmin) {
+          return { label: "Approved", color: "success" };
+        } else {
+          return { label: "Rejected", color: "error" };
+        }
+
+      default:
+        return { label: "Rejected", color: "error" };
+    }
+  };
+
+  const { label, color } = getStatusTag(status, is_approved_by_admin);
 
   return (
     <Card
@@ -35,29 +57,14 @@ const InvitationCard = ({ invitation }: IProps) => {
           </Avatar>
           <div>
             <Title level={5} className="margin-0 name-wrap">
-              {invitees.fullName}{" "}
-              <Tag
-                color={
-                  status === InvitationStatus.ADMIN_PENDING
-                    ? "warning"
-                    : status === InvitationStatus.ADMIN_APPROVED
-                    ? "success"
-                    : "error"
-                }
-              >
-                {status === InvitationStatus.ADMIN_PENDING
-                  ? "Pending"
-                  : status === InvitationStatus.ADMIN_APPROVED
-                  ? "Approved"
-                  : "Rejected"}
-              </Tag>
+              {invitees.fullName} <Tag color={color}>{label}</Tag>
             </Title>
             <Paragraph className="margin-0 email-text">
               {invitees.email}
             </Paragraph>
           </div>
         </div>
-        {status === InvitationStatus.ADMIN_PENDING ? (
+        {label === StatusType.PENDING ? (
           <div className="card-actions">
             <Button
               type="default"
@@ -92,7 +99,7 @@ const InvitationCard = ({ invitation }: IProps) => {
               <Space>Approve</Space>
             </Button>
           </div>
-        ) : status === InvitationStatus.ADMIN_APPROVED ? (
+        ) : label === StatusType.APPROVED ? (
           <div className="card-actions">
             <Button
               color="green"
@@ -122,7 +129,8 @@ const InvitationCard = ({ invitation }: IProps) => {
         has been invited to{" "}
         <Link to={`/board/${boardId._id}`}>{boardId.name}</Link> by{" "}
         <span className="user-name">
-          {invitedBy.first_name + " " + (invitedBy.last_name ?? "")}({invitedBy.email})
+          {invitedBy.first_name + " " + (invitedBy.last_name ?? "")}(
+          {invitedBy.email})
         </span>
         .
       </Paragraph>

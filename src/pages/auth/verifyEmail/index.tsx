@@ -1,12 +1,12 @@
 import React, { useEffect } from "react";
 import { Typography } from "antd";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import { AppstoreOutlined } from "@ant-design/icons";
 import "../../../layout/styles/Auth.css";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../../store";
 import { verifyUser } from "../../../store/slices/userSlice";
 import { PUBLIC_ROUTE } from "../../../utils/enums/route";
+import { verifyEmailIcon } from "../../../assets";
 
 const { Title, Text } = Typography;
 
@@ -30,8 +30,12 @@ const VerifyEmail: React.FC = () => {
 
   return (
     <div className="auth-container">
-      <div className="auth-form-container">
-        <AppstoreOutlined style={{ fontSize: 50, display: "block" }} />
+      <div className="auth-form-container flex">
+        <img
+          src={verifyEmailIcon}
+          alt="Verify Email"
+          style={{ width: "65%", marginTop: "-35px" }}
+        />
         <Title level={2} className="auth-title">
           Please verify your email
         </Title>
@@ -49,7 +53,7 @@ const VerifyEmail: React.FC = () => {
           type="secondary"
           style={{ display: "block", marginTop: "20px", textAlign: "center" }}
         >
-          Once verified{" "}
+          Once verified,{" "}
           <Link to="/login" className="auth-link">
             Try Login
           </Link>

@@ -60,7 +60,7 @@ export const loginUser = createAsyncThunk(
   ) => {
     try {
       const response = await authService.login(email, password);
-      return response.user;
+      return response;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message ?? "Login failed.");
     }
@@ -271,7 +271,7 @@ const userSlice = createSlice({
           last_name,
           email,
           profile_image,
-        } = action.payload;
+        } = action.payload.user;
         const currentUser = {
           id: _id,
           first_name,
@@ -282,6 +282,8 @@ const userSlice = createSlice({
         };
         state.currentUser = currentUser;
         state.isAuthenticated = true;
+        localStorage.setItem("accessToken", action.payload.accessToken);
+        localStorage.setItem("refreshToken", action.payload.refreshToken);
         state.loading = false;
         state.error = null;
       })
@@ -397,6 +399,7 @@ const userSlice = createSlice({
         state.success = null;
       })
       .addCase(logoutUser.fulfilled, (state) => {
+        localStorage.clear();
         state.currentUser = null;
         state.isAuthenticated = false;
         state.loading = false;

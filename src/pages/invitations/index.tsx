@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { Typography, Space, Segmented, Spin, Pagination, Empty } from "antd";
+import { Typography, Space, Segmented, Pagination, Empty } from "antd";
 import "../../layout/styles/invitations.css";
 import InvitationCard from "./component/InvitationCard";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../store";
 import { getInvitationsList } from "../../store/slices/invitationSlice";
 import { StatusType } from "../../utils/enums/invitaion";
+import { Loader } from "../../components";
 const { Title, Paragraph } = Typography;
 
 const Invitations = () => {
@@ -21,7 +22,7 @@ const Invitations = () => {
 
   return (
     <>
-      <Spin spinning={loading} fullscreen />
+      <Loader loading={loading} fullScreen />
       <div className="invitations-container">
         <div className="invitations-header">
           <div className="invitations-header-left">

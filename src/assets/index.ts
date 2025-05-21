@@ -1,4 +1,6 @@
 export const companyLogo = require("./base-team-logo.jpg");
+export const verifyEmailIcon = require("./verify-email.webp");
+export const landingPageBackground = require("./landing-page-back.avif");
 
 // Company logos
 export const hubspotLogo = require("./hubspot.webp");

@@ -6,8 +6,12 @@ import { clearAuthState, loginUser } from "../../../store/slices/userSlice";
 import { useDispatch, useSelector } from "react-redux";
 import "../../../layout/styles/Auth.css";
 import { PRIVATE_ROUTE, PUBLIC_ROUTE } from "../../../utils/enums/route";
-import { GitHubSocialLogin, GoogleSocialLogin } from "../../../components/social";
+import {
+  GitHubSocialLogin,
+  GoogleSocialLogin,
+} from "../../../components/social";
 import { LockKeyhole, UserRound } from "lucide-react";
+import { companyLogo } from "../../../assets";
 
 const { Title, Text } = Typography;
 
@@ -35,7 +39,12 @@ const Login: React.FC = () => {
 
   return (
     <div className="auth-container">
-      <div className="auth-form-container">
+      <div className="auth-form-container flex">
+        <img
+          src={companyLogo}
+          alt="BaseTeam"
+          style={{ width: "14%", borderRadius: "8px", marginBottom: "8px" }}
+        />
         <Title level={2} className="auth-title">
           Welcome Back
         </Title>

@@ -13,7 +13,6 @@ import {
   Form,
   Empty,
   App,
-  Spin,
   Pagination,
 } from "antd";
 import type { MenuProps } from "antd";
@@ -27,6 +26,7 @@ import {
   openWorkspaceAddModal,
   getAllWorkspaces,
   clearSelectedWorkspace,
+  toggleFavorite,
 } from "../../store/slices/workspaceSlice";
 import "../../layout/styles/workspaces.css";
 import { SORT_OPTIONS, SORT_OPTIONS_VALUES } from "../../config";
@@ -45,9 +45,29 @@ import {
   Trash2,
   FolderOpen,
   CircleAlert,
+  Star,
 } from "lucide-react";
+import { Loader } from "../../components";
 
 const { Title, Paragraph } = Typography;
+
+const WorkspaceHero: React.FC<{ onCreate: () => void }> = ({ onCreate }) => (
+  <div className="workspaces-header-hero gradient-bg">
+    <h1 className="workspaces-title">Your Workspaces</h1>
+    <p className="workspaces-subtitle">
+      Organize your projects and collaborate with your team.
+    </p>
+    <Button
+      type="primary"
+      icon={<Plus />}
+      size="large"
+      onClick={onCreate}
+      className="create-workspace-btn button"
+    >
+      Create Workspace
+    </Button>
+  </div>
+);
 
 const Workspaces: React.FC = () => {
   const { modal } = App.useApp();
@@ -66,6 +86,7 @@ const Workspaces: React.FC = () => {
   );
   const [sortOption, setSortOption] = useState(SORT_OPTIONS_VALUES.DEFAULT);
   const [debouncedSearch, setDebouncedSearch] = useState(searchText);
+  const [hoveredBoardId, setHoveredBoardId] = useState<string | null>(null);
 
   const showAddModal = useCallback(() => {
     dispatch(openWorkspaceAddModal());
@@ -210,6 +231,8 @@ const Workspaces: React.FC = () => {
       >
         <div
           className="workspace-card-content"
+          onMouseEnter={() => setHoveredBoardId(workspace._id)}
+          onMouseLeave={() => setHoveredBoardId(null)}
           onClick={() =>
             navigate(
               generatePath(PRIVATE_ROUTE.WORKSPACE, {
@@ -228,7 +251,30 @@ const Workspaces: React.FC = () => {
               </div>
             </div>
             {workspace.createdBy._id === currentUser?.id ? (
-              <div className="workspace-card-actions">
+              <div className="workspace-card-actions"
+                onClick={(e) => {
+                  dispatch(toggleFavorite({ workspaceId: workspace._id, isFavorite: !workspace.isFavorite }));
+                  e.stopPropagation();
+                }}
+                style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+                <div style={{
+                  display: 'flex',
+                  top: 0,
+                  right: 0,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  width: '24px',
+                  height: '24px',
+                  overflow: 'hidden',
+                  transition: 'transform 0.2s ease-in-out 0.2s',
+                  borderRadius: '6px',
+                  backgroundColor: workspace.isFavorite || hoveredBoardId === workspace._id ? 'hsla(0, 0%, 0%, 0.25)' : ""
+                }}>
+                  <Star
+                    size={16}
+                    className={`favorite-star ${workspace.isFavorite ? "favorited" : ""}`}
+                  />
+                </div>
                 <Dropdown
                   menu={{
                     items: moreMenu,
@@ -279,14 +325,14 @@ const Workspaces: React.FC = () => {
           <Empty
             image={Empty.PRESENTED_IMAGE_SIMPLE}
             description="No workspaces found"
-          ></Empty>
+          />
         </div>
       );
     }
 
     return (
       <div>
-        <Row gutter={[16, 16]} className="workspaces-grid">
+        <Row gutter={[20, 20]} className="workspaces-grid">
           {workspaces?.map((workspace) => (
             <Col xs={24} sm={12} md={8} lg={6} key={workspace._id}>
               {renderWorkspaceCard(workspace)}
@@ -363,8 +409,9 @@ const Workspaces: React.FC = () => {
 
   return (
     <>
-      <Spin spinning={loading} fullscreen />
+      <Loader loading={loading} fullScreen />
       <div className="workspaces-container">
+        <WorkspaceHero onCreate={showAddModal} />
         <div className="workspaces-header">
           <div className="header-left">
             <Title level={3} className="page-title">
@@ -417,16 +464,6 @@ const Workspaces: React.FC = () => {
                   <Space>Sort</Space>
                 </CustomButton>
               </Dropdown>
-              <CustomButton
-                type="primary"
-                icon={<Plus className="ant-btn-primary" size={16} />}
-                onClick={showAddModal}
-                className="button"
-                style={{ marginTop: 0 }}
-                breakPoint={575}
-              >
-                Create Workspace
-              </CustomButton>
             </Space>
           </div>
         </div>

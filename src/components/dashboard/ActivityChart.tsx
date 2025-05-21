@@ -161,7 +161,7 @@ const ActivityChart: React.FC = () => {
   };
 
   return (
-    <Card bordered={false} className="dashboard-card">
+    <Card className="dashboard-card">
       <Title level={4}>Activity Overview</Title>
       <div style={{ width: "100%", height: 250 }}>{renderChart()}</div>
     </Card>

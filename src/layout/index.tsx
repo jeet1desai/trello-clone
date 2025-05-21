@@ -5,6 +5,7 @@ import { Header, Footer } from "./components";
 import { useTheme } from "../contexts/ThemeContext";
 import "./styles/Layout.css";
 import "./styles/Theme.css";
+import { landingPageBackground } from "../assets";
 
 const { Content } = AntLayout;
 
@@ -50,6 +51,10 @@ const Layout: React.FC = () => {
           style={{
             ...contentStyle,
             padding: !isBoardDetailPage && showHeader && location.pathname !== "/" ? "24px" : 0,
+            backgroundImage: !showHeader ?`url(${landingPageBackground})` : "",
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            backgroundRepeat: "no-repeat",
           }}
         >
           <div

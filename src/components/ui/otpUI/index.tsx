@@ -80,6 +80,7 @@ const OtpInput: React.FC<OtpInputProps> = ({ form, name }) => {
       >
         {otp.map((digit, idx) => (
           <Input
+            className="form-input"
             key={idx}
             maxLength={1}
             value={digit}
@@ -88,7 +89,7 @@ const OtpInput: React.FC<OtpInputProps> = ({ form, name }) => {
             ref={(el: InputRef | null) => {
               inputRefs.current[idx] = el;
             }}
-            style={{ width: "40px", textAlign: "center", fontSize: "18px" }}
+            style={{ width: "44px", textAlign: "center", fontSize: "18px" }}
             inputMode="numeric"
           />
         ))}

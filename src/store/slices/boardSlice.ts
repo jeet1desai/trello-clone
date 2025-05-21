@@ -19,6 +19,7 @@ export interface IBoard {
     _id: string;
     name: string;
   };
+  isFavorite: boolean;
   members: IMember[];
   createdAt: string;
   updatedAt: string;
@@ -150,6 +151,13 @@ export interface ILabel {
   updatedAt?: string;
 }
 
+export interface Background {
+  _id: string
+  imageId: string
+  imageName: string
+  imageUrl: string
+}
+
 interface ITaskMember {
   _id: string;
   first_name: string;
@@ -175,6 +183,7 @@ interface BoardState {
   boardPagination: Pagination;
   boardWorkspaces: IWorkspace[];
   boardWorkspacesPagination: Pagination;
+  background: Background[];
 }
 
 const initialState: BoardState = {
@@ -205,6 +214,7 @@ const initialState: BoardState = {
     totalPages: 0,
     totalRecords: 0,
   },
+  background: []
 };
 
 export const getAllBoards = createAsyncThunk(
@@ -745,6 +755,41 @@ export const duplicateTask = createAsyncThunk(
     } catch (error: any) {
       return rejectWithValue(
         error.response?.data?.message ?? "Error while adding member."
+      );
+    }
+  }
+);
+
+export const toggleFavorite = createAsyncThunk(
+  "task/favorite",
+  async ({
+      boardId,
+      isFavorite,
+    }: {
+      boardId: string;
+      isFavorite: boolean;
+    }, { rejectWithValue }) => {
+    try {
+      const response = await boardService.toggleFavorite(boardId, isFavorite);
+      return response;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message ?? "Error while favourite board."
+      );
+    }
+  }
+);
+
+export const getBackground = createAsyncThunk(
+  "board/backgrounds",
+  async (_,{ rejectWithValue }
+  ) => {
+    try {
+      const response = await boardService.getBackground();
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message ?? "Error while fetching board background."
       );
     }
   }
@@ -1414,7 +1459,6 @@ const boardSlice = createSlice({
         state.success = null;
       })
       .addCase(duplicateTask.fulfilled, (state, action) => {
-        console.log('1111', action.payload)
         state.loading = false;
         state.error = null;
         state.success = "Duplicate ticket created successfully.";
@@ -1424,7 +1468,53 @@ const boardSlice = createSlice({
         state.success = null;
         state.error =
           (action.payload as string) || "Error while fetching workspaces.";
-      });;
+      })
+
+      // Board favourite
+      .addCase(toggleFavorite.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.success = null;
+      })
+      .addCase(toggleFavorite.fulfilled, (state, action) => {
+        state.boards = state.boards?.map((item) =>
+          item._id === action.payload.data.boardId
+            ? {
+              ...item,
+              isFavorite: action.payload.data.isFavorite,
+            }
+            : item
+        );
+        state.loading = false;
+        state.error = null;
+        state.success = action.payload.message;
+      })
+      .addCase(toggleFavorite.rejected, (state, action) => {
+        state.loading = false;
+        state.boards = [];
+        state.success = null;
+        state.error =
+          (action.payload as string) || "Error while fetching workspace.";
+      })
+
+      // Board favourite
+      .addCase(getBackground.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.success = null;
+      })
+      .addCase(getBackground.fulfilled, (state, action) => {
+        state.background = action.payload
+        state.loading = false;
+        state.error = null;
+      })
+      .addCase(getBackground.rejected, (state, action) => {
+        state.background = [];
+        state.loading = false;
+        state.success = null;
+        state.error =
+          (action.payload as string) || "Error while fetching board background.";
+      });
   },
 });
 

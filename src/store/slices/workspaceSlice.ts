@@ -13,6 +13,7 @@ export interface IWorkspace {
   _id: string;
   name: string;
   description: string;
+  isFavorite: boolean;
   createdBy: IUser;
   createdAt: string;
   updatedAt: string;
@@ -186,6 +187,26 @@ export const getBoardsByWorkspaceId = createAsyncThunk(
     } catch (error: any) {
       return rejectWithValue(
         error.response?.data?.message ?? "Error while fetching boards."
+      );
+    }
+  }
+);
+
+export const toggleFavorite = createAsyncThunk(
+  "status/favorite",
+  async ({
+      workspaceId,
+      isFavorite,
+    }: {
+      workspaceId: string;
+      isFavorite: boolean;
+    }, { rejectWithValue }) => {
+    try {
+      const response = await workspaceService.toggleFavorite(workspaceId, isFavorite);
+      return response;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message ?? "Error while favourite workspace."
       );
     }
   }
@@ -371,6 +392,33 @@ const workspaceSlice = createSlice({
         state.success = null;
         state.error =
           (action.payload as string) || "Error while fetching boards.";
+      })
+
+      // Workspace favourite
+      .addCase(toggleFavorite.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.success = null;
+      })
+      .addCase(toggleFavorite.fulfilled, (state, action) => {
+        state.workspaces = state.workspaces.map((item) =>
+          item._id === action.payload.data._id
+            ? {
+              ...item,
+              isFavorite: action.payload.data.isFavorite,
+            }
+            : item
+        );
+        state.loading = false;
+        state.error = null;
+        state.success = action.payload.message;
+      })
+      .addCase(toggleFavorite.rejected, (state, action) => {
+        state.loading = false;
+        state.workspaces = [];
+        state.success = null;
+        state.error =
+          (action.payload as string) || "Error while fetching workspace.";
       });
   },
 });

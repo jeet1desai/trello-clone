@@ -3,10 +3,13 @@ import axiosInstance from "../helper/axiosInstance";
 import { Priority } from "../utils/enums/task";
 
 export const taskService = {
-  async getTasksByStatusId(statusId: string, filterBy: string[]) {
+  async getTasksByStatusId(
+    statusId: string,
+    filter: { filterBy: string[]; labelIds?: string[] }
+  ) {
     const response = await axiosInstance.post(`${API_URL}/task/get-task`, {
       statusId: statusId,
-      filterBy: filterBy?.length > 0 ? filterBy : [""],
+      ...filter,
     });
     return response.data;
   },
