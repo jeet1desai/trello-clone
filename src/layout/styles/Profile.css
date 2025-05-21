@@ -1,6 +1,5 @@
 /* Profile Container */
 .profile-container {
-  min-height: 100vh;
   padding: 0px;
 }
 
@@ -54,7 +53,6 @@
 
 /* Profile Content */
 .profile-content {
-  margin: 0 auto;
   animation: fadeIn 0.5s ease-out;
 }
 

@@ -198,7 +198,7 @@ const WorkspaceDetail: React.FC = () => {
     if (boards?.length === 0) {
       return (
         <Empty description="No boards created yet. Create your first board to get started.">
-          <Button type="primary" className="button" onClick={showAddBoardModal}>
+          <Button style={{backgroundColor:'#40a8ff7a'}} className="button" onClick={showAddBoardModal}>
             Create Board
           </Button>
         </Empty>
@@ -293,14 +293,16 @@ const WorkspaceDetail: React.FC = () => {
     <>
       <Loader loading={loading} fullScreen />
       <div className="workspace-detail-container">
+        <div style={{marginBottom:'10px'}}>
+        <Text
+          className="workspace-back"
+          onClick={() => navigate(PRIVATE_ROUTE.WORKSPACES)}
+        >
+          <ArrowLeftOutlined style={{marginRight:'5px'}}/> Back to workspace
+        </Text>
+        </div>
         <Card className="workspace-header">
-          <div className="workspace-info">
-            <Text
-              className="workspace-back"
-              onClick={() => navigate(PRIVATE_ROUTE.WORKSPACES)}
-            >
-              <ArrowLeftOutlined /> Back
-            </Text>
+          <div className="workspace-info"> 
             <div className="workspace-title-row">
               <Title level={2} className="workspace-title">
                 {selectedWorkspace.name}
@@ -314,7 +316,7 @@ const WorkspaceDetail: React.FC = () => {
                   onClick={handleDelete}
                   breakPoint={460}
                 >
-                  Delete
+                  Delete workspace
                 </CustomButton>
               </div>
             </div>
@@ -354,23 +356,37 @@ const WorkspaceDetail: React.FC = () => {
                         title="Workspace Information"
                         className="info-card"
                         styles={{
-                          header: { borderTop: `3px solid ${workspaceColor}` },
+                          header: { borderTop: `3px solid #40a8ff7a`},
                         }}
                       >
                         <div className="info-card-content">
-                          <p>
-                            <strong>Created by:</strong>{" "}
+                          <div className="info-card-div">
+                            <div className="info-card-icon">
+                            <UserOutlined />
+                            </div>
+                            <div className="info-card-title-text">
+                            <Typography style={{color:'black'}}>Created by</Typography>{" "}
+                            <Typography style={{color:'gray'}}>
                             {selectedWorkspace.createdBy.first_name +
                               " " +
                               selectedWorkspace.createdBy.last_name}{" "}
                             ({selectedWorkspace.createdBy.email})
-                          </p>
-                          <p>
-                            <strong>Created at:</strong>{" "}
-                            {dayjs(selectedWorkspace.createdAt).format(
-                              "MMM DD,YYYY hh:mm A"
-                            )}
-                          </p>
+                            </Typography>
+                              </div>
+                          </div>
+                          <div className="info-card-div">
+                            <div className="info-card-icon">
+                              <UserOutlined />
+                            </div>
+                            <div className="info-card-title-text">
+                              <Typography style={{color:'black'}}>Created at</Typography>{" "}
+                              <Typography style={{color:'gray'}}>
+                              {dayjs(
+                                selectedWorkspace.createdAt
+                              ).format("MMM DD,YYYY hh:mm A")}
+                              </Typography>
+                            </div>
+                          </div>
                         </div>
                       </Card>
                     </Col>
@@ -379,11 +395,13 @@ const WorkspaceDetail: React.FC = () => {
                         title="Activity"
                         className="activity-card"
                         styles={{
-                          header: { borderTop: `3px solid ${workspaceColor}` },
+                          header: { borderTop: `3px solid #40a8ff7a`},
                         }}
                       >
-                        <div className="activity-content">
+                        <div className="activity-content-item">
+                          <ClockCircleOutlined style={{ fontSize: '25px' , color:'gray', margin:'15px 0px'}}/>
                           <Text type="secondary">No recent activity</Text>
+                          <Text type="secondary">Activities will appear here as you work</Text>
                         </div>
                       </Card>
                     </Col>
@@ -401,7 +419,7 @@ const WorkspaceDetail: React.FC = () => {
                           </Button>
                         }
                         styles={{
-                          header: { borderTop: `3px solid ${workspaceColor}` },
+                          header: { borderTop: `3px solid #40a8ff7a` },
                         }}
                       >
                         <div className="boards-card-content">
@@ -418,23 +436,26 @@ const WorkspaceDetail: React.FC = () => {
                 children: (
                   <Row gutter={[16, 16]}>
                     <Col xs={24}>
-                      <div className="boards-header">
-                        <Title level={4} style={{ margin: "0px" }}>
-                          All Boards
-                        </Title>
-                        <CustomButton
-                          type="primary"
+                    <Card
+                        title="All Boards"
+                        className="boards-header"
+                        extra={
+                          <CustomButton
                           className="button"
                           icon={<PlusOutlined />}
                           onClick={showAddBoardModal}
                           breakPoint={370}
-                          style={{ marginTop: "0px" }}
+                          style={{ marginTop: "0px" , backgroundColor:'#40a8ff7a'}}
                         >
                           Create Board
                         </CustomButton>
-                      </div>
-
-                      {renderBoardsList(workspaceBoards)}
+                        }
+                        styles={{
+                          header: { borderTop: `3px solid #40a8ff7a` },
+                        }}
+                      >
+                         {renderBoardsList(workspaceBoards)}
+                      </Card>
                     </Col>
                   </Row>
                 ),
