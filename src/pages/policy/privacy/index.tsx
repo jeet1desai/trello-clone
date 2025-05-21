@@ -8,11 +8,11 @@ import {
   Grid,
   MenuProps,
 } from "antd";
-import { MenuOutlined } from "@ant-design/icons";
 import { useState, useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { scrollToSectionWithOffset } from "../../../helper";
 import { useActiveSection } from "../../../hooks/useActiveSection";
+import { Menu as MenuIcon } from "lucide-react";
 
 const { Content } = Layout;
 const { Title, Paragraph } = Typography;
@@ -213,7 +213,7 @@ const PrivacyPolicy = () => {
             <>
               <Button
                 type="primary"
-                icon={<MenuOutlined />}
+                icon={<MenuIcon size={18} />}
                 onClick={() => setDrawerVisible(true)}
               />
               <Drawer

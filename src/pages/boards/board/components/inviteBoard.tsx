@@ -21,12 +21,12 @@ import {
   App,
   Spin,
 } from "antd";
-import { ExclamationCircleOutlined } from "@ant-design/icons";
 import "../../../../layout/styles/Board.css";
 import { getRandomColor } from "../../../../utils";
 import socketService from "../../../../services/socketService";
 import { useNavigate } from "react-router-dom";
 import { PRIVATE_ROUTE } from "../../../../utils/enums/route";
+import { CircleAlert } from "lucide-react";
 
 const { Text } = Typography;
 
@@ -87,7 +87,7 @@ const InviteBoard: React.FC<InviteBoardProps> = ({ isOpen, onClose }) => {
   const handleRemoveMember = (member: MemberData) => {
     modal.confirm({
       title: `Are you sure you want to remove "${member.memberId.first_name} ${member.memberId.last_name ?? ""}" from the board?`,
-      icon: <ExclamationCircleOutlined />,
+      icon: <CircleAlert size={36} color="#ffac40" style={{ marginRight: 8 }} />,
       content:
         "This action can be done again by inviting the member back to the board.",
       okText: "Remove",

@@ -571,8 +571,66 @@
   margin-left: 10px;
 }
 
-/* Notification Style */
+.header-hero {
+  width: 100%;
+  padding: 48px 0 32px 0;
+  text-align: center;
+  background: linear-gradient(135deg, hsl(213, 72%, 21%) 0%, #3e88b6 100%);
+  color: #fff;
+  border-radius: 0 0 24px 24px;
+  margin-bottom: 32px;
+  box-shadow: 0 4px 24px rgba(26, 41, 128, 0.08);
+}
+.header-hero-title {
+  font-size: 2.1rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+.header-hero-subtitle {
+  font-size: 1.25rem;
+  color: #e0e7ef;
+  margin-bottom: 24px;
+}
 
+.header-hero-btn {
+  font-size: 1.1rem;
+  padding: 0 32px;
+  border-radius: 24px !important;
+  border: none;
+}
+
+/* Tour Style */
+.ant-tour-header {
+  width: 100% !important;
+  padding: 16px 16px 0 16px !important;
+}
+
+.ant-tour-title {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.ant-tour-description {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.ant-tour-footer {
+  align-items: center;
+}
+
+.ant-tour-prev-btn {
+  padding: 15px 8px !important;
+  border-radius: 8px;
+}
+
+.ant-tour-next-btn {
+  padding: 15px 8px !important;
+  border-radius: 8px;
+}
+
+/* Notification Style */
 .notification-popover-content {
   width: 100%;
   min-width: 350px;

@@ -16,7 +16,6 @@ import {
   message,
   Space,
 } from "antd";
-import { CopyOutlined, FilePdfOutlined } from "@ant-design/icons";
 import TaskDescriptionEditor from "../../../../components/ui/Editor";
 import type { UploadFile } from "antd";
 import { useDispatch, useSelector } from "react-redux";
@@ -94,6 +93,8 @@ import {
   X,
   CircleX,
   File as FileIcon,
+  FileText,
+  Files,
 } from "lucide-react";
 
 const { Text } = Typography;
@@ -265,7 +266,7 @@ const renderPreview = (taskAttach: IAttachment) => {
       />
     );
   } else if (fileType === "application/pdf") {
-    return <FilePdfOutlined style={{ fontSize: 24, color: "#f5222d" }} />;
+    return <FileText size={24} color="#f5222d" />;
   } else {
     return <FileIcon size={20} />;
   }
@@ -1117,14 +1118,14 @@ const TaskModal: React.FC<TaskModalProps> = ({
                       gap: "8px",
                     }}
                   >
-                    <CopyOutlined size={16} />
+                    <Files size={16} />
                     <Text strong>Duplicate</Text>
                   </div>
                   <Button
                     type="default"
                     shape="circle"
                     className="button small-btn"
-                    icon={<CopyOutlined size={16} />}
+                    icon={<Files size={16} />}
                     onClick={() =>
                       dispatch(duplicateTask(selectedTask?._id ?? ""))
                     }

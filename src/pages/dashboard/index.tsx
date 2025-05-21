@@ -34,6 +34,7 @@ import {
   Clock,
   UsersRound,
   SquareKanban,
+  Sparkles,
 } from "lucide-react";
 import dayjs from "dayjs";
 import { useMedia } from "../../hooks/useMedia";
@@ -121,7 +122,6 @@ const Dashboard: React.FC = () => {
         <Row gutter={[24, 24]} align="stretch">
           <Col xs={24} lg={16} className="welcome-col">
             <Card className="welcome-card gradient-1">
-              <div className="welcome-background-pattern"></div>
               <Row gutter={24} align="middle" className="welcome-content">
                 <Col>
                   <div className="user-info-section">
@@ -287,17 +287,18 @@ const Dashboard: React.FC = () => {
               border: "none",
               borderRadius: "12px",
               overflow: "hidden",
-              background: "linear-gradient(135deg, #e0e7ff 0%, #f0f5ff 100%)",
+              background:
+                "linear-gradient(135deg, hsl(213deg 52.23% 47.17%) 0%, #122d3e 100%)",
             }}
           >
             <div>
-              <Title level={3} style={{ color: "#2f54eb", marginBottom: 12 }}>
-                Welcome to BaseTeam!
+              <Title level={3} style={{ color: "black", marginBottom: 12 }}>
+                Learn BaseTeam!
               </Title>
               <Text
                 style={{
                   fontSize: 16,
-                  color: "#595959",
+                  color: "#FFFFFF",
                   display: "block",
                 }}
               >
@@ -312,6 +313,7 @@ const Dashboard: React.FC = () => {
               className="button"
               onClick={handleStartTour}
             >
+              <Sparkles size={18} />
               Take a Tour
             </Button>
           </Card>
@@ -464,7 +466,26 @@ const Dashboard: React.FC = () => {
           </Col>
         </Row>
       </div>
-      <Tour open={open} onClose={() => setOpen(false)} steps={steps} />
+      <Tour
+        open={open}
+        onClose={() => setOpen(false)}
+        steps={steps}
+        indicatorsRender={(current, total) => (
+          <span
+            style={{
+              fontSize: 14,
+              fontWeight: 500,
+              background: "#80808052",
+              padding: "6px 8px",
+              borderRadius: "4px",
+            }}
+          >
+            {current + 1} / {total}
+          </span>
+        )}
+        animated={true}
+        closable={false}
+      />
     </div>
   );
 };

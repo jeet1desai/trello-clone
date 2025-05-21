@@ -9,6 +9,15 @@ import { StatusType } from "../../utils/enums/invitaion";
 import { Loader } from "../../components";
 const { Title, Paragraph } = Typography;
 
+const InvitationsHero: React.FC = () => (
+  <div className="header-hero gradient-bg">
+    <h1 className="header-hero-title">Invitations</h1>
+    <p className="header-hero-subtitle">
+      Manage your board access and invitations.
+    </p>
+  </div>
+);
+
 const Invitations = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { loading, invitationList, pagination } = useSelector(
@@ -24,6 +33,7 @@ const Invitations = () => {
     <>
       <Loader loading={loading} fullScreen />
       <div className="invitations-container">
+        <InvitationsHero />
         <div className="invitations-header">
           <div className="invitations-header-left">
             <Title level={3} className="page-title">

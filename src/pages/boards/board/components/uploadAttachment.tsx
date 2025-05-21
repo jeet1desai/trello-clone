@@ -1,12 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { Modal, Button, Upload, UploadFile, Form } from "antd";
-import {
-  FileExcelOutlined,
-  FileImageOutlined,
-  FilePdfOutlined,
-  PlayCircleOutlined,
-  PlusOutlined,
-} from "@ant-design/icons";
 import { RcFile } from "antd/es/upload";
 import type { UploadRequestOption as RcCustomRequestOptions } from "rc-upload/lib/interface";
 import CustomUploadItem from "./uploadItems";
@@ -19,6 +12,7 @@ import {
 import { toNativeFile } from "./taskModal";
 import socketService from "../../../../services/socketService";
 import { updateAttachmentCount } from "../../../../store/slices/taskSlice";
+import { CirclePlay, File, FileImage, FileX, Plus } from "lucide-react";
 
 const allowedTypes = [
   "image/jpeg",
@@ -159,18 +153,18 @@ const FileUploadModal = () => {
   const getFileIcon = (file: UploadFile) => {
     const iconClass = "font-size-20";
 
-    if (!file.type) return <FilePdfOutlined className={iconClass} />;
+    if (!file.type) return <File size={20} className={iconClass} />;
 
     if (file.type.startsWith("image/")) {
-      return <FileImageOutlined className={`${iconClass} img-color`} />;
+      return <FileImage size={20} className={`${iconClass} img-color`} />;
     }
 
     if (file.type.startsWith("video/")) {
-      return <PlayCircleOutlined className={`${iconClass} video-color`} />;
+      return <CirclePlay size={20} className={`${iconClass} video-color`} />;
     }
 
     if (file.type === "application/pdf") {
-      return <FilePdfOutlined className={`${iconClass} pdf-color`} />;
+      return <File size={20} className={`${iconClass} pdf-color`} />;
     }
 
     if (
@@ -179,10 +173,10 @@ const FileUploadModal = () => {
         "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
       ].includes(file.type)
     ) {
-      return <FileExcelOutlined className={`${iconClass} excel-color`} />;
+      return <FileX size={20} className={`${iconClass} excel-color`} />;
     }
 
-    return <FilePdfOutlined className={iconClass} />;
+    return <File size={20} className={iconClass} />;
   };
 
   const handleClose = () => {
@@ -272,7 +266,7 @@ const FileUploadModal = () => {
           >
             {fileList.length < MAX_FILE_COUNT && (
               <div>
-                <PlusOutlined />
+                <Plus size={20} />
                 <div className="upload-btn-text">Upload</div>
               </div>
             )}

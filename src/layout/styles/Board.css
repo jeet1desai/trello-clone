@@ -98,11 +98,15 @@
 .hover-btn {
   color: #fff;
   cursor: pointer;
-  background-color: transparent;
+  background-color: transparent !important;
   width: fit-content;
   height: 12px;
   padding: 0px;
   border: none;
+}
+
+.hover-btn:hover {
+  color: #000000 !important;
 }
 
 /* Update Task Modal */

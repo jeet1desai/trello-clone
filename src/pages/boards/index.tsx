@@ -54,9 +54,9 @@ import { Loader } from "../../components";
 const { Title, Paragraph } = Typography;
 
 const BoardHero: React.FC<{ onCreate: () => void }> = ({ onCreate }) => (
-  <div className="boards-header-hero gradient-bg">
-    <h1 className="boards-title">Your Boards</h1>
-    <p className="boards-subtitle">
+  <div className="header-hero gradient-bg">
+    <h1 className="header-hero-title">Your Boards</h1>
+    <p className="header-hero-subtitle">
       Organize your boards and manage your team work.
     </p>
     <Button
@@ -64,7 +64,7 @@ const BoardHero: React.FC<{ onCreate: () => void }> = ({ onCreate }) => (
       icon={<Plus />}
       size="large"
       onClick={onCreate}
-      className="create-board-btn button"
+      className="header-hero-btn button"
     >
       Create Board
     </Button>

@@ -52,9 +52,9 @@ import { Loader } from "../../components";
 const { Title, Paragraph } = Typography;
 
 const WorkspaceHero: React.FC<{ onCreate: () => void }> = ({ onCreate }) => (
-  <div className="workspaces-header-hero gradient-bg">
-    <h1 className="workspaces-title">Your Workspaces</h1>
-    <p className="workspaces-subtitle">
+  <div className="header-hero gradient-bg">
+    <h1 className="header-hero-title">Your Workspaces</h1>
+    <p className="header-hero-subtitle">
       Organize your projects and collaborate with your team.
     </p>
     <Button
@@ -62,7 +62,7 @@ const WorkspaceHero: React.FC<{ onCreate: () => void }> = ({ onCreate }) => (
       icon={<Plus />}
       size="large"
       onClick={onCreate}
-      className="create-workspace-btn button"
+      className="header-hero-btn button"
     >
       Create Workspace
     </Button>

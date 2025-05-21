@@ -6,6 +6,7 @@ import { useTheme } from "../contexts/ThemeContext";
 import "./styles/Layout.css";
 import "./styles/Theme.css";
 import { landingPageBackground } from "../assets";
+import { PUBLIC_ROUTE } from "../utils/enums/route";
 
 const { Content } = AntLayout;
 
@@ -34,10 +35,10 @@ const Layout: React.FC = () => {
 
   // Don't show footer on board detail pages
   const showHeader = !(
-    location.pathname.includes("register") ||
-    location.pathname.includes("verify-email") ||
-    location.pathname.includes("login") ||
-    location.pathname.includes("forgot-password")
+    location.pathname.includes(PUBLIC_ROUTE.REGISTRATION) ||
+    location.pathname.includes(PUBLIC_ROUTE.VERIFY_USER_EMAIL) ||
+    location.pathname.includes(PUBLIC_ROUTE.LOGIN) ||
+    location.pathname.includes(PUBLIC_ROUTE.FORGOT_PASSWORD)
   );
 
   // Don't show footer on board detail pages
@@ -50,11 +51,11 @@ const Layout: React.FC = () => {
         <Content
           style={{
             ...contentStyle,
-            padding: !isBoardDetailPage && showHeader && location.pathname !== "/" ? "24px" : 0,
+            padding: !isBoardDetailPage && showHeader && location.pathname !== PUBLIC_ROUTE.HOME ? "24px" : 0,
             backgroundImage: !showHeader ?`url(${landingPageBackground})` : "",
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-            backgroundRepeat: "no-repeat",
+            backgroundSize: "cover !important",
+            backgroundPosition: "center !important",
+            backgroundRepeat: "no-repeat !important",
           }}
         >
           <div

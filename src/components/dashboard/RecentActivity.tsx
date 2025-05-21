@@ -1,14 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Card, Typography, List, Avatar, Tag, Space, Spin, Empty } from "antd";
-import {
-  FileOutlined,
-  FolderOutlined,
-  ToolOutlined,
-  TeamOutlined,
-  TagOutlined,
-  PaperClipOutlined,
-  AppstoreOutlined,
-} from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../store";
 import dayjs from "dayjs";
@@ -19,27 +10,36 @@ import {
   getDashboardRecentActivity,
 } from "../../store/slices/dashboardSlice";
 import { getRandomColor } from "../../utils";
+import {
+  File,
+  Folder,
+  UsersRound,
+  Wrench,
+  Tag as TagIcon,
+  LayoutGrid,
+  Paperclip,
+} from "lucide-react";
 
 const { Text } = Typography;
 
 const getIconForType = (type: string) => {
   switch (type.toLowerCase()) {
     case "workspace":
-      return <ToolOutlined />;
+      return <Wrench size={16} className="marginTop4" />;
     case "board":
-      return <FolderOutlined />;
+      return <Folder size={16} className="marginTop4" />;
     case "status":
-      return <AppstoreOutlined />;
+      return <LayoutGrid size={16} className="marginTop4" />;
     case "task":
-      return <FileOutlined />;
+      return <File size={16} className="marginTop4" />;
     case "task label":
-      return <TagOutlined />;
+      return <TagIcon size={16} className="marginTop4" />;
     case "task member":
-      return <TeamOutlined />;
+      return <UsersRound size={16} className="marginTop4" />;
     case "attachment":
-      return <PaperClipOutlined />;
+      return <Paperclip size={16} className="marginTop4" />;
     default:
-      return <FileOutlined />;
+      return <File size={16} className="marginTop4" />;
   }
 };
 

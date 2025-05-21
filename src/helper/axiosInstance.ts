@@ -59,7 +59,6 @@ axiosInstance.interceptors.response.use(
 
       if (!refreshToken) {
         localStorage.clear();
-        window.location.href = PUBLIC_ROUTE.HOME;
         return Promise.reject(error);
       }
 
