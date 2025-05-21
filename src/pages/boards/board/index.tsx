@@ -75,6 +75,7 @@ import {
   Equal,
   ChevronDown,
   Clock,
+  TableProperties,
 } from "lucide-react";
 import BoardFilter from "./components/boardFilter";
 import ChangeBackgroundModal from "./components/ChangeBackgroundModal";
@@ -659,11 +660,16 @@ const BoardDetail: React.FC = () => {
       <Loader loading={statusLoading || taskLoading} fullScreen />
       <div className="board-header">
         <div>
+          <div style={{display:'flex', alignItems:'center'}}>
           <Space size={16}>
             <Title level={4} className="board-title">
               {boardData?.name}
             </Title>
           </Space>
+          <div style={{backgroundColor:'gray', padding:'5px', marginLeft:'5px', borderRadius:'5px' , display:'flex'}}>
+          <TableProperties /> <ChevronDown/>
+          </div>
+          </div>
           <Paragraph className="board-title color-inherit">
             {selectedBoard?.description}
           </Paragraph>
