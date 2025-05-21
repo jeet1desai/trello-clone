@@ -3,6 +3,7 @@ import { boardService } from "../../services/boardService";
 import { IWorkspace, updateWorkspaceBoards } from "./workspaceSlice";
 import { Pagination } from "./dashboardSlice";
 import { workspaceService } from "../../services/workspaceService";
+import { BOARD_BACKGROUND_TYPE } from "../../utils/enums/board";
 
 export interface IMember {
   _id: string;
@@ -91,6 +92,8 @@ export interface IBoardDetails {
   boardOwner: IBoardOwner;
   members: IBoardMember[];
   workspace: IBoardWorkspace[];
+  background: string
+  backgroundType: BOARD_BACKGROUND_TYPE
 }
 
 export interface IMemberId {
@@ -158,6 +161,15 @@ export interface Background {
   imageUrl: string
 }
 
+export interface UserBackground {
+  imageName: string
+  imageId: string
+  imageUrl: string
+  userId: string
+  _id: string
+  __v: number
+}
+
 interface ITaskMember {
   _id: string;
   first_name: string;
@@ -184,6 +196,7 @@ interface BoardState {
   boardWorkspaces: IWorkspace[];
   boardWorkspacesPagination: Pagination;
   background: Background[];
+  userBackround: UserBackground[]
 }
 
 const initialState: BoardState = {
@@ -214,7 +227,8 @@ const initialState: BoardState = {
     totalPages: 0,
     totalRecords: 0,
   },
-  background: []
+  background: [],
+  userBackround: []
 };
 
 export const getAllBoards = createAsyncThunk(
@@ -790,6 +804,94 @@ export const getBackground = createAsyncThunk(
     } catch (error: any) {
       return rejectWithValue(
         error.response?.data?.message ?? "Error while fetching board background."
+      );
+    }
+  }
+);
+
+export const getUserBackground = createAsyncThunk(
+  "user/board/background/get",
+  async (_, { rejectWithValue }
+  ) => {
+    try {
+      const response = await boardService.getUserBackground();
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message ?? "Error while fetching board background."
+      );
+    }
+  }
+);
+
+export const postUserBackground = createAsyncThunk(
+  "user/board/background/post",
+  async (
+    uploadedImages: File[]
+    , { rejectWithValue }
+  ) => {
+    try {
+      const response = await boardService.postUserBackground(uploadedImages);
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message ?? "Error while fetching board background."
+      );
+    }
+  }
+);
+
+export const deleteUserBackground = createAsyncThunk(
+  "user/board/background/delete",
+  async ({
+    imageId,
+    boardId,
+  }: {
+    imageId: string;
+    boardId: string;
+  }, { rejectWithValue }) => {
+    try {
+      const response = await boardService.deleteUserBackground(imageId, boardId);
+      if (response.message) {
+        return { message: response.message, imageId };
+      } else {
+        return { message: "Error", imageId: "" };
+      }
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message ?? "Error while deleting board."
+      );
+    }
+  }
+);
+
+export const changebackground = createAsyncThunk(
+  "board/update-background",
+  async (
+    {
+      boardId,
+      backgroundType,
+      background,
+      imageId
+    }: {
+      boardId: string,
+      backgroundType: BOARD_BACKGROUND_TYPE,
+      background: string,
+      imageId: string
+    },
+    { rejectWithValue }
+  ) => {
+    try {
+      const response = await boardService.changebackground(
+        boardId,
+        backgroundType,
+        background,
+        imageId
+      );
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message ?? "Error while updating board."
       );
     }
   }
@@ -1514,6 +1616,93 @@ const boardSlice = createSlice({
         state.success = null;
         state.error =
           (action.payload as string) || "Error while fetching board background.";
+      })
+      
+      // Board get user background
+      .addCase(getUserBackground.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.success = null;
+      })
+      .addCase(getUserBackground.fulfilled, (state, action) => {
+        state.userBackround = action.payload
+        state.loading = false;
+        state.error = null;
+      })
+      .addCase(getUserBackground.rejected, (state, action) => {
+        state.userBackround = [];
+        state.loading = false;
+        state.success = null;
+        state.error =
+          (action.payload as string) || "Error while fetching board background.";
+      })
+
+      // Board post user background
+      .addCase(postUserBackground.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.success = null;
+      })
+      .addCase(postUserBackground.fulfilled, (state, action) => {
+        state.userBackround = [...state.userBackround, ...action.payload];
+        state.loading = false;
+        state.error = null;
+      })
+      .addCase(postUserBackground.rejected, (state, action) => {
+        state.userBackround = [];
+        state.loading = false;
+        state.success = null;
+        state.error =
+          (action.payload as string) || "Error while fetching board background.";
+      })
+
+      // Delete invited member from board
+      .addCase(deleteUserBackground.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.success = null;
+      })
+      .addCase(deleteUserBackground.fulfilled, (state, action) => {
+        const { message, imageId } = action.payload;
+        if (imageId) {
+          state.userBackround = state.userBackround.filter(
+            (item) => item._id !== imageId
+          )
+        }
+        state.success = message;
+        state.loading = false;
+        state.error = null;
+      })
+      .addCase(deleteUserBackground.rejected, (state, action) => {
+        state.loading = false;
+        state.success = null;
+        state.error =
+          (action.payload as string) || "Error while removing member.";
+      })
+
+      // chnage user board background
+      .addCase(changebackground.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.success = null;
+      })
+      .addCase(changebackground.fulfilled, (state, action) => {
+        if (state.selectedBoard) {
+          state.selectedBoard = {
+            ...state.selectedBoard,
+            background: action.payload.background,
+            backgroundType: action.payload.backgroundType,
+          };
+        }
+        state.success = "";
+        state.loading = false;
+        state.error = null;
+      })
+      .addCase(changebackground.rejected, (state, action) => {
+        state.loading = false;
+        state.success = null;
+        state.error =
+          (action.payload as string) || "Error while removing member.";
       });
   },
 });

@@ -22,7 +22,7 @@ import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../../store";
 import { useNavigate, useParams } from "react-router";
-import { IBoardDetails, getAllLabels, getBackground, getBoardById, getBoardMemberListById } from "../../../store/slices/boardSlice";
+import { IBoardDetails, getAllLabels, getBackground, getBoardById, getBoardMemberListById, getUserBackground } from "../../../store/slices/boardSlice";
 import InviteBoard from "./components/inviteBoard";
 import "../../../layout/styles/Board.css";
 import {
@@ -77,7 +77,7 @@ import {
   Clock,
 } from "lucide-react";
 import BoardFilter from "./components/boardFilter";
-import ChangeBackgroundModal from "./components/ChangeBackgroundModal";
+import ChangeBackgroundPopover from "./components/ChangeBackgroundModal";
 
 const { Title, Text } = Typography;
 
@@ -146,6 +146,7 @@ const BoardDetail: React.FC = () => {
           await dispatch(getBoardMemberListById({ _id: id, search: "" }));
           await dispatch(getAllLabels(id));
           await dispatch(getBackground())
+          await dispatch(getUserBackground())
         } else {
           openNotification({
             type: "error",
@@ -777,7 +778,7 @@ const BoardDetail: React.FC = () => {
                 );
               })}
             </Avatar.Group>
-            <ChangeBackgroundModal />
+            <ChangeBackgroundPopover />
             <Button className="button" type="default" style={{ marginTop: 0 }} onClick={() => setShowInviteModal(true)}>
               <Space>
                 <UserRoundPlus size={16} /> Invite
