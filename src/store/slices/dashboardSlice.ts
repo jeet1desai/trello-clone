@@ -1,6 +1,21 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { dashboardService } from "../../services/dashboardService";
 
+export interface IUpcomingTask {
+  _id: string;
+  title: string;
+  description: string;
+  board_id: string;
+  assigned_to: {
+    first_name: string;
+    last_name: string;
+    _id: string;
+  };
+  end_date: string;
+  priority: string;
+  status: string;
+}
+
 export interface DashboardAnalyticResponse {
   week: {
     date: string;
@@ -75,6 +90,7 @@ interface DashboardState {
   hasMore: boolean;
   loadingMore: boolean;
   recentActivityLoading: boolean;
+  upcomingTasks: IUpcomingTask[];
 }
 
 const initialState: DashboardState = {
@@ -95,6 +111,7 @@ const initialState: DashboardState = {
   hasMore: false,
   loadingMore: false,
   recentActivityLoading: false,
+  upcomingTasks: [],
 };
 
 export const getDashboardCount = createAsyncThunk(
@@ -136,6 +153,20 @@ export const getDashboardRecentActivity = createAsyncThunk(
       return rejectWithValue(
         error.response?.data?.message ??
           "Error while fetching dashboard analytics"
+      );
+    }
+  }
+);
+
+export const getUpcomingTasks = createAsyncThunk(
+  "dashboard/upcoming-tasks",
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await dashboardService.getUpcomingTasks();
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message ?? "Error while fetching upcoming tasks"
       );
     }
   }
@@ -236,6 +267,28 @@ const dashboardSlice = createSlice({
         state.success = null;
         state.hasMore = false;
         state.loadingMore = false;
+        state.error =
+          (action.payload as string) ||
+          "Error while fetching dashboard recent activity.";
+      })
+
+      // Get upcoming tasks
+      .addCase(getUpcomingTasks.pending, (state) => {
+        state.upcomingTasks = [];
+        state.loading = true;
+        state.error = null;
+        state.success = null;
+      })
+      .addCase(getUpcomingTasks.fulfilled, (state, action) => {
+        state.upcomingTasks = action.payload;
+        state.loading = false;
+        state.error = null;
+        state.success = "Upcoming tasks fetched successfully.";
+      })
+      .addCase(getUpcomingTasks.rejected, (state, action) => {
+        state.loading = false;
+        state.success = null;
+        state.upcomingTasks = [];
         state.error =
           (action.payload as string) ||
           "Error while fetching dashboard recent activity.";
