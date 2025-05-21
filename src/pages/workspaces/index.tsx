@@ -224,6 +224,20 @@ const Workspaces: React.FC = () => {
     ];
 
     return (
+      <div style={{ position: "relative" }}>
+        <div
+          style={{
+            height: "4px",
+            width: "100%",
+            background: "linear-gradient(135deg, hsl(213, 72%, 21%) 0%, #3e88b6 100%)",
+            position: "absolute",
+            top: 0,
+            left: 0,
+            borderTopLeftRadius: '8px',
+            borderTopRightRadius: '8px',
+            zIndex: 1,
+          }}
+        />
       <Card
         hoverable
         className="workspace-card"
@@ -315,6 +329,7 @@ const Workspaces: React.FC = () => {
           </div>
         </div>
       </Card>
+      </div>
     );
   };
 
