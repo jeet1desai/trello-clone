@@ -437,12 +437,8 @@ const WorkspaceDetail: React.FC = () => {
                         styles={{
                           header: { borderTop: `3px solid #40a8ff7a` },
                         }}
-                      />
-                      <Card
-                        className="boards-list-card"
-                        style={{ borderTop: `3px solid ${workspaceColor}` }}
                       >
-                        {renderBoardsList(workspaceBoards)}
+                         {renderBoardsList(workspaceBoards)}
                       </Card>
                     </Col>
                   </Row>
