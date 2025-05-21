@@ -54,7 +54,6 @@
 
 /* Profile Content */
 .profile-content {
-  max-width: 1450px;
   margin: 0 auto;
   animation: fadeIn 0.5s ease-out;
 }
@@ -81,7 +80,7 @@
 }
 
 .profile-tabs .ant-tabs-tab-active {
-  background: #0f325c;
+  background: #174b89;
   border-radius: 6px;
 }
 

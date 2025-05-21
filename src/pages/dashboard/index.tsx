@@ -11,9 +11,7 @@ import {
   Button,
   Calendar as AntdCalendar,
   Divider,
-  List,
   Tour,
-  Tag,
 } from "antd";
 import { RootState, AppDispatch } from "../../store";
 import {
@@ -27,6 +25,7 @@ import {
   getDashboardAnalytics,
   getDashboardCount,
   getDashboardRecentActivity,
+  getUpcomingTasks,
 } from "../../store/slices/dashboardSlice";
 import {
   Calendar,
@@ -38,6 +37,7 @@ import {
 } from "lucide-react";
 import dayjs from "dayjs";
 import { useMedia } from "../../hooks/useMedia";
+import UpcomingTasks from "../../components/dashboard/UpcomingTasks";
 
 const { Title, Text } = Typography;
 
@@ -367,90 +367,7 @@ const Dashboard: React.FC = () => {
                 borderRadius: 12,
               }}
             >
-              {/* Upcoming Deadlines */}
-              <div style={{ marginBottom: 24 }}>
-                <List
-                  size="small"
-                  dataSource={[
-                    {
-                      task: "Submit Q2 Report",
-                      due: dayjs().add(2, "day").format("MMM D, YYYY"),
-                      type: "Urgent",
-                      desc: "Quarterly report submission for finance.",
-                      icon: "https://randomuser.me/api/portraits/men/32.jpg",
-                      color: "red",
-                    },
-                    {
-                      task: "Team Meeting",
-                      due: dayjs().add(4, "day").format("MMM D, YYYY"),
-                      type: "Meeting",
-                      desc: "Monthly sync with the product team.",
-                      icon: "https://randomuser.me/api/portraits/women/44.jpg",
-                      color: "blue",
-                    },
-                    {
-                      task: "Release v1.2",
-                      due: dayjs().add(1, "week").format("MMM D, YYYY"),
-                      type: "Release",
-                      desc: "Deploy new version to production.",
-                      icon: "https://randomuser.me/api/portraits/men/65.jpg",
-                      color: "green",
-                    },
-                    {
-                      task: "Submit Q1 Report",
-                      due: dayjs().add(2, "day").format("MMM D, YYYY"),
-                      type: "Urgent",
-                      desc: "report submission for finance.",
-                      icon: "https://randomuser.me/api/portraits/men/32.jpg",
-                      color: "red",
-                    },
-                  ]}
-                  renderItem={(item) => (
-                    <List.Item
-                      style={{
-                        border: "1px solid rgb(204 204 204 / 25%)",
-                        borderRadius: 8,
-                        marginBottom: 12,
-                      }}
-                    >
-                      <List.Item.Meta
-                        avatar={<Avatar src={item.icon} size={40} />}
-                        title={
-                          <div
-                            style={{
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "space-between",
-                            }}
-                          >
-                            <span style={{ fontWeight: 500 }}>{item.task}</span>
-                            <Tag color={item.color} style={{ marginLeft: 8 }}>
-                              {item.type}
-                            </Tag>
-                          </div>
-                        }
-                        description={
-                          <div
-                            style={{ display: "flex", flexDirection: "column" }}
-                          >
-                            <span
-                              style={{
-                                color: "rgb(127 137 235)",
-                                fontWeight: 500,
-                              }}
-                            >
-                              {item.due}
-                            </span>
-                            <span style={{ color: "#595959", fontSize: 13 }}>
-                              {item.desc}
-                            </span>
-                          </div>
-                        }
-                      />
-                    </List.Item>
-                  )}
-                />
-              </div>
+               <UpcomingTasks />
               {/* Motivational Quote */}
               <div
                 style={{

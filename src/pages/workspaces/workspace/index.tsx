@@ -367,9 +367,9 @@ const WorkspaceDetail: React.FC = () => {
                           </p>
                           <p>
                             <strong>Created at:</strong>{" "}
-                            {dayjs(
-                              selectedWorkspace.createdAt
-                            ).format("MMM DD,YYYY hh:mm A")}
+                            {dayjs(selectedWorkspace.createdAt).format(
+                              "MMM DD,YYYY hh:mm A"
+                            )}
                           </p>
                         </div>
                       </Card>
@@ -434,12 +434,7 @@ const WorkspaceDetail: React.FC = () => {
                         </CustomButton>
                       </div>
 
-                      <Card
-                        className="boards-list-card"
-                        style={{ borderTop: `3px solid ${workspaceColor}` }}
-                      >
-                        {renderBoardsList(workspaceBoards)}
-                      </Card>
+                      {renderBoardsList(workspaceBoards)}
                     </Col>
                   </Row>
                 ),
