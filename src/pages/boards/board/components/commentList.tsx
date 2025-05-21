@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { Avatar, Typography, Space, Image, Button, Upload } from "antd";
-import { CloseCircleFilled, PictureOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import {
@@ -12,6 +11,7 @@ import MentionTextComment from "../../../../components/ui/mention";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../../store";
 import { getRandomColor } from "../../../../utils";
+import { CircleX, Image as ImageIcon } from "lucide-react";
 
 dayjs.extend(relativeTime);
 
@@ -134,7 +134,8 @@ const CommentCard: React.FC<CommentCardProps> = ({
                   {existingAttachments.map((file, idx) => (
                     <div key={idx} className="exist-image-container">
                       <Image src={file.url} className="edit-preview-img" />
-                      <CloseCircleFilled
+                      <CircleX
+                        size={14}
                         onClick={() => {
                           setRemovedAttachments([
                             ...removedAttachments,
@@ -160,7 +161,8 @@ const CommentCard: React.FC<CommentCardProps> = ({
                         className="edit-preview-img"
                         src={URL.createObjectURL(file)}
                       />
-                      <CloseCircleFilled
+                      <CircleX
+                        size={14}
                         onClick={() =>
                           setFileList(fileList.filter((_, i) => i !== index))
                         }
@@ -192,7 +194,7 @@ const CommentCard: React.FC<CommentCardProps> = ({
                   accept="image/*"
                   showUploadList={false}
                 >
-                  <PictureOutlined className="edit-file-upload-icon" />
+                  <ImageIcon size={16} className="edit-file-upload-icon" />
                 </Upload>
               </div>
             </div>

@@ -1,11 +1,7 @@
 import React, { useState } from "react";
 import { Tooltip, Button } from "antd";
 import type { UploadFile } from "antd/es/upload/interface";
-import {
-  EyeOutlined,
-  DeleteOutlined,
-  DownloadOutlined,
-} from "@ant-design/icons";
+import { ArrowDownToLine, Eye, Trash2 } from "lucide-react";
 
 interface CustomUploadItemProps {
   file: UploadFile;
@@ -82,7 +78,7 @@ const CustomUploadItem: React.FC<CustomUploadItemProps> = ({
                 onKeyDown={handleKeyPress(() => handlePreview())}
                 className="hover-btn"
               >
-                <EyeOutlined />
+                <Eye size={16} />
               </Button>
             </Tooltip>
           )}
@@ -98,7 +94,7 @@ const CustomUploadItem: React.FC<CustomUploadItemProps> = ({
                 onKeyDown={handleKeyPress(handleDownload)}
                 className="hover-btn"
               >
-                <DownloadOutlined />
+                <ArrowDownToLine size={16} />
               </Button>
             </Tooltip>
           )}
@@ -113,7 +109,7 @@ const CustomUploadItem: React.FC<CustomUploadItemProps> = ({
               onKeyDown={handleKeyPress(() => remove())}
               className="hover-btn"
             >
-              <DeleteOutlined />
+              <Trash2 size={16} />
             </Button>
           </Tooltip>
         </div>

@@ -1,5 +1,5 @@
 import React from "react";
-import { CheckOutlined } from "@ant-design/icons";
+import { Check } from "lucide-react";
 
 const colors = [
   "bisque",
@@ -67,7 +67,7 @@ const ColorPicker = ({
           }}
         >
           {value === color && (
-            <CheckOutlined style={{ color: "#fff", fontSize: 12 }} />
+            <Check size={16} style={{ color: "#fff" }} />
           )}
         </div>
       ))}

@@ -1,14 +1,9 @@
 import { Button, Col, Form, Input, Row, Space, Typography } from "antd";
-import {
-  UserOutlined,
-  MailOutlined,
-  EnvironmentOutlined,
-  PhoneOutlined,
-} from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../store";
 import { contactUsCreate } from "../../store/slices/contactUsSlice";
 import { Loader } from "../../components";
+import { Mail, MapPin, Phone, UserRound } from "lucide-react";
 
 const { Title, Paragraph } = Typography;
 
@@ -52,15 +47,15 @@ const ContactUs = () => {
             </Title>
             <Paragraph className="text-color-secondary">We welcome your questions, comments, and feedback.</Paragraph>
             <div className="info-item">
-              <PhoneOutlined />
+              <Phone size={16} />
               <Paragraph className="text-color-white margin-bottom-0">+1 (012) 345-6789</Paragraph>
             </div>
             <div className="info-item">
-              <MailOutlined />
+              <Mail size={16} />
               <Paragraph className="text-color-white margin-bottom-0">contact@example.com</Paragraph>
             </div>
             <div className="info-item">
-              <EnvironmentOutlined />
+              <MapPin size={16} />
               <Paragraph className="text-color-white margin-bottom-0">132 Dartmouth Street Boston, MA 02156, USA</Paragraph>
             </div>
           </Col>
@@ -101,7 +96,7 @@ const ContactUs = () => {
                   },
                 ]}
               >
-                <Input prefix={<UserOutlined className="form-icon" />} placeholder="Enter your name" className="form-input" />
+                <Input prefix={<UserRound size={18} />} placeholder="Enter your name" className="form-input" />
               </Form.Item>
               <Form.Item
                 label={
@@ -115,7 +110,7 @@ const ContactUs = () => {
                   { type: "email", message: "Invalid email address" },
                 ]}
               >
-                <Input prefix={<MailOutlined className="form-icon" />} placeholder="Enter your email" className="form-input" />
+                <Input prefix={<Mail size={18} />} placeholder="Enter your email" className="form-input" />
               </Form.Item>
               <Form.Item
                 label={

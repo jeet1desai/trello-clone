@@ -2,7 +2,6 @@ import React from "react";
 import { Avatar, Card, Space, Tag, Typography } from "antd";
 import { getRandomColor } from "../../../utils";
 import { Button } from "../../../components";
-import { CheckOutlined, CloseOutlined } from "@ant-design/icons";
 import { Link } from "react-router";
 import {
   Invitation,
@@ -11,6 +10,7 @@ import {
 import { InvitationStatus, StatusType } from "../../../utils/enums/invitaion";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "../../../store";
+import { Check, X } from "lucide-react";
 const { Title, Paragraph } = Typography;
 
 interface IProps {
@@ -69,7 +69,7 @@ const InvitationCard = ({ invitation }: IProps) => {
             <Button
               type="default"
               className="reject-button margin-0 small-btns"
-              icon={<CloseOutlined />}
+              icon={<X size={18} />}
               breakPoint={720}
               onClick={() =>
                 dispatch(
@@ -85,7 +85,7 @@ const InvitationCard = ({ invitation }: IProps) => {
             <Button
               type="primary"
               className="button success-button margin-0 small-btns"
-              icon={<CheckOutlined />}
+              icon={<Check size={18} />}
               breakPoint={720}
               onClick={() =>
                 dispatch(
@@ -104,7 +104,7 @@ const InvitationCard = ({ invitation }: IProps) => {
             <Button
               color="green"
               className="approved-button button"
-              icon={<CheckOutlined />}
+              icon={<Check size={18} />}
               breakPoint={720}
               disabled
             >
@@ -116,7 +116,7 @@ const InvitationCard = ({ invitation }: IProps) => {
             <Button
               type="default"
               className="rejected-button button"
-              icon={<CloseOutlined />}
+              icon={<X size={18} />}
               breakPoint={720}
               disabled
             >

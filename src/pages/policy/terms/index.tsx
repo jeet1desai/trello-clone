@@ -8,10 +8,10 @@ import {
   MenuProps,
   Typography,
 } from "antd";
-import { MenuOutlined } from "@ant-design/icons";
 import { useLocation, useNavigate } from "react-router-dom";
 import { scrollToSectionWithOffset } from "../../../helper";
 import { useActiveSection } from "../../../hooks/useActiveSection";
+import { MenuIcon } from "lucide-react";
 
 const { useBreakpoint } = Grid;
 const { Content } = Layout;
@@ -198,7 +198,7 @@ const TermsAndConditions: React.FC = () => {
             <>
               <Button
                 type="primary"
-                icon={<MenuOutlined />}
+                icon={<MenuIcon size={18} />}
                 onClick={() => setDrawerVisible(true)}
               />
               <Drawer
