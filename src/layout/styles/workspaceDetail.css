@@ -79,6 +79,34 @@
   min-height: 100px;
 }
 
+.info-card-div {
+  display: flex;
+  margin-bottom: 20px;
+}
+
+.info-card-icon {
+  display:flex;
+  justify-content: center;
+  align-items:center;
+  margin-right: 10px;
+  padding: 15px;
+  width: 10px;
+  height:10px;
+  background-color: aliceblue;
+  border-radius: 50px;
+}
+
+.info-card-title-text {
+display: flex;
+flex-direction: column;
+}
+
+.activity-content-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
 .boards-empty-state {
   display: flex;
   flex-direction: column;
