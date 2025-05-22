@@ -22,7 +22,13 @@ import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../../store";
 import { useNavigate, useParams } from "react-router";
-import { IBoardDetails, getAllLabels, getBackground, getBoardById, getBoardMemberListById } from "../../../store/slices/boardSlice";
+import {
+  IBoardDetails,
+  getAllLabels,
+  getBackground,
+  getBoardById,
+  getBoardMemberListById,
+} from "../../../store/slices/boardSlice";
 import InviteBoard from "./components/inviteBoard";
 import "../../../layout/styles/Board.css";
 import {
@@ -145,7 +151,7 @@ const BoardDetail: React.FC = () => {
           await dispatch(getStatusListByBoardId(id));
           await dispatch(getBoardMemberListById({ _id: id, search: "" }));
           await dispatch(getAllLabels(id));
-          await dispatch(getBackground())
+          await dispatch(getBackground());
         } else {
           openNotification({
             type: "error",
@@ -433,6 +439,7 @@ const BoardDetail: React.FC = () => {
       okText: "Delete",
       okType: "danger",
       cancelText: "Cancel",
+      autoFocusButton: undefined,
       okButtonProps: {
         className: "button btn-small",
       },
@@ -704,7 +711,7 @@ const BoardDetail: React.FC = () => {
               <div
                 style={{
                   background: "white",
-                  padding: "10px 12px",
+                  padding: "8px 10px",
                   borderRadius: "8px",
                   display: "flex",
                   alignItems: "center",
@@ -778,11 +785,27 @@ const BoardDetail: React.FC = () => {
               })}
             </Avatar.Group>
             <ChangeBackgroundModal />
-            <Button className="button" type="default" style={{ marginTop: 0 }} onClick={() => setShowInviteModal(true)}>
-              <Space>
-                <UserRoundPlus size={16} /> Invite
+            <div
+              style={{
+                background: "white",
+                padding: "6px 12px",
+                borderRadius: "8px",
+                fontWeight: 600,
+                cursor: "pointer",
+              }}
+              className="filter-icon"
+              onClick={() => setShowInviteModal(true)}
+            >
+              <Space
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "6px",
+                }}
+              >
+                <UserRoundPlus style={{ marginTop: "2px" }} size={16} /> Invite
               </Space>
-            </Button>
+            </div>
           </Space>
         </div>
       </div>

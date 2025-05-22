@@ -25,7 +25,6 @@ import {
   getDashboardAnalytics,
   getDashboardCount,
   getDashboardRecentActivity,
-  getUpcomingTasks,
 } from "../../store/slices/dashboardSlice";
 import {
   Calendar,
@@ -288,11 +287,11 @@ const Dashboard: React.FC = () => {
               borderRadius: "12px",
               overflow: "hidden",
               background:
-                "linear-gradient(135deg, hsl(213deg 52.23% 47.17%) 0%, #122d3e 100%)",
+                "linear-gradient(135deg, hsl(213, 72%, 21%) 0%, #3e88b6 100%)",
             }}
           >
             <div>
-              <Title level={3} style={{ color: "black", marginBottom: 12 }}>
+              <Title level={3} style={{ color: "#59b05d", marginBottom: 12 }}>
                 Learn BaseTeam!
               </Title>
               <Text
@@ -367,7 +366,7 @@ const Dashboard: React.FC = () => {
                 borderRadius: 12,
               }}
             >
-               <UpcomingTasks />
+              <UpcomingTasks />
               {/* Motivational Quote */}
               <div
                 style={{

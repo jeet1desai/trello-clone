@@ -176,6 +176,7 @@ const Workspaces: React.FC = () => {
       okText: "Delete",
       okType: "danger",
       cancelText: "Cancel",
+      autoFocusButton: undefined,
       okButtonProps: {
         className: "button",
       },
@@ -224,97 +225,126 @@ const Workspaces: React.FC = () => {
     ];
 
     return (
-      <Card
-        hoverable
-        className="workspace-card"
-        bodyStyle={{ padding: "24px 24px 20px 24px" }}
-      >
-        <div
-          className="workspace-card-content"
-          onMouseEnter={() => setHoveredBoardId(workspace._id)}
-          onMouseLeave={() => setHoveredBoardId(null)}
-          onClick={() =>
-            navigate(
-              generatePath(PRIVATE_ROUTE.WORKSPACE, {
-                id: workspace._id,
-              })
-            )
-          }
+      <div style={{ position: "relative" }}>
+        <Card
+          hoverable
+          className="workspace-card"
+          bodyStyle={{ padding: "24px 24px 20px 24px" }}
         >
-          <div className="workspace-card-header">
-            <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-              <FolderOpen size={40} className="workspace-icon" />
-              <div className="workspace-card-title">
-                <Title level={4} className="workspace-name">
-                  {workspace.name}
-                </Title>
-              </div>
-            </div>
-            {workspace.createdBy._id === currentUser?.id ? (
-              <div className="workspace-card-actions"
-                onClick={(e) => {
-                  dispatch(toggleFavorite({ workspaceId: workspace._id, isFavorite: !workspace.isFavorite }));
-                  e.stopPropagation();
-                }}
-                style={{ display: "flex", gap: "8px", alignItems: "center" }}>
-                <div style={{
-                  display: 'flex',
-                  top: 0,
-                  right: 0,
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  width: '24px',
-                  height: '24px',
-                  overflow: 'hidden',
-                  transition: 'transform 0.2s ease-in-out 0.2s',
-                  borderRadius: '6px',
-                  backgroundColor: workspace.isFavorite || hoveredBoardId === workspace._id ? 'hsla(0, 0%, 0%, 0.25)' : ""
-                }}>
-                  <Star
-                    size={16}
-                    className={`favorite-star ${workspace.isFavorite ? "favorited" : ""}`}
-                  />
+          <div
+            style={{
+              height: "4px",
+              width: "100%",
+              background:
+                "linear-gradient(135deg, hsl(213, 72%, 21%) 0%, #3e88b6 100%)",
+              position: "absolute",
+              top: 0,
+              left: 0,
+              borderTopLeftRadius: "8px",
+              borderTopRightRadius: "8px",
+            }}
+          />
+          <div
+            className="workspace-card-content"
+            onMouseEnter={() => setHoveredBoardId(workspace._id)}
+            onMouseLeave={() => setHoveredBoardId(null)}
+            onClick={() =>
+              navigate(
+                generatePath(PRIVATE_ROUTE.WORKSPACE, {
+                  id: workspace._id,
+                })
+              )
+            }
+          >
+            <div className="workspace-card-header">
+              <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                <FolderOpen size={40} className="workspace-icon" />
+                <div className="workspace-card-title">
+                  <Title level={4} className="workspace-name">
+                    {workspace.name}
+                  </Title>
                 </div>
-                <Dropdown
-                  menu={{
-                    items: moreMenu,
-                    onClick: ({ key, domEvent }) => {
-                      domEvent.stopPropagation();
-                      handleMenuClick(key, workspace);
-                    },
-                  }}
-                  placement="bottomRight"
-                  trigger={["click"]}
-                >
-                  <Button
-                    type="text"
-                    shape="circle"
-                    onClick={(e) => e.stopPropagation()}
-                    icon={<MoreVertical size={16} />}
-                    className="more-btn"
-                  />
-                </Dropdown>
               </div>
-            ) : null}
-          </div>
+              {workspace.createdBy._id === currentUser?.id ? (
+                <div
+                  className="workspace-card-actions"
+                  onClick={(e) => {
+                    dispatch(
+                      toggleFavorite({
+                        workspaceId: workspace._id,
+                        isFavorite: !workspace.isFavorite,
+                      })
+                    );
+                    e.stopPropagation();
+                  }}
+                  style={{ display: "flex", gap: "8px", alignItems: "center" }}
+                >
+                  <div
+                    style={{
+                      display: "flex",
+                      top: 0,
+                      right: 0,
+                      alignItems: "center",
+                      justifyContent: "center",
+                      width: "24px",
+                      height: "24px",
+                      overflow: "hidden",
+                      transition: "transform 0.2s ease-in-out 0.2s",
+                      borderRadius: "6px",
+                      backgroundColor:
+                        workspace.isFavorite || hoveredBoardId === workspace._id
+                          ? "hsla(0, 0%, 0%, 0.25)"
+                          : "",
+                    }}
+                  >
+                    <Star
+                      size={16}
+                      className={`favorite-star ${
+                        workspace.isFavorite ? "favorited" : ""
+                      }`}
+                    />
+                  </div>
+                  <Dropdown
+                    menu={{
+                      items: moreMenu,
+                      onClick: ({ key, domEvent }) => {
+                        domEvent.stopPropagation();
+                        handleMenuClick(key, workspace);
+                      },
+                    }}
+                    placement="bottomRight"
+                    trigger={["click"]}
+                  >
+                    <Button
+                      type="text"
+                      shape="circle"
+                      onClick={(e) => e.stopPropagation()}
+                      icon={<MoreVertical size={16} />}
+                      className="more-btn"
+                    />
+                  </Dropdown>
+                </div>
+              ) : null}
+            </div>
 
-          <div className="workspace-card-footer">
-            <Paragraph className="workspace-description color-inherit">
-              <UserRound size={14} />{" "}
-              {workspace.createdBy.first_name +
-                " " +
-                (workspace.createdBy.last_name ?? "")}
-            </Paragraph>
-            <Paragraph className="workspace-description color-inherit">
-              <Calendar size={14} />{" "}
-              {dayjs(workspace.createdAt).format("MMM DD, YYYY")}
-            </Paragraph>
-            <Paragraph className="workspace-description color-inherit">
-              {workspace.boards} boards
-            </Paragraph>
+            <div className="workspace-card-footer">
+              <Paragraph className="workspace-description color-inherit">
+                <UserRound size={14} />{" "}
+                {workspace.createdBy.first_name +
+                  " " +
+                  (workspace.createdBy.last_name ?? "")}
+              </Paragraph>
+              <Paragraph className="workspace-description color-inherit">
+                <Calendar size={14} />{" "}
+                {dayjs(workspace.createdAt).format("MMM DD, YYYY")}
+              </Paragraph>
+              <Paragraph className="workspace-description color-inherit">
+                {workspace.boards} boards
+              </Paragraph>
+            </div>
           </div>
-        </div>
-      </Card>
+        </Card>
+      </div>
     );
   };
 

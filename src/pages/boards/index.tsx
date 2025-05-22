@@ -195,6 +195,7 @@ const Boards: React.FC = () => {
       okText: "Delete",
       okType: "danger",
       cancelText: "Cancel",
+      autoFocusButton: undefined,
       okButtonProps: {
         className: "button",
       },

@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { Modal, Button, Tooltip, UploadFile, Upload } from 'antd';
+import { Modal, Button, UploadFile, Upload } from 'antd';
 import { Palette, Image as ImageIcon, ArrowLeft, X } from 'lucide-react';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../../../store';
@@ -62,8 +62,9 @@ const ChangeBackgroundModal = () => {
           borderRadius: "8px",
           cursor: "pointer",
         }}
+        className='filter-icon'
       >
-        <Palette size={24} />
+        <Palette size={20} />
       </div>
 
       <Modal
