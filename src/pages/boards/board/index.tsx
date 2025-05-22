@@ -577,15 +577,17 @@ const BoardDetail: React.FC = () => {
                         alignItems: "center",
                         fontSize: "12px",
                         background:
-                          dayjs().isAfter(task.end_date) &&
                           task.status !== TaskStatus.COMPLETED
-                            ? "#d32029"
+                            ? dayjs().isAfter(task.end_date)
+                              ? "#d32029"
+                              : dayjs(task.end_date).isSame(
+                                  dayjs().add(1, "day"),
+                                  "day"
+                                )
+                              ? "rgb(255, 191, 0)"
+                              : "transparent"
                             : "transparent",
-                        padding:
-                          dayjs().isAfter(task.end_date) &&
-                          task.status !== TaskStatus.COMPLETED
-                            ? "2px 4px"
-                            : 0,
+                        padding: "2px 4px",
                         borderRadius: "4px",
                         color:
                           dayjs().isAfter(task.end_date) &&
@@ -637,16 +639,14 @@ const BoardDetail: React.FC = () => {
                   )}
                 </div>
               </div>
-              {isOwner() && hoveredTaskId === task._id && (
-                <Button
-                  type="text"
-                  size="small"
-                  style={{ marginLeft: 0 }}
-                  danger
-                  icon={<Trash2 size={16} />}
-                  onClick={(e) => handleDeleteTask(e, task._id)}
-                />
-              )}
+              <Button
+                type="text"
+                size="small"
+                style={{ marginLeft: 0 }}
+                danger
+                icon={<Trash2 size={16} />}
+                onClick={(e) => handleDeleteTask(e, task._id)}
+              />
               {task.assigned_to && (
                 <Avatar
                   className="assign-member-avatar"
@@ -805,7 +805,14 @@ const BoardDetail: React.FC = () => {
       </div>
 
       {statusList?.length > 0 || isOwner() ? (
-        <div className="board-content">
+        <div
+          className="board-content"
+          style={{
+            height: `calc(100vh - ${
+              Object.values(tasksByStatus)?.length > 4 ? "120px" : "135px"
+            })`,
+          }}
+        >
           <DragDropContext onDragEnd={handleDragEnd}>
             <Droppable
               droppableId={id ? id : "all-lists"}
