@@ -962,6 +962,16 @@ const boardSlice = createSlice({
         (item) => item._id !== _id
       );
     },
+    updateBackground: (state, action) => {
+       const { background, backgroundType } = action.payload.data;
+       if (state.selectedBoard) {
+          state.selectedBoard = {
+            ...state.selectedBoard,
+            background: background,
+            backgroundType: backgroundType,
+          };
+        }
+    }
   },
   extraReducers: (builder) => {
     builder
@@ -1727,6 +1737,7 @@ export const {
   clearSelectedBoard,
   addNewInvitedMember,
   removeInvitedmember,
+  updateBackground
 } = boardSlice.actions;
 
 export default boardSlice.reducer;

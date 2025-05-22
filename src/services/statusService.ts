@@ -20,13 +20,14 @@ export const statusService = {
     return response.data;
   },
 
-  async updateStatus(statusId: string, name?: string, newPosition?: number) {
+  async updateStatus(statusId: string, name?: string, newPosition?: number, background?: string) {
     const response = await axiosInstance.put(
       `${API_URL}/status/update-status`,
       {
         statusId,
         name,
         newPosition,
+        background,
       }
     );
     return response.data;
