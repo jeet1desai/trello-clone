@@ -1,0 +1,5 @@
+export enum BOARD_BACKGROUND_TYPE {
+  IMAGE = 'IMAGE',
+  COLOR = 'COLOR',
+  CUSTOM = 'CUSTOM',
+}

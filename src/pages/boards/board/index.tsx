@@ -28,6 +28,7 @@ import {
   getBackground,
   getBoardById,
   getBoardMemberListById,
+  getUserBackground,
 } from "../../../store/slices/boardSlice";
 import InviteBoard from "./components/inviteBoard";
 import "../../../layout/styles/Board.css";
@@ -83,7 +84,7 @@ import {
   Clock,
 } from "lucide-react";
 import BoardFilter from "./components/boardFilter";
-import ChangeBackgroundModal from "./components/ChangeBackgroundModal";
+import ChangeBackgroundPopover from "./components/ChangeBackgroundModal";
 
 const { Title, Text } = Typography;
 
@@ -152,6 +153,7 @@ const BoardDetail: React.FC = () => {
           await dispatch(getBoardMemberListById({ _id: id, search: "" }));
           await dispatch(getAllLabels(id));
           await dispatch(getBackground());
+          await dispatch(getUserBackground());
         } else {
           openNotification({
             type: "error",
@@ -784,27 +786,19 @@ const BoardDetail: React.FC = () => {
                 );
               })}
             </Avatar.Group>
-            <ChangeBackgroundModal />
+            <ChangeBackgroundPopover />
             <div
-              style={{
-                background: "white",
-                padding: "6px 12px",
-                borderRadius: "8px",
-                fontWeight: 600,
-                cursor: "pointer",
-              }}
               className="filter-icon"
+              style={{
+                fontWeight: 600,
+                padding: "6px 10px",
+                display: "flex",
+                alignItems: "center",
+                gap: 4,
+              }}
               onClick={() => setShowInviteModal(true)}
             >
-              <Space
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "6px",
-                }}
-              >
-                <UserRoundPlus style={{ marginTop: "2px" }} size={16} /> Invite
-              </Space>
+              <UserRoundPlus size={16} /> Invite
             </div>
           </Space>
         </div>

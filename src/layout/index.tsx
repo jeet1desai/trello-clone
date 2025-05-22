@@ -7,6 +7,9 @@ import "./styles/Layout.css";
 import "./styles/Theme.css";
 import { landingPageBackground } from "../assets";
 import { PUBLIC_ROUTE } from "../utils/enums/route";
+import { useSelector } from "react-redux";
+import { RootState } from "../store";
+import { BOARD_BACKGROUND_TYPE } from "../utils/enums/board";
 
 const { Content } = AntLayout;
 
@@ -23,15 +26,25 @@ const Layout: React.FC = () => {
   // Check if current route is a board detail page
   const isBoardDetailPage = location.pathname.startsWith("/board/");
 
+    const { selectedBoard } = useSelector(
+    (state: RootState) => state.board
+  );
   // Board detail pages should have a different background and no padding
   const contentStyle = isBoardDetailPage
     ? {
-        background: isDarkMode ? "#1D2125" : "#F0F2F5",
-        minHeight: "calc(100vh - 408px)",
-      }
+      background:
+        selectedBoard?.background
+          ? selectedBoard?.backgroundType === BOARD_BACKGROUND_TYPE.COLOR
+            ? selectedBoard.background
+            : `url(${selectedBoard.background})`
+          : isDarkMode
+            ? "#1D2125"
+            : "#F0F2F5",
+      minHeight: "calc(100vh - 408px)",
+    }
     : {
-        minHeight: "calc(100vh - 408px)",
-      };
+      minHeight: "calc(100vh - 408px)",
+    };
 
   // Don't show footer on board detail pages
   const showHeader = !(
@@ -49,13 +62,11 @@ const Layout: React.FC = () => {
       {showHeader && <Header />}
       <AntLayout>
         <Content
+          className="board-background"
           style={{
             ...contentStyle,
             padding: !isBoardDetailPage && showHeader && location.pathname !== PUBLIC_ROUTE.HOME ? "24px" : 0,
             backgroundImage: !showHeader ?`url(${landingPageBackground})` : "",
-            backgroundSize: "cover !important",
-            backgroundPosition: "center !important",
-            backgroundRepeat: "no-repeat !important",
           }}
         >
           <div
