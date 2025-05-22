@@ -57,7 +57,7 @@ const Home: React.FC = () => {
                   </Button>
                 </Link>
                 <Link to={PUBLIC_ROUTE.LOGIN}>
-                  <Button size="large" className="demo-button">
+                  <Button type="default" size="large" className="demo-button">
                     Get Started
                   </Button>
                 </Link>

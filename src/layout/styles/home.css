@@ -121,7 +121,6 @@
   font-size: 1rem !important;
   font-weight: 600 !important;
   border-radius: 24px !important;
-  background: #1890ff !important;
   border: none !important;
 }
 
@@ -131,8 +130,7 @@
   font-size: 1rem !important;
   font-weight: 600 !important;
   border-radius: 24px !important;
-  border: 2px solid #1890ff !important;
-  color: #1890ff !important;
+  border-width: 2px !important;
 }
 
 /* Partners Section */
@@ -166,7 +164,7 @@
 /* Features Section */
 .features-badge {
   background: #e3f2fd;
-  color: #1976d2;
+  color: #1c4f83;
   padding: 8px 16px;
   border-radius: 20px;
   font-weight: 500;

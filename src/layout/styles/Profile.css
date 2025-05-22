@@ -78,7 +78,7 @@
 }
 
 .profile-tabs .ant-tabs-tab-active {
-  background: #174b89;
+  background: #143654;
   border-radius: 6px;
 }
 
@@ -102,7 +102,6 @@
   right: 0;
   width: 100%;
   height: 4px;
-  background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);
 }
 
 /* Profile Header Section */
@@ -289,14 +288,4 @@
 /* tab */
 .ant-tabs-ink-bar {
   background: transparent !important;
-}
-
-/* Custom Tab Styles */
-.ant-tabs-nav .ant-tabs-tab:hover {
-  color: #3b82f6;
-}
-
-/* Input Icons */
-.ant-input-prefix {
-  color: #3b82f6;
 }

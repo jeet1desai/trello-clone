@@ -278,7 +278,7 @@
 
 .active-link {
   font-weight: 600;
-  color: #40a9ff;
+  color: #143654;
 }
 
 .navigate-link {
@@ -691,6 +691,10 @@
   font-size: 12px;
 }
 
+.change-background-popover .ant-popover-arrow {
+  display: none;
+}
+
 /* 🌐 Responsive Styles */
 @media (max-width: 480px) {
   .custom-notification-popover {
@@ -787,4 +791,10 @@
   display: flex;
   align-items: center;
   gap: 4px;
+}
+
+.board-background {
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+  background-size: cover !important;
 }

@@ -22,7 +22,7 @@
   padding: 0;
   border-radius: 8px;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-  background: #40a8ff7a;
+  background: linear-gradient(135deg, hsl(213, 72%, 21%) 0%, #3e88b6 100%);
   overflow: hidden;
   position: relative;
 }
@@ -44,10 +44,18 @@
   cursor: pointer;
   font-size: 16px;
   font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .workspace-title {
   margin: 0 12px 0 0 !important;
+  color: white !important;
+}
+
+.workspace-description {
+  color: white !important;
 }
 
 .edit-workspace-btn {
@@ -85,20 +93,20 @@
 }
 
 .info-card-icon {
-  display:flex;
+  display: flex;
   justify-content: center;
-  align-items:center;
+  align-items: center;
   margin-right: 10px;
   padding: 15px;
   width: 10px;
-  height:10px;
+  height: 10px;
   background-color: aliceblue;
   border-radius: 50px;
 }
 
 .info-card-title-text {
-display: flex;
-flex-direction: column;
+  display: flex;
+  flex-direction: column;
 }
 
 .activity-content-item {

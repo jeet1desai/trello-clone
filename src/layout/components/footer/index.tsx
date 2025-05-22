@@ -122,25 +122,18 @@ const Footer: React.FC = () => {
               Company
             </Title>
             <Space direction="vertical" size="middle">
-              <div className="pointer" style={{ color: textColor }}>
+              <Link to={PUBLIC_ROUTE.PRIVACY_POLICY} style={{ color: textColor }}>
                 About Us
-              </div>
-              <div className="pointer" style={{ color: textColor }}>
+              </Link>
+              <Link to={PUBLIC_ROUTE.PRIVACY_POLICY} style={{ color: textColor }}>
                 Careers
-              </div>
-              <div className="pointer" style={{ color: textColor }}>
+              </Link>
+              <Link to={PUBLIC_ROUTE.PRIVACY_POLICY} style={{ color: textColor }}>
                 Blog
-              </div>
-              <input
-                type="button"
-                value="Contact Us"
-                onClick={() => handleNavigate(PUBLIC_ROUTE.CONTACT_US)}
-                className="pointer footer-btn"
-                style={{
-                  color: textColor,
-                }}
-                aria-label="Navigate to contact us section"
-              />
+              </Link>
+              <Link to={PUBLIC_ROUTE.CONTACT_US} style={{ color: textColor }}>
+                Contact Us
+              </Link>
             </Space>
           </Col>
         </Row>

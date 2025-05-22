@@ -93,6 +93,7 @@ const InviteBoard: React.FC<InviteBoardProps> = ({ isOpen, onClose }) => {
       okText: "Remove",
       okType: "danger",
       cancelText: "Cancel",
+      autoFocusButton: undefined,
       okButtonProps: {
         className: "button",
       },

@@ -1,5 +1,6 @@
 import { API_URL } from "../config";
 import axiosInstance from "../helper/axiosInstance";
+import { BOARD_BACKGROUND_TYPE } from "../utils/enums/board";
 
 export const boardService = {
   async getAllBoards(page: number, search: string, sortType: number) {
@@ -209,6 +210,56 @@ export const boardService = {
   async getBackground() {
     const response = await axiosInstance.get(
       `${API_URL}/board/backgrounds`
+    );
+    return response.data;
+  },
+
+  async getUserBackground() {
+    const response = await axiosInstance.get(
+      `${API_URL}/user/board/background`
+    );
+    return response.data;
+  },
+
+  async postUserBackground(attachments: File[]) {
+    const formData = new FormData();
+    if (attachments.length > 0)
+      attachments.map((attachment) =>
+        formData.append("attachment", attachment)
+      );
+    const response = await axiosInstance.post(
+      `${API_URL}/user/board/background`,
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+    return response.data;
+  },
+
+  async deleteUserBackground(imageId: string, boardId: string) {
+    const response = await axiosInstance.delete(
+      `${API_URL}/user/board/background?imageId=${imageId}&boardId=${boardId}`
+    );
+    return response.data;
+  },
+
+  async changebackground(
+    boardId: string,
+    backgroundType: BOARD_BACKGROUND_TYPE,
+    background: string,
+    imageId: string
+  ) {
+    const response = await axiosInstance.put(
+      `${API_URL}/board/update-background`,
+      {
+        boardId,
+        backgroundType,
+        background,
+        imageId,
+      }
     );
     return response.data;
   },
