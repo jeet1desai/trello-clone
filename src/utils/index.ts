@@ -17,3 +17,26 @@ export const generateGradient = (name: string) => {
 
   return GRADIENT_COMBOS[sum % GRADIENT_COMBOS.length];
 };
+
+export const fetchImageAsBase64 = (url: string): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open("GET", url, true);
+    xhr.responseType = "blob";
+
+    xhr.onload = () => {
+      if (xhr.status === 200) {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          resolve(reader.result as string);
+        };
+        reader.readAsDataURL(xhr.response);
+      } else {
+        reject(`Failed to load image: ${xhr.status}`);
+      }
+    };
+
+    xhr.onerror = () => reject("XHR failed");
+    xhr.send();
+  });
+};

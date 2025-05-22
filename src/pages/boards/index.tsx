@@ -195,6 +195,7 @@ const Boards: React.FC = () => {
       okText: "Delete",
       okType: "danger",
       cancelText: "Cancel",
+      autoFocusButton: undefined,
       okButtonProps: {
         className: "button",
       },
@@ -252,9 +253,14 @@ const Boards: React.FC = () => {
         onMouseLeave={() => setHoveredBoardId(null)}
       >
         <div
-          className="board-card-star-icon board-card-color-bar"
+          className="board-card-color-bar"
           onMouseEnter={() => setHoveredBoardId(board._id)}
           onMouseLeave={() => setHoveredBoardId(null)}
+          style={{
+            background,
+          }}
+        >
+          <div
           onClick={(e) => {
             dispatch(
               toggleFavorite({
@@ -264,15 +270,6 @@ const Boards: React.FC = () => {
             );
             e.stopPropagation();
           }}
-          style={{
-            display: "flex",
-            justifyContent: "flex-end",
-            cursor: "pointer",
-            position: "relative",
-            background,
-          }}
-        >
-          <div
             style={{
               display: "flex",
               position: "absolute",

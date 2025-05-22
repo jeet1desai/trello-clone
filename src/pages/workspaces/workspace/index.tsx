@@ -25,8 +25,6 @@ import {
   DeleteOutlined,
   PlusOutlined,
   EllipsisOutlined,
-  ArrowLeftOutlined,
-  EditOutlined,
 } from "@ant-design/icons";
 import { useSelector, useDispatch } from "react-redux";
 import { AppDispatch, RootState } from "../../../store";
@@ -49,6 +47,7 @@ import CustomButton from "../../../components/ui/button";
 import dayjs from "dayjs";
 import { openNotification } from "../../../services/notificationService";
 import { Loader } from "../../../components";
+import { ArrowLeft, Pencil, Trash2 } from "lucide-react";
 
 const { Title, Text, Paragraph } = Typography;
 
@@ -99,8 +98,6 @@ const WorkspaceDetail: React.FC = () => {
     );
   }
 
-  const workspaceColor = generateGradient(selectedWorkspace.name);
-
   const handleDelete = () => {
     modal.confirm({
       title: `Delete "${selectedWorkspace.name}"?`,
@@ -109,6 +106,7 @@ const WorkspaceDetail: React.FC = () => {
         "This action cannot be undone. All boards and data will be permanently deleted.",
       okText: "Delete",
       okType: "danger",
+      autoFocusButton: undefined,
       okButtonProps: {
         className: "button",
       },
@@ -182,6 +180,7 @@ const WorkspaceDetail: React.FC = () => {
         "This action cannot be undone. All board data will be permanently deleted.",
       okText: "Delete",
       okType: "danger",
+      autoFocusButton: undefined,
       okButtonProps: {
         className: "button",
       },
@@ -198,7 +197,7 @@ const WorkspaceDetail: React.FC = () => {
     if (boards?.length === 0) {
       return (
         <Empty description="No boards created yet. Create your first board to get started.">
-          <Button style={{backgroundColor:'#40a8ff7a'}} className="button" onClick={showAddBoardModal}>
+          <Button className="button" onClick={showAddBoardModal}>
             Create Board
           </Button>
         </Empty>
@@ -210,13 +209,13 @@ const WorkspaceDetail: React.FC = () => {
         {
           key: "edit",
           label: "Edit",
-          icon: <EditOutlined />,
+          icon: <Pencil size={16} />,
           onClick: () => showEditBoardModal(board),
         },
         {
           key: "delete",
           label: "Delete",
-          icon: <DeleteOutlined />,
+          icon: <Trash2 size={16} />,
           danger: true,
           onClick: () => handleDeleteBoard(board._id, board.name),
         },
@@ -298,7 +297,7 @@ const WorkspaceDetail: React.FC = () => {
           className="workspace-back"
           onClick={() => navigate(PRIVATE_ROUTE.WORKSPACES)}
         >
-          <ArrowLeftOutlined style={{marginRight:'5px'}}/> Back to workspace
+          <ArrowLeft size={20} /> Back to workspace
         </Text>
         </div>
         <Card className="workspace-header">
@@ -356,7 +355,7 @@ const WorkspaceDetail: React.FC = () => {
                         title="Workspace Information"
                         className="info-card"
                         styles={{
-                          header: { borderTop: `3px solid #40a8ff7a`},
+                          header: { borderTop: `3px solid hsl(213, 72%, 21%)`},
                         }}
                       >
                         <div className="info-card-content">
@@ -365,7 +364,7 @@ const WorkspaceDetail: React.FC = () => {
                             <UserOutlined />
                             </div>
                             <div className="info-card-title-text">
-                            <Typography style={{color:'black'}}>Created by</Typography>{" "}
+                            <Typography>Created by</Typography>{" "}
                             <Typography style={{color:'gray'}}>
                             {selectedWorkspace.createdBy.first_name +
                               " " +
@@ -379,7 +378,7 @@ const WorkspaceDetail: React.FC = () => {
                               <UserOutlined />
                             </div>
                             <div className="info-card-title-text">
-                              <Typography style={{color:'black'}}>Created at</Typography>{" "}
+                              <Typography>Created at</Typography>{" "}
                               <Typography style={{color:'gray'}}>
                               {dayjs(
                                 selectedWorkspace.createdAt
@@ -395,7 +394,7 @@ const WorkspaceDetail: React.FC = () => {
                         title="Activity"
                         className="activity-card"
                         styles={{
-                          header: { borderTop: `3px solid #40a8ff7a`},
+                          header: { borderTop: `3px solid hsl(213, 72%, 21%)`},
                         }}
                       >
                         <div className="activity-content-item">
@@ -419,7 +418,7 @@ const WorkspaceDetail: React.FC = () => {
                           </Button>
                         }
                         styles={{
-                          header: { borderTop: `3px solid #40a8ff7a` },
+                          header: { borderTop: `3px solid hsl(213, 72%, 21%)` },
                         }}
                       >
                         <div className="boards-card-content">
@@ -445,13 +444,13 @@ const WorkspaceDetail: React.FC = () => {
                           icon={<PlusOutlined />}
                           onClick={showAddBoardModal}
                           breakPoint={370}
-                          style={{ marginTop: "0px" , backgroundColor:'#40a8ff7a'}}
+                          style={{ marginTop: "0px" }}
                         >
                           Create Board
                         </CustomButton>
                         }
                         styles={{
-                          header: { borderTop: `3px solid #40a8ff7a` },
+                          header: { borderTop: `3px solid hsl(213, 72%, 21%)` },
                         }}
                       >
                          {renderBoardsList(workspaceBoards)}
