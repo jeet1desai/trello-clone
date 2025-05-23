@@ -20,13 +20,14 @@ export const statusService = {
     return response.data;
   },
 
-  async updateStatus(statusId: string, name?: string, newPosition?: number) {
+  async updateStatus(statusId: string, name?: string, newPosition?: number, background?: string) {
     const response = await axiosInstance.put(
       `${API_URL}/status/update-status`,
       {
         statusId,
         name,
         newPosition,
+        background,
       }
     );
     return response.data;
@@ -35,6 +36,13 @@ export const statusService = {
   async deleteStatus(statusId: string) {
     const response = await axiosInstance.delete(
       `${API_URL}/status/delete-status/${statusId}`
+    );
+    return response.data;
+  },
+
+  async removeStatusBackground(statusId: string) {
+    const response = await axiosInstance.delete(
+      `${API_URL}/status/remove-background-status/${statusId}`
     );
     return response.data;
   },

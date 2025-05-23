@@ -31,6 +31,7 @@ import {
   getBoardById,
   getBoardMemberListById,
   getUserBackground,
+  updateBackground,
 } from "../../../store/slices/boardSlice";
 import InviteBoard from "./components/inviteBoard";
 import "../../../layout/styles/Board.css";
@@ -89,6 +90,7 @@ import {
 } from "lucide-react";
 import BoardFilter from "./components/boardFilter";
 import ChangeBackgroundPopover from "./components/ChangeBackgroundModal";
+import TaskMenu from "./components/taskMenu";
 
 const { Title, Text } = Typography;
 
@@ -253,6 +255,10 @@ const BoardDetail: React.FC = () => {
   }, [selectedBoard]);
 
   useEffect(() => {
+    socketService.on("receive_updated_board_background", (payload) => {
+      dispatch(updateBackground(payload));
+    });
+
     socketService.on("receive_status", (payload) => {
       dispatch(addNewStatus(payload));
     });
@@ -564,7 +570,7 @@ const BoardDetail: React.FC = () => {
             style={{
               boxShadow: "0 1px 2px rgba(0, 0, 0, 0.1)",
               cursor: "pointer",
-              background: task.status === "Completed" ? "#6bf16b26" : "",
+              background: task.status === "Completed" ? "rgba(107, 241, 107, 0.70)" : "",
             }}
             bodyStyle={{ padding: "8px 12px" }}
           >
@@ -614,15 +620,17 @@ const BoardDetail: React.FC = () => {
                         alignItems: "center",
                         fontSize: "12px",
                         background:
-                          dayjs().isAfter(task.end_date) &&
                           task.status !== TaskStatus.COMPLETED
-                            ? "#d32029"
+                            ? dayjs().isAfter(task.end_date)
+                              ? "#d32029"
+                              : dayjs(task.end_date).isSame(
+                                  dayjs().add(1, "day"),
+                                  "day"
+                                )
+                              ? "rgb(255, 191, 0)"
+                              : "transparent"
                             : "transparent",
-                        padding:
-                          dayjs().isAfter(task.end_date) &&
-                          task.status !== TaskStatus.COMPLETED
-                            ? "2px 4px"
-                            : 0,
+                        padding: "2px 4px",
                         borderRadius: "4px",
                         color:
                           dayjs().isAfter(task.end_date) &&
@@ -674,16 +682,14 @@ const BoardDetail: React.FC = () => {
                   )}
                 </div>
               </div>
-              {isOwner() && hoveredTaskId === task._id && (
-                <Button
-                  type="text"
-                  size="small"
-                  style={{ marginLeft: 0 }}
-                  danger
-                  icon={<Trash2 size={16} />}
-                  onClick={(e) => handleDeleteTask(e, task._id)}
-                />
-              )}
+              <Button
+                type="text"
+                size="small"
+                style={{ marginLeft: 0 }}
+                danger
+                icon={<Trash2 size={16} />}
+                onClick={(e) => handleDeleteTask(e, task._id)}
+              />
               {task.assigned_to && (
                 <Avatar
                   className="assign-member-avatar"
