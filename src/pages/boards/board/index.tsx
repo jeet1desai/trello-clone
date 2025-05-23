@@ -947,7 +947,7 @@ const BoardDetail: React.FC = () => {
                                       <TaskMenu statusId={selectedStatus?._id ?? ""} activeColor={selectedStatus?.background ?? ""} />
                                     </div>
                                   )
-                                ) : null}
+                                ) : <TaskMenu statusId={selectedStatus?._id ?? ""} activeColor={selectedStatus?.background ?? ""} />}
                               </div>
                               {hasActiveFilters ? (
                                 <Empty

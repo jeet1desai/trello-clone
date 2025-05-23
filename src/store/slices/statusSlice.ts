@@ -127,6 +127,20 @@ export const deleteStatus = createAsyncThunk(
   }
 );
 
+export const removeStatusBackground = createAsyncThunk(
+  "list/remove/background",
+  async (_id: string, { rejectWithValue }) => {
+    try {
+      const response = await statusService.removeStatusBackground(_id);
+      return response.message;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message ?? "Error while deleting status."
+      );
+    }
+  }
+);
+
 const statusSlice = createSlice({
   name: "status",
   initialState,

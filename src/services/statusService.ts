@@ -39,4 +39,11 @@ export const statusService = {
     );
     return response.data;
   },
+
+  async removeStatusBackground(statusId: string) {
+    const response = await axiosInstance.delete(
+      `${API_URL}/status/remove-background-status/${statusId}`
+    );
+    return response.data;
+  },
 };

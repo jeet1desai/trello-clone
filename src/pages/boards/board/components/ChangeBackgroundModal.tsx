@@ -155,10 +155,13 @@ const ChangeBackgroundPopover = () => {
                       alt={item.imageName}
                       className="custom-image"
                     />
-                    <Trash2
-                      size={16}
+                    <Button
+                      type="text"
+                      size="small"
                       className="delete-icon"
-                      style={{ display: "none" }}
+                      style={{ marginLeft: 0, display: "none" }}
+                      danger
+                      icon={<Trash2 size={16} />}
                       onClick={(event) => {
                         event.stopPropagation();
                         dispatch(
