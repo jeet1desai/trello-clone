@@ -933,6 +933,7 @@ const BoardDetail: React.FC = () => {
                                   padding: "8px",
                                   height: "max-content",
                                   maxWidth: "300px",
+                                  backgroundColor: list.background,
                                 }}
                               >
                                 <div
@@ -1015,9 +1016,12 @@ const BoardDetail: React.FC = () => {
                                           icon={<Trash2 size={16} />}
                                           onClick={() => handleDelete(list)}
                                         />
+                                        <TaskMenu statusId={selectedStatus?._id ?? ""} activeColor={selectedStatus?.background ?? ""} />
                                       </div>
                                     )
-                                  ) : null}
+                                  ) :
+                                    <TaskMenu statusId={selectedStatus?._id ?? ""} activeColor={selectedStatus?.background ?? ""} />
+                                  }
                                 </div>
                                 {hasActiveFilters ? (
                                   <Empty
