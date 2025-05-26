@@ -1270,38 +1270,38 @@ const BoardDetail: React.FC = () => {
               pagination={false}
               scroll={{ x: true }}
             />
-            {isOwner() && (
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "center",
-                  margin: "20px 30px",
-                }}
-              >
-                <Button
-                  type="text"
-                  className="add-card-button"
-                  icon={<CirclePlus size={16} />}
-                  onClick={() => {
-                    if (statusList.length > 0) {
-                      toggleAddTask(statusList[0]._id, true);
-                    }
+              {selectedView === "table" && isOwner() && statusList.length > 0 && (
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "center",
+                    margin: "20px 30px",
                   }}
-                  style={{ marginTop: 16 , fontWeight: 800 , background: "#f5f5f5", border:"1px solid white", borderRadius:"5px"}}
                 >
-                  Add Card
-                </Button>
+                  <Button
+                    type="text"
+                    className="add-card-button"
+                    icon={<CirclePlus size={16} />}
+                    onClick={() => {
+                      if (statusList.length > 0) {
+                        toggleAddTask(statusList[0]._id, true);
+                      }
+                    }}
+                  style={{ marginTop: 16 , fontWeight: 800 , background: "#f5f5f5", border:"1px solid white", borderRadius:"5px"}}
+                  >
+                    Add Card
+                  </Button>
 
-                {statusList.length > 0 && showAddTaskMap[statusList[0]._id] && (
-                  <AddTaskForm
-                    boardId={id ?? ""}
-                    statusId={statusList[0]._id}
-                    onCancel={() => toggleAddTask(statusList[0]._id, false)}
-                    onSuccess={() => toggleAddTask(statusList[0]._id, false)}
-                  />
-                )}
-              </div>
-            )}
+                  {statusList.length > 0 && showAddTaskMap[statusList[0]._id] && (
+                    <AddTaskForm
+                      boardId={id ?? ""}
+                      statusId={statusList[0]._id}
+                      onCancel={() => toggleAddTask(statusList[0]._id, false)}
+                      onSuccess={() => toggleAddTask(statusList[0]._id, false)}
+                    />
+                  )}
+                </div>
+              )}
           </>
         )
       ) : (
