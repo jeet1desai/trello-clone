@@ -16,7 +16,6 @@
   padding: 14px;
   overflow-x: auto;
   display: flex;
-  height: calc(100vh - 135px);
 }
 
 .list-header {

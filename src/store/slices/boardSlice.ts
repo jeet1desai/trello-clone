@@ -4,7 +4,6 @@ import { IWorkspace, updateWorkspaceBoards } from "./workspaceSlice";
 import { Pagination } from "./dashboardSlice";
 import { workspaceService } from "../../services/workspaceService";
 import { BOARD_BACKGROUND_TYPE } from "../../utils/enums/board";
-import { fetchImageAsBase64 } from "../../utils";
 
 export interface IMember {
   _id: string;
@@ -804,17 +803,7 @@ export const getBackground = createAsyncThunk(
   ) => {
     try {
       const response = await boardService.getBackground();
-      const optimizedImages = await Promise.all(
-        response.data.map(async (img: any) => {
-          const base64 = await fetchImageAsBase64(img.imageUrl);
-          return {
-            ...img,
-            imageUrl: base64,
-          };
-        })
-      );
-
-      return optimizedImages;
+      return response.data;
     } catch (error: any) {
       return rejectWithValue(
         error.response?.data?.message ?? "Error while fetching board background."
