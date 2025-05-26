@@ -336,8 +336,10 @@ const TaskModal: React.FC<TaskModalProps> = ({
   const [assignedMemberVisible, setAssignedMemberVisible] = useState(false);
   const [labelVisible, setLabelVisible] = useState(false);
   const [shareLink, setShareLink] = useState(false);
+  const [duplicateCard, setDuplicateCard] = useState(false);
   const [showEditor, setShowEditor] = useState(false);
   const [showAll, setShowAll] = useState(false);
+  const [editableTitle, setEditableTitle] = useState("");
   const [isCompleted, setIsCompleted] = useState(
     selectedTask?.status === TaskStatus.COMPLETED
   );
@@ -624,6 +626,43 @@ const TaskModal: React.FC<TaskModalProps> = ({
       <Space>
         <Button type="primary" icon={<Copy size={16} />} onClick={handleCopy}>
           Copy
+        </Button>
+      </Space>
+    </div>
+  );
+
+  const handlePopoverOpen = (open: boolean) => {
+    setDuplicateCard(open);
+    if (open && selectedTask?.title) {
+      setEditableTitle(selectedTask.title);
+    }
+  };
+
+  const duplicateContent = (
+    <div style={{ width: 280 }}>
+      <div style={{ fontWeight: 600, marginBottom: 8 }}>Duplicate Card</div>
+      <Input
+        value={editableTitle}
+        onChange={(e) => setEditableTitle(e.target.value)}
+        placeholder="Enter new title"
+        style={{ marginBottom: 12 }}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            dispatch(duplicateTask({ _id: selectedTask?._id ?? "", title: editableTitle }));
+            setDuplicateCard(false);
+          }
+        }}
+      />
+      <Space>
+        <Button
+          type="primary"
+          icon={<Copy size={16} />}
+          onClick={() => {
+            dispatch(duplicateTask({ _id: selectedTask?._id ?? "", title: editableTitle }));
+            setDuplicateCard(false);
+          }}
+        >
+          Duplicate
         </Button>
       </Space>
     </div>
@@ -1122,13 +1161,21 @@ const TaskModal: React.FC<TaskModalProps> = ({
               marginTop: "4px",
             }}
           >
-            <Button
-              type="default"
-              shape="circle"
-              className="button small-btn"
-              icon={<Files size={16} />}
-              onClick={() => dispatch(duplicateTask(selectedTask?._id ?? ""))}
-            />
+            <Popover
+              content={duplicateContent}
+              title={null}
+              trigger="click"
+              open={duplicateCard}
+              onOpenChange={handlePopoverOpen}
+              placement="bottomLeft"
+            >
+              <Button
+                type="default"
+                shape="circle"
+                className="button small-btn"
+                icon={<Files size={16} />}
+              />
+            </Popover>
           </div>
         </Col>
       </Row>
