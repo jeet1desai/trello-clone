@@ -5,6 +5,7 @@ export interface IStatusList {
   _id: string;
   name: string;
   description: string;
+  background: string;
   board_id: {
     _id: string;
     name: string;
@@ -87,10 +88,12 @@ export const updateStatus = createAsyncThunk(
       statusId,
       name,
       newPosition,
+      background
     }: {
       statusId: string;
       name?: string;
       newPosition?: number;
+      background?: string;
     },
     { rejectWithValue }
   ) => {
@@ -98,7 +101,8 @@ export const updateStatus = createAsyncThunk(
       const response = await statusService.updateStatus(
         statusId,
         name,
-        newPosition
+        newPosition,
+        background
       );
       return response;
     } catch (error: any) {
@@ -114,6 +118,20 @@ export const deleteStatus = createAsyncThunk(
   async (_id: string, { rejectWithValue }) => {
     try {
       const response = await statusService.deleteStatus(_id);
+      return response.message;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message ?? "Error while deleting status."
+      );
+    }
+  }
+);
+
+export const removeStatusBackground = createAsyncThunk(
+  "list/remove/background",
+  async (_id: string, { rejectWithValue }) => {
+    try {
+      const response = await statusService.removeStatusBackground(_id);
       return response.message;
     } catch (error: any) {
       return rejectWithValue(
@@ -143,10 +161,10 @@ const statusSlice = createSlice({
       state.success = null;
     },
     updateStatusPosition: (state, action) => {
-      const { _id, position } = action.payload.data;
+      const { _id, position, background } = action.payload.data;
       const statusIndex = state.statusList.findIndex(status => status._id === _id);
       if (statusIndex !== -1) {
-        const updatedStatus = { ...state.statusList[statusIndex], position: position };
+        const updatedStatus = { ...state.statusList[statusIndex], position: position, background };
         state.statusList.splice(statusIndex, 1);
         const insertIndex = Math.min(Math.max(0, position - 1), state.statusList.length);
         state.statusList.splice(insertIndex, 0, updatedStatus);

@@ -1030,7 +1030,7 @@ const TaskModal: React.FC<TaskModalProps> = ({
             />
           </div>
         </Col>
-        <Col xs={24} sm={24} md={24} style={{ marginTop: "6px" }}>
+        <Col xs={24} sm={12} md={6} style={{ marginTop: "10px" }}>
           <Text strong style={{ fontSize: "12px", color: "#44546f" }}>
             Labels
           </Text>
@@ -1082,57 +1082,59 @@ const TaskModal: React.FC<TaskModalProps> = ({
             </Popover>
           </div>
         </Col>
+        <Col xs={24} sm={12} md={6} style={{ marginTop: "10px" }}>
+          <Text strong style={{ fontSize: "12px", color: "#44546f" }}>
+            Share
+          </Text>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 4,
+              marginTop: "4px",
+            }}
+          >
+            <Popover
+              content={shareContent}
+              title={null}
+              trigger="click"
+              open={shareLink}
+              onOpenChange={setShareLink}
+              placement="bottomLeft"
+            >
+              <Button
+                shape="circle"
+                icon={<Share2 size={16} />}
+                className="button small-btn"
+              />
+            </Popover>
+          </div>
+        </Col>
+        <Col xs={24} sm={12} md={6} style={{ marginTop: "10px" }}>
+          <Text strong style={{ fontSize: "12px", color: "#44546f" }}>
+            Duplicate
+          </Text>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 4,
+              marginTop: "4px",
+            }}
+          >
+            <Button
+              type="default"
+              shape="circle"
+              className="button small-btn"
+              icon={<Files size={16} />}
+              onClick={() => dispatch(duplicateTask(selectedTask?._id ?? ""))}
+            />
+          </div>
+        </Col>
       </Row>
       <div className="task-content task-body-margin-left">
         <div style={{ display: "flex", gap: "24px" }}>
           <div style={{ flex: 1 }}>
-            <div className="task-section">
-              <div className="task-section-title-desc">
-                <div
-                  style={{ display: "flex", alignItems: "center", gap: "8px" }}
-                >
-                  <Share2 size={16} />
-                  <Text strong>Share</Text>
-                </div>
-                <Popover
-                  content={shareContent}
-                  title={null}
-                  trigger="click"
-                  open={shareLink}
-                  onOpenChange={setShareLink}
-                  placement="bottomRight"
-                >
-                  <Button
-                    shape="circle"
-                    icon={<Share2 size={16} />}
-                    className="button small-btn"
-                  />
-                </Popover>
-              </div>
-              <div className="task-section">
-                <div className="task-section-title-desc">
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "8px",
-                    }}
-                  >
-                    <Files size={16} />
-                    <Text strong>Duplicate</Text>
-                  </div>
-                  <Button
-                    type="default"
-                    shape="circle"
-                    className="button small-btn"
-                    icon={<Files size={16} />}
-                    onClick={() =>
-                      dispatch(duplicateTask(selectedTask?._id ?? ""))
-                    }
-                  />
-                </div>
-              </div>
-            </div>
             <div className="task-section">
               <div className="task-section-title-desc">
                 <div

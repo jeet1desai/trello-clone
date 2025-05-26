@@ -270,6 +270,7 @@ a:hover {
 /* Buttons */
 .ant-btn-text {
   color: var(--button-text);
+  border: none;
 }
 
 .ant-btn-text:hover {

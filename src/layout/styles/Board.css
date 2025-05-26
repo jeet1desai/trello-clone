@@ -763,7 +763,7 @@
   top: 4px;
   right: 4px;
   background: white;
-  border-radius: 50%;
+  border-radius: 5px;
   padding: 2px;
   z-index: 2;
   color: red;
@@ -841,4 +841,70 @@
   font-size: 18px;
   padding: 5px 10px;
   cursor: pointer;
+}
+
+/* task menu option */
+.color-selector-collapse {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  border-radius: 8px;
+  border: none;
+}
+
+.color-grid-menu {
+  display: grid;
+  grid-template-columns: repeat(4, 47px);
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.remove-color-btn {
+  color: #ccc;
+  border: none;
+  width: 100%;
+  padding: 8px 0;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.remove-color-btn:hover {
+  background: inherit !important;
+}
+
+.color-box-wrapper {
+  width: max-content;
+  padding: 2px; /* more room for border */
+  border-radius: 6px;
+  border: 2px solid transparent; /* default border, for sizing */
+  box-sizing: border-box;
+}
+
+.color-box-wrapper.selected {
+  border-color: var(--primary-color-hover);
+}
+
+.color-box-menu.white-color {
+  border: 1px solid gray !important;
+}
+
+.color-box-menu {
+  width: 47px;
+  height: 35px;
+  border-radius: 4px;
+}
+
+.remove-color-btn.ant-btn-dangerous:hover {
+  box-shadow: none !important;
+}
+
+.collapse-arrow-icon {
+  transition: transform 0.3s ease;
+}
+
+.collapse-arrow-icon.rotate {
+  transform: rotate(180deg);
+}
+
+.color-selector-collapse .ant-collapse-header {
+  padding: 5px !important;
 }
