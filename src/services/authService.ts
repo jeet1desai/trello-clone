@@ -38,7 +38,7 @@ export const authService = {
       email,
       password,
     });
-    return response.data.data;
+    return response.data;
   },
 
   async requestPasswordReset(email: string) {

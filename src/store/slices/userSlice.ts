@@ -271,7 +271,7 @@ const userSlice = createSlice({
           last_name,
           email,
           profile_image,
-        } = action.payload.user;
+        } = action.payload.data.user;
         const currentUser = {
           id: _id,
           first_name,
@@ -410,6 +410,44 @@ const userSlice = createSlice({
         state.success = null;
         state.error = "Error while logging out.";
       });
+
+    // // Login
+    // .addMatcher(isPending(loginUser), (state) => {
+    //   state.loading = true;
+    //   state.error = null;
+    //   state.success = null;
+    // })
+    // .addMatcher(isFulfilled(loginUser), (state, action) => {
+    //   const {
+    //     _id,
+    //     first_name,
+    //     middle_name,
+    //     last_name,
+    //     email,
+    //     profile_image,
+    //   } = action.payload.user;
+    //   const currentUser = {
+    //     id: _id,
+    //     first_name,
+    //     middle_name,
+    //     last_name,
+    //     email,
+    //     profile_image,
+    //   };
+    //   state.currentUser = currentUser;
+    //   state.isAuthenticated = true;
+    //   localStorage.setItem("accessToken", action.payload.accessToken);
+    //   localStorage.setItem("refreshToken", action.payload.refreshToken);
+    //   state.loading = false;
+    //   state.error = null;
+    // })
+    // .addMatcher(isRejected(loginUser), (state, action) => {
+    //   state.loading = false;
+    //   state.currentUser = null;
+    //   state.isAuthenticated = false;
+    //   state.success = null;
+    //   state.error = (action.payload as string) || "Error while login.";
+    // });
   },
 });
 

@@ -27,7 +27,8 @@ export const notificationMiddleware: Middleware<
       sliceName.includes("status") ||
       sliceName.includes("task") ||
       sliceName.includes("notification") ||
-      sliceName.includes("dashboard")
+      sliceName.includes("dashboard") ||
+      sliceName.includes("user")
     )
       return;
 
