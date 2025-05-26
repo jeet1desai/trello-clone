@@ -1279,8 +1279,8 @@ const BoardDetail: React.FC = () => {
                   }}
                 >
                   <Button
-                    type="text"
-                    className="add-card-button"
+                    type="primary"
+                    className="add-card-btn"
                     icon={<CirclePlus size={16} />}
                     onClick={() => {
                       if (statusList.length > 0) {

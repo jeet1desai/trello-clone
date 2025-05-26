@@ -763,13 +763,16 @@ export const getWorkspacesForBoards = createAsyncThunk(
 
 export const duplicateTask = createAsyncThunk(
   "task/duplicate-task",
-  async (_id: string, { rejectWithValue }) => {
+  async (
+    { _id, title }: { _id: string; title: string },
+    { rejectWithValue }
+  ) => {
     try {
-      const response = await boardService.duplicateTask(_id);
+      const response = await boardService.duplicateTask(_id, title);
       return response;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message ?? "Error while adding member."
+        error.response?.data?.message ?? "Error while duplicating task."
       );
     }
   }

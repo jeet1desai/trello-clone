@@ -193,9 +193,9 @@ export const boardService = {
     return response.data;
   },
 
-  async duplicateTask(taskId: string) {
+  async duplicateTask(taskId: string, title:string) {
     const response = await axiosInstance.post(
-      `${API_URL}/task/duplicate-task`,{taskId}
+      `${API_URL}/task/duplicate-task`,{taskId , title}
     );
     return response.data;
   },
