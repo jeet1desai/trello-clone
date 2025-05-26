@@ -173,10 +173,10 @@
   font-size: 16px;
 }
 
-.stat-label {
+.dashboard-stat-label {
   font-size: 14px;
-  margin-left: 8px;
   opacity: 0.9;
+  width: max-content;
 }
 
 /* Task Stats Styles */
@@ -533,7 +533,7 @@
     justify-content: center;
   }
 
-  .stat-label {
+  .dashboard-stat-label {
     font-size: 12px;
   }
 

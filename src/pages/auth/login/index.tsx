@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { Form, Input, Button, Typography, Divider } from "antd";
+import { Form, Input, Button, Typography, Divider, Alert } from "antd";
 import { Link, useNavigate } from "react-router-dom";
 import { AppDispatch, RootState } from "../../../store";
 import { clearAuthState, loginUser } from "../../../store/slices/userSlice";
@@ -12,6 +12,7 @@ import {
 } from "../../../components/social";
 import { LockKeyhole, UserRound } from "lucide-react";
 import { companyLogo } from "../../../assets";
+import ErrorAlert from "../../../components/ErrorAlert";
 
 const { Title, Text } = Typography;
 
@@ -19,7 +20,9 @@ const Login: React.FC = () => {
   const [form] = Form.useForm();
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
-  const { loading, isAuthenticated } = useSelector((state: RootState) => state.user);
+  const { loading, isAuthenticated, error } = useSelector(
+    (state: RootState) => state.user
+  );
 
   useEffect(() => {
     // Clear any previous auth states
@@ -34,7 +37,12 @@ const Login: React.FC = () => {
   }, [isAuthenticated, navigate]);
 
   const handleSubmit = async (values: { email: string; password: string }) => {
-    await dispatch(loginUser({ email: values.email, password: values.password }));
+    await dispatch(
+      loginUser({
+        email: values.email,
+        password: values.password,
+      })
+    );
   };
 
   return (
@@ -73,7 +81,12 @@ const Login: React.FC = () => {
               { type: "email", message: "Please enter a valid email address" },
             ]}
           >
-            <Input prefix={<UserRound size={16} className="form-icon" />} placeholder="Enter your email" size="large" className="form-input" />
+            <Input
+              prefix={<UserRound size={16} className="form-icon" />}
+              placeholder="Enter your email"
+              size="large"
+              className="form-input"
+            />
           </Form.Item>
 
           <Form.Item
@@ -103,8 +116,18 @@ const Login: React.FC = () => {
             />
           </Form.Item>
 
+          <ErrorAlert error={error} />
+
           <Form.Item>
-            <Button type="primary" htmlType="submit" className="button" loading={loading} block size="large" disabled={loading}>
+            <Button
+              type="primary"
+              htmlType="submit"
+              className="button"
+              loading={loading}
+              block
+              size="large"
+              disabled={loading}
+            >
               Sign In
             </Button>
           </Form.Item>

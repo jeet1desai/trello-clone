@@ -264,6 +264,7 @@ const userSlice = createSlice({
         state.success = null;
       })
       .addCase(loginUser.fulfilled, (state, action) => {
+        const { user, accessToken, refreshToken } = action.payload.data;
         const {
           _id,
           first_name,
@@ -271,7 +272,7 @@ const userSlice = createSlice({
           last_name,
           email,
           profile_image,
-        } = action.payload.user;
+        } = user;
         const currentUser = {
           id: _id,
           first_name,
@@ -282,8 +283,8 @@ const userSlice = createSlice({
         };
         state.currentUser = currentUser;
         state.isAuthenticated = true;
-        localStorage.setItem("accessToken", action.payload.accessToken);
-        localStorage.setItem("refreshToken", action.payload.refreshToken);
+        localStorage.setItem("accessToken", accessToken);
+        localStorage.setItem("refreshToken", refreshToken);
         state.loading = false;
         state.error = null;
       })

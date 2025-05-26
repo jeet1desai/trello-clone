@@ -1069,7 +1069,9 @@ const TaskModal: React.FC<TaskModalProps> = ({
             />
           </div>
         </Col>
-        <Col xs={24} sm={12} md={6} style={{ marginTop: "10px" }}>
+      </Row>
+      <div className="task-labels-container">
+        <div className="task-labels-main">
           <Text strong style={{ fontSize: "12px", color: "#44546f" }}>
             Labels
           </Text>
@@ -1090,6 +1092,7 @@ const TaskModal: React.FC<TaskModalProps> = ({
                   padding: "4px 8px",
                   width: "max-content",
                   borderRadius: "4px",
+                  whiteSpace: "nowrap",
                 }}
               >
                 {label?.name}
@@ -1120,8 +1123,8 @@ const TaskModal: React.FC<TaskModalProps> = ({
               </Button>
             </Popover>
           </div>
-        </Col>
-        <Col xs={24} sm={12} md={6} style={{ marginTop: "10px" }}>
+        </div>
+        <div>
           <Text strong style={{ fontSize: "12px", color: "#44546f" }}>
             Share
           </Text>
@@ -1148,8 +1151,8 @@ const TaskModal: React.FC<TaskModalProps> = ({
               />
             </Popover>
           </div>
-        </Col>
-        <Col xs={24} sm={12} md={6} style={{ marginTop: "10px" }}>
+        </div>
+        <div>
           <Text strong style={{ fontSize: "12px", color: "#44546f" }}>
             Duplicate
           </Text>
@@ -1177,8 +1180,8 @@ const TaskModal: React.FC<TaskModalProps> = ({
               />
             </Popover>
           </div>
-        </Col>
-      </Row>
+        </div>
+      </div>
       <div className="task-content task-body-margin-left">
         <div style={{ display: "flex", gap: "24px" }}>
           <div style={{ flex: 1 }}>

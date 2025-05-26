@@ -422,7 +422,7 @@ const taskSlice = createSlice({
         (t) => t._id === task_id
       );
       if (task) {
-        const exists = task.labels.some((l) => l._id === label_id._id);
+        const exists = task?.labels?.some((l) => l._id === label_id._id);
         if (!exists) {
           task.labels.push(label_id);
         }

@@ -13,6 +13,7 @@ import { PUBLIC_ROUTE } from "../../../utils/enums/route";
 import { LockKeyhole, Mail } from "lucide-react";
 import OtpInput from "../../../components/ui/otpUI";
 import { companyLogo } from "../../../assets";
+import ErrorAlert from "../../../components/ErrorAlert";
 
 const { Title, Text } = Typography;
 
@@ -20,7 +21,7 @@ const ForgotPassword: React.FC = () => {
   const [form] = Form.useForm();
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
-  const { loading, passwordChangeRequested } = useSelector(
+  const { loading, passwordChangeRequested, error } = useSelector(
     (state: RootState) => state.user
   );
 
@@ -131,6 +132,8 @@ const ForgotPassword: React.FC = () => {
               />
             </Form.Item>
           )}
+
+          <ErrorAlert error={error} />
 
           <Form.Item>
             <Button

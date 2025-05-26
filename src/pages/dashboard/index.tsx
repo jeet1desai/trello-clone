@@ -150,8 +150,9 @@ const Dashboard: React.FC = () => {
                         <div className="stat-item">
                           <div className="stat-value">
                             <CircleCheck size={16} />{" "}
-                            {dashboardCount?.task ?? 0}
-                            <span className="stat-label">Completed</span>
+                            <span className="dashboard-stat-label">
+                              {dashboardCount?.task ?? 0} Completed
+                            </span>
                           </div>
                           <Progress
                             percent={Math.round(
@@ -166,8 +167,10 @@ const Dashboard: React.FC = () => {
                         </div>
                         <div className="stat-item">
                           <div className="stat-value">
-                            <Clock size={16} /> {dashboardCount?.totalTask ?? 0}
-                            <span className="stat-label">Total Tasks</span>
+                            <Clock size={16} />
+                            <span className="dashboard-stat-label">
+                              {dashboardCount?.totalTask ?? 0} Total Tasks
+                            </span>
                           </div>
                           <Progress
                             percent={100}

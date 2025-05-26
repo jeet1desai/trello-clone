@@ -94,7 +94,9 @@ const Home: React.FC = () => {
           <Col xs={24} sm={12} md={8}>
             <div className="feature-card">
               <div className="feature-icon">🚀</div>
-              <Title level={4}>Fast Implementation</Title>
+              <Title level={4} className="feature-title">
+                Fast Implementation
+              </Title>
               <Paragraph>
                 Quick and easy setup process to get your team started
               </Paragraph>
@@ -102,19 +104,23 @@ const Home: React.FC = () => {
           </Col>
           <Col xs={24} sm={12} md={8}>
             <div className="feature-card">
-              <div className="feature-icon">🔒</div>
-              <Title level={4}>Secure Platform</Title>
+              <div className="feature-icon">📊</div>
+              <Title level={4} className="feature-title">
+                Advanced Analytics
+              </Title>
               <Paragraph>
-                Enterprise-grade security for your team's data
+                Detailed insights and reporting capabilities
               </Paragraph>
             </div>
           </Col>
           <Col xs={24} sm={12} md={8}>
             <div className="feature-card">
-              <div className="feature-icon">📊</div>
-              <Title level={4}>Advanced Analytics</Title>
+              <div className="feature-icon">🔒</div>
+              <Title level={4} className="feature-title">
+                Secure Platform
+              </Title>
               <Paragraph>
-                Detailed insights and reporting capabilities
+                Enterprise-grade security for your team's data
               </Paragraph>
             </div>
           </Col>
