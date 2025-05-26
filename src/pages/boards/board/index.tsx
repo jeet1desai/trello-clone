@@ -12,7 +12,7 @@ import {
   Divider,
   Badge,
   Dropdown,
-  Table
+  Table,
 } from "antd";
 import type {
   DraggableProvided,
@@ -86,7 +86,7 @@ import {
   ChevronDown,
   Clock,
   TableProperties,
-  SquareKanban, 
+  SquareKanban,
 } from "lucide-react";
 import BoardFilter from "./components/boardFilter";
 import ChangeBackgroundPopover from "./components/ChangeBackgroundModal";
@@ -116,12 +116,12 @@ const BoardDetail: React.FC = () => {
     {
       key: "table",
       label: "Table View",
-      icon: <TableProperties />,
+      icon: <TableProperties size={18} />,
     },
     {
       key: "board",
       label: "Board View",
-      icon: <SquareKanban />,
+      icon: <SquareKanban size={18} />,
     },
   ];
   const [selectedView, setSelectedView] = useState(() => {
@@ -570,7 +570,8 @@ const BoardDetail: React.FC = () => {
             style={{
               boxShadow: "0 1px 2px rgba(0, 0, 0, 0.1)",
               cursor: "pointer",
-              background: task.status === "Completed" ? "rgba(107, 241, 107, 0.70)" : "",
+              background:
+                task.status === "Completed" ? "rgba(107, 241, 107, 0.70)" : "",
             }}
             bodyStyle={{ padding: "8px 12px" }}
           >
@@ -605,7 +606,7 @@ const BoardDetail: React.FC = () => {
                 </Paragraph>
                 <div
                   style={{
-                    margin: "12px 0 8px 0",
+                    margin: "12px 0 8px -2px",
                     display: "flex",
                     gap: 8,
                     alignItems: "center",
@@ -744,15 +745,16 @@ const BoardDetail: React.FC = () => {
                     display: "flex",
                     alignItems: "center",
                     cursor: "pointer",
+                    color: "white",
                   }}
                   onClick={(e) => e.stopPropagation()}
                 >
                   {selectedView === "table" ? (
-                    <TableProperties />
+                    <TableProperties size={20} />
                   ) : (
-                    <SquareKanban />
+                    <SquareKanban size={20} />
                   )}
-                  <ChevronDown />
+                  <ChevronDown size={18} />
                 </div>
               </Dropdown>
             </div>
@@ -890,7 +892,12 @@ const BoardDetail: React.FC = () => {
 
       {statusList?.length > 0 || isOwner() ? (
         selectedView === "board" ? (
-          <div className="board-content">
+          <div
+            className="board-content"
+            style={{
+              height: "calc(100vh - 125px)",
+            }}
+          >
             <DragDropContext onDragEnd={handleDragEnd}>
               <Droppable
                 droppableId={id ? id : "all-lists"}
@@ -1016,12 +1023,22 @@ const BoardDetail: React.FC = () => {
                                           icon={<Trash2 size={16} />}
                                           onClick={() => handleDelete(list)}
                                         />
-                                        <TaskMenu statusId={selectedStatus?._id ?? ""} activeColor={selectedStatus?.background ?? ""} />
+                                        <TaskMenu
+                                          statusId={selectedStatus?._id ?? ""}
+                                          activeColor={
+                                            selectedStatus?.background ?? ""
+                                          }
+                                        />
                                       </div>
                                     )
-                                  ) :
-                                    <TaskMenu statusId={selectedStatus?._id ?? ""} activeColor={selectedStatus?.background ?? ""} />
-                                  }
+                                  ) : (
+                                    <TaskMenu
+                                      statusId={selectedStatus?._id ?? ""}
+                                      activeColor={
+                                        selectedStatus?.background ?? ""
+                                      }
+                                    />
+                                  )}
                                 </div>
                                 {hasActiveFilters ? (
                                   <Empty
@@ -1094,7 +1111,9 @@ const BoardDetail: React.FC = () => {
                                     className="add-card-button"
                                     icon={<CirclePlus size={16} />}
                                     block
-                                  onClick={() => toggleAddTask(list._id, true)}
+                                    onClick={() =>
+                                      toggleAddTask(list._id, true)
+                                    }
                                   >
                                     Add card
                                   </Button>
@@ -1287,7 +1306,13 @@ const BoardDetail: React.FC = () => {
                         toggleAddTask(statusList[0]._id, true);
                       }
                     }}
-                  style={{ marginTop: 16 , fontWeight: 800 , background: "#f5f5f5", border:"1px solid white", borderRadius:"5px"}}
+                  style={{
+                    marginTop: 16,
+                    fontWeight: 800,
+                    background: "#f5f5f5",
+                    border: "1px solid white",
+                    borderRadius: "5px",
+                  }}
                   >
                     Add Card
                   </Button>
