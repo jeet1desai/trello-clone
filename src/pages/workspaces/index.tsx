@@ -229,7 +229,11 @@ const Workspaces: React.FC = () => {
         <Card
           hoverable
           className="workspace-card"
-          bodyStyle={{ padding: "24px 24px 20px 24px" }}
+          styles={{
+            body: {
+              padding: "24px 24px 20px 24px",
+            },
+          }}
         >
           <div
             style={{

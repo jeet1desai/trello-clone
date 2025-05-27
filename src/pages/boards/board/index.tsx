@@ -570,7 +570,11 @@ const BoardDetail: React.FC = () => {
               background:
                 task.status === "Completed" ? "rgba(107, 241, 107, 0.70)" : "",
             }}
-            bodyStyle={{ padding: "8px 12px" }}
+            styles={{
+              body: {
+                padding: "8px 12px",
+              },
+            }}
           >
             <div style={{ marginBottom: 8, display: "flex", gap: 6 }}>
               {task.labels?.map((label) => {
@@ -851,7 +855,7 @@ const BoardDetail: React.FC = () => {
                 ) : null}
               </div>
             </Popover>
-            <Avatar.Group maxCount={3}>
+            <Avatar.Group max={{ count: 3 }}>
               {invitedMemberList?.map((member) => {
                 return (
                   <Tooltip
@@ -1039,11 +1043,15 @@ const BoardDetail: React.FC = () => {
                                 </div>
                                 {hasActiveFilters ? (
                                   <Empty
-                                    imageStyle={{ display: "none" }}
                                     description={
                                       getTasksByStatus(list._id)?.length +
                                       " tasks match filters"
                                     }
+                                    styles={{
+                                      image: {
+                                        display: "none",
+                                      },
+                                    }}
                                     style={{
                                       fontSize: "12px",
                                       textAlign: "start",
@@ -1057,8 +1065,12 @@ const BoardDetail: React.FC = () => {
                                 !showAddTaskMap[list._id] &&
                                 !hasActiveFilters ? (
                                   <Empty
-                                    imageStyle={{ display: "none" }}
                                     description="No tasks in this column"
+                                    styles={{
+                                      image: {
+                                        display: "none",
+                                      },
+                                    }}
                                     style={{
                                       textAlign: "center",
                                       margin: "20px 0",
@@ -1286,23 +1298,23 @@ const BoardDetail: React.FC = () => {
               pagination={false}
               scroll={{ x: true }}
             />
-              {selectedView === "table" && isOwner() && statusList.length > 0 && (
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "center",
-                    margin: "20px 30px",
+            {selectedView === "table" && isOwner() && statusList.length > 0 && (
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "center",
+                  margin: "20px 30px",
+                }}
+              >
+                <Button
+                  type="primary"
+                  className="add-card-btn"
+                  icon={<CirclePlus size={16} />}
+                  onClick={() => {
+                    if (statusList.length > 0) {
+                      toggleAddTask(statusList[0]._id, true);
+                    }
                   }}
-                >
-                  <Button
-                    type="primary"
-                    className="add-card-btn"
-                    icon={<CirclePlus size={16} />}
-                    onClick={() => {
-                      if (statusList.length > 0) {
-                        toggleAddTask(statusList[0]._id, true);
-                      }
-                    }}
                   style={{
                     marginTop: 16,
                     fontWeight: 800,
@@ -1310,20 +1322,20 @@ const BoardDetail: React.FC = () => {
                     border: "1px solid white",
                     borderRadius: "5px",
                   }}
-                  >
-                    Add Card
-                  </Button>
+                >
+                  Add Card
+                </Button>
 
-                  {statusList.length > 0 && showAddTaskMap[statusList[0]._id] && (
-                    <AddTaskForm
-                      boardId={id ?? ""}
-                      statusId={statusList[0]._id}
-                      onCancel={() => toggleAddTask(statusList[0]._id, false)}
-                      onSuccess={() => toggleAddTask(statusList[0]._id, false)}
-                    />
-                  )}
-                </div>
-              )}
+                {statusList.length > 0 && showAddTaskMap[statusList[0]._id] && (
+                  <AddTaskForm
+                    boardId={id ?? ""}
+                    statusId={statusList[0]._id}
+                    onCancel={() => toggleAddTask(statusList[0]._id, false)}
+                    onSuccess={() => toggleAddTask(statusList[0]._id, false)}
+                  />
+                )}
+              </div>
+            )}
           </>
         )
       ) : (

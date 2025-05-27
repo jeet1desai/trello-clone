@@ -5,6 +5,7 @@ import {
   GoogleAuthProvider,
   OAuthProvider,
 } from "firebase/auth";
+import { getMessaging, getToken } from "firebase/messaging";
 
 // Your Firebase configuration object
 const firebaseConfig = {
@@ -21,6 +22,7 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
+export const messaging = getMessaging(app);
 
 // Set up providers
 const googleProvider = new GoogleAuthProvider();
@@ -32,6 +34,18 @@ githubProvider.setCustomParameters({ prompt: "select_account" });
 githubProvider.addScope("user:email");
 const microsoftProvider = new OAuthProvider("microsoft.com");
 microsoftProvider.setCustomParameters({ prompt: "select_account" });
+
+export const generateToken = async () => {
+  const permission = await Notification.requestPermission();
+  if (permission === "granted") {
+    const token = await getToken(messaging, {
+      vapidKey:
+        "BIzSDatLbwLRyhYOQUWPlIziOlTB4FvZoqBLXDtla0TPFdP7s61UCxpzZVfLpq-IUrcmpIQDmgN8kQnBJYwQkWg",
+    });
+    console.log("firebase-token", token)
+  }
+};
+
 export {
   auth,
   googleProvider,

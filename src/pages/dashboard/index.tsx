@@ -280,17 +280,19 @@ const Dashboard: React.FC = () => {
             style={{
               borderRadius: "12px",
             }}
-            bodyStyle={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              gap: "24px",
-              width: "100%",
-              border: "none",
-              borderRadius: "12px",
-              overflow: "hidden",
-              background:
-                "linear-gradient(135deg, hsl(213, 72%, 21%) 0%, #3e88b6 100%)",
+            styles={{
+              body: {
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                gap: "24px",
+                width: "100%",
+                border: "none",
+                borderRadius: "12px",
+                overflow: "hidden",
+                background:
+                  "linear-gradient(135deg, hsl(213, 72%, 21%) 0%, #3e88b6 100%)",
+              },
             }}
           >
             <div>
