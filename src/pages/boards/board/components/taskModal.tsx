@@ -1,4 +1,4 @@
-import React, { useState, useEffect, JSX } from "react";
+import React, { useState, useEffect, JSX, useRef } from "react";
 import {
   Modal,
   Button,
@@ -15,6 +15,7 @@ import {
   Checkbox,
   message,
   Space,
+  InputNumber,
 } from "antd";
 import TaskDescriptionEditor from "../../../../components/ui/Editor";
 import type { UploadFile } from "antd";
@@ -95,7 +96,14 @@ import {
   File as FileIcon,
   FileText,
   Files,
+  CirclePlay,
+  CirclePause,
+  Hourglass,
+  Clock
 } from "lucide-react";
+import dayjs from 'dayjs';
+import duration from 'dayjs/plugin/duration';
+dayjs.extend(duration);
 
 const { Text } = Typography;
 const { Option } = Select;
@@ -351,6 +359,55 @@ const TaskModal: React.FC<TaskModalProps> = ({
   const [debouncedSearchAssigned, setDebouncedSearchAssigned] =
     useState(searchAssigned);
 
+  const [assignedHours, setAssignedHours] = useState<number>(0);
+  const [assignedMinutes, setAssignedMinutes] = useState<number>(0);
+  const [isTracking, setIsTracking] = useState(false);
+  const [elapsedSeconds, setElapsedSeconds] = useState(0);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
+
+  const totalSeconds = assignedHours * 3600 + assignedMinutes * 60;
+
+  const formatTime = (seconds: number): string => {
+    const dur = dayjs.duration(seconds, 'seconds');
+    return dur.format('HH:mm:ss');
+  };
+
+  const handleStart = () => {
+    if (!isTracking && totalSeconds > 0) {
+      setIsTracking(true);
+      timerRef.current = setInterval(() => {
+        setElapsedSeconds(prev => {
+          if (prev + 1 >= totalSeconds) {
+            clearInterval(timerRef.current!);
+            setIsTracking(false);
+            return totalSeconds;
+          }
+          return prev + 1;
+        });
+      }, 1000);
+    }
+  };
+
+  const handlePause = () => {
+    if (timerRef.current) clearInterval(timerRef.current);
+    setIsTracking(false);
+  };
+
+  const handleReset = () => {
+    if (timerRef.current) clearInterval(timerRef.current);
+    setElapsedSeconds(0);
+    setIsTracking(false);
+  };
+
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
+  }, []);
+
+  const minuteOptions = [1, 15, 30, 45];
+
+    
   useEffect(() => {
     const handler = setTimeout(() => {
       setDebouncedSearchAssigned(searchAssigned);
@@ -880,16 +937,6 @@ const TaskModal: React.FC<TaskModalProps> = ({
         setLabelVisible(false);
         navigate(window.location.pathname);
       }}
-      onClose={() => {
-        onClose();
-        setFileList([]);
-        setMsg("");
-        setIsEditTitle(false);
-        setShowEditor(false);
-        setMemberVisible(false);
-        setLabelVisible(false);
-        navigate(window.location.pathname);
-      }}
       footer={null}
       className="task-modal"
     >
@@ -1078,6 +1125,7 @@ const TaskModal: React.FC<TaskModalProps> = ({
           <div
             style={{
               display: "flex",
+              flexWrap: "wrap",
               alignItems: "center",
               gap: 4,
               marginTop: "4px",
@@ -1181,6 +1229,85 @@ const TaskModal: React.FC<TaskModalProps> = ({
             </Popover>
           </div>
         </div>
+      </div>
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          borderBottom: '1px solid #eee',
+          padding: '8px 0',
+          gap: 10,
+        }}
+      >
+        {totalSeconds > 0 ? (
+          isTracking ? (
+            <CirclePause
+              size={20}
+              style={{ color: '#1677ff', cursor: 'pointer' }}
+              onClick={handlePause}
+            />
+          ) : (
+            <CirclePlay
+              size={20}
+              style={{ color: '#52c41a', cursor: 'pointer' }}
+              onClick={handleStart}
+            />
+          )
+        ) : (
+          <Hourglass size={20} style={{ color: '#999' }} />
+        )}
+
+        <Space>
+          <Popover
+            content={
+              <InputNumber
+                min={0}
+                max={24}
+                value={assignedHours}
+                onChange={(val) => {
+                  if (val !== null) {
+                    setAssignedHours(val);
+                    handleReset();
+                  }
+                }}
+              />
+            }
+            trigger="click"
+          >
+            <Text style={{ cursor: 'pointer' }}>{assignedHours} hr</Text>
+          </Popover>
+
+          <Text>:</Text>
+
+          <Popover
+            content={
+              <Space direction="vertical">
+                {minuteOptions.map((min) => (
+                  <Text
+                    key={min}
+                    onClick={() => {
+                      setAssignedMinutes(min);
+                      handleReset();
+                    }}
+                    style={{ cursor: 'pointer' }}
+                  >
+                    {min} min
+                  </Text>
+                ))}
+              </Space>
+            }
+            trigger="click"
+          >
+            <Text style={{ cursor: 'pointer' }}>{assignedMinutes} min</Text>
+          </Popover>
+        </Space>
+
+        <Text type="secondary" style={{ margin: '0 8px' }}>|</Text>
+
+        <Clock size={20} style={{ color: '#9254de' }} />
+        <Text strong style={{ color: '#9254de' }}>
+          {formatTime(elapsedSeconds)}
+        </Text>
       </div>
       <div className="task-content task-body-margin-left">
         <div style={{ display: "flex", gap: "24px" }}>
