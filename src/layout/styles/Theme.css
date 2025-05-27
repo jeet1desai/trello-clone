@@ -740,4 +740,6 @@ a:hover {
   border: var(--task-border);
   box-shadow: 1px 1px #00000005;
   background-color: var(--bg-primary);
+  border-radius: 6;
+  padding: 8px;
 }
