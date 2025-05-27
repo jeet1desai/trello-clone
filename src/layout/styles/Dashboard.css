@@ -208,7 +208,7 @@
   gap: 16px;
 }
 
-.avatar-wrapper {
+.user-avatar-wrapper {
   position: relative;
 }
 
@@ -497,7 +497,7 @@
     gap: 16px;
   }
 
-  .avatar-wrapper {
+  .user-avatar-wrapper {
     margin-bottom: 8px;
   }
 
