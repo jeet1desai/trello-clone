@@ -127,7 +127,7 @@ const BoardDetail: React.FC = () => {
     },
   ];
   const [selectedView, setSelectedView] = useState(() => {
-    return localStorage.getItem("selectedView") || "table";
+    return localStorage.getItem("selectedView") || "board";
   });
 
   const handleMenuClick = (key: string) => {
