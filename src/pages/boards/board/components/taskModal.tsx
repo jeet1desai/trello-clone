@@ -1124,7 +1124,7 @@ const TaskModal: React.FC<TaskModalProps> = ({
             </Popover>
           </div>
         </div>
-        <div>
+        <div className="task-labels-main">
           <Text strong style={{ fontSize: "12px", color: "#44546f" }}>
             Share
           </Text>
@@ -1152,7 +1152,7 @@ const TaskModal: React.FC<TaskModalProps> = ({
             </Popover>
           </div>
         </div>
-        <div>
+        <div className="task-labels-main">
           <Text strong style={{ fontSize: "12px", color: "#44546f" }}>
             Duplicate
           </Text>
