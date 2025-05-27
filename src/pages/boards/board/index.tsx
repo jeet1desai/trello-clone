@@ -175,7 +175,6 @@ const BoardDetail: React.FC = () => {
   }>({});
   const [visibleTaskCardForm, setVisibleTaskCardForm] =
     useState<boolean>(false);
-  const [hoveredTaskId, setHoveredTaskId] = useState<string | null>(null);
   const [filterOpen, setFilterOpen] = useState(false);
   const [selectedFilters, setSelectedFilters] = useState<{
     filterBy: any[];
@@ -573,8 +572,6 @@ const BoardDetail: React.FC = () => {
           }}
           onClick={() => handleTaskClick(task)}
           onMouseDown={() => dispatch(getTaskById(task._id))}
-          onMouseEnter={() => setHoveredTaskId(task._id)}
-          onMouseLeave={() => setHoveredTaskId(null)}
         >
           <Card
             size="small"

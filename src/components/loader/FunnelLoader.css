@@ -1,22 +1,10 @@
-@keyframes funnelWave {
-  0%,
-  100% {
-    opacity: 0.7;
-    transform: scaleX(1);
-  }
-  50% {
-    opacity: 1;
-    transform: scaleX(1.15);
-  }
-}
-
 .loader-fullscreen-bg {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background: #68686877;
+  background: #2e3a5342;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -65,37 +53,7 @@
   gap: 16px;
 }
 
-.magic-loader-circle {
-  width: 60px;
-  height: 60px;
-  background: #7cbcf4;
-  border-radius: 50%;
-  border: 6px solid rgba(255, 255, 255, 0.4);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 4px 32px rgba(0, 0, 0, 0.08);
-  animation: magicPulse 1.6s infinite cubic-bezier(0.4, 0, 0.2, 1);
-}
-
 .magic-wand-icon {
   color: white;
   display: block;
-}
-
-.magic-loader-message {
-  color: white;
-  font-weight: 600;
-  text-align: center;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
-  letter-spacing: 0.5px;
-}
-
-@keyframes magicPulse {
-  0%, 100% {
-    box-shadow: 0 4px 32px rgba(0, 0, 0, 0.08), 0 0 0 0 #7caaf444;
-  }
-  50% {
-    box-shadow: 0 8px 48px rgba(0, 0, 0, 0.16), 0 0 0 16px #7caef422;
-  }
 }
