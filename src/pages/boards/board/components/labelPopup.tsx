@@ -25,7 +25,7 @@ interface IProps {
 
 const LabelPopup = ({ boardId, selectedTaskId, suggestedLabels }: IProps) => {
   const dispatch = useDispatch<AppDispatch>();
-  const { boardLabels, selectedTaskLabels } = useSelector(
+  const { boardLabels, selectedTaskLabels, loading } = useSelector(
     (state: RootState) => state.board
   );
   const [search, setSearch] = useState("");
@@ -35,6 +35,8 @@ const LabelPopup = ({ boardId, selectedTaskId, suggestedLabels }: IProps) => {
   const [selectedLabelId, setSelectedLabelId] = useState("");
 
   const toggleLabel = (id: string) => {
+    if (loading) return;
+
     if (selectedTaskLabels?.map((label) => label?._id).includes(id)) {
       dispatch(removeLabelFromTask({ taskId: selectedTaskId, labelId: id }));
     } else {
@@ -246,7 +248,11 @@ const LabelPopup = ({ boardId, selectedTaskId, suggestedLabels }: IProps) => {
                 dataSource={suggestedLabelList}
                 renderItem={(label) => (
                   <List.Item
-                    style={{ padding: "4px 0", borderBlockEnd: "initial" }}
+                    style={{
+                      padding: "4px 0",
+                      borderBlockEnd: "initial",
+                      cursor: "pointer",
+                    }}
                   >
                     <div
                       style={{
