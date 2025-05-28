@@ -161,7 +161,7 @@ const Dashboard: React.FC = () => {
                 <Col>
                   <div className="user-info-section">
                     <div className="user-info-avatar">
-                      <div className="avatar-wrapper">
+                      <div className="user-avatar-wrapper">
                         <Avatar
                           size={80}
                           src={currentUser?.profile_image.url}

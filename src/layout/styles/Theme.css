@@ -23,7 +23,7 @@
 
   --input-prefix: #143654;
 
-  --link-color: #007bff;
+  --link-color: #143654;
 
   --success-color: #52c41a;
   --warning-color: #faad14;
@@ -297,8 +297,8 @@ a:hover {
 .ant-btn-default:focus {
   color: var(--primary-color-hover) !important;
   border-color: var(--primary-color-hover) !important;
-  border: 1px solid var(--primary-color-hover) !important;
-  box-shadow: 0 8px 20px var(--primary-color-shadow) !important;
+  border: 1px solid var(--primary-color-hover);
+  box-shadow: 0 8px 20px var(--primary-color-shadow);
 }
 
 .ant-btn-primary {
@@ -740,4 +740,6 @@ a:hover {
   border: var(--task-border);
   box-shadow: 1px 1px #00000005;
   background-color: var(--bg-primary);
+  border-radius: 6;
+  padding: 8px;
 }

@@ -9,3 +9,10 @@ export enum Priority {
   HIGH = "High",
   CRITICAL = "Critical",
 }
+
+
+export enum Duration {
+DAILY = "daily",
+WEEKLY = "weekly",
+MONTHLY = "monthly"
+}

@@ -279,11 +279,22 @@
 .active-link {
   font-weight: 600;
   color: #143654;
+  border: none !important;
+}
+
+.active-link:hover {
+  box-shadow: none !important;
 }
 
 .navigate-link {
   font-weight: 400;
   color: inherit;
+  border: none !important;
+}
+
+.navigate-link:hover {
+  border: none !important;
+  box-shadow: none !important;
 }
 
 .notification-header {

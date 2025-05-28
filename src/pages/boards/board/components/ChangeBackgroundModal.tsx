@@ -15,32 +15,10 @@ import {
   postUserBackground,
 } from "../../../../store/slices/boardSlice";
 import { BOARD_BACKGROUND_TYPE } from "../../../../utils/enums/board";
-
-const gradientColors = [
-  { bg: "linear-gradient(to right, #a1c4fd, #c2e9fb)", emoji: "🫧" },
-  { bg: "linear-gradient(to right, #2980b9, #6dd5fa)", emoji: "❄️" },
-  { bg: "linear-gradient(to right, #0052d4, #4364f7)", emoji: "🌊" },
-  { bg: "linear-gradient(to right, #a18cd1, #fbc2eb)", emoji: "🪷" },
-  { bg: "linear-gradient(to right, #fc67fa, #f4c4f3)", emoji: "🌈" },
-  { bg: "linear-gradient(to right, #f7971e, #ffd200)", emoji: "🥭" },
-  { bg: "linear-gradient(to right, #fbc2eb, #a6c1ee)", emoji: "🌸" },
-  { bg: "linear-gradient(to right, #11998e, #38ef7d)", emoji: "🌍" },
-  { bg: "linear-gradient(to right, #2c3e50, #4ca1af)", emoji: "👽" },
-  { bg: "linear-gradient(to right, #e52d27, #b31217)", emoji: "🍄" },
-];
-
-const solidColors = [
-  "#0079bf",
-  "#d29034",
-  "#519839",
-  "#b04632",
-  "#89609e",
-  "#cd5a91",
-  "#4bbf6b",
-  "#00aecc",
-  "#838c91",
-  "#f2d600",
-];
+import {
+  BOARD_BG_GRADIANT_COLORS,
+  BOARD_BG_SOLID_COLORS,
+} from "../../../../config";
 
 const ChangeBackgroundPopover = () => {
   const [visible, setVisible] = useState(false);
@@ -183,7 +161,7 @@ const ChangeBackgroundPopover = () => {
       ) : (
         <>
           <div className="color-grid">
-            {gradientColors.map((item, index) => (
+            {BOARD_BG_GRADIANT_COLORS.map((item, index) => (
               <div
                 key={index}
                 onClick={() =>
@@ -206,7 +184,7 @@ const ChangeBackgroundPopover = () => {
             ))}
           </div>
           <div className="color-grid">
-            {solidColors.map((color, idx) => (
+            {BOARD_BG_SOLID_COLORS.map((color, idx) => (
               <div
                 onClick={() =>
                   dispatch(

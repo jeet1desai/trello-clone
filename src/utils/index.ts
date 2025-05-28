@@ -26,17 +26,19 @@ export const fetchImageAsBase64 = (url: string): Promise<string> => {
 
     xhr.onload = () => {
       if (xhr.status === 200) {
+        const blob = xhr.response;
         const reader = new FileReader();
         reader.onloadend = () => {
           resolve(reader.result as string);
         };
-        reader.readAsDataURL(xhr.response);
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
       } else {
-        reject(`Failed to load image: ${xhr.status}`);
+        reject(new Error(`Failed to load image: ${xhr.status}`));
       }
     };
 
-    xhr.onerror = () => reject("XHR failed");
+    xhr.onerror = reject;
     xhr.send();
   });
 };

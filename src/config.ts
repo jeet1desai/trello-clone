@@ -50,3 +50,46 @@ export const GRADIENT_COMBOS = [
   "linear-gradient(135deg, #fccb90, #d57eeb)",
   "linear-gradient(135deg, #fa709a, #fee140)",
 ];
+
+
+export const BOARD_BG_GRADIANT_COLORS = [
+  { bg: "linear-gradient(to right, #a1c4fd, #c2e9fb)", emoji: "🫧" },
+  { bg: "linear-gradient(to right, #2980b9, #6dd5fa)", emoji: "❄️" },
+  { bg: "linear-gradient(to right, #0052d4, #4364f7)", emoji: "🌊" },
+  { bg: "linear-gradient(to right, #a18cd1, #fbc2eb)", emoji: "🪷" },
+  { bg: "linear-gradient(to right, #fc67fa, #f4c4f3)", emoji: "🌈" },
+  { bg: "linear-gradient(to right, #f7971e, #ffd200)", emoji: "🥭" },
+  { bg: "linear-gradient(to right, #fbc2eb, #a6c1ee)", emoji: "🌸" },
+  { bg: "linear-gradient(to right, #11998e, #38ef7d)", emoji: "🌍" },
+  { bg: "linear-gradient(to right, #2c3e50, #4ca1af)", emoji: "👽" },
+  { bg: "linear-gradient(to right, #e52d27, #b31217)", emoji: "🍄" },
+];
+
+export const BOARD_BG_SOLID_COLORS = [
+  "#0079bf",
+  "#d29034",
+  "#519839",
+  "#b04632",
+  "#89609e",
+  "#cd5a91",
+  "#4bbf6b",
+  "#00aecc",
+  "#838c91",
+  "#f2d600",
+];
+
+export const STATUS_LIST_COLORS
+ = [
+  "#D0EBFF",
+  "#FFECB3",
+  "#C8E6C9",
+  "#FFCDD2",
+  "#E1BEE7",
+  "#F8BBD0",
+  "#B2EBF2",
+  "#BBDEFB",
+  "#E0E0E0",
+  "#FFF59D",
+  "#FFD180",
+  "#B2DFDB",
+];

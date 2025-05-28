@@ -17,6 +17,7 @@
 }
 
 .avatar-wrapper {
+  position: absolute;
   transition: all 0.3s ease;
 }
 
@@ -451,7 +452,7 @@
 
 .stat-label {
   font-size: 1.1rem;
-  color: #666;
+  color: "#white";
   display: block;
 }
 

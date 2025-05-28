@@ -12,7 +12,7 @@ import {
   Divider,
   Badge,
   Dropdown,
-  Table
+  Table,
 } from "antd";
 import type {
   DraggableProvided,
@@ -86,7 +86,9 @@ import {
   ChevronDown,
   Clock,
   TableProperties,
-  SquareKanban, 
+  SquareKanban,
+  ChevronsRightLeft,
+  ChevronsLeftRight, 
 } from "lucide-react";
 import BoardFilter from "./components/boardFilter";
 import ChangeBackgroundPopover from "./components/ChangeBackgroundModal";
@@ -116,16 +118,16 @@ const BoardDetail: React.FC = () => {
     {
       key: "table",
       label: "Table View",
-      icon: <TableProperties />,
+      icon: <TableProperties size={18} />,
     },
     {
       key: "board",
       label: "Board View",
-      icon: <SquareKanban />,
+      icon: <SquareKanban size={18} />,
     },
   ];
   const [selectedView, setSelectedView] = useState(() => {
-    return localStorage.getItem("selectedView") || "table";
+    return localStorage.getItem("selectedView") || "board";
   });
 
   const handleMenuClick = (key: string) => {
@@ -173,7 +175,6 @@ const BoardDetail: React.FC = () => {
   }>({});
   const [visibleTaskCardForm, setVisibleTaskCardForm] =
     useState<boolean>(false);
-  const [hoveredTaskId, setHoveredTaskId] = useState<string | null>(null);
   const [filterOpen, setFilterOpen] = useState(false);
   const [selectedFilters, setSelectedFilters] = useState<{
     filterBy: any[];
@@ -182,6 +183,15 @@ const BoardDetail: React.FC = () => {
     filterBy: [currentUser?.id],
     labelIds: [],
   });
+
+  const [collapsedColumns, setCollapsedColumns] = useState<{ [key: string]: boolean }>({}); // ✅ NEW STATE
+
+  const toggleCollapse = (id: string) => {
+    setCollapsedColumns(prev => ({
+      ...prev,
+      [id]: !prev[id],
+    }));
+  };
 
   useEffect(() => {
     (async () => {
@@ -562,15 +572,14 @@ const BoardDetail: React.FC = () => {
           }}
           onClick={() => handleTaskClick(task)}
           onMouseDown={() => dispatch(getTaskById(task._id))}
-          onMouseEnter={() => setHoveredTaskId(task._id)}
-          onMouseLeave={() => setHoveredTaskId(null)}
         >
           <Card
             size="small"
             style={{
               boxShadow: "0 1px 2px rgba(0, 0, 0, 0.1)",
               cursor: "pointer",
-              background: task.status === "Completed" ? "rgba(107, 241, 107, 0.70)" : "",
+              background:
+                task.status === "Completed" ? "rgba(107, 241, 107, 0.70)" : "",
             }}
             bodyStyle={{ padding: "8px 12px" }}
           >
@@ -605,7 +614,7 @@ const BoardDetail: React.FC = () => {
                 </Paragraph>
                 <div
                   style={{
-                    margin: "12px 0 8px 0",
+                    margin: "12px 0 8px -2px",
                     display: "flex",
                     gap: 8,
                     alignItems: "center",
@@ -744,15 +753,16 @@ const BoardDetail: React.FC = () => {
                     display: "flex",
                     alignItems: "center",
                     cursor: "pointer",
+                    color: "white",
                   }}
                   onClick={(e) => e.stopPropagation()}
                 >
                   {selectedView === "table" ? (
-                    <TableProperties />
+                    <TableProperties size={20} />
                   ) : (
-                    <SquareKanban />
+                    <SquareKanban size={20} />
                   )}
-                  <ChevronDown />
+                  <ChevronDown size={18} />
                 </div>
               </Dropdown>
             </div>
@@ -890,7 +900,12 @@ const BoardDetail: React.FC = () => {
 
       {statusList?.length > 0 || isOwner() ? (
         selectedView === "board" ? (
-          <div className="board-content">
+          <div
+            className="board-content"
+            style={{
+              height: "calc(100vh - 125px)",
+            }}
+          >
             <DragDropContext onDragEnd={handleDragEnd}>
               <Droppable
                 droppableId={id ? id : "all-lists"}
@@ -906,6 +921,8 @@ const BoardDetail: React.FC = () => {
                   >
                     {statusList?.map((list: IStatusList, index: number) => {
                       const statusTasks = getTasksByStatus(list._id);
+                      const isCollapsed = collapsedColumns[list._id];
+                      const isEditing = !!isEditStatus[list._id];
                       return (
                         <Draggable
                           key={list._id}
@@ -919,21 +936,16 @@ const BoardDetail: React.FC = () => {
                               {...provided.draggableProps}
                               {...provided.dragHandleProps}
                               style={{
-                                minWidth: 280,
+                                minWidth: isCollapsed ? 60 : 280,
+                                transition: "all 0.3s",
                                 ...provided.draggableProps.style,
                               }}
-                              onMouseDown={() =>
-                                dispatch(setSelectedStatus(list))
-                              }
+                              onMouseDown={() => dispatch(setSelectedStatus(list))}
                             >
                               <div
                                 className="task-border"
                                 style={{
-                                  borderRadius: 6,
-                                  padding: "8px",
-                                  height: "max-content",
-                                  maxWidth: "300px",
-                                  backgroundColor: list.background,
+                                  maxWidth: isCollapsed ? 250: 350,
                                 }}
                               >
                                 <div
@@ -944,7 +956,21 @@ const BoardDetail: React.FC = () => {
                                   }}
                                   ref={wrapperRef}
                                 >
-                                  {isEditStatus[list._id] && isOwner() ? (
+                                  {isCollapsed ? (
+                                    <div
+                                      style={{
+                                        cursor: "pointer",
+                                        fontWeight: 600,
+                                        fontSize: "0.875rem",
+                                       }}
+                                      title={list.name}
+                                    >
+                                      {list.name}{" "}
+                                      <span className="count-chip">
+                                        {statusTasks.length}
+                                      </span>
+                                    </div>
+                                  ) : isEditing && isOwner() ? (
                                     <Input
                                       defaultValue={newStatusTitle}
                                       className="form-input"
@@ -963,18 +989,33 @@ const BoardDetail: React.FC = () => {
                                     <Text className="text-wrapper" strong>
                                       {list.name}{" "}
                                       <span className="count-chip">
-                                        {statusTasks?.length ?? 0}
+                                        {statusTasks.length}
                                       </span>
                                     </Text>
                                   )}
-                                  {isOwner() ? (
-                                    isEditStatus[list._id] ? (
-                                      <div style={{ display: "flex", gap: 4 }}>
-                                        <Button
-                                          type="text"
-                                          size="small"
-                                          icon={<Check size={16} />}
-                                          onClick={async () => {
+                                  {!isEditing && (
+                                    <Button
+                                      type="text"
+                                      size="small"
+                                      onClick={() => toggleCollapse(list._id)}
+                                      icon={
+                                        isCollapsed ? (
+                                          <ChevronsRightLeft size={16} />
+                                        ) : (
+                                          <ChevronsLeftRight size={16} />
+                                        )
+                                      }
+                                    />
+                                  )}
+                                  {!isCollapsed && (
+                                    isOwner() ? (
+                                      isEditing ? (
+                                        <div style={{ display: "flex", gap: 4 }}>
+                                          <Button
+                                            type="text"
+                                            size="small"
+                                            icon={<Check size={16} />}
+                                            onClick={async () => {
                                             await dispatch(
                                               updateStatus({
                                                 statusId:
@@ -985,120 +1026,123 @@ const BoardDetail: React.FC = () => {
                                             await dispatch(
                                               getStatusListByBoardId(id ?? "")
                                             );
-                                            setIsEditStatus({});
-                                          }}
-                                        />
-                                        <Button
-                                          type="text"
-                                          size="small"
-                                          icon={<X size={16} />}
-                                          onClick={() => setIsEditStatus({})}
-                                        />
-                                      </div>
-                                    ) : (
-                                      <div style={{ display: "flex", gap: 4 }}>
-                                        <Button
-                                          type="text"
-                                          size="small"
-                                          icon={<Pencil size={16} />}
-                                          onClick={() =>
+                                              setIsEditStatus({});
+                                            }}
+                                          />
+                                          <Button
+                                            type="text"
+                                            size="small"
+                                            icon={<X size={16} />}
+                                            onClick={() => setIsEditStatus({})}
+                                          />
+                                        </div>
+                                      ) : (
+                                        <div style={{ display: "flex", gap: 4 }}>
+                                          <Button
+                                            type="text"
+                                            size="small"
+                                            icon={<Pencil size={16} />}
+                                            onClick={() =>
                                             isOwner() &&
                                             toggleStatusName(
                                               list._id,
                                               list.name,
                                               true
                                             )
-                                          }
-                                        />
-                                        <Button
-                                          type="text"
-                                          size="small"
-                                          icon={<Trash2 size={16} />}
-                                          onClick={() => handleDelete(list)}
-                                        />
-                                        <TaskMenu statusId={selectedStatus?._id ?? ""} activeColor={selectedStatus?.background ?? ""} />
-                                      </div>
+                                            }
+                                          />
+                                          <Button
+                                            type="text"
+                                            size="small"
+                                            icon={<Trash2 size={16} />}
+                                            onClick={() => handleDelete(list)}
+                                          />
+                                          <TaskMenu
+                                            statusId={selectedStatus?._id ?? ""}
+                                            activeColor={selectedStatus?.background ?? ""}
+                                          />
+                                        </div>
+                                      )
+                                    ) : (
+                                      <TaskMenu
+                                        statusId={selectedStatus?._id ?? ""}
+                                        activeColor={selectedStatus?.background ?? ""}
+                                      />
                                     )
-                                  ) :
-                                    <TaskMenu statusId={selectedStatus?._id ?? ""} activeColor={selectedStatus?.background ?? ""} />
-                                  }
+                                  )}
                                 </div>
-                                {hasActiveFilters ? (
-                                  <Empty
-                                    imageStyle={{ display: "none" }}
-                                    description={
-                                      getTasksByStatus(list._id)?.length +
-                                      " tasks match filters"
-                                    }
-                                    style={{
-                                      fontSize: "12px",
-                                      textAlign: "start",
-                                      marginBottom: "4px",
-                                      fontStyle: "italic",
-                                    }}
-                                  />
-                                ) : null}
-
-                                {statusTasks?.length === 0 &&
-                                !showAddTaskMap[list._id] &&
-                                !hasActiveFilters ? (
-                                  <Empty
-                                    imageStyle={{ display: "none" }}
-                                    description="No tasks in this column"
-                                    style={{
-                                      textAlign: "center",
-                                      margin: "20px 0",
-                                      fontSize: "14px",
-                                      fontStyle: "italic",
-                                    }}
-                                  />
-                                ) : null}
-
-                                <Droppable droppableId={list._id} type="card">
-                                  {(provided: DroppableProvided) => {
-                                    return (
-                                      <div
-                                        ref={provided.innerRef}
-                                        {...provided.droppableProps}
+                                {!isCollapsed && (
+                                  <>
+                                    {hasActiveFilters && (
+                                      <Empty
+                                        imageStyle={{ display: "none" }}
+                                        description={
+                                          getTasksByStatus(list._id)?.length +
+                                          " tasks match filters"
+                                        }
                                         style={{
-                                          borderRadius: 6,
-                                          minHeight: 10,
-                                          maxHeight: "61vh",
-                                          overflow: "auto",
-                                          marginTop: "8px",
+                                          fontSize: 12,
+                                          textAlign: "start",
+                                          marginBottom: 4,
+                                          fontStyle: "italic",
                                         }}
-                                      >
+                                      />
+                                    )}
+                                    {statusTasks?.length === 0 &&
+                                      !showAddTaskMap[list._id] &&
+                                      !hasActiveFilters ? (
+                                        <Empty
+                                          imageStyle={{ display: "none" }}
+                                          description="No tasks in this column"
+                                          style={{
+                                            textAlign: "center",
+                                            margin: "20px 0",
+                                            fontSize: 14,
+                                            fontStyle: "italic",
+                                          }}
+                                        />
+                                      ) : null}
+
+                                    <Droppable droppableId={list._id} type="card">
+                                      {(provided: DroppableProvided) => (
+                                        <div
+                                          ref={provided.innerRef}
+                                          {...provided.droppableProps}
+                                          style={{
+                                            borderRadius: 6,
+                                            minHeight: 10,
+                                            maxHeight: "61vh",
+                                            overflow: "auto",
+                                            marginTop: 8,
+                                          }}
+                                        >
                                         {statusTasks.map((task, index) =>
                                           renderTaskCard(task, index)
-                                        )}
-                                        {provided.placeholder}
-                                      </div>
-                                    );
-                                  }}
-                                </Droppable>
-
-                                {showAddTaskMap[list._id] ? (
-                                  <AddTaskForm
-                                    boardId={id || ""}
-                                    statusId={list._id}
-                                    onCancel={() =>
-                                      toggleAddTask(list._id, false)
-                                    }
-                                    onSuccess={() =>
-                                      toggleAddTask(list._id, false)
-                                    }
-                                  />
-                                ) : isOwner() ? (
-                                  <Button
-                                    type="text"
-                                    className="add-card-button"
-                                    icon={<CirclePlus size={16} />}
-                                    block
-                                  onClick={() => toggleAddTask(list._id, true)}
-                                  >
-                                    Add card
-                                  </Button>
-                                ) : null}
+                                          )}
+                                          {provided.placeholder}
+                                        </div>
+                                      )}
+                                    </Droppable>
+                                    {showAddTaskMap[list._id] ? (
+                                      <AddTaskForm
+                                        boardId={id || ""}
+                                        statusId={list._id}
+                                        onCancel={() => toggleAddTask(list._id, false)}
+                                        onSuccess={() => toggleAddTask(list._id, false)}
+                                      />
+                                    ) : isOwner() ? (
+                                      <Button
+                                        type="text"
+                                        className="add-card-button"
+                                        icon={<CirclePlus size={16} />}
+                                        block
+                                        onClick={() => toggleAddTask(list._id, true)}
+                                      >
+                                        Add card
+                                      </Button>
+                                    ) : null}
+                                  </>
+                                )}
                               </div>
                             </div>
                           )}
@@ -1287,7 +1331,13 @@ const BoardDetail: React.FC = () => {
                         toggleAddTask(statusList[0]._id, true);
                       }
                     }}
-                  style={{ marginTop: 16 , fontWeight: 800 , background: "#f5f5f5", border:"1px solid white", borderRadius:"5px"}}
+                  style={{
+                    marginTop: 16,
+                    fontWeight: 800,
+                    background: "#f5f5f5",
+                    border: "1px solid white",
+                    borderRadius: "5px",
+                  }}
                   >
                     Add Card
                   </Button>

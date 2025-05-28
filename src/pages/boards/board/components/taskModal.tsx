@@ -33,7 +33,7 @@ import {
   updateCommentCount,
   updateTask,
 } from "../../../../store/slices/taskSlice";
-import { Priority, TaskStatus } from "../../../../utils/enums/task";
+import { Duration, Priority, TaskStatus } from "../../../../utils/enums/task";
 import Search from "antd/es/transfer/search";
 import LabelPopup from "./labelPopup";
 import DatePickerPopup from "./datePopup";
@@ -95,6 +95,7 @@ import {
   File as FileIcon,
   FileText,
   Files,
+  CopyPlus,
 } from "lucide-react";
 
 const { Text } = Typography;
@@ -213,7 +214,6 @@ const PrioritySelect = ({
     value={value}
     onChange={onChange}
     style={{ width: "110px" }}
-    // Ensures selected value does not wrap Tooltip
     optionLabelProp="label"
   >
     {Object.entries(priorityMeta).map(([priority, meta]) => (
@@ -340,6 +340,7 @@ const TaskModal: React.FC<TaskModalProps> = ({
   const [showEditor, setShowEditor] = useState(false);
   const [showAll, setShowAll] = useState(false);
   const [editableTitle, setEditableTitle] = useState("");
+  const [isModalVisible, setIsModalVisible] = useState(false);
   const [isCompleted, setIsCompleted] = useState(
     selectedTask?.status === TaskStatus.COMPLETED
   );
@@ -1124,7 +1125,7 @@ const TaskModal: React.FC<TaskModalProps> = ({
             </Popover>
           </div>
         </div>
-        <div>
+        <div className="task-labels-main">
           <Text strong style={{ fontSize: "12px", color: "#44546f" }}>
             Share
           </Text>
@@ -1152,7 +1153,7 @@ const TaskModal: React.FC<TaskModalProps> = ({
             </Popover>
           </div>
         </div>
-        <div>
+        <div className="task-labels-main">
           <Text strong style={{ fontSize: "12px", color: "#44546f" }}>
             Duplicate
           </Text>
@@ -1185,6 +1186,24 @@ const TaskModal: React.FC<TaskModalProps> = ({
       <div className="task-content task-body-margin-left">
         <div style={{ display: "flex", gap: "24px" }}>
           <div style={{ flex: 1 }}>
+            <div className="task-section">
+              <div className="task-section-title-desc">
+                <div
+                  style={{ display: "flex", alignItems: "center", gap: "8px" }}
+                >
+                  <CopyPlus size={16} />
+                  <Text strong>Create follow-up Task</Text>
+                </div>
+                <Button
+                  type="primary"
+                  size="small"
+                  className="button small-btn"
+                  onClick={() => setIsModalVisible(true)}
+                >
+                  Edit
+                </Button>
+              </div>
+            </div>
             <div className="task-section">
               <div className="task-section-title-desc">
                 <div
