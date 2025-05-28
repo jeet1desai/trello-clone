@@ -37,8 +37,6 @@ import {
 import dayjs from "dayjs";
 import { useMedia } from "../../hooks/useMedia";
 import UpcomingTasks from "../../components/dashboard/UpcomingTasks";
-import AnalyticalMemberCard from "./components/analyticalMemberCard";
-import MainDashboard from "./components/test";
 
 const { Title, Text } = Typography;
 
@@ -51,40 +49,6 @@ const motivationalQuotes = [
 ];
 const getRandomQuote = () =>
   motivationalQuotes[Math.floor(Math.random() * motivationalQuotes.length)];
-
-const mockMembers = [
-  {
-    id: "1",
-    name: "Alice Johnson",
-    email: "alice@example.com",
-    role: "Admin",
-    status: "Active",
-    board: "Marketing",
-    joinDate: "2024-05-10",
-  },
-  {
-    id: "2",
-    name: "Bob Smith",
-    email: "bob@example.com",
-    role: "Member",
-    status: "Inactive",
-    board: "Sales",
-    joinDate: "2024-04-15",
-  },
-  {
-    id: "3",
-    name: "Charlie Doe",
-    email: "charlie@example.com",
-    role: "Admin",
-    status: "Active",
-    board: "Engineering",
-    joinDate: "2024-06-01",
-  },
-];
-
-const boards = ["Marketing", "Sales", "Engineering"];
-const roles = ["Admin", "Member"];
-const statuses = ["Active", "Inactive"];
 
 const Dashboard: React.FC = () => {
   const { dashboardCount } = useSelector((state: RootState) => state.dashboard);
@@ -418,25 +382,6 @@ const Dashboard: React.FC = () => {
                 "{getRandomQuote()}"
               </div>
             </Card>
-          </Col>
-        </Row>
-      </div>
-      <div className="dashboard-section">
-        <Row gutter={[16, 16]}>
-          <Col span={24}>
-            <AnalyticalMemberCard
-              members={mockMembers}
-              boards={boards}
-              roles={roles}
-              statuses={statuses}
-            />
-          </Col>
-        </Row>
-      </div>
-      <div className="dashboard-section">
-        <Row gutter={[16, 16]}>
-          <Col span={24}>
-            <MainDashboard />
           </Col>
         </Row>
       </div>
