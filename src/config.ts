@@ -18,7 +18,6 @@ export const SORT_OPTIONS_VALUES = {
   CREATED_DESC: 4,
 };
 
-
 export const AVATAR_COLORS = [
   "#f56a00",
   "#7265e6",
@@ -51,7 +50,6 @@ export const GRADIENT_COMBOS = [
   "linear-gradient(135deg, #fa709a, #fee140)",
 ];
 
-
 export const BOARD_BG_GRADIANT_COLORS = [
   { bg: "linear-gradient(to right, #a1c4fd, #c2e9fb)", emoji: "🫧" },
   { bg: "linear-gradient(to right, #2980b9, #6dd5fa)", emoji: "❄️" },
@@ -78,8 +76,7 @@ export const BOARD_BG_SOLID_COLORS = [
   "#f2d600",
 ];
 
-export const STATUS_LIST_COLORS
- = [
+export const STATUS_LIST_COLORS = [
   "#D0EBFF",
   "#FFECB3",
   "#C8E6C9",
@@ -93,3 +90,27 @@ export const STATUS_LIST_COLORS
   "#FFD180",
   "#B2DFDB",
 ];
+
+export const TICKET_LABELS = [
+  "FE",
+  "BE",
+  "Web",
+  "Mobile",
+  "UI improvement",
+  "feature",
+  "bug",
+  "enhancement",
+  "performance",
+  "refactor",
+  "testing",
+  "documentation",
+  "devops",
+  "security",
+  "api",
+  "integration",
+  "database",
+  "UX",
+  "CI/CD",
+  "infra",
+  "code cleanup",
+] as const;
