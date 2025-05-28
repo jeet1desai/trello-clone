@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
-import { Wrench, BriefcaseBusiness, Check } from 'lucide-react';
-import './FunnelLoader.css';
+import React from "react";
+import { loadingGIF } from "../../assets";
+import "./FunnelLoader.css";
 
 export interface LoaderProps {
   fullScreen?: boolean;
@@ -8,31 +8,19 @@ export interface LoaderProps {
   children?: React.ReactNode;
 }
 
-const icons = [Wrench, BriefcaseBusiness, Check];
-
 const MagicWandLoader: React.FC = () => {
-  const [iconIndex, setIconIndex] = useState(0);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setIconIndex((prev) => (prev + 1) % icons.length);
-    }, 1000);
-    return () => clearInterval(interval);
-  }, []);
-
-  const Icon = icons[iconIndex];
-
   return (
     <div className="magic-loader-container">
-      <div className="magic-loader-circle color-animate">
-        <Icon size={32} className="magic-wand-icon spin-animate" />
-      </div>
-      <div className="magic-loader-message">Loading...</div>
+      <img src={loadingGIF} alt="Loading..." width={100} />
     </div>
   );
 };
 
-const Loader: React.FC<LoaderProps> = ({ fullScreen = false, loading = true, children }) => {
+const Loader: React.FC<LoaderProps> = ({
+  fullScreen = false,
+  loading = true,
+  children,
+}) => {
   if (!loading) return <>{children}</>;
 
   if (fullScreen) {
@@ -54,4 +42,4 @@ const Loader: React.FC<LoaderProps> = ({ fullScreen = false, loading = true, chi
   );
 };
 
-export default Loader; 
+export default Loader;
