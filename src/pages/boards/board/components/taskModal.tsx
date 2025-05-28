@@ -648,7 +648,12 @@ const TaskModal: React.FC<TaskModalProps> = ({
         style={{ marginBottom: 12 }}
         onKeyDown={(e) => {
           if (e.key === "Enter") {
-            dispatch(duplicateTask({ _id: selectedTask?._id ?? "", title: editableTitle }));
+            dispatch(
+              duplicateTask({
+                _id: selectedTask?._id ?? "",
+                title: editableTitle,
+              })
+            );
             setDuplicateCard(false);
           }
         }}
@@ -658,7 +663,12 @@ const TaskModal: React.FC<TaskModalProps> = ({
           type="primary"
           icon={<Copy size={16} />}
           onClick={() => {
-            dispatch(duplicateTask({ _id: selectedTask?._id ?? "", title: editableTitle }));
+            dispatch(
+              duplicateTask({
+                _id: selectedTask?._id ?? "",
+                title: editableTitle,
+              })
+            );
             setDuplicateCard(false);
           }}
         >
@@ -1081,6 +1091,7 @@ const TaskModal: React.FC<TaskModalProps> = ({
               alignItems: "center",
               gap: 4,
               marginTop: "4px",
+              flexWrap: "wrap",
             }}
           >
             {selectedTaskLabels?.map((label) => (

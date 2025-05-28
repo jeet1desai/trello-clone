@@ -87,8 +87,8 @@ import {
   Clock,
   TableProperties,
   SquareKanban,
-  ChevronsRightLeft,
-  ChevronsLeftRight, 
+  ArrowLeft,
+  ArrowRight,
 } from "lucide-react";
 import BoardFilter from "./components/boardFilter";
 import ChangeBackgroundPopover from "./components/ChangeBackgroundModal";
@@ -184,10 +184,12 @@ const BoardDetail: React.FC = () => {
     labelIds: [],
   });
 
-  const [collapsedColumns, setCollapsedColumns] = useState<{ [key: string]: boolean }>({}); // ✅ NEW STATE
+  const [collapsedColumns, setCollapsedColumns] = useState<{
+    [key: string]: boolean;
+  }>({}); // ✅ NEW STATE
 
   const toggleCollapse = (id: string) => {
-    setCollapsedColumns(prev => ({
+    setCollapsedColumns((prev) => ({
       ...prev,
       [id]: !prev[id],
     }));
@@ -944,12 +946,14 @@ const BoardDetail: React.FC = () => {
                                 transition: "all 0.3s",
                                 ...provided.draggableProps.style,
                               }}
-                              onMouseDown={() => dispatch(setSelectedStatus(list))}
+                              onMouseDown={() =>
+                                dispatch(setSelectedStatus(list))
+                              }
                             >
                               <div
                                 className="task-border"
                                 style={{
-                                  maxWidth: isCollapsed ? 250: 350,
+                                  maxWidth: isCollapsed ? 250 : 350,
                                 }}
                               >
                                 <div
@@ -966,7 +970,7 @@ const BoardDetail: React.FC = () => {
                                         cursor: "pointer",
                                         fontWeight: 600,
                                         fontSize: "0.875rem",
-                                       }}
+                                      }}
                                       title={list.name}
                                     >
                                       {list.name}{" "}
@@ -997,39 +1001,47 @@ const BoardDetail: React.FC = () => {
                                       </span>
                                     </Text>
                                   )}
-                                  {!isEditing && (
+                                  {isCollapsed && (
                                     <Button
                                       type="text"
                                       size="small"
                                       onClick={() => toggleCollapse(list._id)}
                                       icon={
-                                        isCollapsed ? (
-                                          <ChevronsRightLeft size={16} />
-                                        ) : (
-                                          <ChevronsLeftRight size={16} />
-                                        )
+                                        <div style={{ display: "flex" }}>
+                                          <ArrowLeft size={14} />
+                                          <ArrowRight
+                                            size={14}
+                                            style={{
+                                              marginLeft: "-3px",
+                                            }}
+                                          />
+                                        </div>
                                       }
                                     />
                                   )}
-                                  {!isCollapsed && (
-                                    isOwner() ? (
+                                  {!isCollapsed &&
+                                    (isOwner() ? (
                                       isEditing ? (
-                                        <div style={{ display: "flex", gap: 4 }}>
+                                        <div
+                                          style={{ display: "flex", gap: 4 }}
+                                        >
                                           <Button
                                             type="text"
                                             size="small"
                                             icon={<Check size={16} />}
                                             onClick={async () => {
-                                            await dispatch(
-                                              updateStatus({
-                                                statusId:
-                                                  Object.keys(isEditStatus)[0],
-                                                name: newStatusTitle,
-                                              })
-                                            );
-                                            await dispatch(
-                                              getStatusListByBoardId(id ?? "")
-                                            );
+                                              await dispatch(
+                                                updateStatus({
+                                                  statusId:
+                                                    Object.keys(
+                                                      isEditStatus
+                                                    )[0],
+                                                  name: newStatusTitle,
+                                                })
+                                              );
+                                              await dispatch(
+                                                getStatusListByBoardId(id ?? "")
+                                              );
                                               setIsEditStatus({});
                                             }}
                                           />
@@ -1041,18 +1053,38 @@ const BoardDetail: React.FC = () => {
                                           />
                                         </div>
                                       ) : (
-                                        <div style={{ display: "flex", gap: 4 }}>
+                                        <div
+                                          style={{ display: "flex", gap: 4 }}
+                                        >
+                                          <Button
+                                            type="text"
+                                            size="small"
+                                            onClick={() =>
+                                              toggleCollapse(list._id)
+                                            }
+                                            icon={
+                                              <div>
+                                                <ArrowRight
+                                                  size={14}
+                                                  style={{
+                                                    marginRight: "-3px",
+                                                  }}
+                                                />
+                                                <ArrowLeft size={14} />
+                                              </div>
+                                            }
+                                          />
                                           <Button
                                             type="text"
                                             size="small"
                                             icon={<Pencil size={16} />}
                                             onClick={() =>
-                                            isOwner() &&
-                                            toggleStatusName(
-                                              list._id,
-                                              list.name,
-                                              true
-                                            )
+                                              isOwner() &&
+                                              toggleStatusName(
+                                                list._id,
+                                                list.name,
+                                                true
+                                              )
                                             }
                                           />
                                           <Button
@@ -1063,32 +1095,35 @@ const BoardDetail: React.FC = () => {
                                           />
                                           <TaskMenu
                                             statusId={selectedStatus?._id ?? ""}
-                                            activeColor={selectedStatus?.background ?? ""}
+                                            activeColor={
+                                              selectedStatus?.background ?? ""
+                                            }
                                           />
                                         </div>
                                       )
                                     ) : (
                                       <TaskMenu
                                         statusId={selectedStatus?._id ?? ""}
-                                        activeColor={selectedStatus?.background ?? ""}
+                                        activeColor={
+                                          selectedStatus?.background ?? ""
+                                        }
                                       />
-                                    )
-                                  )}
+                                    ))}
                                 </div>
                                 {!isCollapsed && (
                                   <>
                                     {hasActiveFilters && (
                                       <Empty
-                                            description={
+                                        description={
                                           getTasksByStatus(list._id)?.length +
                                           " tasks match filters"
                                         }
                                         styles={{
-                                      image: {
-                                        display: "none",
-                                      },
-                                    }}
-                                    style={{
+                                          image: {
+                                            display: "none",
+                                          },
+                                        }}
+                                        style={{
                                           fontSize: 12,
                                           textAlign: "start",
                                           marginBottom: 4,
@@ -1097,25 +1132,28 @@ const BoardDetail: React.FC = () => {
                                       />
                                     )}
                                     {statusTasks?.length === 0 &&
-                                      !showAddTaskMap[list._id] &&
-                                      !hasActiveFilters ? (
-                                        <Empty
-                                                description="No tasks in this column"
-                                          styles={{
-                                      image: {
-                                        display: "none",
-                                      },
-                                    }}
-                                    style={{
-                                            textAlign: "center",
-                                            margin: "20px 0",
-                                            fontSize: 14,
-                                            fontStyle: "italic",
-                                          }}
-                                        />
-                                      ) : null}
+                                    !showAddTaskMap[list._id] &&
+                                    !hasActiveFilters ? (
+                                      <Empty
+                                        description="No tasks in this column"
+                                        styles={{
+                                          image: {
+                                            display: "none",
+                                          },
+                                        }}
+                                        style={{
+                                          textAlign: "center",
+                                          margin: "20px 0",
+                                          fontSize: 14,
+                                          fontStyle: "italic",
+                                        }}
+                                      />
+                                    ) : null}
 
-                                    <Droppable droppableId={list._id} type="card">
+                                    <Droppable
+                                      droppableId={list._id}
+                                      type="card"
+                                    >
                                       {(provided: DroppableProvided) => (
                                         <div
                                           ref={provided.innerRef}
@@ -1128,8 +1166,8 @@ const BoardDetail: React.FC = () => {
                                             marginTop: 8,
                                           }}
                                         >
-                                        {statusTasks.map((task, index) =>
-                                          renderTaskCard(task, index)
+                                          {statusTasks.map((task, index) =>
+                                            renderTaskCard(task, index)
                                           )}
                                           {provided.placeholder}
                                         </div>
@@ -1139,8 +1177,12 @@ const BoardDetail: React.FC = () => {
                                       <AddTaskForm
                                         boardId={id || ""}
                                         statusId={list._id}
-                                        onCancel={() => toggleAddTask(list._id, false)}
-                                        onSuccess={() => toggleAddTask(list._id, false)}
+                                        onCancel={() =>
+                                          toggleAddTask(list._id, false)
+                                        }
+                                        onSuccess={() =>
+                                          toggleAddTask(list._id, false)
+                                        }
                                       />
                                     ) : isOwner() ? (
                                       <Button
@@ -1148,7 +1190,9 @@ const BoardDetail: React.FC = () => {
                                         className="add-card-button"
                                         icon={<CirclePlus size={16} />}
                                         block
-                                        onClick={() => toggleAddTask(list._id, true)}
+                                        onClick={() =>
+                                          toggleAddTask(list._id, true)
+                                        }
                                       >
                                         Add card
                                       </Button>

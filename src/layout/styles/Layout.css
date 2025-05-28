@@ -643,8 +643,7 @@
 
 /* Notification Style */
 .notification-popover-content {
-  width: 100%;
-  min-width: 350px;
+  width: 350px;
   display: flex;
   flex-direction: column;
   gap: 6px;

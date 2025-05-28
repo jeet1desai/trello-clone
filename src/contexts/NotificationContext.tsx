@@ -34,6 +34,10 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
             description: body,
             placement: "bottomRight",
             duration: null,
+            style: {
+              borderLeft: "4px solid #143654",
+              boxShadow: "2px 4px 40px rgb(20, 54, 84)",
+            },
           });
       });
     })();

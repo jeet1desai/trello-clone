@@ -39,10 +39,9 @@ export const generateToken = async () => {
   const permission = await Notification.requestPermission();
   if (permission === "granted") {
     const token = await getToken(messaging, {
-      vapidKey:
-        "BIzSDatLbwLRyhYOQUWPlIziOlTB4FvZoqBLXDtla0TPFdP7s61UCxpzZVfLpq-IUrcmpIQDmgN8kQnBJYwQkWg",
+      vapidKey: process.env.REACT_APP_FIREBASE_VAPID_KEY,
     });
-    console.log("firebase-token", token)
+    console.log("firebase-token", token);
   }
 };
 
