@@ -421,11 +421,11 @@
   margin-top: 8px;
 }
 
-.add-card-btn{
+.add-card-btn {
   color: black;
   border-radius: 8px !important;
   padding: 18px;
-  background-color: rgba(255,255,255,0.85) !important;
+  background-color: rgba(255, 255, 255, 0.85) !important;
 }
 
 .add-card-button:hover {
@@ -474,7 +474,6 @@
 }
 
 /* Comment list style */
-
 .comment-list-container {
   display: flex;
   gap: 8px;
@@ -634,6 +633,48 @@
   bottom: 8px;
   width: 30px;
   height: 30px;
+}
+
+.scanning-text {
+  text-align: center;
+  margin-top: 50px;
+}
+
+.marginTop20 {
+  margin-top: 20px;
+}
+
+.paddingBottom10 {
+  padding-bottom: 10px;
+}
+
+.extracted-text {
+  max-height: 300px;
+  overflow-y: auto;
+  background: #f5f5f5;
+  padding: 10px;
+  border-radius: 6px;
+}
+
+.summarize-comments {
+  margin-top: 6px;
+  margin-bottom: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.footer-btns {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.ai-btns {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 /* Upload Attachment style */

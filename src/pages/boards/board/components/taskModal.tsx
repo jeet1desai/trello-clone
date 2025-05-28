@@ -95,7 +95,9 @@ import {
   File as FileIcon,
   FileText,
   Files,
+  Rocket,
 } from "lucide-react";
+import CommentSummarizer from "../../../../components/ui/CommentSummarizer";
 
 const { Text } = Typography;
 const { Option } = Select;
@@ -309,6 +311,7 @@ const TaskModal: React.FC<TaskModalProps> = ({
   const { currentUser } = useSelector((state: RootState) => state.user);
   const [msg, setMsg] = useState<string>("");
   const [mentionedMembers, setMentionedMembers] = useState<string[]>([]);
+  const [isUploadModal, setIsUploadModal] = useState(false);
 
   const handleMentionChange = (value: string) => {
     setMsg(value);
@@ -875,565 +878,583 @@ const TaskModal: React.FC<TaskModalProps> = ({
   const setPriorityValue = (value: Priority) => {
     dispatch(updateTask({ taskId: selectedTask?._id ?? "", priority: value }));
   };
+  console.log("sss")
 
   return (
-    <Modal
-      title={null}
-      open={visible}
-      onCancel={() => {
-        onClose();
-        setFileList([]);
-        setMsg("");
-        setIsEditTitle(false);
-        setShowEditor(false);
-        setMemberVisible(false);
-        setLabelVisible(false);
-        navigate(window.location.pathname);
-      }}
-      onClose={() => {
-        onClose();
-        setFileList([]);
-        setMsg("");
-        setIsEditTitle(false);
-        setShowEditor(false);
-        setMemberVisible(false);
-        setLabelVisible(false);
-        navigate(window.location.pathname);
-      }}
-      footer={null}
-      className="task-modal"
-    >
-      <Loader
-        loading={loading || taskLoading || taskAttachmentLoading}
-        fullScreen
+    <>
+      <CommentSummarizer
+        open={isUploadModal}
+        onClose={() => setIsUploadModal(false)}
       />
-      <div className="task-header">
-        <Checkbox
-          checked={isCompleted}
-          onChange={handleChange}
-          prefixCls="status-checkbox"
+      <Modal
+        title={null}
+        open={visible}
+        onCancel={() => {
+          onClose();
+          setFileList([]);
+          setMsg("");
+          setIsEditTitle(false);
+          setShowEditor(false);
+          setMemberVisible(false);
+          setLabelVisible(false);
+          navigate(window.location.pathname);
+        }}
+        footer={null}
+        className="task-modal"
+      >
+        <Loader
+          loading={loading || taskLoading || taskAttachmentLoading}
+          fullScreen
         />
-        {isEditTitle ? (
-          <Input
-            defaultValue={selectedTask?.title}
-            className="form-input"
-            style={{
-              marginRight: "8px",
-              borderRadius: "4px",
-              margin: "8px 8px 8px 0",
-              width: "calc(100% - 55px)",
-            }}
-            autoFocus
-            onChange={(e) => setTaskName(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                setIsEditTitle(false);
-                dispatch(
-                  updateTask({
-                    taskId: selectedTask?._id ?? "",
-                    title: taskName,
-                  })
-                );
-              }
-            }}
+        <div className="task-header">
+          <Checkbox
+            checked={isCompleted}
+            onChange={handleChange}
+            prefixCls="status-checkbox"
           />
-        ) : (
-          <Text
-            strong
-            style={{ fontSize: "16px", margin: "8px" }}
-            onClick={() => setIsEditTitle(true)}
-          >
-            {selectedTask?.title}
-          </Text>
-        )}
-      </div>
-      <Row>
-        <Col xs={24} sm={12} md={6}>
-          <Text strong style={{ fontSize: "12px", color: "#44546f" }}>
-            Members
-          </Text>
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 4,
-              marginTop: "4px",
-            }}
-          >
-            <Avatar.Group max={{ count: 3 }}>
-              {selectedTaskMembers?.map((member, index) => {
-                const user =
-                  member.first_name?.[0]?.toUpperCase() +
-                  member.last_name?.[0]?.toUpperCase();
+          {isEditTitle ? (
+            <Input
+              defaultValue={selectedTask?.title}
+              className="form-input"
+              style={{
+                marginRight: "8px",
+                borderRadius: "4px",
+                margin: "8px 8px 8px 0",
+                width: "calc(100% - 55px)",
+              }}
+              autoFocus
+              onChange={(e) => setTaskName(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  setIsEditTitle(false);
+                  dispatch(
+                    updateTask({
+                      taskId: selectedTask?._id ?? "",
+                      title: taskName,
+                    })
+                  );
+                }
+              }}
+            />
+          ) : (
+            <Text
+              strong
+              style={{ fontSize: "16px", margin: "8px" }}
+              onClick={() => setIsEditTitle(true)}
+            >
+              {selectedTask?.title}
+            </Text>
+          )}
+        </div>
+        <Row>
+          <Col xs={24} sm={12} md={6}>
+            <Text strong style={{ fontSize: "12px", color: "#44546f" }}>
+              Members
+            </Text>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 4,
+                marginTop: "4px",
+              }}
+            >
+              <Avatar.Group max={{ count: 3 }}>
+                {selectedTaskMembers?.map((member, index) => {
+                  const user =
+                    member.first_name?.[0]?.toUpperCase() +
+                    member.last_name?.[0]?.toUpperCase();
 
-                return (
-                  <Tooltip
-                    key={member.email || index}
-                    title={member.first_name + " " + (member.last_name ?? "")}
-                  >
-                    <Avatar style={{ background: getRandomColor(member._id) }}>
-                      {user}
-                    </Avatar>
-                  </Tooltip>
-                );
-              })}
-            </Avatar.Group>
-            <Popover
-              content={memberContent}
-              title={null}
-              trigger="click"
-              open={memberVisible}
-              onOpenChange={setMemberVisible}
-              placement="bottomLeft"
-            >
-              <Button
-                shape="circle"
-                icon={<PlusIcon size={16} />}
-                className="button small-btn"
-              />
-            </Popover>
-          </div>
-        </Col>
-        <Col xs={24} sm={12} md={6}>
-          <Text strong style={{ fontSize: "12px", color: "#44546f" }}>
-            Assigned to
-          </Text>
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 4,
-              marginTop: "4px",
-            }}
-          >
-            <Popover
-              content={assignedMemberContent}
-              title={null}
-              trigger="click"
-              open={assignedMemberVisible}
-              onOpenChange={setAssignedMemberVisible}
-              placement="bottomLeft"
-            >
-              {selectedTask?.assigned_to ? (
-                <Tooltip
-                  title={
-                    selectedTask?.assigned_to?.first_name +
-                    " " +
-                    (selectedTask?.assigned_to?.last_name ?? "")
-                  }
-                >
-                  <Avatar
-                    style={{
-                      background: getRandomColor(
-                        selectedTask?.assigned_to?._id ?? ""
-                      ),
-                      cursor: "pointer",
-                    }}
-                  >
-                    {selectedTask.assigned_to.first_name?.[0]?.toUpperCase() +
-                      selectedTask.assigned_to.last_name?.[0]?.toUpperCase()}
-                  </Avatar>
-                </Tooltip>
-              ) : (
+                  return (
+                    <Tooltip
+                      key={member.email || index}
+                      title={member.first_name + " " + (member.last_name ?? "")}
+                    >
+                      <Avatar
+                        style={{ background: getRandomColor(member._id) }}
+                      >
+                        {user}
+                      </Avatar>
+                    </Tooltip>
+                  );
+                })}
+              </Avatar.Group>
+              <Popover
+                content={memberContent}
+                title={null}
+                trigger="click"
+                open={memberVisible}
+                onOpenChange={setMemberVisible}
+                placement="bottomLeft"
+              >
                 <Button
                   shape="circle"
                   icon={<PlusIcon size={16} />}
                   className="button small-btn"
                 />
-              )}
-            </Popover>
-          </div>
-        </Col>
-        <Col xs={24} sm={12} md={6}>
-          <Text strong style={{ fontSize: "12px", color: "#44546f" }}>
-            Due date
-          </Text>
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              marginTop: "4px",
-            }}
-          >
-            <DatePickerPopup
-              end_date={selectedTask?.end_date ?? ""}
-              onSave={handleDateSave}
-            />
-          </div>
-        </Col>
-        <Col xs={24} sm={12} md={6}>
-          <Text strong style={{ fontSize: "12px", color: "#44546f" }}>
-            Priority
-          </Text>
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 4,
-              marginTop: "4px",
-            }}
-          >
-            <PrioritySelect
-              value={selectedTask?.priority ?? Priority.MEDIUM}
-              onChange={setPriorityValue}
-            />
-          </div>
-        </Col>
-      </Row>
-      <div className="task-labels-container">
-        <div className="task-labels-main">
-          <Text strong style={{ fontSize: "12px", color: "#44546f" }}>
-            Labels
-          </Text>
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 4,
-              marginTop: "4px",
-              flexWrap: "wrap",
-            }}
-          >
-            {selectedTaskLabels?.map((label) => (
-              <div
-                key={label?._id}
-                style={{
-                  background: label?.backgroundColor,
-                  color: label?.textColor,
-                  padding: "4px 8px",
-                  width: "max-content",
-                  borderRadius: "4px",
-                  whiteSpace: "nowrap",
-                }}
+              </Popover>
+            </div>
+          </Col>
+          <Col xs={24} sm={12} md={6}>
+            <Text strong style={{ fontSize: "12px", color: "#44546f" }}>
+              Assigned to
+            </Text>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 4,
+                marginTop: "4px",
+              }}
+            >
+              <Popover
+                content={assignedMemberContent}
+                title={null}
+                trigger="click"
+                open={assignedMemberVisible}
+                onOpenChange={setAssignedMemberVisible}
+                placement="bottomLeft"
               >
-                {label?.name}
-              </div>
-            ))}
-            <Popover
-              content={
-                <LabelPopup
-                  boardId={boardId}
-                  selectedTaskId={selectedTask ? selectedTask._id : ""}
-                />
-              }
-              title={null}
-              trigger="click"
-              open={labelVisible}
-              onOpenChange={(newOpen) => setLabelVisible(newOpen)}
-              placement="bottomLeft"
+                {selectedTask?.assigned_to ? (
+                  <Tooltip
+                    title={
+                      selectedTask?.assigned_to?.first_name +
+                      " " +
+                      (selectedTask?.assigned_to?.last_name ?? "")
+                    }
+                  >
+                    <Avatar
+                      style={{
+                        background: getRandomColor(
+                          selectedTask?.assigned_to?._id ?? ""
+                        ),
+                        cursor: "pointer",
+                      }}
+                    >
+                      {selectedTask.assigned_to.first_name?.[0]?.toUpperCase() +
+                        selectedTask.assigned_to.last_name?.[0]?.toUpperCase()}
+                    </Avatar>
+                  </Tooltip>
+                ) : (
+                  <Button
+                    shape="circle"
+                    icon={<PlusIcon size={16} />}
+                    className="button small-btn"
+                  />
+                )}
+              </Popover>
+            </div>
+          </Col>
+          <Col xs={24} sm={12} md={6}>
+            <Text strong style={{ fontSize: "12px", color: "#44546f" }}>
+              Due date
+            </Text>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                marginTop: "4px",
+              }}
             >
-              <Button
-                icon={<PlusIcon size={16} />}
-                size="small"
-                className="button small-btn"
-                style={{
-                  fontSize: "12px",
-                }}
-              >
-                Add Label
-              </Button>
-            </Popover>
-          </div>
-        </div>
-        <div className="task-labels-main">
-          <Text strong style={{ fontSize: "12px", color: "#44546f" }}>
-            Share
-          </Text>
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 4,
-              marginTop: "4px",
-            }}
-          >
-            <Popover
-              content={shareContent}
-              title={null}
-              trigger="click"
-              open={shareLink}
-              onOpenChange={setShareLink}
-              placement="bottomLeft"
-            >
-              <Button
-                shape="circle"
-                icon={<Share2 size={16} />}
-                className="button small-btn"
+              <DatePickerPopup
+                end_date={selectedTask?.end_date ?? ""}
+                onSave={handleDateSave}
               />
-            </Popover>
-          </div>
-        </div>
-        <div className="task-labels-main">
-          <Text strong style={{ fontSize: "12px", color: "#44546f" }}>
-            Duplicate
-          </Text>
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 4,
-              marginTop: "4px",
-            }}
-          >
-            <Popover
-              content={duplicateContent}
-              title={null}
-              trigger="click"
-              open={duplicateCard}
-              onOpenChange={handlePopoverOpen}
-              placement="bottomLeft"
+            </div>
+          </Col>
+          <Col xs={24} sm={12} md={6}>
+            <Text strong style={{ fontSize: "12px", color: "#44546f" }}>
+              Priority
+            </Text>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 4,
+                marginTop: "4px",
+              }}
             >
-              <Button
-                type="default"
-                shape="circle"
-                className="button small-btn"
-                icon={<Files size={16} />}
+              <PrioritySelect
+                value={selectedTask?.priority ?? Priority.MEDIUM}
+                onChange={setPriorityValue}
               />
-            </Popover>
-          </div>
-        </div>
-      </div>
-      <div className="task-content task-body-margin-left">
-        <div style={{ display: "flex", gap: "24px" }}>
-          <div style={{ flex: 1 }}>
-            <div className="task-section">
-              <div className="task-section-title-desc">
+            </div>
+          </Col>
+        </Row>
+        <div className="task-labels-container">
+          <div className="task-labels-main">
+            <Text strong style={{ fontSize: "12px", color: "#44546f" }}>
+              Labels
+            </Text>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 4,
+                marginTop: "4px",
+                flexWrap: "wrap",
+              }}
+            >
+              {selectedTaskLabels?.map((label) => (
                 <div
-                  style={{ display: "flex", alignItems: "center", gap: "8px" }}
+                  key={label?._id}
+                  style={{
+                    background: label?.backgroundColor,
+                    color: label?.textColor,
+                    padding: "4px 8px",
+                    width: "max-content",
+                    borderRadius: "4px",
+                    whiteSpace: "nowrap",
+                  }}
                 >
-                  <Captions size={16} />
-                  <Text strong>Description</Text>
+                  {label?.name}
+                </div>
+              ))}
+              <Popover
+                content={
+                  <LabelPopup
+                    boardId={boardId}
+                    selectedTaskId={selectedTask ? selectedTask._id : ""}
+                  />
+                }
+                title={null}
+                trigger="click"
+                open={labelVisible}
+                onOpenChange={(newOpen) => setLabelVisible(newOpen)}
+                placement="bottomLeft"
+              >
+                <Button
+                  icon={<PlusIcon size={16} />}
+                  size="small"
+                  className="button small-btn"
+                  style={{
+                    fontSize: "12px",
+                  }}
+                >
+                  Add Label
+                </Button>
+              </Popover>
+            </div>
+          </div>
+          <div className="task-labels-main">
+            <Text strong style={{ fontSize: "12px", color: "#44546f" }}>
+              Share
+            </Text>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 4,
+                marginTop: "4px",
+              }}
+            >
+              <Popover
+                content={shareContent}
+                title={null}
+                trigger="click"
+                open={shareLink}
+                onOpenChange={setShareLink}
+                placement="bottomLeft"
+              >
+                <Button
+                  shape="circle"
+                  icon={<Share2 size={16} />}
+                  className="button small-btn"
+                />
+              </Popover>
+            </div>
+          </div>
+          <div className="task-labels-main">
+            <Text strong style={{ fontSize: "12px", color: "#44546f" }}>
+              Duplicate
+            </Text>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 4,
+                marginTop: "4px",
+              }}
+            >
+              <Popover
+                content={duplicateContent}
+                title={null}
+                trigger="click"
+                open={duplicateCard}
+                onOpenChange={handlePopoverOpen}
+                placement="bottomLeft"
+              >
+                <Button
+                  type="default"
+                  shape="circle"
+                  className="button small-btn"
+                  icon={<Files size={16} />}
+                />
+              </Popover>
+            </div>
+          </div>
+        </div>
+        <div className="task-content task-body-margin-left">
+          <div style={{ display: "flex", gap: "24px" }}>
+            <div style={{ flex: 1 }}>
+              <div className="task-section">
+                <div className="task-section-title-desc">
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "8px",
+                    }}
+                  >
+                    <Captions size={16} />
+                    <Text strong>Description</Text>
+                  </div>
+                  {selectedTask?.description && !showEditor && (
+                    <Button
+                      type="primary"
+                      size="small"
+                      className="button small-btn"
+                      onClick={() => setShowEditor(true)}
+                    >
+                      Edit
+                    </Button>
+                  )}
                 </div>
                 {selectedTask?.description && !showEditor && (
+                  <div
+                    className="task-preview-css ql-editor"
+                    dangerouslySetInnerHTML={{
+                      __html: selectedTask.description,
+                    }}
+                  />
+                )}
+                {!selectedTask?.description && !showEditor && (
                   <Button
-                    type="primary"
-                    size="small"
-                    className="button small-btn"
+                    className="task-description-btn"
                     onClick={() => setShowEditor(true)}
                   >
-                    Edit
+                    Add a more detailed description…
                   </Button>
                 )}
+                {showEditor && (
+                  <TaskDescriptionEditor
+                    initialValue={selectedTask?.description}
+                    onSave={handleSave}
+                    onCancel={() => setShowEditor(false)}
+                  />
+                )}
               </div>
-              {selectedTask?.description && !showEditor && (
-                <div
-                  className="task-preview-css ql-editor"
-                  dangerouslySetInnerHTML={{
-                    __html: selectedTask.description,
-                  }}
-                />
-              )}
-              {!selectedTask?.description && !showEditor && (
-                <Button
-                  className="task-description-btn"
-                  onClick={() => setShowEditor(true)}
-                >
-                  Add a more detailed description…
-                </Button>
-              )}
-              {showEditor && (
-                <TaskDescriptionEditor
-                  initialValue={selectedTask?.description}
-                  onSave={handleSave}
-                  onCancel={() => setShowEditor(false)}
-                />
-              )}
-            </div>
 
-            <div className="task-section">
-              <div className="task-section-title">
-                <div>
-                  <Paperclip size={16} />
-                  <Text strong>Attachments</Text>
+              <div className="task-section">
+                <div className="task-section-title">
+                  <div>
+                    <Paperclip size={16} />
+                    <Text strong>Attachments</Text>
+                  </div>
+                  <FileUploadModal />
                 </div>
-                <FileUploadModal />
+                <div className="task-attachments">
+                  {taskAttachments.length > 0 && (
+                    <>
+                      {taskAttachments
+                        .slice(0, showAll ? taskAttachments.length : 3)
+                        .map((taskAttach) => (
+                          <div className="attachment-item" key={taskAttach._id}>
+                            <div className="attachment-icon">
+                              {renderPreview(taskAttach)}
+                            </div>
+                            <div className="attachment-info">
+                              <div>{taskAttach.imageName}</div>
+                              <Text type="secondary">Added</Text>
+                            </div>
+                            <div className="attachment-actions">
+                              <Fullscreen
+                                size={16}
+                                onClick={() =>
+                                  handleOpenFile(
+                                    taskAttach.url,
+                                    taskAttach.imageName
+                                  )
+                                }
+                              />
+                              <AttachmentActions
+                                attachment={taskAttach}
+                                onMenuClick={handleMenuClick}
+                              />
+                            </div>
+                          </div>
+                        ))}
+
+                      {taskAttachments.length > 3 && (
+                        <Button
+                          className="button small-btn"
+                          type="default"
+                          style={{ width: "fit-content" }}
+                          onClick={() => setShowAll(!showAll)}
+                        >
+                          {!showAll
+                            ? `View all attachments (${
+                                taskAttachments.length - 3
+                              } hidden)`
+                            : "Show fewer attachments"}
+                        </Button>
+                      )}
+                    </>
+                  )}
+                </div>
               </div>
-              <div className="task-attachments">
-                {taskAttachments.length > 0 && (
-                  <>
-                    {taskAttachments
-                      .slice(0, showAll ? taskAttachments.length : 3)
-                      .map((taskAttach) => (
-                        <div className="attachment-item" key={taskAttach._id}>
-                          <div className="attachment-icon">
-                            {renderPreview(taskAttach)}
-                          </div>
-                          <div className="attachment-info">
-                            <div>{taskAttach.imageName}</div>
-                            <Text type="secondary">Added</Text>
-                          </div>
-                          <div className="attachment-actions">
-                            <Fullscreen
-                              size={16}
-                              onClick={() =>
-                                handleOpenFile(
-                                  taskAttach.url,
-                                  taskAttach.imageName
-                                )
-                              }
-                            />
-                            <AttachmentActions
-                              attachment={taskAttach}
-                              onMenuClick={handleMenuClick}
-                            />
-                          </div>
+
+              <div className="activity-section">
+                <div className="task-section-title">
+                  <div>
+                    <SquareChartGantt size={16} />
+                    <Text strong>Comments</Text>
+                  </div>
+                  <div>
+                    <Button
+                      type="default"
+                      className="button small-btn"
+                      size="small"
+                      style={{
+                        border: "none",
+                        padding: 18,
+                      }}
+                      icon={<Rocket size={20} />}
+                      onClick={() => setIsUploadModal(true)}
+                    />
+                    {[...taskComments].length > 5 ? (
+                      <Button
+                        type="default"
+                        className="button small-btn"
+                        size="small"
+                        onClick={() => setShowAllComments((prev) => !prev)}
+                      >
+                        {showAllComments ? "Hide details" : "Show details"}
+                      </Button>
+                    ) : null}
+                  </div>
+                </div>
+                <div style={{ marginLeft: "-22px" }}>
+                  {/* Image Previews */}
+                  {fileList.length > 0 && (
+                    <div
+                      style={{
+                        display: "flex",
+                        gap: 8,
+                        flexWrap: "wrap",
+                        marginBottom: 8,
+                        marginLeft: "40px",
+                      }}
+                    >
+                      {fileList.map((file) => (
+                        <div key={file.uid} style={{ position: "relative" }}>
+                          <Image
+                            width={80}
+                            height={80}
+                            style={{ objectFit: "cover", borderRadius: 6 }}
+                            src={URL.createObjectURL(
+                              file.originFileObj as File
+                            )}
+                          />
+                          <CircleX
+                            size={14}
+                            onClick={() => handleRemoveImage(file.uid)}
+                            className="require-mark"
+                            style={{
+                              position: "absolute",
+                              top: -6,
+                              right: -6,
+                              cursor: "pointer",
+                              background: "white",
+                              borderRadius: "50%",
+                            }}
+                          />
                         </div>
                       ))}
+                    </div>
+                  )}
 
-                    {taskAttachments.length > 3 && (
-                      <Button
-                        className="button small-btn"
-                        type="default"
-                        style={{ width: "fit-content" }}
-                        onClick={() => setShowAll(!showAll)}
-                      >
-                        {!showAll
-                          ? `View all attachments (${
-                              taskAttachments.length - 3
-                            } hidden)`
-                          : "Show fewer attachments"}
-                      </Button>
-                    )}
-                  </>
-                )}
-              </div>
-            </div>
-
-            <div className="activity-section">
-              <div className="task-section-title">
-                <div>
-                  <SquareChartGantt size={16} />
-                  <Text strong>Comments</Text>
-                </div>
-                {[...taskComments].length > 5 ? (
-                  <Button
-                    type="default"
-                    className="button small-btn"
-                    size="small"
-                    onClick={() => setShowAllComments((prev) => !prev)}
-                  >
-                    {showAllComments ? "Hide details" : "Show details"}
-                  </Button>
-                ) : null}
-              </div>
-              <div style={{ marginLeft: "-22px" }}>
-                {/* Image Previews */}
-                {fileList.length > 0 && (
+                  {/* Chat Input Row */}
                   <div
                     style={{
                       display: "flex",
                       gap: 8,
-                      flexWrap: "wrap",
-                      marginBottom: 8,
-                      marginLeft: "40px",
+                      alignItems: "flex-end",
                     }}
                   >
-                    {fileList.map((file) => (
-                      <div key={file.uid} style={{ position: "relative" }}>
-                        <Image
-                          width={80}
-                          height={80}
-                          style={{ objectFit: "cover", borderRadius: 6 }}
-                          src={URL.createObjectURL(file.originFileObj as File)}
-                        />
-                        <CircleX
-                          size={14}
-                          onClick={() => handleRemoveImage(file.uid)}
-                          className="require-mark"
+                    <Avatar
+                      src={currentUser?.profile_image?.url}
+                      style={{
+                        background: getRandomColor(currentUser?.id ?? ""),
+                      }}
+                    >
+                      {currentUser?.first_name?.[0]?.toUpperCase()}
+                      {currentUser?.last_name?.[0]?.toUpperCase()}
+                    </Avatar>
+                    <div style={{ position: "relative", width: "100%" }}>
+                      <MentionTextComment
+                        placeholder="Write a comment with @ or # for mention someone..."
+                        className="form-input-mention"
+                        value={msg}
+                        members={invitedMemberList.map((item) => item.memberId)}
+                        setMentions={setMentionedMembers}
+                        onChange={handleMentionChange}
+                      />
+                      <Upload
+                        beforeUpload={() => false} // Prevent auto upload
+                        fileList={fileList}
+                        multiple
+                        accept="image/*"
+                        onChange={handleUploadChange}
+                        showUploadList={false}
+                      >
+                        <ImageLine
+                          size={16}
                           style={{
                             position: "absolute",
-                            top: -6,
-                            right: -6,
+                            right: 10,
+                            top: "50%",
+                            transform: "translateY(-50%)",
                             cursor: "pointer",
-                            background: "white",
-                            borderRadius: "50%",
+                            color: "#888",
                           }}
                         />
-                      </div>
-                    ))}
+                      </Upload>
+                    </div>
                   </div>
-                )}
-
-                {/* Chat Input Row */}
-                <div
-                  style={{
-                    display: "flex",
-                    gap: 8,
-                    alignItems: "flex-end",
-                  }}
-                >
-                  <Avatar
-                    src={currentUser?.profile_image?.url}
-                    style={{
-                      background: getRandomColor(currentUser?.id ?? ""),
-                    }}
+                  <Button
+                    type="primary"
+                    className="button small-btn"
+                    style={{ marginLeft: "38px", marginTop: "10px" }}
+                    onClick={sendMessage}
+                    disabled={!msg.trim() || msg.trim() === "@"}
                   >
-                    {currentUser?.first_name?.[0]?.toUpperCase()}
-                    {currentUser?.last_name?.[0]?.toUpperCase()}
-                  </Avatar>
-                  <div style={{ position: "relative", width: "100%" }}>
-                    <MentionTextComment
-                      placeholder="Write a comment with @ or # for mention someone..."
-                      className="form-input-mention"
-                      value={msg}
-                      members={invitedMemberList.map((item) => item.memberId)}
-                      setMentions={setMentionedMembers}
-                      onChange={handleMentionChange}
-                    />
-                    <Upload
-                      beforeUpload={() => false} // Prevent auto upload
-                      fileList={fileList}
-                      multiple
-                      accept="image/*"
-                      onChange={handleUploadChange}
-                      showUploadList={false}
-                    >
-                      <ImageLine
-                        size={16}
-                        style={{
-                          position: "absolute",
-                          right: 10,
-                          top: "50%",
-                          transform: "translateY(-50%)",
-                          cursor: "pointer",
-                          color: "#888",
-                        }}
-                      />
-                    </Upload>
-                  </div>
+                    Save
+                  </Button>
                 </div>
-                <Button
-                  type="primary"
-                  className="button small-btn"
-                  style={{ marginLeft: "38px", marginTop: "10px" }}
-                  onClick={sendMessage}
-                  disabled={!msg.trim() || msg.trim() === "@"}
-                >
-                  Save
-                </Button>
-              </div>
 
-              {[...taskComments].length > 0 &&
-                [...taskComments]
-                  ?.reverse()
-                  .splice(0, showAllComments ? taskComments.length : 5)
-                  .map((taskComment) => (
-                    <CommentCard
-                      key={taskComment._id}
-                      commentId={taskComment._id}
-                      commentedBy={taskComment.commented_by}
-                      comment={taskComment.comment}
-                      createdAt={taskComment.createdAt}
-                      attachments={taskComment.attachment}
-                      onDelete={taskCommentDelete}
-                      onUpdate={taskCommentUpdate}
-                    />
-                  ))}
+                {[...taskComments].length > 0 &&
+                  [...taskComments]
+                    ?.reverse()
+                    .splice(0, showAllComments ? taskComments.length : 5)
+                    .map((taskComment) => (
+                      <CommentCard
+                        key={taskComment._id}
+                        commentId={taskComment._id}
+                        commentedBy={taskComment.commented_by}
+                        comment={taskComment.comment}
+                        createdAt={taskComment.createdAt}
+                        attachments={taskComment.attachment}
+                        onDelete={taskCommentDelete}
+                        onUpdate={taskCommentUpdate}
+                      />
+                    ))}
+              </div>
             </div>
           </div>
         </div>
-      </div>
-    </Modal>
+      </Modal>
+    </>
   );
 };
 

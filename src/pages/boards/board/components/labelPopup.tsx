@@ -201,7 +201,7 @@ const LabelPopup = ({ boardId, selectedTaskId }: IProps) => {
                   style={{
                     backgroundColor: label.backgroundColor,
                     flex: 1,
-                    height: 30,
+                    minHeight: 30,
                     borderRadius: 4,
                     display: "flex",
                     alignItems: "center",

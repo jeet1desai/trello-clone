@@ -923,7 +923,7 @@ const BoardDetail: React.FC = () => {
                   <div
                     {...provided.droppableProps}
                     ref={provided.innerRef}
-                    style={{ display: "flex", gap: "16px" }}
+                    style={{ display: "flex", gap: 8 }}
                   >
                     {statusList?.map((list: IStatusList, index: number) => {
                       const statusTasks = getTasksByStatus(list._id);
@@ -954,6 +954,8 @@ const BoardDetail: React.FC = () => {
                                 className="task-border"
                                 style={{
                                   maxWidth: isCollapsed ? 250 : 350,
+                                  backgroundColor: list.background,
+                                  boxShadow: "0px 2px 5px black",
                                 }}
                               >
                                 <div
