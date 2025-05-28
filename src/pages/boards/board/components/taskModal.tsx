@@ -1131,7 +1131,9 @@ const TaskModal: React.FC<TaskModalProps> = ({
             >
               <Tooltip
                 style={{ fontSize: "12px" }}
-                title={`Suggetions: ${labels.join(", ")}`}
+                title={
+                  labels.length > 0 ? `Suggetions: ${labels.join(", ")}` : null
+                }
               >
                 <Button
                   icon={<PlusIcon size={16} />}

@@ -39,6 +39,7 @@ export const useLabelSuggestions = () => {
     } catch (err) {
       console.error("Error generating labels:", err);
       setError("Failed to fetch label suggestions.");
+      setLabels([]);
     } finally {
       setLoading(false);
     }
