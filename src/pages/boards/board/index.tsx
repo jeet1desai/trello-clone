@@ -1065,7 +1065,7 @@ const BoardDetail: React.FC = () => {
                                               toggleCollapse(list._id)
                                             }
                                             icon={
-                                              <div>
+                                              <div style={{display: "flex"}}>
                                                 <ArrowRight
                                                   size={14}
                                                   style={{
