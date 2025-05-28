@@ -13,6 +13,7 @@ const Dashboard = React.lazy(() => import("../pages/dashboard"));
 const NotFound = React.lazy(() => import("../pages/notFound"));
 const Boards = React.lazy(() => import("../pages/boards"));
 const BoardDetail = React.lazy(() => import("../pages/boards/board"));
+const BoardStatistics = React.lazy(() => import("../pages/boards/statistics"));
 const Workspaces = React.lazy(() => import("../pages/workspaces"));
 const WorkspaceDetail = React.lazy(
   () => import("../pages/workspaces/workspace")
@@ -108,6 +109,10 @@ const router = createBrowserRouter([
       {
         path: PRIVATE_ROUTE.BOARD,
         element: <PrivateRoute element={<BoardDetail />} />,
+      },
+      {
+        path: PRIVATE_ROUTE.BOARD_STATISTICS,
+        element: <PrivateRoute element={<BoardStatistics />} />,
       },
       {
         path: PRIVATE_ROUTE.WORKSPACES,

@@ -359,6 +359,8 @@ const TaskModal: React.FC<TaskModalProps> = ({
   const [debouncedSearchAssigned, setDebouncedSearchAssigned] =
     useState(searchAssigned);
 
+  const [isHourPopoverOpen, setIsHourPopoverOpen] = useState(false);
+  const [isMinPopoverOpen, setIsMInPopoverOpen] = useState(false);
   const [assignedHours, setAssignedHours] = useState<number>(0);
   const [assignedMinutes, setAssignedMinutes] = useState<number>(0);
   const [isTracking, setIsTracking] = useState(false);
@@ -405,7 +407,7 @@ const TaskModal: React.FC<TaskModalProps> = ({
     };
   }, []);
 
-  const minuteOptions = [1, 15, 30, 45];
+  const minuteOptions = [0, 15, 30, 45];
 
     
   useEffect(() => {
@@ -1262,17 +1264,21 @@ const TaskModal: React.FC<TaskModalProps> = ({
             content={
               <InputNumber
                 min={0}
-                max={24}
                 value={assignedHours}
                 onChange={(val) => {
                   if (val !== null) {
                     setAssignedHours(val);
-                    handleReset();
                   }
+                }}
+                onPressEnter={() => {
+                  handleReset();
+                  setIsHourPopoverOpen(false);
                 }}
               />
             }
             trigger="click"
+            open={isHourPopoverOpen}
+            onOpenChange={setIsHourPopoverOpen}
           >
             <Text style={{ cursor: 'pointer' }}>{assignedHours} hr</Text>
           </Popover>
@@ -1287,6 +1293,7 @@ const TaskModal: React.FC<TaskModalProps> = ({
                     key={min}
                     onClick={() => {
                       setAssignedMinutes(min);
+                      setIsMInPopoverOpen(false)
                       handleReset();
                     }}
                     style={{ cursor: 'pointer' }}
@@ -1297,6 +1304,8 @@ const TaskModal: React.FC<TaskModalProps> = ({
               </Space>
             }
             trigger="click"
+            open={isMinPopoverOpen}
+            onOpenChange={setIsMInPopoverOpen}
           >
             <Text style={{ cursor: 'pointer' }}>{assignedMinutes} min</Text>
           </Popover>
