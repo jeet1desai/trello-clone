@@ -643,8 +643,7 @@
 
 /* Notification Style */
 .notification-popover-content {
-  width: 100%;
-  min-width: 350px;
+  width: 350px;
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -808,4 +807,34 @@
   background-position: center !important;
   background-repeat: no-repeat !important;
   background-size: cover !important;
+}
+
+/* Scanning Effect */
+.scanning-box {
+  position: relative;
+  height: 123px;
+  background: var(--header-bg);
+  border: 1px dashed #ccc;
+  border-radius: 8px;
+  overflow: hidden;
+  margin-top: 20px;
+}
+
+.scanning-line {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 5px;
+  background: var(--primary-color);
+  animation: scan 2s linear infinite;
+}
+
+@keyframes scan {
+  0% {
+    top: 0;
+  }
+  100% {
+    top: 100%;
+  }
 }

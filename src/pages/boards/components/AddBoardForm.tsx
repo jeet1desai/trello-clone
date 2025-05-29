@@ -22,9 +22,7 @@ const AddBoardForm = ({
   onFinish,
 }: IProps) => {
   const dispatch = useDispatch<AppDispatch>();
-  const { boardWorkspaces } = useSelector(
-    (state: RootState) => state.board
-  );
+  const { boardWorkspaces } = useSelector((state: RootState) => state.board);
 
   const [searchText, setSearchText] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState(searchText);
@@ -105,8 +103,8 @@ const AddBoardForm = ({
         name="members"
       >
         <Select
-          showSearch
           mode="tags"
+          open={false}
           tokenSeparators={[",", " "]}
           placeholder="Enter member emails"
           className="form-input"

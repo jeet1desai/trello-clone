@@ -87,12 +87,14 @@ import {
   Clock,
   TableProperties,
   SquareKanban,
-  ChevronsRightLeft,
-  ChevronsLeftRight, 
+  ArrowLeft,
+  ArrowRight,
 } from "lucide-react";
 import BoardFilter from "./components/boardFilter";
 import ChangeBackgroundPopover from "./components/ChangeBackgroundModal";
 import TaskMenu from "./components/taskMenu";
+import { userActivity } from "../../../store/slices/userSlice";
+import UserActivityModal from "../../../components/board/UserActivityModal";
 
 const { Title, Text } = Typography;
 
@@ -183,11 +185,15 @@ const BoardDetail: React.FC = () => {
     filterBy: [currentUser?.id],
     labelIds: [],
   });
+  const [openUserMenu, setOpenUserMenu] = useState("");
+  const [openUserActivity, setOpenUserActivity] = useState(false);
 
-  const [collapsedColumns, setCollapsedColumns] = useState<{ [key: string]: boolean }>({}); // ✅ NEW STATE
+  const [collapsedColumns, setCollapsedColumns] = useState<{
+    [key: string]: boolean;
+  }>({}); // ✅ NEW STATE
 
   const toggleCollapse = (id: string) => {
-    setCollapsedColumns(prev => ({
+    setCollapsedColumns((prev) => ({
       ...prev,
       [id]: !prev[id],
     }));
@@ -581,7 +587,11 @@ const BoardDetail: React.FC = () => {
               background:
                 task.status === "Completed" ? "rgba(107, 241, 107, 0.70)" : "",
             }}
-            bodyStyle={{ padding: "8px 12px" }}
+            styles={{
+              body: {
+                padding: "8px 12px",
+              },
+            }}
           >
             <div style={{ marginBottom: 8, display: "flex", gap: 6 }}>
               {task.labels?.map((label) => {
@@ -862,21 +872,92 @@ const BoardDetail: React.FC = () => {
                 ) : null}
               </div>
             </Popover>
-            <Avatar.Group maxCount={3}>
+            <Avatar.Group max={{ count: 3 }}>
               {invitedMemberList?.map((member) => {
                 return (
-                  <Tooltip
+                  <Popover
+                    trigger="click"
+                    arrow={false}
+                    open={openUserMenu === member._id}
+                    styles={{
+                      body: {
+                        padding: 0,
+                      },
+                    }}
                     key={member._id}
-                    title={`${member?.memberId?.first_name} ${
-                      member?.memberId?.last_name ?? ""
-                    } (${member?.memberId?.email})`}
+                    onOpenChange={() => setOpenUserMenu(member._id)}
+                    title={
+                      <div
+                        style={{
+                          backgroundColor: "#143654",
+                          padding: "12px",
+                          borderRadius: "4px 4px 0 0",
+                          display: "flex",
+                          gap: 4,
+                          alignItems: "center",
+                        }}
+                      >
+                        <Avatar
+                          style={{
+                            background: getRandomColor(member.memberId?._id),
+                            cursor: "pointer",
+                          }}
+                        >{`${member?.memberId?.first_name?.[0]?.toUpperCase()}${member?.memberId?.last_name?.[0]?.toUpperCase()}`}</Avatar>
+                        <div
+                          style={{ display: "flex", flexDirection: "column" }}
+                        >
+                          <Text style={{ color: "white" }}>
+                            {member?.memberId?.first_name +
+                              " " +
+                              member?.memberId?.last_name}
+                          </Text>
+                          <Text style={{ color: "white" }}>
+                            {member.memberId.email}
+                          </Text>
+                        </div>
+                        <X
+                          size={16}
+                          color="white"
+                          style={{
+                            cursor: "pointer",
+                            position: "absolute",
+                            top: 8,
+                            right: 8,
+                          }}
+                          onClick={() => setOpenUserMenu("")}
+                        />
+                      </div>
+                    }
+                    content={
+                      <div
+                        style={{
+                          padding: "0 12px 12px 12px",
+                          cursor: "pointer",
+                        }}
+                        onClick={() => {
+                          dispatch(userActivity(member.memberId._id));
+                          setOpenUserMenu("");
+                          setOpenUserActivity(true);
+                        }}
+                      >
+                        View member's board activity
+                      </div>
+                    }
                   >
-                    <Avatar
-                      style={{
-                        background: getRandomColor(member.memberId?._id),
-                      }}
-                    >{`${member?.memberId?.first_name?.[0]?.toUpperCase()}${member?.memberId?.last_name?.[0]?.toUpperCase()}`}</Avatar>
-                  </Tooltip>
+                    <Tooltip
+                      arrow={false}
+                      title={`${member?.memberId?.first_name} ${
+                        member?.memberId?.last_name ?? ""
+                      } (${member?.memberId?.email})`}
+                    >
+                      <Avatar
+                        style={{
+                          background: getRandomColor(member.memberId?._id),
+                          cursor: "pointer",
+                        }}
+                      >{`${member?.memberId?.first_name?.[0]?.toUpperCase()}${member?.memberId?.last_name?.[0]?.toUpperCase()}`}</Avatar>
+                    </Tooltip>
+                  </Popover>
                 );
               })}
             </Avatar.Group>
@@ -917,7 +998,7 @@ const BoardDetail: React.FC = () => {
                   <div
                     {...provided.droppableProps}
                     ref={provided.innerRef}
-                    style={{ display: "flex", gap: "16px" }}
+                    style={{ display: "flex", gap: 8 }}
                   >
                     {statusList?.map((list: IStatusList, index: number) => {
                       const statusTasks = getTasksByStatus(list._id);
@@ -940,12 +1021,19 @@ const BoardDetail: React.FC = () => {
                                 transition: "all 0.3s",
                                 ...provided.draggableProps.style,
                               }}
-                              onMouseDown={() => dispatch(setSelectedStatus(list))}
+                              onMouseDown={() =>
+                                dispatch(setSelectedStatus(list))
+                              }
                             >
                               <div
                                 className="task-border"
                                 style={{
-                                  maxWidth: isCollapsed ? 250: 350,
+                                  maxWidth: isCollapsed ? 250 : 350,
+                                  backgroundColor:
+                                    list.background === "#FFF"
+                                      ? "var(--bg-primary)"
+                                      : list.background,
+                                  boxShadow: "0px 2px 5px black",
                                 }}
                               >
                                 <div
@@ -962,7 +1050,7 @@ const BoardDetail: React.FC = () => {
                                         cursor: "pointer",
                                         fontWeight: 600,
                                         fontSize: "0.875rem",
-                                       }}
+                                      }}
                                       title={list.name}
                                     >
                                       {list.name}{" "}
@@ -993,39 +1081,47 @@ const BoardDetail: React.FC = () => {
                                       </span>
                                     </Text>
                                   )}
-                                  {!isEditing && (
+                                  {isCollapsed && (
                                     <Button
                                       type="text"
                                       size="small"
                                       onClick={() => toggleCollapse(list._id)}
                                       icon={
-                                        isCollapsed ? (
-                                          <ChevronsRightLeft size={16} />
-                                        ) : (
-                                          <ChevronsLeftRight size={16} />
-                                        )
+                                        <div style={{ display: "flex" }}>
+                                          <ArrowLeft size={14} />
+                                          <ArrowRight
+                                            size={14}
+                                            style={{
+                                              marginLeft: "-3px",
+                                            }}
+                                          />
+                                        </div>
                                       }
                                     />
                                   )}
-                                  {!isCollapsed && (
-                                    isOwner() ? (
+                                  {!isCollapsed &&
+                                    (isOwner() ? (
                                       isEditing ? (
-                                        <div style={{ display: "flex", gap: 4 }}>
+                                        <div
+                                          style={{ display: "flex", gap: 4 }}
+                                        >
                                           <Button
                                             type="text"
                                             size="small"
                                             icon={<Check size={16} />}
                                             onClick={async () => {
-                                            await dispatch(
-                                              updateStatus({
-                                                statusId:
-                                                  Object.keys(isEditStatus)[0],
-                                                name: newStatusTitle,
-                                              })
-                                            );
-                                            await dispatch(
-                                              getStatusListByBoardId(id ?? "")
-                                            );
+                                              await dispatch(
+                                                updateStatus({
+                                                  statusId:
+                                                    Object.keys(
+                                                      isEditStatus
+                                                    )[0],
+                                                  name: newStatusTitle,
+                                                })
+                                              );
+                                              await dispatch(
+                                                getStatusListByBoardId(id ?? "")
+                                              );
                                               setIsEditStatus({});
                                             }}
                                           />
@@ -1037,18 +1133,38 @@ const BoardDetail: React.FC = () => {
                                           />
                                         </div>
                                       ) : (
-                                        <div style={{ display: "flex", gap: 4 }}>
+                                        <div
+                                          style={{ display: "flex", gap: 4 }}
+                                        >
+                                          <Button
+                                            type="text"
+                                            size="small"
+                                            onClick={() =>
+                                              toggleCollapse(list._id)
+                                            }
+                                            icon={
+                                              <div style={{ display: "flex" }}>
+                                                <ArrowRight
+                                                  size={14}
+                                                  style={{
+                                                    marginRight: "-3px",
+                                                  }}
+                                                />
+                                                <ArrowLeft size={14} />
+                                              </div>
+                                            }
+                                          />
                                           <Button
                                             type="text"
                                             size="small"
                                             icon={<Pencil size={16} />}
                                             onClick={() =>
-                                            isOwner() &&
-                                            toggleStatusName(
-                                              list._id,
-                                              list.name,
-                                              true
-                                            )
+                                              isOwner() &&
+                                              toggleStatusName(
+                                                list._id,
+                                                list.name,
+                                                true
+                                              )
                                             }
                                           />
                                           <Button
@@ -1059,27 +1175,34 @@ const BoardDetail: React.FC = () => {
                                           />
                                           <TaskMenu
                                             statusId={selectedStatus?._id ?? ""}
-                                            activeColor={selectedStatus?.background ?? ""}
+                                            activeColor={
+                                              selectedStatus?.background ?? ""
+                                            }
                                           />
                                         </div>
                                       )
                                     ) : (
                                       <TaskMenu
                                         statusId={selectedStatus?._id ?? ""}
-                                        activeColor={selectedStatus?.background ?? ""}
+                                        activeColor={
+                                          selectedStatus?.background ?? ""
+                                        }
                                       />
-                                    )
-                                  )}
+                                    ))}
                                 </div>
                                 {!isCollapsed && (
                                   <>
                                     {hasActiveFilters && (
                                       <Empty
-                                        imageStyle={{ display: "none" }}
                                         description={
                                           getTasksByStatus(list._id)?.length +
                                           " tasks match filters"
                                         }
+                                        styles={{
+                                          image: {
+                                            display: "none",
+                                          },
+                                        }}
                                         style={{
                                           fontSize: 12,
                                           textAlign: "start",
@@ -1089,21 +1212,28 @@ const BoardDetail: React.FC = () => {
                                       />
                                     )}
                                     {statusTasks?.length === 0 &&
-                                      !showAddTaskMap[list._id] &&
-                                      !hasActiveFilters ? (
-                                        <Empty
-                                          imageStyle={{ display: "none" }}
-                                          description="No tasks in this column"
-                                          style={{
-                                            textAlign: "center",
-                                            margin: "20px 0",
-                                            fontSize: 14,
-                                            fontStyle: "italic",
-                                          }}
-                                        />
-                                      ) : null}
+                                    !showAddTaskMap[list._id] &&
+                                    !hasActiveFilters ? (
+                                      <Empty
+                                        description="No tasks in this column"
+                                        styles={{
+                                          image: {
+                                            display: "none",
+                                          },
+                                        }}
+                                        style={{
+                                          textAlign: "center",
+                                          margin: "20px 0",
+                                          fontSize: 14,
+                                          fontStyle: "italic",
+                                        }}
+                                      />
+                                    ) : null}
 
-                                    <Droppable droppableId={list._id} type="card">
+                                    <Droppable
+                                      droppableId={list._id}
+                                      type="card"
+                                    >
                                       {(provided: DroppableProvided) => (
                                         <div
                                           ref={provided.innerRef}
@@ -1116,8 +1246,8 @@ const BoardDetail: React.FC = () => {
                                             marginTop: 8,
                                           }}
                                         >
-                                        {statusTasks.map((task, index) =>
-                                          renderTaskCard(task, index)
+                                          {statusTasks.map((task, index) =>
+                                            renderTaskCard(task, index)
                                           )}
                                           {provided.placeholder}
                                         </div>
@@ -1127,8 +1257,12 @@ const BoardDetail: React.FC = () => {
                                       <AddTaskForm
                                         boardId={id || ""}
                                         statusId={list._id}
-                                        onCancel={() => toggleAddTask(list._id, false)}
-                                        onSuccess={() => toggleAddTask(list._id, false)}
+                                        onCancel={() =>
+                                          toggleAddTask(list._id, false)
+                                        }
+                                        onSuccess={() =>
+                                          toggleAddTask(list._id, false)
+                                        }
                                       />
                                     ) : isOwner() ? (
                                       <Button
@@ -1136,7 +1270,9 @@ const BoardDetail: React.FC = () => {
                                         className="add-card-button"
                                         icon={<CirclePlus size={16} />}
                                         block
-                                        onClick={() => toggleAddTask(list._id, true)}
+                                        onClick={() =>
+                                          toggleAddTask(list._id, true)
+                                        }
                                       >
                                         Add card
                                       </Button>
@@ -1314,23 +1450,23 @@ const BoardDetail: React.FC = () => {
               pagination={false}
               scroll={{ x: true }}
             />
-              {selectedView === "table" && isOwner() && statusList.length > 0 && (
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "center",
-                    margin: "20px 30px",
+            {selectedView === "table" && isOwner() && statusList.length > 0 && (
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "center",
+                  margin: "20px 30px",
+                }}
+              >
+                <Button
+                  type="primary"
+                  className="add-card-btn"
+                  icon={<CirclePlus size={16} />}
+                  onClick={() => {
+                    if (statusList.length > 0) {
+                      toggleAddTask(statusList[0]._id, true);
+                    }
                   }}
-                >
-                  <Button
-                    type="primary"
-                    className="add-card-btn"
-                    icon={<CirclePlus size={16} />}
-                    onClick={() => {
-                      if (statusList.length > 0) {
-                        toggleAddTask(statusList[0]._id, true);
-                      }
-                    }}
                   style={{
                     marginTop: 16,
                     fontWeight: 800,
@@ -1338,20 +1474,20 @@ const BoardDetail: React.FC = () => {
                     border: "1px solid white",
                     borderRadius: "5px",
                   }}
-                  >
-                    Add Card
-                  </Button>
+                >
+                  Add Card
+                </Button>
 
-                  {statusList.length > 0 && showAddTaskMap[statusList[0]._id] && (
-                    <AddTaskForm
-                      boardId={id ?? ""}
-                      statusId={statusList[0]._id}
-                      onCancel={() => toggleAddTask(statusList[0]._id, false)}
-                      onSuccess={() => toggleAddTask(statusList[0]._id, false)}
-                    />
-                  )}
-                </div>
-              )}
+                {statusList.length > 0 && showAddTaskMap[statusList[0]._id] && (
+                  <AddTaskForm
+                    boardId={id ?? ""}
+                    statusId={statusList[0]._id}
+                    onCancel={() => toggleAddTask(statusList[0]._id, false)}
+                    onSuccess={() => toggleAddTask(statusList[0]._id, false)}
+                  />
+                )}
+              </div>
+            )}
           </>
         )
       ) : (
@@ -1378,6 +1514,11 @@ const BoardDetail: React.FC = () => {
       <InviteBoard
         isOpen={showInviteModal}
         onClose={() => setShowInviteModal(false)}
+      />
+
+      <UserActivityModal
+        open={openUserActivity}
+        onClose={() => setOpenUserActivity(false)}
       />
     </>
   );

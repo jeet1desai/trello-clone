@@ -85,6 +85,7 @@ const LabelPopup = ({ boardId, selectedTaskId, suggestedLabels }: IProps) => {
         width: 300,
         borderRadius: 8,
         color: "#fff",
+        height: 370,
       }}
     >
       {isAddFlag ? (
@@ -211,7 +212,7 @@ const LabelPopup = ({ boardId, selectedTaskId, suggestedLabels }: IProps) => {
                   style={{
                     backgroundColor: label.backgroundColor,
                     flex: 1,
-                    height: 30,
+                    minHeight: 30,
                     borderRadius: 4,
                     display: "flex",
                     alignItems: "center",

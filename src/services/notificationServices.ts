@@ -1,25 +1,24 @@
-import { API_URL } from "../config";
 import axiosInstance from "../helper/axiosInstance";
 
 export const notificationService = {
   async getAllNotification() {
     const response = await axiosInstance.get(
-      `${API_URL}/notification/notification-list/`
+      `/notification/notification-list/`
     );
     return response.data;
   },
 
   async readNotificationById(notificationId: string) {
     const response = await axiosInstance.put(
-      `${API_URL}/notification/mark-notification/${notificationId}`
+      `/notification/mark-notification/${notificationId}`
     );
     return response.data;
   },
 
   async readAllNotifications() {
     const response = await axiosInstance.put(
-      `${API_URL}/notification/mark-all-notifications-read`
+      `/notification/mark-all-notifications-read`
     );
     return response.data;
   },
-}; 
+};

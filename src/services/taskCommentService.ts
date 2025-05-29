@@ -1,11 +1,8 @@
-import { API_URL } from "../config";
 import axiosInstance from "../helper/axiosInstance";
 
 export const taskCommentService = {
   async getCommentsById(taskId: string) {
-    const response = await axiosInstance.get(
-      `${API_URL}/comment/get/${taskId}`
-    );
+    const response = await axiosInstance.get(`/comment/get/${taskId}`);
     return response.data;
   },
 
@@ -23,25 +20,19 @@ export const taskCommentService = {
         formData.append("attachment", attachment)
       );
     if (mentionedMembers.length > 0)
-      mentionedMembers.map((member) =>
-        formData.append("member", member)
-      );
+      mentionedMembers.map((member) => formData.append("member", member));
 
-    const response = await axiosInstance.post(
-      `${API_URL}/comment/add`,
-      formData,
-      {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      }
-    );
+    const response = await axiosInstance.post(`/comment/add`, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
     return response.data;
   },
 
   async deleteTaskComment(taskCommentId: string) {
     const response = await axiosInstance.delete(
-      `${API_URL}/comment/delete/${taskCommentId}`
+      `/comment/delete/${taskCommentId}`
     );
     return response.data;
   },
@@ -53,7 +44,7 @@ export const taskCommentService = {
       newAttachments: File[];
       removedAttachments: string[];
       mentionedMembers: string[];
-    },
+    }
   ) {
     const formData = new FormData();
     formData.append("comment", updateTask.comment);
@@ -68,12 +59,12 @@ export const taskCommentService = {
       );
     }
     if (updateTask.mentionedMembers.length > 0)
-    updateTask.mentionedMembers.map((member) =>
+      updateTask.mentionedMembers.map((member) =>
         formData.append("member", member)
       );
 
     const response = await axiosInstance.put(
-      `${API_URL}/comment/update/${taskId}`,
+      `/comment/update/${taskId}`,
       formData,
       {
         headers: {

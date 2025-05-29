@@ -245,7 +245,11 @@ const Boards: React.FC = () => {
       <Card
         hoverable
         className="board-card"
-        bodyStyle={{ padding: "0 0 20px 0" }}
+        styles={{
+          body: {
+            padding: "0 0 20px",
+          },
+        }}
         onClick={() =>
           navigate(generatePath(PRIVATE_ROUTE.BOARD, { id: board._id }))
         }
@@ -261,15 +265,15 @@ const Boards: React.FC = () => {
           }}
         >
           <div
-          onClick={(e) => {
-            dispatch(
-              toggleFavorite({
-                boardId: board._id,
-                isFavorite: !board.isFavorite,
-              })
-            );
-            e.stopPropagation();
-          }}
+            onClick={(e) => {
+              dispatch(
+                toggleFavorite({
+                  boardId: board._id,
+                  isFavorite: !board.isFavorite,
+                })
+              );
+              e.stopPropagation();
+            }}
             style={{
               display: "flex",
               position: "absolute",

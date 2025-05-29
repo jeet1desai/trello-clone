@@ -5,6 +5,8 @@ import {
   GoogleAuthProvider,
   OAuthProvider,
 } from "firebase/auth";
+import { getMessaging, getToken } from "firebase/messaging";
+import axiosInstance from "../../helper/axiosInstance";
 
 // Your Firebase configuration object
 const firebaseConfig = {
@@ -21,6 +23,7 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
+export const messaging = getMessaging(app);
 
 // Set up providers
 const googleProvider = new GoogleAuthProvider();
@@ -32,6 +35,23 @@ githubProvider.setCustomParameters({ prompt: "select_account" });
 githubProvider.addScope("user:email");
 const microsoftProvider = new OAuthProvider("microsoft.com");
 microsoftProvider.setCustomParameters({ prompt: "select_account" });
+
+export const generateToken = async () => {
+  const permission = await Notification.requestPermission();
+  if (permission === "granted") {
+    const fpn_token = await getToken(messaging, {
+      vapidKey: process.env.REACT_APP_FIREBASE_VAPID_KEY,
+    });
+    try {
+      await axiosInstance.put("/auth/save-device-token", {
+        fpn_token,
+      });
+    } catch (error) {
+      console.error("Error while generating token:", error);
+    }
+  }
+};
+
 export {
   auth,
   googleProvider,
