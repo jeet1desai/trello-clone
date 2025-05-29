@@ -23,15 +23,6 @@ export const notificationMiddleware: Middleware<
     const [sliceName] = action.type.split("/");
     const sliceState = fullState[sliceName as keyof RootState];
 
-    if (
-      sliceName.includes("status") ||
-      sliceName.includes("task") ||
-      sliceName.includes("notification") ||
-      sliceName.includes("dashboard") ||
-      sliceName.includes("user")
-    )
-      return;
-
     if (isRejectedWithValue(action)) {
       const errorMessage =
         typeof action.payload === "string"
@@ -47,6 +38,15 @@ export const notificationMiddleware: Middleware<
     }
 
     if (isFulfilled(action)) {
+      if (
+        sliceName.includes("status") ||
+        sliceName.includes("task") ||
+        sliceName.includes("notification") ||
+        sliceName.includes("dashboard") ||
+        sliceName.includes("user")
+      )
+        return;
+
       const successMessage =
         typeof action.payload === "string"
           ? action.payload

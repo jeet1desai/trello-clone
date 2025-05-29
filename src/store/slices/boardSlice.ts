@@ -92,8 +92,8 @@ export interface IBoardDetails {
   boardOwner: IBoardOwner;
   members: IBoardMember[];
   workspace: IBoardWorkspace[];
-  background: string
-  backgroundType: BOARD_BACKGROUND_TYPE
+  background: string;
+  backgroundType: BOARD_BACKGROUND_TYPE;
 }
 
 export interface IMemberId {
@@ -155,19 +155,19 @@ export interface ILabel {
 }
 
 export interface Background {
-  _id: string
-  imageId: string
-  imageName: string
-  imageUrl: string
+  _id: string;
+  imageId: string;
+  imageName: string;
+  imageUrl: string;
 }
 
 export interface UserBackground {
-  imageName: string
-  imageId: string
-  imageUrl: string
-  userId: string
-  _id: string
-  __v: number
+  imageName: string;
+  imageId: string;
+  imageUrl: string;
+  userId: string;
+  _id: string;
+  __v: number;
 }
 
 interface ITaskMember {
@@ -196,7 +196,7 @@ interface BoardState {
   boardWorkspaces: IWorkspace[];
   boardWorkspacesPagination: Pagination;
   background: Background[];
-  userBackround: UserBackground[]
+  userBackround: UserBackground[];
 }
 
 const initialState: BoardState = {
@@ -228,7 +228,7 @@ const initialState: BoardState = {
     totalRecords: 0,
   },
   background: [],
-  userBackround: []
+  userBackround: [],
 };
 
 export const getAllBoards = createAsyncThunk(
@@ -403,6 +403,20 @@ export const removeBoardMemberFromListById = createAsyncThunk(
         _id,
         memberId
       );
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message ?? "Error while removing members."
+      );
+    }
+  }
+);
+
+export const leaveBoard = createAsyncThunk(
+  "/member/leave-board",
+  async (_id: string, { rejectWithValue }) => {
+    try {
+      const response = await boardService.leaveBoard(_id);
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
@@ -779,13 +793,16 @@ export const duplicateTask = createAsyncThunk(
 
 export const toggleFavorite = createAsyncThunk(
   "task/favorite",
-  async ({
+  async (
+    {
       boardId,
       isFavorite,
     }: {
       boardId: string;
       isFavorite: boolean;
-    }, { rejectWithValue }) => {
+    },
+    { rejectWithValue }
+  ) => {
     try {
       const response = await boardService.toggleFavorite(boardId, isFavorite);
       return response;
@@ -799,14 +816,14 @@ export const toggleFavorite = createAsyncThunk(
 
 export const getBackground = createAsyncThunk(
   "board/backgrounds",
-  async (_,{ rejectWithValue }
-  ) => {
+  async (_, { rejectWithValue }) => {
     try {
       const response = await boardService.getBackground();
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message ?? "Error while fetching board background."
+        error.response?.data?.message ??
+          "Error while fetching board background."
       );
     }
   }
@@ -814,14 +831,14 @@ export const getBackground = createAsyncThunk(
 
 export const getUserBackground = createAsyncThunk(
   "user/board/background/get",
-  async (_, { rejectWithValue }
-  ) => {
+  async (_, { rejectWithValue }) => {
     try {
       const response = await boardService.getUserBackground();
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message ?? "Error while fetching board background."
+        error.response?.data?.message ??
+          "Error while fetching board background."
       );
     }
   }
@@ -829,16 +846,14 @@ export const getUserBackground = createAsyncThunk(
 
 export const postUserBackground = createAsyncThunk(
   "user/board/background/post",
-  async (
-    uploadedImages: File[]
-    , { rejectWithValue }
-  ) => {
+  async (uploadedImages: File[], { rejectWithValue }) => {
     try {
       const response = await boardService.postUserBackground(uploadedImages);
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message ?? "Error while fetching board background."
+        error.response?.data?.message ??
+          "Error while fetching board background."
       );
     }
   }
@@ -846,15 +861,21 @@ export const postUserBackground = createAsyncThunk(
 
 export const deleteUserBackground = createAsyncThunk(
   "user/board/background/delete",
-  async ({
-    imageId,
-    boardId,
-  }: {
-    imageId: string;
-    boardId: string;
-  }, { rejectWithValue }) => {
+  async (
+    {
+      imageId,
+      boardId,
+    }: {
+      imageId: string;
+      boardId: string;
+    },
+    { rejectWithValue }
+  ) => {
     try {
-      const response = await boardService.deleteUserBackground(imageId, boardId);
+      const response = await boardService.deleteUserBackground(
+        imageId,
+        boardId
+      );
       if (response.message) {
         return { message: response.message, imageId };
       } else {
@@ -875,12 +896,12 @@ export const changebackground = createAsyncThunk(
       boardId,
       backgroundType,
       background,
-      imageId
+      imageId,
     }: {
-      boardId: string,
-      backgroundType: BOARD_BACKGROUND_TYPE,
-      background: string,
-      imageId: string
+      boardId: string;
+      backgroundType: BOARD_BACKGROUND_TYPE;
+      background: string;
+      imageId: string;
     },
     { rejectWithValue }
   ) => {
@@ -955,15 +976,15 @@ const boardSlice = createSlice({
       );
     },
     updateBackground: (state, action) => {
-       const { background, backgroundType } = action.payload.data;
-       if (state.selectedBoard) {
-          state.selectedBoard = {
-            ...state.selectedBoard,
-            background: background,
-            backgroundType: backgroundType,
-          };
-        }
-    }
+      const { background, backgroundType } = action.payload.data;
+      if (state.selectedBoard) {
+        state.selectedBoard = {
+          ...state.selectedBoard,
+          background: background,
+          backgroundType: backgroundType,
+        };
+      }
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -1173,6 +1194,23 @@ const boardSlice = createSlice({
         state.success = null;
         state.error =
           (action.payload as string) || "Error while removing member.";
+      })
+
+      // Leave from board
+      .addCase(leaveBoard.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.success = null;
+      })
+      .addCase(leaveBoard.fulfilled, (state) => {
+        state.loading = false;
+        state.success = "You have successfully exited the board.";
+      })
+      .addCase(leaveBoard.rejected, (state, action) => {
+        state.loading = false;
+        state.success = null;
+        state.error =
+          (action.payload as string) || "Error while leaving board.";
       })
 
       // send member invitation
@@ -1566,8 +1604,8 @@ const boardSlice = createSlice({
         state.error =
           (action.payload as string) || "Error while fetching workspaces.";
       })
-      
-       // duplicate ticket
+
+      // duplicate ticket
       .addCase(duplicateTask.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -1595,9 +1633,9 @@ const boardSlice = createSlice({
         state.boards = state.boards?.map((item) =>
           item._id === action.payload.data.boardId
             ? {
-              ...item,
-              isFavorite: action.payload.data.isFavorite,
-            }
+                ...item,
+                isFavorite: action.payload.data.isFavorite,
+              }
             : item
         );
         state.loading = false;
@@ -1628,9 +1666,10 @@ const boardSlice = createSlice({
         state.loading = false;
         state.success = null;
         state.error =
-          (action.payload as string) || "Error while fetching board background.";
+          (action.payload as string) ||
+          "Error while fetching board background.";
       })
-      
+
       // Board get user background
       .addCase(getUserBackground.pending, (state) => {
         state.loading = true;
@@ -1638,7 +1677,7 @@ const boardSlice = createSlice({
         state.success = null;
       })
       .addCase(getUserBackground.fulfilled, (state, action) => {
-        state.userBackround = action.payload
+        state.userBackround = action.payload;
         state.loading = false;
         state.error = null;
       })
@@ -1647,7 +1686,8 @@ const boardSlice = createSlice({
         state.loading = false;
         state.success = null;
         state.error =
-          (action.payload as string) || "Error while fetching board background.";
+          (action.payload as string) ||
+          "Error while fetching board background.";
       })
 
       // Board post user background
@@ -1666,7 +1706,8 @@ const boardSlice = createSlice({
         state.loading = false;
         state.success = null;
         state.error =
-          (action.payload as string) || "Error while fetching board background.";
+          (action.payload as string) ||
+          "Error while fetching board background.";
       })
 
       // Delete invited member from board
@@ -1680,7 +1721,7 @@ const boardSlice = createSlice({
         if (imageId) {
           state.userBackround = state.userBackround.filter(
             (item) => item._id !== imageId
-          )
+          );
         }
         state.success = message;
         state.loading = false;
@@ -1729,7 +1770,7 @@ export const {
   clearSelectedBoard,
   addNewInvitedMember,
   removeInvitedmember,
-  updateBackground
+  updateBackground,
 } = boardSlice.actions;
 
 export default boardSlice.reducer;

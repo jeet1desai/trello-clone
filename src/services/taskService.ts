@@ -1,4 +1,3 @@
-import { API_URL } from "../config";
 import axiosInstance from "../helper/axiosInstance";
 import { Priority } from "../utils/enums/task";
 
@@ -7,7 +6,7 @@ export const taskService = {
     statusId: string,
     filter: { filterBy: string[]; labelIds?: string[] }
   ) {
-    const response = await axiosInstance.post(`${API_URL}/task/get-task`, {
+    const response = await axiosInstance.post(`/task/get-task`, {
       statusId: statusId,
       ...filter,
     });
@@ -15,7 +14,7 @@ export const taskService = {
   },
 
   async createTask(title: string, board_id: string, status_list_id: string) {
-    const response = await axiosInstance.post(`${API_URL}/task/create-task`, {
+    const response = await axiosInstance.post(`/task/create-task`, {
       title,
       board_id,
       status_list_id,
@@ -34,48 +33,38 @@ export const taskService = {
     start_date?: string | null;
     end_date?: string | null;
   }) {
-    const response = await axiosInstance.put(
-      `${API_URL}/task/update-task`,
-      data
-    );
+    const response = await axiosInstance.put(`/task/update-task`, data);
     return response.data;
   },
 
   async deleteTask(taskId: string) {
-    const response = await axiosInstance.delete(
-      `${API_URL}/task/delete-task/${taskId}`
-    );
+    const response = await axiosInstance.delete(`/task/delete-task/${taskId}`);
     return response.data;
   },
 
   async getTaskById(taskId: string) {
-    const response = await axiosInstance.get(
-      `${API_URL}/task/get-task/${taskId}`
-    );
+    const response = await axiosInstance.get(`/task/get-task/${taskId}`);
     return response.data;
   },
 
   async assignMember(task_id: string, member_id: string) {
-    const response = await axiosInstance.post(
-      `${API_URL}/task-member/assign-member`,
-      {
-        task_id,
-        member_id,
-      }
-    );
+    const response = await axiosInstance.post(`/task-member/assign-member`, {
+      task_id,
+      member_id,
+    });
     return response.data;
   },
 
   async unassignMember(taskId: string) {
     const response = await axiosInstance.delete(
-      `${API_URL}/task-member/unassign-member?taskId=${taskId}`
+      `/task-member/unassign-member?taskId=${taskId}`
     );
     return response.data;
   },
 
   async addEstimatedTime(task_id: string, hours: number, minutes: number) {
     const response = await axiosInstance.put(
-      `${API_URL}/task/add-estimated-time`,
+      `/task/add-estimated-time`,
       {
         task_id,
         hours,
@@ -87,14 +76,14 @@ export const taskService = {
 
   async stratTimer(taskId: string) {
     const response = await axiosInstance.put(
-      `${API_URL}/task/start-timer/${taskId}`
+      `/task/start-timer/${taskId}`
     );
     return response.data;
   },
 
   async stopTimer(taskId: string) {
     const response = await axiosInstance.put(
-      `${API_URL}/task/stop-timer/${taskId}`
+      `/task/stop-timer/${taskId}`
     );
     return response.data;
   },

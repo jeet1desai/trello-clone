@@ -1,22 +1,15 @@
 import {
   Layout,
-  Menu,
   Typography,
   Anchor,
-  Drawer,
-  Button,
-  Grid,
-  MenuProps,
 } from "antd";
-import { useState, useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { scrollToSectionWithOffset } from "../../../helper";
 import { useActiveSection } from "../../../hooks/useActiveSection";
-import { Menu as MenuIcon } from "lucide-react";
 
 const { Content } = Layout;
 const { Title, Paragraph } = Typography;
-const { useBreakpoint } = Grid;
 
 const sections = [
   {
@@ -119,8 +112,6 @@ const sections = [
 const PrivacyPolicy = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const [drawerVisible, setDrawerVisible] = useState(false);
-  const screens = useBreakpoint();
   const isHashTriggeredRef = useRef(false);
   const sectionIds = sections.map((s) => s.key);
   const [activeKey, setActiveKey] = useActiveSection(
@@ -158,45 +149,10 @@ const PrivacyPolicy = () => {
     isHashTriggeredRef.current = false; // Reset after each update
   }, [activeKey]);
 
-  const handleClick: MenuProps["onClick"] = (e) => {
-    setActiveKey(e.key);
-    navigate(`#${e.key}`);
-    scrollToSectionWithOffset(e.key);
-    setDrawerVisible(false);
-  };
-
-  const menu = (
-    <Menu
-      mode="inline"
-      selectedKeys={[activeKey]}
-      onClick={handleClick}
-      style={{ borderRight: 0 }}
-    >
-      {sections.map((section) => (
-        <Menu.Item key={section.key}>
-          <a href={`#${section.key}`}>{section.title}</a>
-        </Menu.Item>
-      ))}
-    </Menu>
-  );
-
   return (
     <Layout
       style={{ minHeight: "100vh", display: "flex", flexDirection: "row" }}
     >
-      {screens.lg && (
-        <div
-          style={{
-            width: 300,
-            padding: 24,
-            borderRight: "1px solid #f0f0f0",
-          }}
-        >
-          <Title level={4}>Privacy Policy</Title>
-          {menu}
-        </div>
-      )}
-
       <Layout style={{ padding: "24px", overflowX: "hidden" }}>
         <div
           style={{
@@ -206,37 +162,18 @@ const PrivacyPolicy = () => {
             gap: "10px",
           }}
         >
-          <Title level={2} style={{ marginTop: "-10px", marginBottom: "0px" }}>
+          <Title level={2} style={{ marginTop: "-10px", marginBottom: 30 }}>
             Privacy Policy
           </Title>
-          {!screens.lg && (
-            <>
-              <Button
-                type="primary"
-                icon={<MenuIcon size={18} />}
-                onClick={() => setDrawerVisible(true)}
-              />
-              <Drawer
-                title="Privacy Policy"
-                placement="left"
-                closable
-                onClose={() => setDrawerVisible(false)}
-                open={drawerVisible}
-                styles={{ body: { padding: 0 } }}
-              >
-                {menu}
-              </Drawer>
-            </>
-          )}
         </div>
         <Content>
           {sections.map((section) => (
             <div
               key={section.key}
               id={section.key}
-              style={{ marginBottom: 48 }}
+              style={{ marginBottom: 30 }}
             >
-              <Title level={2}>{section.title}</Title>
+              <Title level={4}>{section.title}</Title>
               {section.content}
             </div>
           ))}

@@ -15,3 +15,9 @@ export enum TaskTimerStatus {
   IN_PROGRESS = "in-progress",
   COMPLETED = "completed"
 }
+
+export enum Duration {
+DAILY = "daily",
+WEEKLY = "weekly",
+MONTHLY = "monthly"
+}

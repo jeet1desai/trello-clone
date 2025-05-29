@@ -1,9 +1,8 @@
-import { API_URL } from "../config";
 import axiosInstance from "../helper/axiosInstance";
 
 export const profileService = {
   async getProfileData() {
-    const response = await axiosInstance.get(`${API_URL}/user/profile`);
+    const response = await axiosInstance.get(`/user/profile`);
     return response.data.data;
   },
 
@@ -20,26 +19,19 @@ export const profileService = {
     formData.append("last_name", data.last_name);
     formData.append("email", data.email);
     formData.append("profile_image", data.profile_image);
-    const response = await axiosInstance.put(
-      `${API_URL}/user/profile`,
-      formData,
-      {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      }
-    );
+    const response = await axiosInstance.put(`/user/profile`, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
     return response.data;
   },
 
   async resetPassword(data: { old_password: string; new_password: string }) {
-    const response = await axiosInstance.post(
-      `${API_URL}/auth/reset-password`,
-      {
-        old_password: data.old_password,
-        new_password: data.new_password,
-      }
-    );
+    const response = await axiosInstance.post(`/auth/reset-password`, {
+      old_password: data.old_password,
+      new_password: data.new_password,
+    });
     return response.data;
   },
 };

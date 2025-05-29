@@ -48,7 +48,11 @@ const InvitationCard = ({ invitation }: IProps) => {
     <Card
       hoverable
       className="invitations-card"
-      bodyStyle={{ padding: "16px" }}
+      styles={{
+        body: {
+          padding: "16px",
+        }
+      }}
     >
       <div className="card-grid">
         <div className="member-grid">
