@@ -9,3 +9,9 @@ export enum Priority {
   HIGH = "High",
   CRITICAL = "Critical",
 }
+
+export enum TaskTimerStatus {
+  PENDING = "pending",
+  IN_PROGRESS = "in-progress",
+  COMPLETED = "completed"
+}

@@ -72,4 +72,30 @@ export const taskService = {
     );
     return response.data;
   },
+
+  async addEstimatedTime(task_id: string, hours: number, minutes: number) {
+    const response = await axiosInstance.put(
+      `${API_URL}/task/add-estimated-time`,
+      {
+        task_id,
+        hours,
+        minutes
+      }
+    );
+    return response.data;
+  },
+
+  async stratTimer(taskId: string) {
+    const response = await axiosInstance.put(
+      `${API_URL}/task/start-timer/${taskId}`
+    );
+    return response.data;
+  },
+
+  async stopTimer(taskId: string) {
+    const response = await axiosInstance.put(
+      `${API_URL}/task/stop-timer/${taskId}`
+    );
+    return response.data;
+  },
 };

@@ -23,18 +23,21 @@ import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../../../store";
 import {
   addAssignMemberToTask,
+  addEstimatedTime,
   addLabelToTask,
   assignMember,
   assignTaskMember,
   removeAssignMemberTask,
   removeLabelToTask,
+  stopTimer,
+  stratTimer,
   unassignMember,
   unassignTaskMember,
   updateAttachmentCount,
   updateCommentCount,
   updateTask,
 } from "../../../../store/slices/taskSlice";
-import { Priority, TaskStatus } from "../../../../utils/enums/task";
+import { Priority, TaskStatus, TaskTimerStatus } from "../../../../utils/enums/task";
 import Search from "antd/es/transfer/search";
 import LabelPopup from "./labelPopup";
 import DatePickerPopup from "./datePopup";
@@ -366,8 +369,9 @@ const TaskModal: React.FC<TaskModalProps> = ({
   const [isTracking, setIsTracking] = useState(false);
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const justPausedRef = useRef(false);
 
-  const totalSeconds = assignedHours * 3600 + assignedMinutes * 60;
+  const totalSeconds = selectedTask?.total_estimated_time ?? 0;
 
   const formatTime = (seconds: number): string => {
     const dur = dayjs.duration(seconds, 'seconds');
@@ -375,31 +379,95 @@ const TaskModal: React.FC<TaskModalProps> = ({
   };
 
   const handleStart = () => {
-    if (!isTracking && totalSeconds > 0) {
+    if (!isTracking && totalSeconds > Math.floor((selectedTask?.actual_time_spent ?? 0))) {
       setIsTracking(true);
-      timerRef.current = setInterval(() => {
-        setElapsedSeconds(prev => {
-          if (prev + 1 >= totalSeconds) {
-            clearInterval(timerRef.current!);
-            setIsTracking(false);
-            return totalSeconds;
-          }
-          return prev + 1;
-        });
-      }, 1000);
+      dispatch(
+        stratTimer({ taskId: selectedTask?._id ?? "" })
+      )
     }
   };
 
   const handlePause = () => {
     if (timerRef.current) clearInterval(timerRef.current);
     setIsTracking(false);
+    setElapsedSeconds((prev) => {
+      const actualTime = Math.floor((selectedTask?.actual_time_spent ?? 0) / 1000);
+      return actualTime > prev ? actualTime : prev;
+    });
+    justPausedRef.current = true;
+    dispatch(
+      stopTimer({ taskId: selectedTask?._id ?? "" })
+    )
   };
 
-  const handleReset = () => {
-    if (timerRef.current) clearInterval(timerRef.current);
-    setElapsedSeconds(0);
-    setIsTracking(false);
+  const handleSubmitTime = async (hours = assignedHours, minutes = assignedMinutes) => {
+    try {
+      await dispatch(
+        addEstimatedTime({
+          taskId: selectedTask?._id ?? "",
+          hours,
+          minutes
+        })
+      ).unwrap();
+      setIsHourPopoverOpen(false);
+    } catch (error) {
+      setAssignedHours(selectedTask?.estimated_hours || 0);
+      setAssignedMinutes(selectedTask?.estimated_minutes || 0);
+    }
   };
+
+  useEffect(() => {
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
+
+    const totalSeconds = Math.floor((selectedTask?.total_estimated_time ?? 0) / 1000);
+    const actualTimeSpent = Math.floor((selectedTask?.actual_time_spent ?? 0) / 1000);
+    const totalCurrentElapsed = Math.floor((selectedTask?.total_current_time ?? 0) / 1000);
+
+    if (
+      selectedTask?.is_timer_active &&
+      selectedTask?.timer_status === TaskTimerStatus.IN_PROGRESS &&
+      isTracking
+    ) {
+      if (totalCurrentElapsed > 0) {
+        setElapsedSeconds(totalCurrentElapsed);
+      }
+      timerRef.current = setInterval(() => {
+        setElapsedSeconds((prev) => {
+          if (prev + 1 >= totalSeconds) {
+            clearInterval(timerRef.current!);
+            timerRef.current = null;
+            setIsTracking(false);
+            dispatch(
+              stopTimer({ taskId: selectedTask?._id ?? "" })
+            );
+            return totalSeconds;
+          }
+          return prev + 1;
+        });
+      }, 1000);
+    } else {
+      if (!isTracking) {
+        if (justPausedRef.current) {
+          justPausedRef.current = false;
+        } else {
+          if (actualTimeSpent > totalSeconds) {
+            setElapsedSeconds(totalSeconds);
+          } else {
+            setElapsedSeconds(actualTimeSpent);
+          }
+        }
+      }
+    }
+    return () => {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
+      }
+    };
+  }, [selectedTask?.is_timer_active, selectedTask?.timer_status, isTracking, selectedTask?._id, dispatch, selectedTask?.total_estimated_time, selectedTask?.actual_time_spent, selectedTask?.current_elapsed, selectedTask?.total_current_time]);
 
   useEffect(() => {
     return () => {
@@ -747,6 +815,9 @@ const TaskModal: React.FC<TaskModalProps> = ({
 
   useEffect(() => {
     setIsCompleted(selectedTask?.status === TaskStatus.COMPLETED);
+    setAssignedHours(selectedTask?.estimated_hours || 0);
+    setAssignedMinutes(selectedTask?.estimated_minutes || 0);
+    setIsTracking(selectedTask?.is_timer_active ?? false);
   }, [selectedTask]);
 
   const sendMessage = () => {
@@ -1232,91 +1303,95 @@ const TaskModal: React.FC<TaskModalProps> = ({
           </div>
         </div>
       </div>
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          borderBottom: '1px solid #eee',
-          padding: '8px 0',
-          gap: 10,
-        }}
-      >
-        {totalSeconds > 0 ? (
-          isTracking ? (
-            <CirclePause
-              size={20}
-              style={{ color: '#1677ff', cursor: 'pointer' }}
-              onClick={handlePause}
-            />
-          ) : (
-            <CirclePlay
-              size={20}
-              style={{ color: '#52c41a', cursor: 'pointer' }}
-              onClick={handleStart}
-            />
-          )
-        ) : (
-          <Hourglass size={20} style={{ color: '#999' }} />
-        )}
+      <div>
+        <div style={{ margin: "20px 0px 6px 0" }}>
+          <Text strong>Estimate Time</Text>
+        </div>
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            padding: '8px 0',
+            gap: 10,
+          }}
+        >
+          <Clock size={20} style={{ color: '#9254de' }} />
+          <Space>
+            <Popover
+              content={
+                <InputNumber
+                  type="number"
+                  min={0}
+                  value={assignedHours}
+                  onChange={(val) => {
+                    if (val !== null) {
+                      setAssignedHours(val);
+                    }
+                  }}
+                  onPressEnter={() => handleSubmitTime(assignedHours, assignedMinutes)}
+                  controls={false}
+                />
+              }
+              trigger="click"
+              open={isHourPopoverOpen}
+              onOpenChange={(open) => {
+                if (!open) {
+                  handleSubmitTime();
+                }
+                setIsHourPopoverOpen(open);
+              }}
+            >
+              <Text style={{ cursor: 'pointer' }}>{assignedHours} hr</Text>
+            </Popover>
+            <Text>:</Text>
+            <Popover
+              content={
+                <Space direction="vertical">
+                  {minuteOptions.map((min) => (
+                    <Text
+                      key={min}
+                      onClick={() => {
+                        setAssignedMinutes(min);
+                        handleSubmitTime(assignedHours, min);
+                        setIsMInPopoverOpen(false)
+                      }}
+                      style={{ cursor: 'pointer' }}
+                    >
+                      {min} min
+                    </Text>
+                  ))}
+                </Space>
+              }
+              trigger="click"
+              open={isMinPopoverOpen}
+              onOpenChange={setIsMInPopoverOpen}
+            >
+              <Text style={{ cursor: 'pointer' }}>{assignedMinutes} min</Text>
+            </Popover>
+          </Space>
 
-        <Space>
-          <Popover
-            content={
-              <InputNumber
-                min={0}
-                value={assignedHours}
-                onChange={(val) => {
-                  if (val !== null) {
-                    setAssignedHours(val);
-                  }
-                }}
-                onPressEnter={() => {
-                  handleReset();
-                  setIsHourPopoverOpen(false);
-                }}
+          <Text type="secondary" style={{ margin: '0 8px' }}>|</Text>
+          {totalSeconds > 0 ? (
+            isTracking ? (
+              <CirclePause
+                size={20}
+                style={{ color: '#1677ff', cursor: 'pointer' }}
+                onClick={handlePause}
               />
-            }
-            trigger="click"
-            open={isHourPopoverOpen}
-            onOpenChange={setIsHourPopoverOpen}
-          >
-            <Text style={{ cursor: 'pointer' }}>{assignedHours} hr</Text>
-          </Popover>
-
-          <Text>:</Text>
-
-          <Popover
-            content={
-              <Space direction="vertical">
-                {minuteOptions.map((min) => (
-                  <Text
-                    key={min}
-                    onClick={() => {
-                      setAssignedMinutes(min);
-                      setIsMInPopoverOpen(false)
-                      handleReset();
-                    }}
-                    style={{ cursor: 'pointer' }}
-                  >
-                    {min} min
-                  </Text>
-                ))}
-              </Space>
-            }
-            trigger="click"
-            open={isMinPopoverOpen}
-            onOpenChange={setIsMInPopoverOpen}
-          >
-            <Text style={{ cursor: 'pointer' }}>{assignedMinutes} min</Text>
-          </Popover>
-        </Space>
-
-        <Text type="secondary" style={{ margin: '0 8px' }}>|</Text>
-
-        <Clock size={20} style={{ color: '#9254de' }} />
-        <Text strong style={{ color: '#9254de' }}>
-          {formatTime(elapsedSeconds)}
-        </Text>
+            ) : (
+              <CirclePlay
+                size={20}
+                style={{ color: '#52c41a', cursor: 'pointer' }}
+                onClick={handleStart}
+              />
+            )
+          ) : (
+            <Hourglass size={20} style={{ color: '#999' }} />
+          )}
+          <Text strong style={{ color: '#9254de' }}>
+            {formatTime(elapsedSeconds)}
+          </Text>
+        </div>
       </div>
       <div className="task-content task-body-margin-left">
         <div style={{ display: "flex", gap: "24px" }}>

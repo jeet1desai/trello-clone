@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { taskService } from "../../services/taskService";
-import { Priority } from "../../utils/enums/task";
+import { Priority, TaskTimerStatus } from "../../utils/enums/task";
 
 export interface IAttachment {
   imageName: string;
@@ -16,6 +16,14 @@ interface ILabels {
   textColor: string;
   boardId: string;
 }
+
+interface TimerSession {
+  start_time: string
+  end_time: string
+  duration: number
+  _id: string
+}
+
 export interface ITask {
   _id: string;
   title: string;
@@ -46,6 +54,16 @@ export interface ITask {
     first_name: string;
     last_name: string;
   } | null;
+  total_estimated_time: number
+  actual_time_spent: number
+  timer_start_time: any
+  is_timer_active: boolean
+  timer_status: TaskTimerStatus
+  timer_sessions: TimerSession[]
+  estimated_hours: number;
+  estimated_minutes: number;
+  current_elapsed: number;
+  total_current_time: number;
 }
 
 interface TaskState {
@@ -205,6 +223,59 @@ export const unassignMember = createAsyncThunk(
     } catch (error: any) {
       return rejectWithValue(
         error.response?.data?.message ?? "Error while unassigning member."
+      );
+    }
+  }
+);
+
+export const addEstimatedTime = createAsyncThunk(
+  "timer/add-estimated-time",
+  async (
+    {
+      taskId,
+      hours,
+      minutes
+    }: {
+      taskId: string;
+      hours: number;
+      minutes: number;
+    },
+    { rejectWithValue }
+  ) => {
+    try {
+      const response = await taskService.addEstimatedTime(taskId, hours, minutes);
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message ?? "Error while assigning member."
+      );
+    }
+  }
+);
+
+export const stratTimer = createAsyncThunk(
+  "timer/start-timer",
+  async ({ taskId }: { taskId: string }, { rejectWithValue }) => {
+    try {
+      const response = await taskService.stratTimer(taskId);
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message ?? "Error while start timer."
+      );
+    }
+  }
+);
+
+export const stopTimer = createAsyncThunk(
+  "timer/stop-timer",
+  async ({ taskId }: { taskId: string }, { rejectWithValue }) => {
+    try {
+      const response = await taskService.stopTimer(taskId);
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message ?? "Error while stop timer."
       );
     }
   }
@@ -734,6 +805,80 @@ const taskSlice = createSlice({
         state.success = null;
         state.error =
           (action.payload as string) || "Error while unassigning member.";
+      })
+      
+      // Add estimate time into task
+      .addCase(addEstimatedTime.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.success = null;
+      })
+      .addCase(addEstimatedTime.fulfilled, (state, action) => {
+        state.selectedTask = {
+          ...state.selectedTask,
+          timer_start_time: action.payload.timer_start_time,
+          actual_time_spent: action.payload.actual_time_spent,
+          total_estimated_time: action.payload.total_estimated_time,
+          timer_status: action.payload.timer_status,
+          is_timer_active: action.payload.is_timer_active,
+          timer_sessions: action.payload.timer_sessions,
+          estimated_hours: action.payload.estimated_hours,
+          estimated_minutes: action.payload.estimated_minutes,
+        } as ITask;
+        state.loading = false;
+        state.error = null;
+      })
+      .addCase(addEstimatedTime.rejected, (state, action) => {
+        state.loading = false;
+        state.success = null;
+        state.error =
+          (action.payload as string) || "Error while adding estimate time.";
+      })
+
+      // start timer into task
+      .addCase(stratTimer.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.success = null;
+      })
+      .addCase(stratTimer.fulfilled, (state, action) => {
+        state.selectedTask = {
+          ...state.selectedTask,
+          total_estimated_time: action.payload.totalEstimatedTime,
+          timer_status: TaskTimerStatus.IN_PROGRESS,
+          is_timer_active: true,
+        } as ITask;
+        state.loading = false;
+        state.error = null;
+      })
+      .addCase(stratTimer.rejected, (state, action) => {
+        state.loading = false;
+        state.success = null;
+        state.error =
+          (action.payload as string) || "Error while starting timer.";
+      })
+
+      // stop timer into task
+      .addCase(stopTimer.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.success = null;
+      })
+      .addCase(stopTimer.fulfilled, (state, action) => {
+        state.selectedTask = {
+          ...state.selectedTask,
+          timer_status: action.payload.status,
+          actual_time_spent: action.payload.totalTimeSpent,
+          is_timer_active: false,
+        } as ITask;
+        state.loading = false;
+        state.error = null;
+      })
+      .addCase(stopTimer.rejected, (state, action) => {
+        state.loading = false;
+        state.success = null;
+        state.error =
+          (action.payload as string) || "Error while stopping timer.";
       });
   },
 });
