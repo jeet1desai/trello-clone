@@ -97,6 +97,7 @@ import {
   Files,
   CopyPlus,
 } from "lucide-react";
+import { useLabelSuggestions } from "../../../../hooks/useLabelSuggestions";
 
 const { Text } = Typography;
 const { Option } = Select;
@@ -309,6 +310,7 @@ const TaskModal: React.FC<TaskModalProps> = ({
   const { currentUser } = useSelector((state: RootState) => state.user);
   const [msg, setMsg] = useState<string>("");
   const [mentionedMembers, setMentionedMembers] = useState<string[]>([]);
+  const { labels, error, suggestLabels } = useLabelSuggestions();
 
   const handleMentionChange = (value: string) => {
     setMsg(value);
@@ -370,6 +372,11 @@ const TaskModal: React.FC<TaskModalProps> = ({
           })
         ))();
   }, [debouncedSearchAssigned]);
+
+  useEffect(() => {
+    if (selectedTask)
+      suggestLabels(selectedTask?.title, selectedTask?.description);
+  }, [selectedTask]);
 
   useEffect(() => {
     const handler = setTimeout(() => {
@@ -649,7 +656,12 @@ const TaskModal: React.FC<TaskModalProps> = ({
         style={{ marginBottom: 12 }}
         onKeyDown={(e) => {
           if (e.key === "Enter") {
-            dispatch(duplicateTask({ _id: selectedTask?._id ?? "", title: editableTitle }));
+            dispatch(
+              duplicateTask({
+                _id: selectedTask?._id ?? "",
+                title: editableTitle,
+              })
+            );
             setDuplicateCard(false);
           }
         }}
@@ -659,7 +671,12 @@ const TaskModal: React.FC<TaskModalProps> = ({
           type="primary"
           icon={<Copy size={16} />}
           onClick={() => {
-            dispatch(duplicateTask({ _id: selectedTask?._id ?? "", title: editableTitle }));
+            dispatch(
+              duplicateTask({
+                _id: selectedTask?._id ?? "",
+                title: editableTitle,
+              })
+            );
             setDuplicateCard(false);
           }}
         >
@@ -1104,6 +1121,7 @@ const TaskModal: React.FC<TaskModalProps> = ({
                 <LabelPopup
                   boardId={boardId}
                   selectedTaskId={selectedTask ? selectedTask._id : ""}
+                  suggestedLabels={labels}
                 />
               }
               title={null}
@@ -1112,16 +1130,23 @@ const TaskModal: React.FC<TaskModalProps> = ({
               onOpenChange={(newOpen) => setLabelVisible(newOpen)}
               placement="bottomLeft"
             >
-              <Button
-                icon={<PlusIcon size={16} />}
-                size="small"
-                className="button small-btn"
-                style={{
-                  fontSize: "12px",
-                }}
+              <Tooltip
+                style={{ fontSize: "12px" }}
+                title={
+                  labels.length > 0 ? `Suggetions: ${labels.join(", ")}` : null
+                }
               >
-                Add Label
-              </Button>
+                <Button
+                  icon={<PlusIcon size={16} />}
+                  size="small"
+                  className="button small-btn"
+                  style={{
+                    fontSize: "12px",
+                  }}
+                >
+                  Add Label
+                </Button>
+              </Tooltip>
             </Popover>
           </div>
         </div>
