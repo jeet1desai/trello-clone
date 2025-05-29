@@ -66,6 +66,13 @@ export const boardService = {
     return response.data;
   },
 
+  async leaveBoard(boardId: string) {
+    const response = await axiosInstance.delete(
+      `/member/leave-board/${boardId}`
+    );
+    return response.data;
+  },
+
   async inviteBoardMember(boardId: string, members: string[]) {
     const response = await axiosInstance.post(
       `/invite/send-invitation/${boardId}`,

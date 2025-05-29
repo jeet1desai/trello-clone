@@ -1029,7 +1029,10 @@ const BoardDetail: React.FC = () => {
                                 className="task-border"
                                 style={{
                                   maxWidth: isCollapsed ? 250 : 350,
-                                  backgroundColor: list.background,
+                                  backgroundColor:
+                                    list.background === "#FFF"
+                                      ? "var(--bg-primary)"
+                                      : list.background,
                                   boxShadow: "0px 2px 5px black",
                                 }}
                               >

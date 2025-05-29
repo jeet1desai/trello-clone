@@ -8,6 +8,8 @@ import { Inbox, WandSparkles } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../store";
 import { addNewTaskComment } from "../../store/slices/taskCommentSlice";
+import { generateText } from "../../services/genAiService";
+import { ScanLine, Logs, Lightbulb } from "lucide-react";
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = `${process.env.REACT_APP_PUBLIC_PDF_EXTRACT_URL}/pdf.worker.min.js`;
 
@@ -125,27 +127,45 @@ const CommentSummarizer = ({ open, onClose }: IProps) => {
   const summarizeComments = async () => {
     setSummarize([]);
     setAILoading(true);
-    // TODO: implement AI summarization
-    setInterval(() => {
-      setSummarize(["AI Texts", "Today, There is no tasks"]);
-    }, 5000);
-    setTimeout(() => {
+    const prompt = `
+    ${extractedContent}
+
+
+    Give me the comments list based on the content provided above for this task.
+    I want to add comments below the task descriptions. Comments need to be like chat.
+    Add all comments in single tasks just like chats and keep it in simple one line and use the above content.
+    Ignore date and time and names of person. Provide it as array
+    `.trim();
+
+    try {
+      const text = await generateText(prompt);
+      const parsed = JSON.parse(
+        text
+          .replace(/```json|```/g, "")
+          .trim()
+          .replace(/\n/g, "")
+      );
+
+      setSummarize(parsed);
+    } catch (err) {
+      console.error("Error generating labels:", err);
+    } finally {
       setAILoading(false);
-    }, 5000);
+    }
   };
 
-  const addComments = () => {
-    summarize.map((comment) => {
+  const addComments = async () => {
+    for (const comment of summarize) {
       if (!selectedTask?._id) return;
-        dispatch(
-          addNewTaskComment({
-            taskId: selectedTask?._id,
-            comment,
-            attachments: [],
-            mentionedMembers: [],
-          })
-        );
-    });
+      await dispatch(
+        addNewTaskComment({
+          taskId: selectedTask._id,
+          comment,
+          attachments: [],
+          mentionedMembers: [],
+        })
+      ).unwrap();
+    }
     onClose();
     setLoading(false);
     setAILoading(false);
@@ -155,7 +175,11 @@ const CommentSummarizer = ({ open, onClose }: IProps) => {
 
   return (
     <Modal
-      title="Scan Document"
+      title={
+        <div className="scanner-modal-title">
+          <ScanLine size={20} /> Scan Document
+        </div>
+      }
       open={open}
       onCancel={() => {
         onClose();
@@ -188,7 +212,9 @@ const CommentSummarizer = ({ open, onClose }: IProps) => {
 
       {!loading && extractedContent && (
         <div className="marginTop20">
-          <Text strong>Extracted Content:</Text>
+          <Text className="scan-sub-title">
+            <Logs size={18} /> Extracted Content:
+          </Text>
           <Paragraph className="extracted-text">{extractedContent}</Paragraph>
 
           {AILoading ? (
@@ -196,19 +222,19 @@ const CommentSummarizer = ({ open, onClose }: IProps) => {
           ) : (
             summarize.length > 0 && (
               <>
-                <Text strong>Suggested Comments:</Text>
+                <Text className="scan-sub-title">
+                  <Lightbulb size={18} /> Suggested Comments:
+                </Text>
                 <div className="summarize-comments">
                   {summarize?.map((comment) => (
-                    <Text key={comment}>{comment}</Text>
+                    <Text key={comment}>- {comment}</Text>
                   ))}
                 </div>
               </>
             )
           )}
 
-          <div
-            className="footer-btns"
-          >
+          <div className="footer-btns">
             <Button
               type="default"
               className="button small-btn"
