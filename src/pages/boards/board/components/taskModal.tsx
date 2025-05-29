@@ -100,6 +100,8 @@ import {
 } from "lucide-react";
 import { useLabelSuggestions } from "../../../../hooks/useLabelSuggestions";
 import CommentSummarizer from "../../../../components/board/CommentSummarizer";
+import { generateText } from "../../../../services/genAiService";
+import { marked } from "marked";
 
 const { Text } = Typography;
 const { Option } = Select;
@@ -356,6 +358,40 @@ const TaskModal: React.FC<TaskModalProps> = ({
   const [searchAssigned, setSearchAssigned] = useState("");
   const [debouncedSearchAssigned, setDebouncedSearchAssigned] =
     useState(searchAssigned);
+  const [aiGeneratedDescription, setAiGeneratedDescription] = useState(
+    "Add a more detailed description…"
+  );
+
+  const generateDescription = async () => {
+    const prompt = `
+    Given the following task title:
+    '${selectedTask?.title}',
+
+    Write a clear and detailed task description (within 300 words) that explains:
+
+    The goal of the task
+
+    The functionality to be implemented
+
+    The expected user interaction
+
+    Technical considerations (especially for Frontend)
+
+    Any edge cases or limitations
+
+    The description should be written in a professional tone, suitable for inclusion in a project management tool like Jira. It should be easily understandable by a developer, designer, and product manager.
+    `.trim();
+
+    try {
+      const text = await generateText(prompt);
+      const formattedText = await marked.parse(text.replace(/\\n/g, "\n"));
+      setAiGeneratedDescription(formattedText);
+      setShowEditor(true);
+    } catch (err) {
+      console.error("Error generating labels:", err);
+      setAiGeneratedDescription("Add a more detailed description…");
+    }
+  };
 
   useEffect(() => {
     const handler = setTimeout(() => {
@@ -1268,16 +1304,36 @@ const TaskModal: React.FC<TaskModalProps> = ({
                   />
                 )}
                 {!selectedTask?.description && !showEditor && (
-                  <Button
-                    className="task-description-btn"
-                    onClick={() => setShowEditor(true)}
-                  >
-                    Add a more detailed description…
-                  </Button>
+                  <div>
+                    <Button
+                      className="task-description-btn"
+                      onClick={() => setShowEditor(true)}
+                    >
+                      Add a more detailed description…
+                    </Button>
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "flex-end",
+                        marginTop: "16px",
+                      }}
+                    >
+                      <Button
+                        type="primary"
+                        onClick={() => generateDescription()}
+                      >
+                        Generate Description
+                      </Button>
+                    </div>
+                  </div>
                 )}
                 {showEditor && (
                   <TaskDescriptionEditor
-                    initialValue={selectedTask?.description}
+                    initialValue={
+                      selectedTask?.description
+                        ? selectedTask?.description
+                        : aiGeneratedDescription
+                    }
                     onSave={handleSave}
                     onCancel={() => setShowEditor(false)}
                   />
