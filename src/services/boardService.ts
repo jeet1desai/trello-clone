@@ -72,6 +72,13 @@ export const boardService = {
     return response.data;
   },
 
+  async leaveBoard(boardId: string) {
+    const response = await axiosInstance.delete(
+      `${API_URL}/member/leave-board/${boardId}`
+    );
+    return response.data;
+  },
+
   async inviteBoardMember(boardId: string, members: string[]) {
     const response = await axiosInstance.post(
       `${API_URL}/invite/send-invitation/${boardId}`,
@@ -193,24 +200,24 @@ export const boardService = {
     return response.data;
   },
 
-  async duplicateTask(taskId: string, title:string) {
+  async duplicateTask(taskId: string, title: string) {
     const response = await axiosInstance.post(
-      `${API_URL}/task/duplicate-task`,{taskId , title}
+      `${API_URL}/task/duplicate-task`,
+      { taskId, title }
     );
     return response.data;
   },
 
   async toggleFavorite(boardId: string, isFavorite: boolean) {
     const response = await axiosInstance.put(
-      `${API_URL}/board/favorite/${boardId}`, {isFavorite}
+      `${API_URL}/board/favorite/${boardId}`,
+      { isFavorite }
     );
     return response.data;
   },
 
   async getBackground() {
-    const response = await axiosInstance.get(
-      `${API_URL}/board/backgrounds`
-    );
+    const response = await axiosInstance.get(`${API_URL}/board/backgrounds`);
     return response.data;
   },
 

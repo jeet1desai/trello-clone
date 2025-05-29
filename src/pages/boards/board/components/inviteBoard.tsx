@@ -9,6 +9,7 @@ import {
   getBoardMemberListById,
   addNewInvitedMember,
   removeInvitedmember,
+  leaveBoard,
 } from "../../../../store/slices/boardSlice";
 import {
   Modal,
@@ -50,6 +51,15 @@ const InviteBoard: React.FC<InviteBoardProps> = ({ isOpen, onClose }) => {
   const [emailError, setEmailError] = useState<string>("");
   const [role, setRole] = useState("Member");
 
+  const adminCount = invitedMemberList.filter(
+    (member) => member.role === "ADMIN"
+  ).length;
+
+  const isMember = invitedMemberList.some(
+    (member) =>
+      member.role === "MEMBER" && member.memberId._id === currentUser?.id
+  );
+
   const validateEmail = (email: string): boolean => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
@@ -86,8 +96,12 @@ const InviteBoard: React.FC<InviteBoardProps> = ({ isOpen, onClose }) => {
 
   const handleRemoveMember = (member: MemberData) => {
     modal.confirm({
-      title: `Are you sure you want to remove "${member.memberId.first_name} ${member.memberId.last_name ?? ""}" from the board?`,
-      icon: <CircleAlert size={36} color="#ffac40" style={{ marginRight: 8 }} />,
+      title: `Are you sure you want to remove "${member.memberId.first_name} ${
+        member.memberId.last_name ?? ""
+      }" from the board?`,
+      icon: (
+        <CircleAlert size={36} color="#ffac40" style={{ marginRight: 8 }} />
+      ),
       content:
         "This action can be done again by inviting the member back to the board.",
       okText: "Remove",
@@ -108,6 +122,37 @@ const InviteBoard: React.FC<InviteBoardProps> = ({ isOpen, onClose }) => {
               memberId: member.memberId._id,
             })
           );
+        }
+      },
+    });
+  };
+
+  const handleLeaveBoard = (member: MemberData) => {
+    modal.confirm({
+      title: "Are you sure you want to leave this board?",
+      icon: (
+        <CircleAlert size={36} color="#ffac40" style={{ marginRight: 8 }} />
+      ),
+      content:
+        "Before leaving the board, please ensure all your tasks are completed.",
+      okText: "Leave",
+      okType: "danger",
+      cancelText: "Cancel",
+      autoFocusButton: undefined,
+      okButtonProps: {
+        className: "button",
+      },
+      cancelButtonProps: {
+        className: "button",
+      },
+      async onOk() {
+        if (id) {
+          try {
+            const res = await dispatch(leaveBoard(member.boardId._id)).unwrap();
+            if (res) navigate(PRIVATE_ROUTE.BOARDS);
+          } catch (err) {
+            console.error("Error", err);
+          }
         }
       },
     });
@@ -217,49 +262,78 @@ const InviteBoard: React.FC<InviteBoardProps> = ({ isOpen, onClose }) => {
             <List
               itemLayout="horizontal"
               dataSource={invitedMemberList}
-              renderItem={(item) => (
-                <List.Item
-                  extra={
-                    <Select
-                      className="form-input"
-                      value={item.role}
-                      style={{ width: 150 }}
-                      disabled={item.role === "ADMIN"}
-                      onChange={(value: "MEMBER" | "ADMIN" | "REMOVE") => {
-                        if (value === "REMOVE") {
-                          handleRemoveMember(item);
-                        }
-                      }}
-                    >
-                      <Select.Option value="MEMBER">Member</Select.Option>
-                      <Select.Option
-                        disabled={item.role === "MEMBER"}
-                        value="ADMIN"
-                      >
-                        Admin
-                      </Select.Option>
-                      <Select.Option value="REMOVE">
-                        <span className="require-mark">Remove Member</span>
-                      </Select.Option>
-                    </Select>
-                  }
-                >
-                  <List.Item.Meta
-                    avatar={
-                      <Avatar
-                        style={{
-                          background: getRandomColor(item.memberId._id),
+              renderItem={(item) => {
+                const isLastAdmin =
+                  item.role === "ADMIN" &&
+                  adminCount === 1 &&
+                  item?.memberId._id?.toString() === currentUser?.id;
+
+                const shouldDisable = item.role === "ADMIN" && isMember;
+
+                const isCurrentUser =
+                  item?.memberId._id?.toString() === currentUser?.id;
+
+                return (
+                  <List.Item
+                    extra={
+                      <Select
+                        className="form-input"
+                        value={item.role}
+                        style={{ width: 150 }}
+                        disabled={shouldDisable}
+                        onChange={(
+                          value: "MEMBER" | "ADMIN" | "REMOVE" | "LEAVE"
+                        ) => {
+                          if (value === "REMOVE") {
+                            handleRemoveMember(item);
+                          } else if (value === "LEAVE") {
+                            handleLeaveBoard(item);
+                          }
                         }}
                       >
-                        {item.memberId.first_name?.charAt(0)?.toUpperCase() +
-                          item.memberId.last_name?.charAt(0)?.toUpperCase()}
-                      </Avatar>
+                        {!(item.role === "ADMIN" && isCurrentUser) && (
+                          <Select.Option value="MEMBER">Member</Select.Option>
+                        )}
+
+                        <Select.Option value="ADMIN" disabled>
+                          Admin
+                        </Select.Option>
+
+                        {isCurrentUser ? (
+                          <Select.Option value="LEAVE" disabled={isLastAdmin}>
+                            <span className="require-mark">Leave Board</span>
+                          </Select.Option>
+                        ) : (
+                          item.role === "MEMBER" && (
+                            <Select.Option value="REMOVE">
+                              <span className="require-mark">
+                                Remove Member
+                              </span>
+                            </Select.Option>
+                          )
+                        )}
+                      </Select>
                     }
-                    title={`${item.memberId.first_name} ${item.memberId.last_name ?? ""}`}
-                    description={item.memberId.email}
-                  />
-                </List.Item>
-              )}
+                  >
+                    <List.Item.Meta
+                      avatar={
+                        <Avatar
+                          style={{
+                            background: getRandomColor(item.memberId._id),
+                          }}
+                        >
+                          {item.memberId.first_name?.charAt(0)?.toUpperCase() +
+                            item.memberId.last_name?.charAt(0)?.toUpperCase()}
+                        </Avatar>
+                      }
+                      title={`${item.memberId.first_name} ${
+                        item.memberId.last_name ?? ""
+                      }`}
+                      description={item.memberId.email}
+                    />
+                  </List.Item>
+                );
+              }}
             />
           )}
         </div>
