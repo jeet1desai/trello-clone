@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Modal, Upload, message, Typography, Button, Skeleton } from "antd";
 import * as XLSX from "xlsx";
 import Papa from "papaparse";
-import * as pdfjsLib from "pdfjs-dist";
+import * as pdfjsLib from "pdfjs-dist/legacy/build/pdf";
 import Tesseract from "tesseract.js";
 import { Inbox, WandSparkles } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";

@@ -24,7 +24,7 @@
     "google-auth-library": "^9.15.1",
     "lucide-react": "^0.509.0",
     "papaparse": "^5.5.3",
-    "pdfjs-dist": "^5.2.133",
+    "pdfjs-dist": "^3.4.120",
     "quill": "^2.0.3",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
