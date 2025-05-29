@@ -1,10 +1,9 @@
-import { API_URL } from "../config";
 import axiosInstance from "../helper/axiosInstance";
 
 export const dashboardService = {
   async getDashboardCount() {
     try {
-      const response = await axiosInstance.get(`${API_URL}/dashboard/count`);
+      const response = await axiosInstance.get(`/dashboard/count`);
       return response.data;
     } catch (error) {
       console.error("Error fetching dashboard count:", error);
@@ -14,7 +13,7 @@ export const dashboardService = {
 
   async getDashboardAnalytics() {
     try {
-      const response = await axiosInstance.get(`${API_URL}/dashboard/analytic`);
+      const response = await axiosInstance.get(`/dashboard/analytic`);
       return response.data;
     } catch (error) {
       console.error("Error fetching dashboard analytics:", error);
@@ -24,9 +23,7 @@ export const dashboardService = {
 
   async getDashboardRecentActivity(page: number) {
     try {
-      const response = await axiosInstance.get(
-        `${API_URL}/user/activity?page=${page}`
-      );
+      const response = await axiosInstance.get(`/user/activity?page=${page}`);
       return response.data;
     } catch (error) {
       console.error("Error fetching dashboard recent activity:", error);
@@ -36,9 +33,7 @@ export const dashboardService = {
 
   async getUpcomingTasks() {
     try {
-      const response = await axiosInstance.get(
-        `${API_URL}/task/upcoming-deadlines`
-      );
+      const response = await axiosInstance.get(`/task/upcoming-deadlines`);
       return response.data;
     } catch (error) {
       console.error("Error fetching upcoming tasks:", error);

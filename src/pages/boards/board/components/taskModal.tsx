@@ -96,9 +96,9 @@ import {
   FileText,
   Files,
   CopyPlus,
-  Rocket,
+  ScanText,
 } from "lucide-react";
-import CommentSummarizer from "../../../../components/ui/CommentSummarizer";
+import CommentSummarizer from "../../../../components/board/CommentSummarizer";
 
 const { Text } = Typography;
 const { Option } = Select;
@@ -879,7 +879,7 @@ const TaskModal: React.FC<TaskModalProps> = ({
   const setPriorityValue = (value: Priority) => {
     dispatch(updateTask({ taskId: selectedTask?._id ?? "", priority: value }));
   };
-  console.log("sss")
+  console.log("sss");
 
   return (
     <>
@@ -1198,24 +1198,28 @@ const TaskModal: React.FC<TaskModalProps> = ({
         <div className="task-content task-body-margin-left">
           <div style={{ display: "flex", gap: "24px" }}>
             <div style={{ flex: 1 }}>
-            <div className="task-section">
-              <div className="task-section-title-desc">
-                <div
-                  style={{ display: "flex", alignItems: "center", gap: "8px" }}
-                >
-                  <CopyPlus size={16} />
-                  <Text strong>Create follow-up Task</Text>
+              <div className="task-section">
+                <div className="task-section-title-desc">
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "8px",
+                    }}
+                  >
+                    <CopyPlus size={16} />
+                    <Text strong>Create follow-up Task</Text>
+                  </div>
+                  <Button
+                    type="primary"
+                    size="small"
+                    className="button small-btn"
+                    onClick={() => setIsModalVisible(true)}
+                  >
+                    Edit
+                  </Button>
                 </div>
-                <Button
-                  type="primary"
-                  size="small"
-                  className="button small-btn"
-                  onClick={() => setIsModalVisible(true)}
-                >
-                  Edit
-                </Button>
               </div>
-            </div>
               <div className="task-section">
                 <div className="task-section-title-desc">
                   <div
@@ -1338,7 +1342,7 @@ const TaskModal: React.FC<TaskModalProps> = ({
                         border: "none",
                         padding: 18,
                       }}
-                      icon={<Rocket size={20} />}
+                      icon={<ScanText size={20} />}
                       onClick={() => setIsUploadModal(true)}
                     />
                     {[...taskComments].length > 5 ? (

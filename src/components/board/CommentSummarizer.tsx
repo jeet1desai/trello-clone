@@ -155,7 +155,7 @@ const CommentSummarizer = ({ open, onClose }: IProps) => {
 
   return (
     <Modal
-      title="Upload Document"
+      title="Scan Document"
       open={open}
       onCancel={() => {
         onClose();
@@ -172,7 +172,7 @@ const CommentSummarizer = ({ open, onClose }: IProps) => {
           showUploadList={false}
         >
           <Inbox size={34} />
-          <p className="ant-upload-text">Click or drag file to upload</p>
+          <p className="ant-upload-text">Click or drag file to scan</p>
           <p className="ant-upload-hint">
             Supports PDF, Excel, CSV, and Image files.
           </p>

@@ -93,6 +93,8 @@ import {
 import BoardFilter from "./components/boardFilter";
 import ChangeBackgroundPopover from "./components/ChangeBackgroundModal";
 import TaskMenu from "./components/taskMenu";
+import { userActivity } from "../../../store/slices/userSlice";
+import UserActivityModal from "../../../components/board/UserActivityModal";
 
 const { Title, Text } = Typography;
 
@@ -183,6 +185,8 @@ const BoardDetail: React.FC = () => {
     filterBy: [currentUser?.id],
     labelIds: [],
   });
+  const [openUserMenu, setOpenUserMenu] = useState("");
+  const [openUserActivity, setOpenUserActivity] = useState(false);
 
   const [collapsedColumns, setCollapsedColumns] = useState<{
     [key: string]: boolean;
@@ -871,18 +875,89 @@ const BoardDetail: React.FC = () => {
             <Avatar.Group max={{ count: 3 }}>
               {invitedMemberList?.map((member) => {
                 return (
-                  <Tooltip
+                  <Popover
+                    trigger="click"
+                    arrow={false}
+                    open={openUserMenu === member._id}
+                    styles={{
+                      body: {
+                        padding: 0,
+                      },
+                    }}
                     key={member._id}
-                    title={`${member?.memberId?.first_name} ${
-                      member?.memberId?.last_name ?? ""
-                    } (${member?.memberId?.email})`}
+                    onOpenChange={() => setOpenUserMenu(member._id)}
+                    title={
+                      <div
+                        style={{
+                          backgroundColor: "#143654",
+                          padding: "12px",
+                          borderRadius: "4px 4px 0 0",
+                          display: "flex",
+                          gap: 4,
+                          alignItems: "center",
+                        }}
+                      >
+                        <Avatar
+                          style={{
+                            background: getRandomColor(member.memberId?._id),
+                            cursor: "pointer",
+                          }}
+                        >{`${member?.memberId?.first_name?.[0]?.toUpperCase()}${member?.memberId?.last_name?.[0]?.toUpperCase()}`}</Avatar>
+                        <div
+                          style={{ display: "flex", flexDirection: "column" }}
+                        >
+                          <Text style={{ color: "white" }}>
+                            {member?.memberId?.first_name +
+                              " " +
+                              member?.memberId?.last_name}
+                          </Text>
+                          <Text style={{ color: "white" }}>
+                            {member.memberId.email}
+                          </Text>
+                        </div>
+                        <X
+                          size={16}
+                          color="white"
+                          style={{
+                            cursor: "pointer",
+                            position: "absolute",
+                            top: 8,
+                            right: 8,
+                          }}
+                          onClick={() => setOpenUserMenu("")}
+                        />
+                      </div>
+                    }
+                    content={
+                      <div
+                        style={{
+                          padding: "0 12px 12px 12px",
+                          cursor: "pointer",
+                        }}
+                        onClick={() => {
+                          dispatch(userActivity(member.memberId._id));
+                          setOpenUserMenu("");
+                          setOpenUserActivity(true);
+                        }}
+                      >
+                        View member's board activity
+                      </div>
+                    }
                   >
-                    <Avatar
-                      style={{
-                        background: getRandomColor(member.memberId?._id),
-                      }}
-                    >{`${member?.memberId?.first_name?.[0]?.toUpperCase()}${member?.memberId?.last_name?.[0]?.toUpperCase()}`}</Avatar>
-                  </Tooltip>
+                    <Tooltip
+                      arrow={false}
+                      title={`${member?.memberId?.first_name} ${
+                        member?.memberId?.last_name ?? ""
+                      } (${member?.memberId?.email})`}
+                    >
+                      <Avatar
+                        style={{
+                          background: getRandomColor(member.memberId?._id),
+                          cursor: "pointer",
+                        }}
+                      >{`${member?.memberId?.first_name?.[0]?.toUpperCase()}${member?.memberId?.last_name?.[0]?.toUpperCase()}`}</Avatar>
+                    </Tooltip>
+                  </Popover>
                 );
               })}
             </Avatar.Group>
@@ -1065,7 +1140,7 @@ const BoardDetail: React.FC = () => {
                                               toggleCollapse(list._id)
                                             }
                                             icon={
-                                              <div style={{display: "flex"}}>
+                                              <div style={{ display: "flex" }}>
                                                 <ArrowRight
                                                   size={14}
                                                   style={{
@@ -1436,6 +1511,11 @@ const BoardDetail: React.FC = () => {
       <InviteBoard
         isOpen={showInviteModal}
         onClose={() => setShowInviteModal(false)}
+      />
+
+      <UserActivityModal
+        open={openUserActivity}
+        onClose={() => setOpenUserActivity(false)}
       />
     </>
   );

@@ -6,6 +6,7 @@ import {
   OAuthProvider,
 } from "firebase/auth";
 import { getMessaging, getToken } from "firebase/messaging";
+import axiosInstance from "../../helper/axiosInstance";
 
 // Your Firebase configuration object
 const firebaseConfig = {
@@ -38,10 +39,16 @@ microsoftProvider.setCustomParameters({ prompt: "select_account" });
 export const generateToken = async () => {
   const permission = await Notification.requestPermission();
   if (permission === "granted") {
-    const token = await getToken(messaging, {
+    const fpn_token = await getToken(messaging, {
       vapidKey: process.env.REACT_APP_FIREBASE_VAPID_KEY,
     });
-    console.log("firebase-token", token);
+    try {
+      await axiosInstance.put("/auth/save-device-token", {
+        fpn_token,
+      });
+    } catch (error) {
+      console.error("Error while generating token:", error);
+    }
   }
 };
 
