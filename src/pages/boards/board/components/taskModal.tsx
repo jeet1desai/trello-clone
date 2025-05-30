@@ -358,11 +358,11 @@ const TaskModal: React.FC<TaskModalProps> = ({
   const [searchAssigned, setSearchAssigned] = useState("");
   const [debouncedSearchAssigned, setDebouncedSearchAssigned] =
     useState(searchAssigned);
-  const [aiGeneratedDescription, setAiGeneratedDescription] = useState(
-    "Add a more detailed description…"
-  );
+  const [aiGeneratedDescription, setAiGeneratedDescription] = useState("");
+  const [genAiLoading, setGenAiLoading] = useState<boolean>(false);
 
   const generateDescription = async () => {
+    setGenAiLoading(true);
     const prompt = `
     Given the following task title:
     '${selectedTask?.title}',
@@ -380,16 +380,21 @@ const TaskModal: React.FC<TaskModalProps> = ({
     Any edge cases or limitations
 
     The description should be written in a professional tone, suitable for inclusion in a project management tool like Jira. It should be easily understandable by a developer, designer, and product manager.
+
+    The description should not include the task title, simply give the description without adding any title.
     `.trim();
 
     try {
       const text = await generateText(prompt);
       const formattedText = await marked.parse(text.replace(/\\n/g, "\n"));
       setAiGeneratedDescription(formattedText);
+      setGenAiLoading(false);
       setShowEditor(true);
     } catch (err) {
       console.error("Error generating labels:", err);
-      setAiGeneratedDescription("Add a more detailed description…");
+      setAiGeneratedDescription("");
+      setGenAiLoading(false);
+      message.error("Failed to generate description");
     }
   };
 
@@ -946,7 +951,9 @@ const TaskModal: React.FC<TaskModalProps> = ({
         className="task-modal"
       >
         <Loader
-          loading={loading || taskLoading || taskAttachmentLoading}
+          loading={
+            loading || taskLoading || taskAttachmentLoading || genAiLoading
+          }
           fullScreen
         />
         <div className="task-header">
