@@ -114,11 +114,11 @@ import {
 } from "lucide-react";
 import { useLabelSuggestions } from "../../../../hooks/useLabelSuggestions";
 import CommentSummarizer from "../../../../components/board/CommentSummarizer";
+import { generateText } from "../../../../services/genAiService";
+import { marked } from "marked";
 import dayjs, { Dayjs } from "dayjs";
 import duration from "dayjs/plugin/duration";
 dayjs.extend(duration);
-import { generateText } from "../../../../services/genAiService";
-import { marked } from "marked";
 
 const { Text } = Typography;
 const { Option } = Select;
