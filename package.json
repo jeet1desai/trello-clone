@@ -23,6 +23,7 @@
     "firebase": "^11.6.1",
     "google-auth-library": "^9.15.1",
     "lucide-react": "^0.509.0",
+    "marked": "^15.0.12",
     "papaparse": "^5.5.3",
     "pdfjs-dist": "^3.4.120",
     "quill": "^2.0.3",

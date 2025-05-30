@@ -38,7 +38,12 @@ import {
   updateCommentCount,
   updateTask,
 } from "../../../../store/slices/taskSlice";
-import { Priority, TaskStatus, TaskTimerStatus, Duration } from "../../../../utils/enums/task";
+import {
+  Priority,
+  TaskStatus,
+  TaskTimerStatus,
+  Duration,
+} from "../../../../utils/enums/task";
 import Search from "antd/es/transfer/search";
 import LabelPopup from "./labelPopup";
 import DatePickerPopup from "./datePopup";
@@ -109,8 +114,10 @@ import {
 } from "lucide-react";
 import { useLabelSuggestions } from "../../../../hooks/useLabelSuggestions";
 import CommentSummarizer from "../../../../components/board/CommentSummarizer";
+import { generateText } from "../../../../services/genAiService";
+import { marked } from "marked";
 import dayjs, { Dayjs } from "dayjs";
-import duration from 'dayjs/plugin/duration';
+import duration from "dayjs/plugin/duration";
 dayjs.extend(duration);
 
 const { Text } = Typography;
@@ -373,30 +380,70 @@ const TaskModal: React.FC<TaskModalProps> = ({
   const [searchAssigned, setSearchAssigned] = useState("");
   const [debouncedSearchAssigned, setDebouncedSearchAssigned] =
     useState(searchAssigned);
-
+  const [aiGeneratedDescription, setAiGeneratedDescription] = useState("");
+  const [genAiLoading, setGenAiLoading] = useState<boolean>(false);
   const [isHourPopoverOpen, setIsHourPopoverOpen] = useState(false);
   const [isMinPopoverOpen, setIsMInPopoverOpen] = useState(false);
   const [assignedHours, setAssignedHours] = useState<number>(0);
-  const [initialAssignedHours, setInitialAssignedHours] = useState<number>(assignedHours);
+  const [initialAssignedHours, setInitialAssignedHours] =
+    useState<number>(assignedHours);
   const [assignedMinutes, setAssignedMinutes] = useState<number>(0);
   const [isTracking, setIsTracking] = useState(false);
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const justPausedRef = useRef(false);
 
+  const generateDescription = async () => {
+    setGenAiLoading(true);
+    const prompt = `
+    Given the following task title:
+    '${selectedTask?.title}',
+
+    Write a clear and detailed task description (within 300 words) that explains:
+
+    The goal of the task
+
+    The functionality to be implemented
+
+    The expected user interaction
+
+    Technical considerations (especially for Frontend)
+
+    Any edge cases or limitations
+
+    The description should be written in a professional tone, suitable for inclusion in a project management tool like Jira. It should be easily understandable by a developer, designer, and product manager.
+
+    The description should not include the task title, simply give the description without adding any title.
+    `.trim();
+
+    try {
+      const text = await generateText(prompt);
+      const formattedText = await marked.parse(text.replace(/\\n/g, "\n"));
+      setAiGeneratedDescription(formattedText);
+      setGenAiLoading(false);
+      setShowEditor(true);
+    } catch (err) {
+      console.error("Error generating labels:", err);
+      setAiGeneratedDescription("");
+      setGenAiLoading(false);
+      message.error("Failed to generate description");
+    }
+  };
+
   const totalSeconds = selectedTask?.total_estimated_time ?? 0;
 
   const formatTime = (seconds: number): string => {
-    const dur = dayjs.duration(seconds, 'seconds');
-    return dur.format('HH:mm:ss');
+    const dur = dayjs.duration(seconds, "seconds");
+    return dur.format("HH:mm:ss");
   };
 
   const handleStart = () => {
-    if (!isTracking && totalSeconds > Math.floor((selectedTask?.actual_time_spent ?? 0))) {
+    if (
+      !isTracking &&
+      totalSeconds > Math.floor(selectedTask?.actual_time_spent ?? 0)
+    ) {
       setIsTracking(true);
-      dispatch(
-        stratTimer({ taskId: selectedTask?._id ?? "" })
-      )
+      dispatch(stratTimer({ taskId: selectedTask?._id ?? "" }));
     }
   };
 
@@ -404,22 +451,25 @@ const TaskModal: React.FC<TaskModalProps> = ({
     if (timerRef.current) clearInterval(timerRef.current);
     setIsTracking(false);
     setElapsedSeconds((prev) => {
-      const actualTime = Math.floor((selectedTask?.actual_time_spent ?? 0) / 1000);
+      const actualTime = Math.floor(
+        (selectedTask?.actual_time_spent ?? 0) / 1000
+      );
       return actualTime > prev ? actualTime : prev;
     });
     justPausedRef.current = true;
-    dispatch(
-      stopTimer({ taskId: selectedTask?._id ?? "" })
-    )
+    dispatch(stopTimer({ taskId: selectedTask?._id ?? "" }));
   };
 
-  const handleSubmitTime = async (hours = assignedHours, minutes = assignedMinutes) => {
+  const handleSubmitTime = async (
+    hours = assignedHours,
+    minutes = assignedMinutes
+  ) => {
     try {
       await dispatch(
         addEstimatedTime({
           taskId: selectedTask?._id ?? "",
           hours,
-          minutes
+          minutes,
         })
       ).unwrap();
       setIsHourPopoverOpen(false);
@@ -435,9 +485,15 @@ const TaskModal: React.FC<TaskModalProps> = ({
       timerRef.current = null;
     }
 
-    const totalSeconds = Math.floor((selectedTask?.total_estimated_time ?? 0) / 1000);
-    const actualTimeSpent = Math.floor((selectedTask?.actual_time_spent ?? 0) / 1000);
-    const totalCurrentElapsed = Math.floor((selectedTask?.total_current_time ?? 0) / 1000);
+    const totalSeconds = Math.floor(
+      (selectedTask?.total_estimated_time ?? 0) / 1000
+    );
+    const actualTimeSpent = Math.floor(
+      (selectedTask?.actual_time_spent ?? 0) / 1000
+    );
+    const totalCurrentElapsed = Math.floor(
+      (selectedTask?.total_current_time ?? 0) / 1000
+    );
 
     if (
       selectedTask?.is_timer_active &&
@@ -453,9 +509,7 @@ const TaskModal: React.FC<TaskModalProps> = ({
             clearInterval(timerRef.current!);
             timerRef.current = null;
             setIsTracking(false);
-            dispatch(
-              stopTimer({ taskId: selectedTask?._id ?? "" })
-            );
+            dispatch(stopTimer({ taskId: selectedTask?._id ?? "" }));
             return totalSeconds;
           }
           return prev + 1;
@@ -480,7 +534,17 @@ const TaskModal: React.FC<TaskModalProps> = ({
         timerRef.current = null;
       }
     };
-  }, [selectedTask?.is_timer_active, selectedTask?.timer_status, isTracking, selectedTask?._id, dispatch, selectedTask?.total_estimated_time, selectedTask?.actual_time_spent, selectedTask?.current_elapsed, selectedTask?.total_current_time]);
+  }, [
+    selectedTask?.is_timer_active,
+    selectedTask?.timer_status,
+    isTracking,
+    selectedTask?._id,
+    dispatch,
+    selectedTask?.total_estimated_time,
+    selectedTask?.actual_time_spent,
+    selectedTask?.current_elapsed,
+    selectedTask?.total_current_time,
+  ]);
 
   useEffect(() => {
     return () => {
@@ -490,7 +554,6 @@ const TaskModal: React.FC<TaskModalProps> = ({
 
   const minuteOptions = [0, 15, 30, 45];
 
-    
   useEffect(() => {
     const handler = setTimeout(() => {
       setDebouncedSearchAssigned(searchAssigned);
@@ -555,7 +618,7 @@ const TaskModal: React.FC<TaskModalProps> = ({
         }
       }
     };
-  
+
     if (visible) {
       window.addEventListener("keydown", handleKeyDown, true);
     }
@@ -847,13 +910,13 @@ const TaskModal: React.FC<TaskModalProps> = ({
   );
 
   const handleCreate = () => {
-  if (!dateRange || !dateRange[0] || !dateRange[1]) {
-    setDateError(true);
-    return;
-  }
-  setDateError(false);
-  setIsModalVisible(false);
-};
+    if (!dateRange || !dateRange[0] || !dateRange[1]) {
+      setDateError(true);
+      return;
+    }
+    setDateError(false);
+    setIsModalVisible(false);
+  };
   const recurringTaskContent = (
     <div style={{ width: 450, padding: 10 }}>
       <div style={{ marginBottom: 12 }}>
@@ -1141,7 +1204,9 @@ const TaskModal: React.FC<TaskModalProps> = ({
         className="task-modal"
       >
         <Loader
-          loading={loading || taskLoading || taskAttachmentLoading}
+          loading={
+            loading || taskLoading || taskAttachmentLoading || genAiLoading
+          }
           fullScreen
         />
         <div className="task-header">
@@ -1448,13 +1513,13 @@ const TaskModal: React.FC<TaskModalProps> = ({
           </div>
           <div
             style={{
-              display: 'flex',
-              alignItems: 'center',
-              padding: '8px 0',
+              display: "flex",
+              alignItems: "center",
+              padding: "8px 0",
               gap: 10,
             }}
           >
-            <Clock size={20} style={{ color: '#9254de' }} />
+            <Clock size={20} style={{ color: "#9254de" }} />
             <Space>
               <Popover
                 overlayClassName="change-background-popover"
@@ -1468,7 +1533,9 @@ const TaskModal: React.FC<TaskModalProps> = ({
                         setAssignedHours(val);
                       }
                     }}
-                    onPressEnter={() => handleSubmitTime(assignedHours, assignedMinutes)}
+                    onPressEnter={() =>
+                      handleSubmitTime(assignedHours, assignedMinutes)
+                    }
                     controls={false}
                   />
                 }
@@ -1485,7 +1552,7 @@ const TaskModal: React.FC<TaskModalProps> = ({
                   setIsHourPopoverOpen(open);
                 }}
               >
-                <Text style={{ cursor: 'pointer' }}>{assignedHours} hr</Text>
+                <Text style={{ cursor: "pointer" }}>{assignedHours} hr</Text>
               </Popover>
               <Text>:</Text>
               <Popover
@@ -1498,9 +1565,9 @@ const TaskModal: React.FC<TaskModalProps> = ({
                         onClick={() => {
                           setAssignedMinutes(min);
                           handleSubmitTime(assignedHours, min);
-                          setIsMInPopoverOpen(false)
+                          setIsMInPopoverOpen(false);
                         }}
-                        style={{ cursor: 'pointer' }}
+                        style={{ cursor: "pointer" }}
                       >
                         {min} min
                       </Text>
@@ -1511,29 +1578,31 @@ const TaskModal: React.FC<TaskModalProps> = ({
                 open={isMinPopoverOpen}
                 onOpenChange={setIsMInPopoverOpen}
               >
-                <Text style={{ cursor: 'pointer' }}>{assignedMinutes} min</Text>
+                <Text style={{ cursor: "pointer" }}>{assignedMinutes} min</Text>
               </Popover>
             </Space>
 
-            <Text type="secondary" style={{ margin: '0 8px' }}>|</Text>
+            <Text type="secondary" style={{ margin: "0 8px" }}>
+              |
+            </Text>
             {totalSeconds > 0 ? (
               isTracking ? (
                 <CirclePause
                   size={20}
-                  style={{ color: '#1677ff', cursor: 'pointer' }}
+                  style={{ color: "#1677ff", cursor: "pointer" }}
                   onClick={handlePause}
                 />
               ) : (
                 <CirclePlay
                   size={20}
-                  style={{ color: '#52c41a', cursor: 'pointer' }}
+                  style={{ color: "#52c41a", cursor: "pointer" }}
                   onClick={handleStart}
                 />
               )
             ) : (
-              <Hourglass size={20} style={{ color: '#999' }} />
+              <Hourglass size={20} style={{ color: "#999" }} />
             )}
-            <Text strong style={{ color: '#9254de' }}>
+            <Text strong style={{ color: "#9254de" }}>
               {formatTime(elapsedSeconds)}
             </Text>
           </div>
@@ -1598,16 +1667,36 @@ const TaskModal: React.FC<TaskModalProps> = ({
                   />
                 )}
                 {!selectedTask?.description && !showEditor && (
-                  <Button
-                    className="task-description-btn"
-                    onClick={() => setShowEditor(true)}
-                  >
-                    Add a more detailed description…
-                  </Button>
+                  <div>
+                    <Button
+                      className="task-description-btn"
+                      onClick={() => setShowEditor(true)}
+                    >
+                      Add a more detailed description…
+                    </Button>
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "flex-end",
+                        marginTop: "16px",
+                      }}
+                    >
+                      <Button
+                        type="primary"
+                        onClick={() => generateDescription()}
+                      >
+                        Generate Description
+                      </Button>
+                    </div>
+                  </div>
                 )}
                 {showEditor && (
                   <TaskDescriptionEditor
-                    initialValue={selectedTask?.description}
+                    initialValue={
+                      selectedTask?.description
+                        ? selectedTask?.description
+                        : aiGeneratedDescription
+                    }
                     onSave={handleSave}
                     onCancel={() => setShowEditor(false)}
                   />
