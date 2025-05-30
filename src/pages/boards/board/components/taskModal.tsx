@@ -16,6 +16,7 @@ import {
   message,
   Space,
   InputNumber,
+  DatePicker,
 } from "antd";
 import TaskDescriptionEditor from "../../../../components/ui/Editor";
 import type { UploadFile } from "antd";
@@ -108,7 +109,7 @@ import {
 } from "lucide-react";
 import { useLabelSuggestions } from "../../../../hooks/useLabelSuggestions";
 import CommentSummarizer from "../../../../components/board/CommentSummarizer";
-import dayjs from 'dayjs';
+import dayjs, { Dayjs } from "dayjs";
 import duration from 'dayjs/plugin/duration';
 dayjs.extend(duration);
 
@@ -338,6 +339,8 @@ const TaskModal: React.FC<TaskModalProps> = ({
   const { taskAttachments, taskAttachmentLoading } = useSelector(
     (state: RootState) => state.taskAttachment
   );
+  const { Option } = Select;
+  const { RangePicker } = DatePicker;
   const {
     selectedTaskLabels,
     selectedTaskMembers,
@@ -357,6 +360,9 @@ const TaskModal: React.FC<TaskModalProps> = ({
   const [showAll, setShowAll] = useState(false);
   const [editableTitle, setEditableTitle] = useState("");
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [recurrence, setRecurrence] = useState("daily");
+  const [dateError, setDateError] = useState(false);
+  const [dateRange, setDateRange] = useState<[Dayjs, Dayjs] | null>(null);
   const [isCompleted, setIsCompleted] = useState(
     selectedTask?.status === TaskStatus.COMPLETED
   );
@@ -813,6 +819,77 @@ const TaskModal: React.FC<TaskModalProps> = ({
           Duplicate
         </Button>
       </Space>
+    </div>
+  );
+
+  const handleCreate = () => {
+  if (!dateRange || !dateRange[0] || !dateRange[1]) {
+    setDateError(true);
+    return;
+  }
+  setDateError(false);
+  setIsModalVisible(false);
+};
+  const recurringTaskContent = (
+    <div style={{ width: 450, padding: 10 }}>
+      <div style={{ marginBottom: 12 }}>
+        <div style={{ fontWeight: 600, marginBottom: 8 }}>
+          {selectedTask?.title}
+        </div>
+      </div>
+      <div style={{ marginBottom: 12 }}>
+        <Text strong>Repeat:</Text>
+        <Select
+          value={recurrence}
+          onChange={setRecurrence}
+          style={{ width: "100%", marginTop: 6 }}
+        >
+          <Option value="daily">Daily</Option>
+          <Option value="weekly">Weekly</Option>
+          <Option value="monthly">Monthly</Option>
+        </Select>
+      </div>
+      <div style={{ marginBottom: 12 }}>
+        <Text strong>Select Period:</Text>
+        <RangePicker
+          style={{ width: "100%", marginTop: 6 }}
+          onChange={(dates, _dateStrings) => {
+            if (dates && dates[0] && dates[1]) {
+              setDateRange([dates[0], dates[1]]);
+              setDateError(false);
+            } else {
+              setDateRange(null);
+            }
+          }}
+          disabledDate={(current) => {
+            return current && current < dayjs().startOf("day");
+          }}
+        />
+      </div>
+      {dateError && (
+        <div style={{ color: "red", marginTop: 4 }}>
+          Please select a valid date range.
+        </div>
+      )}
+      <div
+        style={{
+          marginTop: 26,
+          gap: 8,
+          display: "flex",
+          justifyContent: "flex-end",
+        }}
+      >
+        <Button
+          size="middle"
+          onClick={() => setIsModalVisible(false)}
+          style={{ marginRight: 8 }}
+        >
+          Cancel
+        </Button>
+        <Button type="primary" size="middle" onClick={handleCreate}>
+          Create
+        </Button>
+      </div>
     </div>
   );
 
@@ -1356,6 +1433,7 @@ const TaskModal: React.FC<TaskModalProps> = ({
             <Clock size={20} style={{ color: '#9254de' }} />
             <Space>
               <Popover
+                overlayClassName="change-background-popover"
                 content={
                   <InputNumber
                     type="number"
@@ -1383,6 +1461,7 @@ const TaskModal: React.FC<TaskModalProps> = ({
               </Popover>
               <Text>:</Text>
               <Popover
+                overlayClassName="change-background-popover"
                 content={
                   <Space direction="vertical">
                     {minuteOptions.map((min) => (
@@ -1435,25 +1514,28 @@ const TaskModal: React.FC<TaskModalProps> = ({
           <div style={{ display: "flex", gap: "24px" }}>
             <div style={{ flex: 1 }}>
               <div className="task-section">
-                <div className="task-section-title-desc">
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "8px",
-                    }}
-                  >
+                <div className="task-section-title">
+                  <div>
                     <CopyPlus size={16} />
                     <Text strong>Create follow-up Task</Text>
                   </div>
-                  <Button
-                    type="primary"
-                    size="small"
-                    className="button small-btn"
-                    onClick={() => setIsModalVisible(true)}
+                  <Popover
+                    content={recurringTaskContent}
+                    title={null}
+                    trigger="click"
+                    open={isModalVisible}
+                    onOpenChange={(visible) => setIsModalVisible(visible)}
+                    placement="bottomRight"
                   >
-                    Edit
-                  </Button>
+                    <Button
+                      type="primary"
+                      size="small"
+                      className="button small-btn"
+                      onClick={() => setIsModalVisible(true)}
+                    >
+                      Create
+                    </Button>
+                  </Popover>
                 </div>
               </div>
               <div className="task-section">
