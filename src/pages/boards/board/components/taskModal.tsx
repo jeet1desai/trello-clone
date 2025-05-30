@@ -377,6 +377,7 @@ const TaskModal: React.FC<TaskModalProps> = ({
   const [isHourPopoverOpen, setIsHourPopoverOpen] = useState(false);
   const [isMinPopoverOpen, setIsMInPopoverOpen] = useState(false);
   const [assignedHours, setAssignedHours] = useState<number>(0);
+  const [initialAssignedHours, setInitialAssignedHours] = useState<number>(assignedHours);
   const [assignedMinutes, setAssignedMinutes] = useState<number>(0);
   const [isTracking, setIsTracking] = useState(false);
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
@@ -539,6 +540,29 @@ const TaskModal: React.FC<TaskModalProps> = ({
     }
     if (visible && selectedTask) fetchData();
   }, [debouncedSearchMembers]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        if (isHourPopoverOpen) {
+          setIsHourPopoverOpen(false);
+          e.stopPropagation();
+          e.preventDefault();
+        } else if (isMinPopoverOpen) {
+          setIsMInPopoverOpen(false);
+          e.stopPropagation();
+          e.preventDefault();
+        }
+      }
+    };
+  
+    if (visible) {
+      window.addEventListener("keydown", handleKeyDown, true);
+    }
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown, true);
+    };
+  }, [visible, isHourPopoverOpen, isMinPopoverOpen]);
 
   const handleAddMemberToTask = (member_id: string) => {
     if (selectedTask) {
@@ -1451,8 +1475,12 @@ const TaskModal: React.FC<TaskModalProps> = ({
                 trigger="click"
                 open={isHourPopoverOpen}
                 onOpenChange={(open) => {
-                  if (!open) {
-                    handleSubmitTime();
+                  if (open) {
+                    setInitialAssignedHours(assignedHours);
+                  } else {
+                    if (assignedHours !== initialAssignedHours) {
+                      handleSubmitTime();
+                    }
                   }
                   setIsHourPopoverOpen(open);
                 }}
