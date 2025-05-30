@@ -24,7 +24,7 @@ const Layout: React.FC = () => {
   }, [location.pathname]);
 
   // Check if current route is a board detail page
-  const isBoardDetailPage = location.pathname.startsWith("/board/");
+  const isBoardDetailPage = /^\/board\/[^/]+(\/statistics)?$/.test(location.pathname);
 
     const { selectedBoard } = useSelector(
     (state: RootState) => state.board
