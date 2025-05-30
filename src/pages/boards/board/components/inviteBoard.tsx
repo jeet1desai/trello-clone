@@ -83,7 +83,7 @@ const InviteBoard: React.FC<InviteBoardProps> = ({ isOpen, onClose }) => {
 
   const handleShare = async () => {
     setLoading(true);
-    if (id)
+    if (id && emails.length)
       await dispatch(
         inviteBoardMember({
           _id: id,

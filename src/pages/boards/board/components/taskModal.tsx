@@ -1,4 +1,4 @@
-import React, { useState, useEffect, JSX } from "react";
+import React, { useState, useEffect, JSX, useRef } from "react";
 import {
   Modal,
   Button,
@@ -15,6 +15,8 @@ import {
   Checkbox,
   message,
   Space,
+  InputNumber,
+  DatePicker,
 } from "antd";
 import TaskDescriptionEditor from "../../../../components/ui/Editor";
 import type { UploadFile } from "antd";
@@ -22,18 +24,26 @@ import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../../../store";
 import {
   addAssignMemberToTask,
+  addEstimatedTime,
   addLabelToTask,
   assignMember,
   assignTaskMember,
   removeAssignMemberTask,
   removeLabelToTask,
+  stopTimer,
+  stratTimer,
   unassignMember,
   unassignTaskMember,
   updateAttachmentCount,
   updateCommentCount,
   updateTask,
 } from "../../../../store/slices/taskSlice";
-import { Duration, Priority, TaskStatus } from "../../../../utils/enums/task";
+import {
+  Priority,
+  TaskStatus,
+  TaskTimerStatus,
+  Duration,
+} from "../../../../utils/enums/task";
 import Search from "antd/es/transfer/search";
 import LabelPopup from "./labelPopup";
 import DatePickerPopup from "./datePopup";
@@ -95,11 +105,18 @@ import {
   File as FileIcon,
   FileText,
   Files,
+  CirclePlay,
+  CirclePause,
+  Hourglass,
+  Clock,
   CopyPlus,
   ScanText,
 } from "lucide-react";
 import { useLabelSuggestions } from "../../../../hooks/useLabelSuggestions";
 import CommentSummarizer from "../../../../components/board/CommentSummarizer";
+import dayjs, { Dayjs } from "dayjs";
+import duration from "dayjs/plugin/duration";
+dayjs.extend(duration);
 import { generateText } from "../../../../services/genAiService";
 import { marked } from "marked";
 
@@ -329,6 +346,8 @@ const TaskModal: React.FC<TaskModalProps> = ({
   const { taskAttachments, taskAttachmentLoading } = useSelector(
     (state: RootState) => state.taskAttachment
   );
+  const { Option } = Select;
+  const { RangePicker } = DatePicker;
   const {
     selectedTaskLabels,
     selectedTaskMembers,
@@ -348,6 +367,9 @@ const TaskModal: React.FC<TaskModalProps> = ({
   const [showAll, setShowAll] = useState(false);
   const [editableTitle, setEditableTitle] = useState("");
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [recurrence, setRecurrence] = useState("daily");
+  const [dateError, setDateError] = useState(false);
+  const [dateRange, setDateRange] = useState<[Dayjs, Dayjs] | null>(null);
   const [isCompleted, setIsCompleted] = useState(
     selectedTask?.status === TaskStatus.COMPLETED
   );
@@ -360,6 +382,16 @@ const TaskModal: React.FC<TaskModalProps> = ({
     useState(searchAssigned);
   const [aiGeneratedDescription, setAiGeneratedDescription] = useState("");
   const [genAiLoading, setGenAiLoading] = useState<boolean>(false);
+  const [isHourPopoverOpen, setIsHourPopoverOpen] = useState(false);
+  const [isMinPopoverOpen, setIsMInPopoverOpen] = useState(false);
+  const [assignedHours, setAssignedHours] = useState<number>(0);
+  const [initialAssignedHours, setInitialAssignedHours] =
+    useState<number>(assignedHours);
+  const [assignedMinutes, setAssignedMinutes] = useState<number>(0);
+  const [isTracking, setIsTracking] = useState(false);
+  const [elapsedSeconds, setElapsedSeconds] = useState(0);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const justPausedRef = useRef(false);
 
   const generateDescription = async () => {
     setGenAiLoading(true);
@@ -397,6 +429,130 @@ const TaskModal: React.FC<TaskModalProps> = ({
       message.error("Failed to generate description");
     }
   };
+
+  const totalSeconds = selectedTask?.total_estimated_time ?? 0;
+
+  const formatTime = (seconds: number): string => {
+    const dur = dayjs.duration(seconds, "seconds");
+    return dur.format("HH:mm:ss");
+  };
+
+  const handleStart = () => {
+    if (
+      !isTracking &&
+      totalSeconds > Math.floor(selectedTask?.actual_time_spent ?? 0)
+    ) {
+      setIsTracking(true);
+      dispatch(stratTimer({ taskId: selectedTask?._id ?? "" }));
+    }
+  };
+
+  const handlePause = () => {
+    if (timerRef.current) clearInterval(timerRef.current);
+    setIsTracking(false);
+    setElapsedSeconds((prev) => {
+      const actualTime = Math.floor(
+        (selectedTask?.actual_time_spent ?? 0) / 1000
+      );
+      return actualTime > prev ? actualTime : prev;
+    });
+    justPausedRef.current = true;
+    dispatch(stopTimer({ taskId: selectedTask?._id ?? "" }));
+  };
+
+  const handleSubmitTime = async (
+    hours = assignedHours,
+    minutes = assignedMinutes
+  ) => {
+    try {
+      await dispatch(
+        addEstimatedTime({
+          taskId: selectedTask?._id ?? "",
+          hours,
+          minutes,
+        })
+      ).unwrap();
+      setIsHourPopoverOpen(false);
+    } catch (error) {
+      setAssignedHours(selectedTask?.estimated_hours || 0);
+      setAssignedMinutes(selectedTask?.estimated_minutes || 0);
+    }
+  };
+
+  useEffect(() => {
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
+
+    const totalSeconds = Math.floor(
+      (selectedTask?.total_estimated_time ?? 0) / 1000
+    );
+    const actualTimeSpent = Math.floor(
+      (selectedTask?.actual_time_spent ?? 0) / 1000
+    );
+    const totalCurrentElapsed = Math.floor(
+      (selectedTask?.total_current_time ?? 0) / 1000
+    );
+
+    if (
+      selectedTask?.is_timer_active &&
+      selectedTask?.timer_status === TaskTimerStatus.IN_PROGRESS &&
+      isTracking
+    ) {
+      if (totalCurrentElapsed > 0) {
+        setElapsedSeconds(totalCurrentElapsed);
+      }
+      timerRef.current = setInterval(() => {
+        setElapsedSeconds((prev) => {
+          if (prev + 1 >= totalSeconds) {
+            clearInterval(timerRef.current!);
+            timerRef.current = null;
+            setIsTracking(false);
+            dispatch(stopTimer({ taskId: selectedTask?._id ?? "" }));
+            return totalSeconds;
+          }
+          return prev + 1;
+        });
+      }, 1000);
+    } else {
+      if (!isTracking) {
+        if (justPausedRef.current) {
+          justPausedRef.current = false;
+        } else {
+          if (actualTimeSpent > totalSeconds) {
+            setElapsedSeconds(totalSeconds);
+          } else {
+            setElapsedSeconds(actualTimeSpent);
+          }
+        }
+      }
+    }
+    return () => {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
+      }
+    };
+  }, [
+    selectedTask?.is_timer_active,
+    selectedTask?.timer_status,
+    isTracking,
+    selectedTask?._id,
+    dispatch,
+    selectedTask?.total_estimated_time,
+    selectedTask?.actual_time_spent,
+    selectedTask?.current_elapsed,
+    selectedTask?.total_current_time,
+  ]);
+
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
+  }, []);
+
+  const minuteOptions = [0, 15, 30, 45];
 
   useEffect(() => {
     const handler = setTimeout(() => {
@@ -447,6 +603,29 @@ const TaskModal: React.FC<TaskModalProps> = ({
     }
     if (visible && selectedTask) fetchData();
   }, [debouncedSearchMembers]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        if (isHourPopoverOpen) {
+          setIsHourPopoverOpen(false);
+          e.stopPropagation();
+          e.preventDefault();
+        } else if (isMinPopoverOpen) {
+          setIsMInPopoverOpen(false);
+          e.stopPropagation();
+          e.preventDefault();
+        }
+      }
+    };
+
+    if (visible) {
+      window.addEventListener("keydown", handleKeyDown, true);
+    }
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown, true);
+    };
+  }, [visible, isHourPopoverOpen, isMinPopoverOpen]);
 
   const handleAddMemberToTask = (member_id: string) => {
     if (selectedTask) {
@@ -730,6 +909,77 @@ const TaskModal: React.FC<TaskModalProps> = ({
     </div>
   );
 
+  const handleCreate = () => {
+    if (!dateRange || !dateRange[0] || !dateRange[1]) {
+      setDateError(true);
+      return;
+    }
+    setDateError(false);
+    setIsModalVisible(false);
+  };
+  const recurringTaskContent = (
+    <div style={{ width: 450, padding: 10 }}>
+      <div style={{ marginBottom: 12 }}>
+        <div style={{ fontWeight: 600, marginBottom: 8 }}>
+          {selectedTask?.title}
+        </div>
+      </div>
+      <div style={{ marginBottom: 12 }}>
+        <Text strong>Repeat:</Text>
+        <Select
+          value={recurrence}
+          onChange={setRecurrence}
+          style={{ width: "100%", marginTop: 6 }}
+        >
+          <Option value="daily">Daily</Option>
+          <Option value="weekly">Weekly</Option>
+          <Option value="monthly">Monthly</Option>
+        </Select>
+      </div>
+      <div style={{ marginBottom: 12 }}>
+        <Text strong>Select Period:</Text>
+        <RangePicker
+          style={{ width: "100%", marginTop: 6 }}
+          onChange={(dates, _dateStrings) => {
+            if (dates && dates[0] && dates[1]) {
+              setDateRange([dates[0], dates[1]]);
+              setDateError(false);
+            } else {
+              setDateRange(null);
+            }
+          }}
+          disabledDate={(current) => {
+            return current && current < dayjs().startOf("day");
+          }}
+        />
+      </div>
+      {dateError && (
+        <div style={{ color: "red", marginTop: 4 }}>
+          Please select a valid date range.
+        </div>
+      )}
+      <div
+        style={{
+          marginTop: 26,
+          gap: 8,
+          display: "flex",
+          justifyContent: "flex-end",
+        }}
+      >
+        <Button
+          size="middle"
+          onClick={() => setIsModalVisible(false)}
+          style={{ marginRight: 8 }}
+        >
+          Cancel
+        </Button>
+        <Button type="primary" size="middle" onClick={handleCreate}>
+          Create
+        </Button>
+      </div>
+    </div>
+  );
+
   useEffect(() => {
     if (selectedTask && visible) {
       dispatch(getMembersByTaskId({ _id: selectedTask?._id, search: "" }));
@@ -750,6 +1000,9 @@ const TaskModal: React.FC<TaskModalProps> = ({
 
   useEffect(() => {
     setIsCompleted(selectedTask?.status === TaskStatus.COMPLETED);
+    setAssignedHours(selectedTask?.estimated_hours || 0);
+    setAssignedMinutes(selectedTask?.estimated_minutes || 0);
+    setIsTracking(selectedTask?.is_timer_active ?? false);
   }, [selectedTask]);
 
   const sendMessage = () => {
@@ -1254,29 +1507,132 @@ const TaskModal: React.FC<TaskModalProps> = ({
             </div>
           </div>
         </div>
+        <div>
+          <div style={{ margin: "20px 0px 6px 0" }}>
+            <Text strong>Estimate Time</Text>
+          </div>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              padding: "8px 0",
+              gap: 10,
+            }}
+          >
+            <Clock size={20} style={{ color: "#9254de" }} />
+            <Space>
+              <Popover
+                overlayClassName="change-background-popover"
+                content={
+                  <InputNumber
+                    type="number"
+                    min={0}
+                    value={assignedHours}
+                    onChange={(val) => {
+                      if (val !== null) {
+                        setAssignedHours(val);
+                      }
+                    }}
+                    onPressEnter={() =>
+                      handleSubmitTime(assignedHours, assignedMinutes)
+                    }
+                    controls={false}
+                  />
+                }
+                trigger="click"
+                open={isHourPopoverOpen}
+                onOpenChange={(open) => {
+                  if (open) {
+                    setInitialAssignedHours(assignedHours);
+                  } else {
+                    if (assignedHours !== initialAssignedHours) {
+                      handleSubmitTime();
+                    }
+                  }
+                  setIsHourPopoverOpen(open);
+                }}
+              >
+                <Text style={{ cursor: "pointer" }}>{assignedHours} hr</Text>
+              </Popover>
+              <Text>:</Text>
+              <Popover
+                overlayClassName="change-background-popover"
+                content={
+                  <Space direction="vertical">
+                    {minuteOptions.map((min) => (
+                      <Text
+                        key={min}
+                        onClick={() => {
+                          setAssignedMinutes(min);
+                          handleSubmitTime(assignedHours, min);
+                          setIsMInPopoverOpen(false);
+                        }}
+                        style={{ cursor: "pointer" }}
+                      >
+                        {min} min
+                      </Text>
+                    ))}
+                  </Space>
+                }
+                trigger="click"
+                open={isMinPopoverOpen}
+                onOpenChange={setIsMInPopoverOpen}
+              >
+                <Text style={{ cursor: "pointer" }}>{assignedMinutes} min</Text>
+              </Popover>
+            </Space>
+
+            <Text type="secondary" style={{ margin: "0 8px" }}>
+              |
+            </Text>
+            {totalSeconds > 0 ? (
+              isTracking ? (
+                <CirclePause
+                  size={20}
+                  style={{ color: "#1677ff", cursor: "pointer" }}
+                  onClick={handlePause}
+                />
+              ) : (
+                <CirclePlay
+                  size={20}
+                  style={{ color: "#52c41a", cursor: "pointer" }}
+                  onClick={handleStart}
+                />
+              )
+            ) : (
+              <Hourglass size={20} style={{ color: "#999" }} />
+            )}
+            <Text strong style={{ color: "#9254de" }}>
+              {formatTime(elapsedSeconds)}
+            </Text>
+          </div>
+        </div>
         <div className="task-content task-body-margin-left">
           <div style={{ display: "flex", gap: "24px" }}>
             <div style={{ flex: 1 }}>
               <div className="task-section">
-                <div className="task-section-title-desc">
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "8px",
-                    }}
-                  >
+                <div className="task-section-title">
+                  <div>
                     <CopyPlus size={16} />
                     <Text strong>Create follow-up Task</Text>
                   </div>
-                  <Button
-                    type="primary"
-                    size="small"
-                    className="button small-btn"
-                    onClick={() => setIsModalVisible(true)}
+                  <Popover
+                    content={recurringTaskContent}
+                    title={null}
+                    trigger="click"
+                    open={isModalVisible}
+                    onOpenChange={(visible) => setIsModalVisible(visible)}
+                    placement="bottomRight"
                   >
-                    Edit
-                  </Button>
+                    <Button
+                      type="primary"
+                      size="small"
+                      className="button small-btn"
+                      onClick={() => setIsModalVisible(true)}
+                    >
+                      Create
+                    </Button>
+                  </Popover>
                 </div>
               </div>
               <div className="task-section">
