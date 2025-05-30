@@ -1,10 +1,9 @@
-import { API_URL } from "../config";
 import axiosInstance from "../helper/axiosInstance";
 
 export const taskAttachmentService = {
   async getAttachmentsById(taskId: string) {
     const response = await axiosInstance.get(
-      `${API_URL}/task/get-attachment?taskId=${taskId}`
+      `/task/get-attachment?taskId=${taskId}`
     );
     return response.data;
   },
@@ -17,21 +16,17 @@ export const taskAttachmentService = {
         formData.append("attachment", attachment)
       );
 
-    const response = await axiosInstance.post(
-      `${API_URL}/task/attachment`,
-      formData,
-      {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      }
-    );
+    const response = await axiosInstance.post(`/task/attachment`, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
     return response.data;
   },
 
   async deleteTaskAttachment(taskAttachmentId: string, taskId: string) {
     const response = await axiosInstance.delete(
-      `${API_URL}/task/delete-attachment?taskId=${taskId}&imageId=${taskAttachmentId}`
+      `/task/delete-attachment?taskId=${taskId}&imageId=${taskAttachmentId}`
     );
     return response.data;
   },

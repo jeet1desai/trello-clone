@@ -13,17 +13,19 @@ import {
 } from "../../../../store/slices/boardSlice";
 import Search from "antd/es/transfer/search";
 import { Pencil, ChevronLeft } from "lucide-react";
+import { AllowedLabel } from "../../../../hooks/useLabelSuggestions";
 
-const { Title } = Typography;
+const { Title, Text } = Typography;
 
 interface IProps {
   boardId: string;
   selectedTaskId: string;
+  suggestedLabels: AllowedLabel[];
 }
 
-const LabelPopup = ({ boardId, selectedTaskId }: IProps) => {
+const LabelPopup = ({ boardId, selectedTaskId, suggestedLabels }: IProps) => {
   const dispatch = useDispatch<AppDispatch>();
-  const { boardLabels, selectedTaskLabels } = useSelector(
+  const { boardLabels, selectedTaskLabels, loading } = useSelector(
     (state: RootState) => state.board
   );
   const [search, setSearch] = useState("");
@@ -33,6 +35,8 @@ const LabelPopup = ({ boardId, selectedTaskId }: IProps) => {
   const [selectedLabelId, setSelectedLabelId] = useState("");
 
   const toggleLabel = (id: string) => {
+    if (loading) return;
+
     if (selectedTaskLabels?.map((label) => label?._id).includes(id)) {
       dispatch(removeLabelFromTask({ taskId: selectedTaskId, labelId: id }));
     } else {
@@ -42,6 +46,11 @@ const LabelPopup = ({ boardId, selectedTaskId }: IProps) => {
 
   const filteredLabels = boardLabels.filter((label) =>
     label.name.toLowerCase().includes(search.toLowerCase())
+  );
+
+  const labelsName = new Set(boardLabels.map((label) => label.name));
+  const suggestedLabelList = suggestedLabels.filter(
+    (item) => !labelsName.has(item)
   );
 
   const handleCreateUpdateLabel = () => {
@@ -76,6 +85,7 @@ const LabelPopup = ({ boardId, selectedTaskId }: IProps) => {
         width: 300,
         borderRadius: 8,
         color: "#fff",
+        height: 370,
       }}
     >
       {isAddFlag ? (
@@ -178,9 +188,10 @@ const LabelPopup = ({ boardId, selectedTaskId }: IProps) => {
           />
           <List
             style={{
-              minHeight: "250px",
+              minHeight: "50px",
               overflowX: "auto",
               marginTop: 12,
+              marginBottom: 16,
             }}
             dataSource={filteredLabels}
             renderItem={(label) => (
@@ -201,7 +212,7 @@ const LabelPopup = ({ boardId, selectedTaskId }: IProps) => {
                   style={{
                     backgroundColor: label.backgroundColor,
                     flex: 1,
-                    height: 30,
+                    minHeight: 30,
                     borderRadius: 4,
                     display: "flex",
                     alignItems: "center",
@@ -226,6 +237,50 @@ const LabelPopup = ({ boardId, selectedTaskId }: IProps) => {
               </List.Item>
             )}
           />
+          {suggestedLabels.length > 0 && (
+            <>
+              <Text strong style={{ fontSize: "14px", margin: "8px" }}>
+                Suggested Labels
+              </Text>
+              <List
+                style={{
+                  marginTop: 8,
+                }}
+                dataSource={suggestedLabelList}
+                renderItem={(label) => (
+                  <List.Item
+                    style={{
+                      padding: "4px 0",
+                      borderBlockEnd: "initial",
+                      cursor: "pointer",
+                    }}
+                  >
+                    <div
+                      style={{
+                        backgroundColor: "#e9e9e9",
+                        flex: 1,
+                        height: 30,
+                        borderRadius: 4,
+                        display: "flex",
+                        alignItems: "center",
+                        padding: "0 8px",
+                        color: "grey",
+                      }}
+                      onClick={() => {
+                        setSelectedLabelId("");
+                        setTitle(label);
+                        setSelectedColor("black");
+                        setSearch("");
+                        setIsAddFlag(true);
+                      }}
+                    >
+                      {label || <span style={{ flex: 1 }} />}
+                    </div>
+                  </List.Item>
+                )}
+              />
+            </>
+          )}
           <Button
             className="button small-btn"
             block

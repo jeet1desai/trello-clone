@@ -25,6 +25,11 @@ export interface GoogleAuthResponse {
   token: string;
 }
 
+interface IUserActivity {
+  activity: { _id: string; date: string; title: string }[];
+  user: User;
+}
+
 interface UserState {
   currentUser: User | null;
   isAuthenticated: boolean;
@@ -36,6 +41,7 @@ interface UserState {
   passwordChangeSuccess: boolean;
   passwordResetSuccess: boolean;
   verificationSuccess: boolean;
+  userActivity: IUserActivity | null;
 }
 
 const initialState: UserState = {
@@ -49,6 +55,7 @@ const initialState: UserState = {
   passwordChangeSuccess: false,
   passwordResetSuccess: false,
   verificationSuccess: false,
+  userActivity: null,
 };
 
 // Async thunks
@@ -188,6 +195,19 @@ export const firebaseSocialLogin = createAsyncThunk(
       return response.data.user;
     } catch (error) {
       console.error("Google login failed", error);
+      return rejectWithValue(error);
+    }
+  }
+);
+
+export const userActivity = createAsyncThunk(
+  "auth/user-activity",
+  async (userId: string, { rejectWithValue }) => {
+    try {
+      const response = await authService.userActivity(userId);
+      return response.data;
+    } catch (error) {
+      console.error("Failed to fetch user activity", error);
       return rejectWithValue(error);
     }
   }
@@ -410,6 +430,24 @@ const userSlice = createSlice({
         state.loading = false;
         state.success = null;
         state.error = "Error while logging out.";
+      })
+
+      // User activity
+      .addCase(userActivity.pending, (state) => {
+        state.userActivity = null;
+        state.loading = true;
+        state.error = null;
+        state.success = null;
+      })
+      .addCase(userActivity.fulfilled, (state, action) => {
+        state.userActivity = action.payload;
+        state.loading = false;
+        state.error = null;
+      })
+      .addCase(userActivity.rejected, (state) => {
+        state.loading = false;
+        state.success = null;
+        state.error = "Error while fetching user activity.";
       });
   },
 });

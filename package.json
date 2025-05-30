@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "@ant-design/v5-patch-for-react-19": "^1.0.3",
+    "@google/generative-ai": "^0.24.1",
     "@hello-pangea/dnd": "^18.0.1",
     "@reduxjs/toolkit": "^2.6.1",
     "@testing-library/dom": "^10.4.0",
@@ -22,6 +23,8 @@
     "firebase": "^11.6.1",
     "google-auth-library": "^9.15.1",
     "lucide-react": "^0.509.0",
+    "papaparse": "^5.5.3",
+    "pdfjs-dist": "^3.4.120",
     "quill": "^2.0.3",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
@@ -32,8 +35,10 @@
     "recharts": "^2.15.2",
     "redux-persist": "^6.0.0",
     "socket.io-client": "^4.8.1",
+    "tesseract.js": "^6.0.1",
     "typescript": "^4.9.5",
-    "web-vitals": "^2.1.4"
+    "web-vitals": "^2.1.4",
+    "xlsx": "^0.18.5"
   },
   "scripts": {
     "start": "react-scripts start",
@@ -60,6 +65,7 @@
     ]
   },
   "devDependencies": {
+    "@types/papaparse": "^5.3.16",
     "@types/recharts": "^2.0.1"
   }
 }
