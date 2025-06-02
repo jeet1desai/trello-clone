@@ -37,6 +37,7 @@ import {
 import dayjs from "dayjs";
 import { useMedia } from "../../hooks/useMedia";
 import UpcomingTasks from "../../components/dashboard/UpcomingTasks";
+import AnalyticalMemberCard from "./components/analyticalMemberCard";
 
 const { Title, Text } = Typography;
 
@@ -384,6 +385,13 @@ const Dashboard: React.FC = () => {
                 "{getRandomQuote()}"
               </div>
             </Card>
+          </Col>
+        </Row>
+      </div>
+      <div className="dashboard-section">
+        <Row gutter={[16, 16]}>
+          <Col span={24}>
+            <AnalyticalMemberCard />
           </Col>
         </Row>
       </div>
