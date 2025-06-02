@@ -964,10 +964,12 @@ const BoardDetail: React.FC = () => {
               })}
             </Avatar.Group>
             <ChangeBackgroundPopover />
-            <div className="filter-icon">
+            <div 
+              className="filter-icon"
+              onClick={() => navigate(generatePath(PRIVATE_ROUTE.BOARD_STATISTICS, { id: id ?? "" }))}
+              >
               <ChartNoAxesCombined
                 size={20}
-                onClick={() => navigate(generatePath(PRIVATE_ROUTE.BOARD_STATISTICS, { id: id ?? "" }))}
               />
             </div>
             <div
