@@ -177,6 +177,20 @@ interface ITaskMember {
   email: string;
 }
 
+export interface Analytics {
+  averageSpendHours: number
+  mostEffective: string
+  leastEffective: string
+  usersList: AnalyticsUsersList[]
+}
+
+export interface AnalyticsUsersList {
+  name: string
+  completedTasks: number
+  spendHours: number
+  estimatedHours: number
+}
+
 interface BoardState {
   boards: IBoard[];
   boardLabels: ILabel[];
@@ -197,6 +211,7 @@ interface BoardState {
   boardWorkspacesPagination: Pagination;
   background: Background[];
   userBackround: UserBackground[];
+  analytics: Analytics | null;
 }
 
 const initialState: BoardState = {
@@ -229,6 +244,7 @@ const initialState: BoardState = {
   },
   background: [],
   userBackround: [],
+  analytics: null
 };
 
 export const getAllBoards = createAsyncThunk(
@@ -916,6 +932,20 @@ export const changebackground = createAsyncThunk(
     } catch (error: any) {
       return rejectWithValue(
         error.response?.data?.message ?? "Error while updating board."
+      );
+    }
+  }
+);
+
+export const getAnalyticsData = createAsyncThunk(
+  "task/analytics",
+  async (_id: string, { rejectWithValue }) => {
+    try {
+      const response = await boardService.getAnalyticsData(_id);
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message ?? "Error while fetching data."
       );
     }
   }
@@ -1734,7 +1764,7 @@ const boardSlice = createSlice({
           (action.payload as string) || "Error while removing member.";
       })
 
-      // chnage user board background
+      // change user board background
       .addCase(changebackground.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -1757,6 +1787,38 @@ const boardSlice = createSlice({
         state.success = null;
         state.error =
           (action.payload as string) || "Error while removing member.";
+      })
+      
+      // get board analytics data
+      .addCase(getAnalyticsData.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.success = null;
+      })
+      .addCase(getAnalyticsData.fulfilled, (state, action) => {
+        state.analytics = action.payload
+        const { background, backgroundType } = action.payload.board;
+        if (!state.selectedBoard) {
+          state.selectedBoard = {
+            background,
+            backgroundType,
+          } as IBoardDetails;
+        } else {
+          state.selectedBoard = {
+            ...state.selectedBoard,
+            background,
+            backgroundType,
+          };
+        }
+        state.success = "";
+        state.loading = false;
+        state.error = null;
+      })
+      .addCase(getAnalyticsData.rejected, (state, action) => {
+        state.loading = false;
+        state.success = null;
+        state.error =
+          (action.payload as string) || "Error while fetching data.";
       });
   },
 });

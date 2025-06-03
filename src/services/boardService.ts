@@ -248,4 +248,11 @@ export const boardService = {
     });
     return response.data;
   },
+
+  async getAnalyticsData(boardId: string) {
+    const response = await axiosInstance.get(
+      `/board/analytics/${boardId}`
+    );
+    return response.data;
+  },
 };

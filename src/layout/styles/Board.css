@@ -982,3 +982,108 @@
 .task-labels-main {
   min-width: calc(25% - 10px);
 }
+
+/* board statistics */
+.dashboard-container {
+  padding: 20px;
+  max-width: 1200px;
+  margin: auto;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.dashboard-title {
+  text-align: center;
+  margin-bottom: 24px;
+  color: #3c3c3c;
+  font-size: 28px;
+  font-weight: 600;
+}
+
+.stats-row {
+  margin-bottom: 24px;
+}
+
+.stat-card {
+  border-radius: 10px;
+  text-align: center;
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+.stat-card.average {
+  background: linear-gradient(145deg, #e0f7fa, #b2ebf2);
+  color: #00796b;
+}
+
+.stat-card.most {
+  background: linear-gradient(145deg, #e8f5e9, #a5d6a7);
+  color: #2e7d32;
+}
+
+.stat-card.least {
+  background: linear-gradient(145deg, #ffebee, #ffcdd2);
+  color: #c62828;
+}
+
+.stat-card .ant-card-head-title {
+  color: #000000;
+}
+
+.responsive-table {
+  margin-top: 32px;
+  background: var(--bg-lightGray);
+  padding: 16px;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+}
+
+.ant-table-thead > tr > th {
+  font-weight: bold;
+}
+
+@media (max-width: 768px) {
+  .dashboard-title {
+    font-size: 20px;
+  }
+
+  .stat-card p {
+    font-size: 18px;
+  }
+}
+
+.dashboard-header {
+  position: relative;
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+.back-button {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  color: #1890ff;
+  font-size: 16px;
+  font-weight: 500;
+  transition: color 0.3s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.back-button:hover {
+  color: #0050b3;
+}
+
+.arrow {
+  margin-right: 6px;
+  font-size: 18px;
+}
+
+.dashboard-header .dashboard-title {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 600;
+  color: #3c3c3c;
+}

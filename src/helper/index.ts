@@ -16,3 +16,10 @@ export const scrollToSectionWithOffset = (id?: string) => {
     behavior: "smooth",
   });
 };
+
+export function formatString(
+  template: string,
+  params: Record<string, string | number>
+) {
+  return template.replace(/{(.*?)}/g, (_, key) => String(params[key] ?? ""));
+}

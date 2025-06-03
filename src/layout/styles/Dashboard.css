@@ -301,6 +301,10 @@
   background: rgba(250, 140, 22, 0.1);
 }
 
+.stat-icon-wrapper.active {
+  background: #feffe6;
+}
+
 .blue .stat-icon {
   color: #1890ff;
 }
@@ -311,6 +315,10 @@
 
 .orange .stat-icon {
   color: #fa8c16;
+}
+
+.active .stat-icon {
+  color: #d4b106;
 }
 
 /* Progress Bar Styles */
@@ -609,4 +617,18 @@
     height: 36px;
     font-size: 14px;
   }
+}
+
+.dashboard-board-overview-header {
+  padding: 15px 24px !important;
+}
+
+.dashboard-board-border-left {
+  border-left: 2px solid var(--text-primary);
+  padding-left: 10px;
+}
+
+.dashboard-board-border-right {
+  border-right: 2px solid var(--text-primary);
+  padding-right: 10px;
 }

@@ -23,7 +23,7 @@ import type {
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../../store";
-import { useNavigate, useParams } from "react-router";
+import { generatePath, useNavigate, useParams } from "react-router";
 import {
   IBoardDetails,
   getAllLabels,
@@ -86,13 +86,15 @@ import {
   ChevronDown,
   Clock,
   TableProperties,
-  SquareKanban,
+  SquareKanban, 
   ArrowLeft,
   ArrowRight,
+  ChartNoAxesCombined,
 } from "lucide-react";
 import BoardFilter from "./components/boardFilter";
 import ChangeBackgroundPopover from "./components/ChangeBackgroundModal";
 import TaskMenu from "./components/taskMenu";
+import { PRIVATE_ROUTE } from "../../../utils/enums/route";
 import { userActivity } from "../../../store/slices/userSlice";
 import UserActivityModal from "../../../components/board/UserActivityModal";
 
@@ -962,6 +964,14 @@ const BoardDetail: React.FC = () => {
               })}
             </Avatar.Group>
             <ChangeBackgroundPopover />
+            <div 
+              className="filter-icon"
+              onClick={() => navigate(generatePath(PRIVATE_ROUTE.BOARD_STATISTICS, { id: id ?? "" }))}
+              >
+              <ChartNoAxesCombined
+                size={20}
+              />
+            </div>
             <div
               className="filter-icon"
               style={{

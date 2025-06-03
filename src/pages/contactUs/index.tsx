@@ -12,21 +12,31 @@ const ContactUs = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { loading } = useSelector((state: RootState) => state.contactUs);
 
-  const onSubmit = async (values: { name: string; email: string; description: string }) => {
+  const onSubmit = async (values: {
+    name: string;
+    email: string;
+    description: string;
+  }) => {
     const result = await dispatch(contactUsCreate(values));
 
     if (contactUsCreate.rejected.match(result) && result.payload) {
       const backendErrors = result.payload as Record<string, string>;
 
-      const fieldErrors = Object.entries(backendErrors).map(([field, message]) => ({
-        name: field,
-        errors: [message],
-      }));
+      const fieldErrors = Object.entries(backendErrors).map(
+        ([field, message]) => ({
+          name: field,
+          errors: [message],
+        })
+      );
 
       form.setFields(fieldErrors);
     } else {
       form.resetFields();
     }
+  };
+
+  const handleClearFieldError = (fieldName: string) => {
+    form.setFields([{ name: fieldName, errors: [] }]);
   };
 
   return (
@@ -42,21 +52,33 @@ const ContactUs = () => {
 
         <Row className="contact-card" gutter={32}>
           <Col xs={24} md={10} className="contact-info">
-            <Title level={3} style={{ marginBottom: "6px" }} className="text-color-white">
+            <Title
+              level={3}
+              style={{ marginBottom: "6px" }}
+              className="text-color-white"
+            >
               Contact Information
             </Title>
-            <Paragraph className="text-color-secondary">We welcome your questions, comments, and feedback.</Paragraph>
+            <Paragraph className="text-color-secondary">
+              We welcome your questions, comments, and feedback.
+            </Paragraph>
             <div className="info-item">
               <Phone size={16} />
-              <Paragraph className="text-color-white margin-bottom-0">+1 (012) 345-6789</Paragraph>
+              <Paragraph className="text-color-white margin-bottom-0">
+                +1 (012) 345-6789
+              </Paragraph>
             </div>
             <div className="info-item">
               <Mail size={16} />
-              <Paragraph className="text-color-white margin-bottom-0">contact@example.com</Paragraph>
+              <Paragraph className="text-color-white margin-bottom-0">
+                contact@example.com
+              </Paragraph>
             </div>
             <div className="info-item">
               <MapPin size={16} />
-              <Paragraph className="text-color-white margin-bottom-0">132 Dartmouth Street Boston, MA 02156, USA</Paragraph>
+              <Paragraph className="text-color-white margin-bottom-0">
+                132 Dartmouth Street Boston, MA 02156, USA
+              </Paragraph>
             </div>
           </Col>
 
@@ -64,7 +86,10 @@ const ContactUs = () => {
             <Title level={3} style={{ marginBottom: "6px" }}>
               Need Assistance?
             </Title>
-            <Paragraph style={{ marginBottom: "20px" }}>Submit your request below and our team will reach out to you shortly.</Paragraph>
+            <Paragraph style={{ marginBottom: "20px" }}>
+              Submit your request below and our team will reach out to you
+              shortly.
+            </Paragraph>
             <Form
               form={form}
               layout="vertical"
@@ -83,6 +108,7 @@ const ContactUs = () => {
                     Name <span className="require-mark">*</span>
                   </span>
                 }
+                validateTrigger="onChange"
                 name="name"
                 rules={[
                   { required: true, message: "Please enter your name" },
@@ -96,7 +122,12 @@ const ContactUs = () => {
                   },
                 ]}
               >
-                <Input prefix={<UserRound size={18} />} placeholder="Enter your name" className="form-input" />
+                <Input
+                  prefix={<UserRound size={18} />}
+                  placeholder="Enter your name"
+                  className="form-input"
+                  onChange={() => handleClearFieldError("name")}
+                />
               </Form.Item>
               <Form.Item
                 label={
@@ -105,30 +136,55 @@ const ContactUs = () => {
                   </span>
                 }
                 name="email"
+                validateTrigger="onChange"
                 rules={[
                   { required: true, message: "Please enter your email" },
                   { type: "email", message: "Invalid email address" },
                 ]}
               >
-                <Input prefix={<Mail size={18} />} placeholder="Enter your email" className="form-input" />
+                <Input
+                  prefix={<Mail size={18} />}
+                  placeholder="Enter your email"
+                  className="form-input"
+                  onChange={() => handleClearFieldError("email")}
+                />
               </Form.Item>
               <Form.Item
+                validateTrigger="onChange"
                 label={
                   <span className="input-label">
                     Description <span className="require-mark">*</span>
                   </span>
                 }
                 name="description"
-                rules={[{ required: true, message: "Please describe your query" }]}
+                rules={[
+                  { required: true, message: "Please describe your query" },
+                ]}
               >
-                <Input.TextArea placeholder="Enter your query" className="form-input description" rows={4} showCount maxLength={200} />
+                <Input.TextArea
+                  placeholder="Enter your query"
+                  className="form-input description"
+                  rows={4}
+                  showCount
+                  maxLength={200}
+                  onChange={() => handleClearFieldError("description")}
+                />
               </Form.Item>
               <Form.Item className="contact-us-form-actions">
                 <Space>
-                  <Button type="default" className="button" onClick={() => form.resetFields()}>
+                  <Button
+                    type="default"
+                    className="button"
+                    onClick={() => form.resetFields()}
+                  >
                     Cancel
                   </Button>
-                  <Button type="primary" className="button" htmlType="submit" loading={loading}>
+                  <Button
+                    type="primary"
+                    className="button"
+                    htmlType="submit"
+                    loading={loading}
+                  >
                     Submit
                   </Button>
                 </Space>
