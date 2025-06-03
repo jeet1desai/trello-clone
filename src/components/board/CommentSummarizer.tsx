@@ -29,6 +29,7 @@ const CommentSummarizer = ({ open, onClose }: IProps) => {
   const [extractedContent, setExtractedContent] = useState<string>("");
   const [AILoading, setAILoading] = useState(false);
   const [summarize, setSummarize] = useState<string[]>([]);
+  const [apiLoading, setAPILoading] = useState(false);
 
   const handleFile = (file: File) => {
     const type = file.type;
@@ -155,6 +156,7 @@ const CommentSummarizer = ({ open, onClose }: IProps) => {
   };
 
   const addComments = async () => {
+    setAPILoading(true);
     for (const comment of summarize) {
       if (!selectedTask?._id) return;
       await dispatch(
@@ -169,6 +171,7 @@ const CommentSummarizer = ({ open, onClose }: IProps) => {
     onClose();
     setLoading(false);
     setAILoading(false);
+    setAPILoading(false);
     setExtractedContent("");
     setSummarize([]);
   };
@@ -250,8 +253,9 @@ const CommentSummarizer = ({ open, onClose }: IProps) => {
                 className="button small-btn"
                 size="small"
                 onClick={summarizeComments}
+                loading={AILoading}
               >
-                <WandSparkles size={16} /> Summarize
+                {!AILoading && <WandSparkles size={16} />} {AILoading ? "Summarizing..." : "Summarize"}
               </Button>
               {summarize.length > 0 && (
                 <Button
@@ -259,8 +263,9 @@ const CommentSummarizer = ({ open, onClose }: IProps) => {
                   className="button small-btn"
                   size="small"
                   onClick={addComments}
+                  loading={apiLoading}
                 >
-                  Add
+                  {apiLoading ? "Adding..." : "Add"}
                 </Button>
               )}
             </div>
