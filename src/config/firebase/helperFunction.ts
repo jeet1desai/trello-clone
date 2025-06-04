@@ -16,7 +16,6 @@ export const getAccessToken = (provider: AuthProvider, result: UserCredential): 
 };
 
 export const handleAuthError = (error: unknown, providerName: string) => {
-  // Check if the error is a FirebaseError
   if (error instanceof FirebaseError) {
     switch (error.code) {
       case "auth/cancelled-popup-request":
