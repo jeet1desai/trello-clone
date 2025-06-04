@@ -31,7 +31,6 @@ export const handleAuthError = (error: unknown, providerName: string) => {
         console.error(`Firebase Error during login Provider Name ==> ${providerName}: ${error.message}`);
     }
   } else {
-    // Handle unknown errors
     console.error(`An unexpected error occurred`, error);
   }
 };
