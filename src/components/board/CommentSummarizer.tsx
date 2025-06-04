@@ -28,7 +28,7 @@ const CommentSummarizer = ({ open, onClose }: IProps) => {
   const [loading, setLoading] = useState(false);
   const [extractedContent, setExtractedContent] = useState<string>("");
   const [AILoading, setAILoading] = useState(false);
-  const [summarize, setSummarize] = useState<string[]>([]);
+  const [summarize, setSummarize] = useState<string>("");
   const [apiLoading, setAPILoading] = useState(false);
 
   const handleFile = (file: File) => {
@@ -122,32 +122,25 @@ const CommentSummarizer = ({ open, onClose }: IProps) => {
     setLoading(false);
     setAILoading(false);
     setExtractedContent("");
-    setSummarize([]);
+    setSummarize("");
   };
 
   const summarizeComments = async () => {
-    setSummarize([]);
+    setSummarize("");
     setAILoading(true);
     const prompt = `
     ${extractedContent}
 
 
-    Give me the comments list based on the content provided above for this task.
-    I want to add comments below the task descriptions. Comments need to be like chat.
-    Add all comments in single tasks just like chats and keep it in simple one line and use the above content.
-    Ignore date and time and names of person. Provide it as array
+    Based on the content above, generate a single comment that looks like a chat conversation.
+    Keep each chat line simple and in one line. Do not include dates, times, or names.
+    Format it as a single string with line breaks between each chat message.
     `.trim();
 
     try {
       const text = await generateText(prompt);
-      const parsed = JSON.parse(
-        text
-          .replace(/```json|```/g, "")
-          .trim()
-          .replace(/\n/g, "")
-      );
-
-      setSummarize(parsed);
+      const cleanedText = text.replace(/```json|```/g, "").trim();
+     setSummarize(cleanedText);
     } catch (err) {
       console.error("Error generating labels:", err);
     } finally {
@@ -156,25 +149,24 @@ const CommentSummarizer = ({ open, onClose }: IProps) => {
   };
 
   const addComments = async () => {
-    setAPILoading(true);
-    for (const comment of summarize) {
-      if (!selectedTask?._id) return;
-      await dispatch(
-        addNewTaskComment({
-          taskId: selectedTask._id,
-          comment,
-          attachments: [],
-          mentionedMembers: [],
-        })
-      ).unwrap();
-    }
-    onClose();
-    setLoading(false);
-    setAILoading(false);
-    setAPILoading(false);
-    setExtractedContent("");
-    setSummarize([]);
-  };
+  setAPILoading(true);
+  if (!selectedTask?._id) return;
+  await dispatch(
+    addNewTaskComment({
+      taskId: selectedTask._id,
+      comment: summarize,
+      attachments: [],
+      mentionedMembers: [],
+    })
+  ).unwrap();
+
+  onClose();
+  setLoading(false);
+  setAILoading(false);
+  setAPILoading(false);
+  setExtractedContent("");
+  setSummarize("");
+};
 
   return (
     <Modal
@@ -229,9 +221,12 @@ const CommentSummarizer = ({ open, onClose }: IProps) => {
                   <Lightbulb size={18} /> Suggested Comments:
                 </Text>
                 <div className="summarize-comments">
-                  {summarize?.map((comment) => (
-                    <Text key={comment}>- {comment}</Text>
-                  ))}
+                  {summarize
+                    .split("\n")
+                    .filter((line) => line.trim() !== "")
+                    .map((comment, idx) => (
+                      <Text key={idx}>- {comment}</Text>
+                    ))}
                 </div>
               </>
             )
