@@ -1,14 +1,5 @@
 import React, { useMemo, useState } from "react";
-import {
-  Card,
-  Select,
-  List,
-  Typography,
-  Row,
-  Col,
-  Divider,
-  Tooltip,
-} from "antd";
+import { Card, Select, List, Typography, Row, Col, Divider, Tooltip } from "antd";
 import { Users, Clock3, CheckCircle, Tickets, Info } from "lucide-react";
 import dayjs from "dayjs";
 import { DASHBOARD } from "../../../utils/consts/dashboard";
@@ -67,28 +58,15 @@ const AnalyticalMemberCard: React.FC = () => {
   const [selectedBoard, setSelectedBoard] = useState<string>();
 
   const filteredMembers = useMemo(() => {
-    return members.filter(
-      (member) => !selectedBoard || member.board === selectedBoard
-    );
+    return members.filter((member) => !selectedBoard || member.board === selectedBoard);
   }, [selectedBoard]);
 
   const stats = useMemo(() => {
     const totalUsers = filteredMembers.length;
-    const totalHours = filteredMembers.reduce(
-      (acc, m) => acc + m.spentHours,
-      0
-    );
-    const totalClosed = filteredMembers.reduce(
-      (acc, m) => acc + m.ticketsClosed,
-      0
-    );
-    const totalActive = filteredMembers.reduce(
-      (acc, m) => acc + m.activeTickets,
-      0
-    );
-    const mostTicketsUser =
-      filteredMembers.sort((a, b) => b.ticketsClosed - a.ticketsClosed)[0] ??
-      null;
+    const totalHours = filteredMembers.reduce((acc, m) => acc + m.spentHours, 0);
+    const totalClosed = filteredMembers.reduce((acc, m) => acc + m.ticketsClosed, 0);
+    const totalActive = filteredMembers.reduce((acc, m) => acc + m.activeTickets, 0);
+    const mostTicketsUser = filteredMembers.sort((a, b) => b.ticketsClosed - a.ticketsClosed)[0] ?? null;
     return {
       totalUsers,
       totalHours,
@@ -107,16 +85,8 @@ const AnalyticalMemberCard: React.FC = () => {
         gap: "10px",
       }}
     >
-      <div style={{ fontSize: "1.2rem", fontWeight: 600 }}>
-        {DASHBOARD.BOARD_DASHBOARD_OVERVIEW}
-      </div>
-      <Select
-        allowClear
-        placeholder={DASHBOARD.SELECT_BOARD}
-        value={selectedBoard}
-        onChange={setSelectedBoard}
-        style={{ width: 200 }}
-      >
+      <div style={{ fontSize: "1.2rem", fontWeight: 600 }}>{DASHBOARD.BOARD_DASHBOARD_OVERVIEW}</div>
+      <Select allowClear placeholder={DASHBOARD.SELECT_BOARD} value={selectedBoard} onChange={setSelectedBoard} style={{ width: 200 }}>
         {boards.map((board) => (
           <Option key={board} value={board}>
             {board}
@@ -127,11 +97,7 @@ const AnalyticalMemberCard: React.FC = () => {
   );
 
   return (
-    <Card
-      title={header()}
-      classNames={{ header: "dashboard-board-overview-header" }}
-      style={{ width: "100%", borderRadius: "12px" }}
-    >
+    <Card title={header()} classNames={{ header: "dashboard-board-overview-header" }} style={{ width: "100%", borderRadius: "12px" }}>
       <Row gutter={[16, 16]}>
         <Col xs={24} sm={12} md={12} lg={6} xl={6}>
           <Card className="stat-card workspace-card" hoverable>
@@ -139,29 +105,6 @@ const AnalyticalMemberCard: React.FC = () => {
               <div className="stat-icon-wrapper blue">
                 <Users size={24} className="stat-icon" />
               </div>
-              {
-                <div style={{ textAlign: "right", marginBottom: 8 }}>
-                  <Tooltip
-                    placement="left"
-                    title={
-                      <div>
-                        {filteredMembers.map((member) => (
-                          <div key={member.id}>
-                            {member.name}{" "}
-                            {(!selectedBoard || selectedBoard === "") &&
-                              `- ${member.board}`}
-                          </div>
-                        ))}
-                      </div>
-                    }
-                  >
-                    <Info
-                      size={18}
-                      style={{ cursor: "pointer", color: "#555" }}
-                    />
-                  </Tooltip>
-                </div>
-              }
             </div>
             <div className="stat-content">
               <Title level={2}>{stats.totalUsers ?? 0}</Title>
@@ -226,8 +169,7 @@ const AnalyticalMemberCard: React.FC = () => {
           <List.Item>
             <div style={{ flexGrow: 1 }}>
               <div style={{ width: "100%", marginBottom: "8px" }}>
-                <Text strong>{member.name}</Text> -{" "}
-                <Text type="secondary">{member.email}</Text>
+                <Text strong>{member.name}</Text> - <Text type="secondary">{member.email}</Text>
               </div>
 
               <div
@@ -241,13 +183,11 @@ const AnalyticalMemberCard: React.FC = () => {
                 }}
               >
                 <Text className="dashboard-board-border-right">
-                  <strong>{DASHBOARD.SPENT}</strong> {member.spentHours}{" "}
-                  {DASHBOARD.HRS}
+                  <strong>{DASHBOARD.SPENT}</strong> {member.spentHours} {DASHBOARD.HRS}
                 </Text>
 
                 <Text className="dashboard-board-border-right">
-                  <strong>{DASHBOARD.TICKETS_CLOSED}</strong>{" "}
-                  {member.ticketsClosed}
+                  <strong>{DASHBOARD.TICKETS_CLOSED}</strong> {member.ticketsClosed}
                 </Text>
 
                 <Text>
@@ -263,8 +203,7 @@ const AnalyticalMemberCard: React.FC = () => {
             </div>
             <div>
               <Text type="secondary" style={{ whiteSpace: "nowrap" }}>
-                <strong>{DASHBOARD.JOINED}</strong>{" "}
-                {dayjs(member.joinDate).format("MMM D, YYYY")}
+                <strong>{DASHBOARD.JOINED}</strong> {dayjs(member.joinDate).format("MMM D, YYYY")}
               </Text>
             </div>
           </List.Item>
