@@ -40,4 +40,15 @@ export const dashboardService = {
       throw error;
     }
   },
+
+  async getDashboardState(boardId?: string) {
+    try {
+      const url = boardId ? `/board/dashboard/state?boardId=${boardId}` : `/board/dashboard/state`;
+      const response = await axiosInstance.get(url);
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching dashboard state:", error);
+      throw error;
+    }
+  },
 };

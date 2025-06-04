@@ -26,6 +26,11 @@ export interface IBoard {
   updatedAt: string;
 }
 
+export interface AllBoard {
+  _id: string;
+  name: string;
+}
+
 export interface IBoardOwner {
   _id: string;
   first_name: string;
@@ -212,6 +217,7 @@ interface BoardState {
   background: Background[];
   userBackround: UserBackground[];
   analytics: Analytics | null;
+  allBoard: AllBoard[];
 }
 
 const initialState: BoardState = {
@@ -244,7 +250,8 @@ const initialState: BoardState = {
   },
   background: [],
   userBackround: [],
-  analytics: null
+  analytics: null,
+  allBoard: []
 };
 
 export const getAllBoards = createAsyncThunk(
@@ -946,6 +953,21 @@ export const getAnalyticsData = createAsyncThunk(
     } catch (error: any) {
       return rejectWithValue(
         error.response?.data?.message ?? "Error while fetching data."
+      );
+    }
+  }
+);
+
+export const getAllBoardsNoPagination = createAsyncThunk(
+  "task/get-all-no-pagination",
+  async (_,{ rejectWithValue }
+  ) => {
+    try {
+      const response = await boardService.getAllBoardsNoPagination();
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message ?? "Error while fetching boards."
       );
     }
   }
@@ -1819,6 +1841,27 @@ const boardSlice = createSlice({
         state.success = null;
         state.error =
           (action.payload as string) || "Error while fetching data.";
+      })
+      
+      //Get all boards
+      .addCase(getAllBoardsNoPagination.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.success = null;
+      })
+      .addCase(getAllBoardsNoPagination.fulfilled, (state, action) => {
+        const { boards } = action.payload;
+        state.allBoard = boards;
+        state.loading = false;
+        state.error = null;
+        state.success = "Boards fetched successfully.";
+      })
+      .addCase(getAllBoardsNoPagination.rejected, (state, action) => {
+        state.loading = false;
+        state.allBoard = [];
+        state.success = null;
+        state.error =
+          (action.payload as string) || "Error while fetching boards.";
       });
   },
 });
