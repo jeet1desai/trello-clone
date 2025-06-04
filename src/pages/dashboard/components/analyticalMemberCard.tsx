@@ -1,80 +1,41 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Card, Select, List, Typography, Row, Col, Divider, Tooltip } from "antd";
 import { Users, Clock3, CheckCircle, Tickets, Info } from "lucide-react";
 import dayjs from "dayjs";
 import { DASHBOARD } from "../../../utils/consts/dashboard";
 import { formatString } from "../../../helper";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "../../../store";
+import { getDashboardState } from "../../../store/slices/dashboardSlice";
+import { AllBoard, getAllBoardsNoPagination } from "../../../store/slices/boardSlice";
 
 const { Option } = Select;
 const { Text, Title } = Typography;
 
-interface Member {
-  id: string;
-  name: string;
-  email: string;
-  board: string;
-  spentHours: number;
-  ticketsClosed: number;
-  activeTickets: number;
-  joinDate: string;
-}
-
-const members: Member[] = [
-  {
-    id: "1",
-    name: "Alice Johnson",
-    email: "alice@example.com",
-    board: "Marketing",
-    spentHours: 12,
-    ticketsClosed: 14,
-    activeTickets: 2,
-    joinDate: "2024-05-10",
-  },
-  {
-    id: "2",
-    name: "Bob Smith",
-    email: "bob@example.com",
-    board: "Marketing",
-    spentHours: 20,
-    ticketsClosed: 18,
-    activeTickets: 1,
-    joinDate: "2024-04-15",
-  },
-  {
-    id: "3",
-    name: "Charlie Doe",
-    email: "charlie@example.com",
-    board: "Engineering",
-    spentHours: 8,
-    ticketsClosed: 10,
-    activeTickets: 4,
-    joinDate: "2024-06-01",
-  },
-];
-
-const boards = ["Marketing", "Engineering"];
-
 const AnalyticalMemberCard: React.FC = () => {
-  const [selectedBoard, setSelectedBoard] = useState<string>();
+  const { allBoard } = useSelector((state: RootState) => state.board);
+  const { dashboardState } = useSelector((state: RootState) => state.dashboard);
+
+  const [selectedBoard, setSelectedBoard] = useState<AllBoard | undefined>();
+
+  const dispatch = useDispatch<AppDispatch>();
+
+  useEffect(() => {
+      const fetchDashboardData = async () => {
+        try {
+          await dispatch(getDashboardState({}));
+          await dispatch(getAllBoardsNoPagination());
+        } catch (error) {
+          console.error("Error fetching dashboard data:", error);
+        }
+      };
+  
+      fetchDashboardData();
+    }, [dispatch]);
 
   const filteredMembers = useMemo(() => {
-    return members.filter((member) => !selectedBoard || member.board === selectedBoard);
-  }, [selectedBoard]);
-
-  const stats = useMemo(() => {
-    const totalUsers = filteredMembers.length;
-    const totalHours = filteredMembers.reduce((acc, m) => acc + m.spentHours, 0);
-    const totalClosed = filteredMembers.reduce((acc, m) => acc + m.ticketsClosed, 0);
-    const totalActive = filteredMembers.reduce((acc, m) => acc + m.activeTickets, 0);
-    const mostTicketsUser = filteredMembers.sort((a, b) => b.ticketsClosed - a.ticketsClosed)[0] ?? null;
-    return {
-      totalUsers,
-      totalHours,
-      totalClosed,
-      totalActive,
-      mostTicketsUser,
-    };
-  }, [filteredMembers]);
+    return dashboardState?.teamMembers.filter((member) => !selectedBoard?.name || member.boardName === selectedBoard.name);
+  }, [dashboardState?.teamMembers, selectedBoard]);
 
   const header = () => (
     <div
@@ -86,10 +47,16 @@ const AnalyticalMemberCard: React.FC = () => {
       }}
     >
       <div style={{ fontSize: "1.2rem", fontWeight: 600 }}>{DASHBOARD.BOARD_DASHBOARD_OVERVIEW}</div>
-      <Select allowClear placeholder={DASHBOARD.SELECT_BOARD} value={selectedBoard} onChange={setSelectedBoard} style={{ width: 200 }}>
-        {boards.map((board) => (
-          <Option key={board} value={board}>
-            {board}
+      <Select allowClear placeholder={DASHBOARD.SELECT_BOARD} value={selectedBoard?._id}
+        onChange={(value) => {
+          const board = allBoard.find(b => b._id === value);
+          setSelectedBoard(board);
+          dispatch(getDashboardState({ boardId: value }));
+        }}
+        style={{ width: 200 }}>
+        {allBoard.map((board) => (
+          <Option key={board._id} value={board._id}>
+            {board.name}
           </Option>
         ))}
       </Select>
@@ -107,7 +74,7 @@ const AnalyticalMemberCard: React.FC = () => {
               </div>
             </div>
             <div className="stat-content">
-              <Title level={2}>{stats.totalUsers ?? 0}</Title>
+              <Title level={2}>{dashboardState?.overview.totalUsers ?? 0}</Title>
               <Text type="secondary">{DASHBOARD.TOTAL_USERS}</Text>
             </div>
           </Card>
@@ -121,7 +88,7 @@ const AnalyticalMemberCard: React.FC = () => {
               </div>
             </div>
             <div className="stat-content">
-              <Title level={2}>{stats.totalHours ?? 0}</Title>
+              <Title level={2}>{dashboardState?.overview.totalSpentHours ?? 0}</Title>
               <Text type="secondary">{DASHBOARD.TOTAL_HOURS}</Text>
             </div>
           </Card>
@@ -135,7 +102,7 @@ const AnalyticalMemberCard: React.FC = () => {
               </div>
             </div>
             <div className="stat-content">
-              <Title level={2}>{stats.totalClosed ?? 0}</Title>
+              <Title level={2}>{dashboardState?.overview.totalTicketsClosed ?? 0}</Title>
               <Text type="secondary">{DASHBOARD.TOTAL_CLOSED}</Text>
             </div>
           </Card>
@@ -149,7 +116,7 @@ const AnalyticalMemberCard: React.FC = () => {
               </div>
             </div>
             <div className="stat-content">
-              <Title level={2}>{stats.totalActive ?? 0}</Title>
+              <Title level={2}>{dashboardState?.overview.totalActiveTickets ?? 0}</Title>
               <Text type="secondary">{DASHBOARD.TOTAL_ACTIVE}</Text>
             </div>
           </Card>
@@ -163,13 +130,14 @@ const AnalyticalMemberCard: React.FC = () => {
       </Typography.Title>
       <List
         bordered
+        style={{maxHeight: "340px", overflow: "auto", height: "auto"}}
         dataSource={filteredMembers}
         locale={{ emptyText: "No members match filters" }}
-        renderItem={(member) => (
+        renderItem={(dataList) => (
           <List.Item>
             <div style={{ flexGrow: 1 }}>
               <div style={{ width: "100%", marginBottom: "8px" }}>
-                <Text strong>{member.name}</Text> - <Text type="secondary">{member.email}</Text>
+                <Text strong>{dataList.name}</Text> - <Text type="secondary">{dataList.email}</Text>
               </div>
 
               <div
@@ -183,40 +151,40 @@ const AnalyticalMemberCard: React.FC = () => {
                 }}
               >
                 <Text className="dashboard-board-border-right">
-                  <strong>{DASHBOARD.SPENT}</strong> {member.spentHours} {DASHBOARD.HRS}
+                  <strong>{DASHBOARD.SPENT}</strong> {dataList.spentHours} {DASHBOARD.HRS}
                 </Text>
 
                 <Text className="dashboard-board-border-right">
-                  <strong>{DASHBOARD.TICKETS_CLOSED}</strong> {member.ticketsClosed}
+                  <strong>{DASHBOARD.TICKETS_CLOSED}</strong> {dataList.ticketsClosed}
                 </Text>
 
                 <Text>
-                  <strong>{DASHBOARD.ACTIVE}</strong> {member.activeTickets}
+                  <strong>{DASHBOARD.ACTIVE}</strong> {dataList.activeTickets}
                 </Text>
 
-                {(!selectedBoard || selectedBoard === "") && (
+                {(!selectedBoard || selectedBoard.name === "") && (
                   <Text className="dashboard-board-border-left">
-                    <strong>{DASHBOARD.BOARD}</strong> {member.board}
+                    <strong>{DASHBOARD.BOARD}</strong> {dataList.boardName}
                   </Text>
                 )}
               </div>
             </div>
             <div>
               <Text type="secondary" style={{ whiteSpace: "nowrap" }}>
-                <strong>{DASHBOARD.JOINED}</strong> {dayjs(member.joinDate).format("MMM D, YYYY")}
+                <strong>{DASHBOARD.JOINED}</strong> {dayjs(dataList.joined).format("MMM D, YYYY")}
               </Text>
             </div>
           </List.Item>
         )}
       />
 
-      {stats.mostTicketsUser && (
+      {dashboardState?.overview && (
         <>
           <Divider />
           <Text strong>
             {formatString(DASHBOARD.MOST_TICKETS_COUNT, {
-              name: stats.mostTicketsUser.name,
-              count: stats.mostTicketsUser.ticketsClosed,
+              name: dashboardState.overview.mostTicketsCompletedBy,
+              count: dashboardState.overview.mostTicketsCompletedCount,
             })}
           </Text>
         </>

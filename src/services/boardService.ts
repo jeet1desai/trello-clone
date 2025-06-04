@@ -255,4 +255,11 @@ export const boardService = {
     );
     return response.data;
   },
+
+  async getAllBoardsNoPagination() {
+    const response = await axiosInstance.get(
+      `/board/get-boards?all=true`
+    );
+    return response.data;
+  },
 };

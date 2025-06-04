@@ -202,9 +202,9 @@ export const firebaseSocialLogin = createAsyncThunk(
 
 export const userActivity = createAsyncThunk(
   "auth/user-activity",
-  async (userId: string, { rejectWithValue }) => {
+  async ({ userId, boardId }: { userId: string, boardId: string }, { rejectWithValue }) => {
     try {
-      const response = await authService.userActivity(userId);
+      const response = await authService.userActivity(userId, boardId);
       return response.data;
     } catch (error) {
       console.error("Failed to fetch user activity", error);

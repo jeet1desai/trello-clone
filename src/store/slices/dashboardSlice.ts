@@ -80,6 +80,31 @@ interface ActivitiesResponse {
   pagination: Pagination;
 }
 
+export interface DashboardOverviewStateData {
+  overview: DashboardOverviewStateDataOverview
+  teamMembers: TDashboardOverviewStateDataTeamMember[]
+}
+
+export interface DashboardOverviewStateDataOverview {
+  totalUsers: number
+  totalSpentHours: number
+  totalTicketsClosed: number
+  totalActiveTickets: number
+  mostTicketsCompletedBy: string
+  mostTicketsCompletedCount: number
+}
+
+export interface TDashboardOverviewStateDataTeamMember {
+  name: string
+  email: string
+  joined: string
+  boardName: string
+  spentHours: number
+  ticketsClosed: number
+  activeTickets: number
+}
+
+
 interface DashboardState {
   dashboardAnalytic: DashboardAnalyticResponse | null;
   dashboardCount: DashboardCountResponse | null;
@@ -91,6 +116,7 @@ interface DashboardState {
   loadingMore: boolean;
   recentActivityLoading: boolean;
   upcomingTasks: IUpcomingTask[];
+  dashboardState: DashboardOverviewStateData | null
 }
 
 const initialState: DashboardState = {
@@ -112,6 +138,7 @@ const initialState: DashboardState = {
   loadingMore: false,
   recentActivityLoading: false,
   upcomingTasks: [],
+  dashboardState: null
 };
 
 export const getDashboardCount = createAsyncThunk(
@@ -167,6 +194,21 @@ export const getUpcomingTasks = createAsyncThunk(
     } catch (error: any) {
       return rejectWithValue(
         error.response?.data?.message ?? "Error while fetching upcoming tasks"
+      );
+    }
+  }
+);
+
+export const getDashboardState = createAsyncThunk(
+  "dashboard/state",
+  async (payload: { boardId?: string } = {}, { rejectWithValue }) => {
+    try {
+      const response = await dashboardService.getDashboardState(payload.boardId);
+      return response.data;
+    } catch (error: any) {
+     return rejectWithValue(
+        error.response?.data?.message ??
+          "Error while fetching dashboard analytics"
       );
     }
   }
@@ -292,6 +334,28 @@ const dashboardSlice = createSlice({
         state.error =
           (action.payload as string) ||
           "Error while fetching dashboard recent activity.";
+      })
+      
+       // Get overview state
+      .addCase(getDashboardState.pending, (state) => {
+        state.dashboardState = null;
+        state.loading = true;
+        state.error = null;
+        state.success = null;
+      })
+      .addCase(getDashboardState.fulfilled, (state, action) => {
+        state.dashboardState = action.payload;
+        state.loading = false;
+        state.error = null;
+        state.success = "Upcoming tasks fetched successfully.";
+      })
+      .addCase(getDashboardState.rejected, (state, action) => {
+        state.loading = false;
+        state.success = null;
+        state.dashboardState = null;
+        state.error =
+          (action.payload as string) ||
+          "Error while fetching dashboard state data.";
       });
   },
 });

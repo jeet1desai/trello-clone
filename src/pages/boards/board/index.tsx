@@ -937,7 +937,7 @@ const BoardDetail: React.FC = () => {
                           cursor: "pointer",
                         }}
                         onClick={() => {
-                          dispatch(userActivity(member.memberId._id));
+                          dispatch(userActivity({ userId: member.memberId._id, boardId: id ?? "" }));
                           setOpenUserMenu("");
                           setOpenUserActivity(true);
                         }}
