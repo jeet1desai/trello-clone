@@ -258,7 +258,7 @@ export const boardService = {
 
   async getAllBoardsNoPagination() {
     const response = await axiosInstance.get(
-      `/board/get-boards?all=true`
+      `/board/get-boards?all=true&sortType=1`
     );
     return response.data;
   },
