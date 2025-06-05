@@ -1851,7 +1851,11 @@ const boardSlice = createSlice({
       })
       .addCase(getAllBoardsNoPagination.fulfilled, (state, action) => {
         const { boards } = action.payload;
-        state.allBoard = boards;
+        const finalBoard = boards.map((item: IBoard)=> ({
+          _id : item._id,
+          name : item.name
+        }))
+        state.allBoard = finalBoard;
         state.loading = false;
         state.error = null;
         state.success = "Boards fetched successfully.";
