@@ -97,6 +97,7 @@ import TaskMenu from "./components/taskMenu";
 import { PRIVATE_ROUTE } from "../../../utils/enums/route";
 import { userActivity } from "../../../store/slices/userSlice";
 import UserActivityModal from "../../../components/board/UserActivityModal";
+import CsvManager from "../../../components/board/CsvManager";
 
 const { Title, Text } = Typography;
 
@@ -988,7 +989,7 @@ const BoardDetail: React.FC = () => {
           </Space>
         </div>
       </div>
-
+      <CsvManager/>
       {statusList?.length > 0 || isOwner() ? (
         selectedView === "board" ? (
           <div
