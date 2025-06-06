@@ -1087,3 +1087,12 @@
   font-weight: 600;
   color: #3c3c3c;
 }
+
+.activity-description {
+  color: var(--text-primary);
+}
+
+.task-title-link {
+  color: var(--primary-color-hover);
+  cursor: pointer;
+}
