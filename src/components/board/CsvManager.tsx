@@ -1,17 +1,11 @@
 import React, { useState } from "react";
-import {
-  Button,
-  Modal,
-  Upload,
-  Typography,
-  Space,
-  message,
-  Tooltip,
-} from "antd";
+import { Button, Modal, Upload, Space, message, Tooltip } from "antd";
 import { UploadOutlined, DownloadOutlined } from "@ant-design/icons";
 import Papa from "papaparse";
 import axiosInstance from "../../helper/axiosInstance";
 import { saveAs } from "file-saver";
+import { useSelector } from "react-redux";
+import { RootState } from "../../store";
 
 interface CsvRow {
   [key: string]: string;
@@ -23,6 +17,8 @@ interface ValidationError {
 }
 
 const CsvManager: React.FC = () => {
+  const { selectedBoard } = useSelector((state: RootState) => state.board);
+
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const showImportModal = () => setIsModalOpen(true);
@@ -53,6 +49,10 @@ const CsvManager: React.FC = () => {
   };
 
   const handleFileUpload = async (file: File) => {
+    if (!file.name.endsWith(".csv")) {
+      message.error("Only CSV files are allowed");
+      return false;
+    }
     Papa.parse<CsvRow>(file, {
       header: true,
       skipEmptyLines: true,
@@ -62,8 +62,8 @@ const CsvManager: React.FC = () => {
           message.warning(`${errors.length} rows have errors`);
         } else {
           const formData = new FormData();
+          formData.append("board_id", String(selectedBoard?._id));
           if (file) {
-            formData.append("board_id", "683d91c169fdb2200b52bb1c");
             formData.append("file", file);
           }
           await axiosInstance.post(`/task/import-csv`, formData, {
@@ -85,7 +85,7 @@ const CsvManager: React.FC = () => {
 
   const handleExport = async () => {
     const response = await axiosInstance.get(
-      `/task/export-csv/683d91c169fdb2200b52bb1c`
+      `/task/export-csv/${selectedBoard?._id}`
     );
     const blob = new Blob([response.data], {
       type: "text/csv;charset=utf-8;",
@@ -93,6 +93,12 @@ const CsvManager: React.FC = () => {
 
     saveAs(blob, "tasks.csv");
     message.success("CSV file downloaded");
+  };
+
+  const handleDownloadSample = () => {
+    const sampleCsv = "title,status\nSample Task 1,To Do\nSample Task 2,Done";
+    const blob = new Blob([sampleCsv], { type: "text/csv;charset=utf-8;" });
+    saveAs(blob, "sample-tasks.csv");
   };
 
   return (
@@ -107,7 +113,7 @@ const CsvManager: React.FC = () => {
         <Tooltip title="Import CSV">
           <Button
             type="primary"
-            icon={<UploadOutlined />}
+            icon={<DownloadOutlined />}
             onClick={showImportModal}
           >
             Import
@@ -117,7 +123,7 @@ const CsvManager: React.FC = () => {
         <Tooltip title="Export CSV">
           <Button
             type="default"
-            icon={<DownloadOutlined />}
+            icon={<UploadOutlined />}
             onClick={handleExport}
           >
             Export
@@ -132,17 +138,26 @@ const CsvManager: React.FC = () => {
         footer={null}
         destroyOnClose
       >
-        <Upload
-          beforeUpload={handleFileUpload}
-          accept=".csv"
-          showUploadList={false}
-          maxCount={1}
-        >
-          <Button icon={<UploadOutlined />}>Select CSV File</Button>
-        </Upload>
-        <Typography.Paragraph type="secondary" style={{ marginTop: 10 }}>
-          CSV must contain <b>title</b>, <b>status</b> columns.
-        </Typography.Paragraph>
+        <div style={{ display: "flex", justifyContent: "space-evenly" }}>
+          <Upload
+            beforeUpload={handleFileUpload}
+            accept=".csv"
+            showUploadList={false}
+            maxCount={1}
+          >
+            <Button icon={<UploadOutlined />}>Select CSV File</Button>
+          </Upload>
+          <br></br>
+          <div>
+            <Button
+              type="link"
+              onClick={handleDownloadSample}
+              style={{ padding: 0 }}
+            >
+              Download Sample CSV
+            </Button>
+          </div>
+        </div>
       </Modal>
     </div>
   );
