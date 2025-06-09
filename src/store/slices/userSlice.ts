@@ -25,9 +25,55 @@ export interface GoogleAuthResponse {
   token: string;
 }
 
-interface IUserActivity {
-  activity: { _id: string; date: string; title: string }[];
-  user: User;
+export interface userActivity {
+  activities: userActivityActivityArray[]
+  pagination: userActivityPagination
+}
+
+export interface userActivityActivityArray {
+  _id: string
+  created_by: userActivityActivityArrayCreatedBy
+  action: string
+  module: string
+  board: userActivityActivityArrayBoard
+  task: userActivityActivityArrayTask | null
+  details: string
+  visible_to: string[]
+  createdAt: string
+  updatedAt: string
+  __v: number
+}
+
+export interface userActivityActivityArrayCreatedBy {
+  profile_image: userActivityProfileImage
+  _id: string
+  first_name: string
+  middle_name: string
+  last_name: string
+  email: string
+}
+
+export interface userActivityProfileImage {
+  url: string
+  imageId: string
+  imageName: string
+}
+
+export interface userActivityActivityArrayBoard {
+  _id: string
+  name: string
+}
+
+export interface userActivityActivityArrayTask {
+  _id: string
+  title: string
+}
+
+export interface userActivityPagination {
+  currentPage: number
+  totalPages: number
+  totalRecords: number
+  limit: number
 }
 
 interface UserState {
@@ -41,7 +87,7 @@ interface UserState {
   passwordChangeSuccess: boolean;
   passwordResetSuccess: boolean;
   verificationSuccess: boolean;
-  userActivity: IUserActivity | null;
+  userActivity: userActivity | null;
 }
 
 const initialState: UserState = {
