@@ -13,13 +13,13 @@ importScripts(
 // your app's Firebase config object.
 // https://firebase.google.com/docs/web/setup#config-object
 firebase.initializeApp({
-  apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
-  authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
-  storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.REACT_APP_FIREBASE_APP_ID,
-  measurementId: process.env.REACT_APP_FIREBASE_MEASUREMENT_ID,
+  apiKey: "AIzaSyBHE5rb14UKjZ5woMLJyaw968GbAfKmKXk",
+  authDomain: "react-a6e6b.firebaseapp.com",
+  projectId: "react-a6e6b",
+  storageBucket: "react-a6e6b.firebasestorage.app",
+  messagingSenderId: "751416293670",
+  appId: "1:751416293670:web:552882d7e670c0cfe8a9e7",
+  measurementId: "G-JNQ5ZKF2V2",
 });
 
 // Retrieve an instance of Firebase Messaging so that it can handle background
