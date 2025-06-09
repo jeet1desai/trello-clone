@@ -42,7 +42,6 @@ export const generateToken = async () => {
     const fpn_token = await getToken(messaging, {
       vapidKey: process.env.REACT_APP_FIREBASE_VAPID_KEY,
     });
-    console.log("fpn_token", fpn_token);
     try {
       await axiosInstance.put("/auth/save-device-token", {
         fpn_token,
