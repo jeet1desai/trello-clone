@@ -63,7 +63,7 @@ const BoardStatistics: React.FC = () => {
             <Row gutter={[16, 16]} justify="center" className="stats-row">
                 <Col xs={24} sm={12} md={8}>
                     <Card className="stat-card average" title="📊 Average Assigned Hours" bordered={false}>
-                        {analytics?.averageSpendHours?.toFixed(2)}
+                        {analytics?.averageSpendHours?.toFixed(2) ?? "N/A"}
                     </Card>
                 </Col>
                 <Col xs={24} sm={12} md={8}>
