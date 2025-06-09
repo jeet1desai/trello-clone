@@ -113,7 +113,6 @@ const UserActivityModal = ({ open, onClose }: IProps) => {
                               )}
                           </>
                         ) : null}
-                        {item.module && <b>[{item.module}]</b>}
                       </span>
                       <div style={{ color: "#aaa", fontSize: 13, marginTop: 2 }}>
                         {dayjs(item.createdAt).fromNow()} &nbsp;
