@@ -1,19 +1,13 @@
-import React, { useState } from "react";
-import { Checkbox, Button, List, Typography } from "antd";
-import { useDispatch, useSelector } from "react-redux";
-import { AppDispatch, RootState } from "../../../../store";
-import { Input } from "../../../../components";
-import ColorPicker from "./colorPicker";
-import {
-  addLabelInTask,
-  addNewLabel,
-  deleteLabel,
-  editLabel,
-  removeLabelFromTask,
-} from "../../../../store/slices/boardSlice";
-import Search from "antd/es/transfer/search";
-import { Pencil, ChevronLeft } from "lucide-react";
-import { AllowedLabel } from "../../../../hooks/useLabelSuggestions";
+import React, { useState } from 'react';
+import { Checkbox, Button, List, Typography } from 'antd';
+import { useDispatch, useSelector } from 'react-redux';
+import { AppDispatch, RootState } from '../../../../store';
+import { Input } from '../../../../components';
+import ColorPicker from './colorPicker';
+import { addLabelInTask, addNewLabel, deleteLabel, editLabel, removeLabelFromTask } from '../../../../store/slices/boardSlice';
+import Search from 'antd/es/transfer/search';
+import { Pencil, ChevronLeft } from 'lucide-react';
+import { AllowedLabel } from '../../../../hooks/useLabelSuggestions';
 
 const { Title, Text } = Typography;
 
@@ -25,14 +19,12 @@ interface IProps {
 
 const LabelPopup = ({ boardId, selectedTaskId, suggestedLabels }: IProps) => {
   const dispatch = useDispatch<AppDispatch>();
-  const { boardLabels, selectedTaskLabels, loading } = useSelector(
-    (state: RootState) => state.board
-  );
-  const [search, setSearch] = useState("");
-  const [title, setTitle] = useState("");
-  const [selectedColor, setSelectedColor] = useState("black");
+  const { boardLabels, selectedTaskLabels, loading } = useSelector((state: RootState) => state.board);
+  const [search, setSearch] = useState('');
+  const [title, setTitle] = useState('');
+  const [selectedColor, setSelectedColor] = useState('black');
   const [isAddFlag, setIsAddFlag] = useState(false);
-  const [selectedLabelId, setSelectedLabelId] = useState("");
+  const [selectedLabelId, setSelectedLabelId] = useState('');
 
   const toggleLabel = (id: string) => {
     if (loading) return;
@@ -44,14 +36,10 @@ const LabelPopup = ({ boardId, selectedTaskId, suggestedLabels }: IProps) => {
     }
   };
 
-  const filteredLabels = boardLabels.filter((label) =>
-    label.name.toLowerCase().includes(search.toLowerCase())
-  );
+  const filteredLabels = boardLabels.filter((label) => label.name.toLowerCase().includes(search.toLowerCase()));
 
   const labelsName = new Set(boardLabels.map((label) => label.name));
-  const suggestedLabelList = suggestedLabels.filter(
-    (item) => !labelsName.has(item)
-  );
+  const suggestedLabelList = suggestedLabels.filter((item) => !labelsName.has(item));
 
   const handleCreateUpdateLabel = () => {
     selectedLabelId
@@ -60,14 +48,14 @@ const LabelPopup = ({ boardId, selectedTaskId, suggestedLabels }: IProps) => {
             _id: selectedLabelId,
             name: title,
             background_color: selectedColor,
-            text_color: "#FFFFFF",
+            text_color: '#FFFFFF',
           })
         )
       : dispatch(
           addNewLabel({
             name: title,
             background_color: selectedColor,
-            text_color: "#FFFFFF",
+            text_color: '#FFFFFF',
             board: boardId,
           })
         );
@@ -84,7 +72,7 @@ const LabelPopup = ({ boardId, selectedTaskId, suggestedLabels }: IProps) => {
       style={{
         width: 300,
         borderRadius: 8,
-        color: "#fff",
+        color: '#fff',
         height: 370,
       }}
     >
@@ -93,32 +81,30 @@ const LabelPopup = ({ boardId, selectedTaskId, suggestedLabels }: IProps) => {
           <Title
             style={{
               marginTop: 0,
-              fontSize: "16px",
-              display: "flex",
-              alignItems: "center",
+              fontSize: '16px',
+              display: 'flex',
+              alignItems: 'center',
             }}
           >
             <ChevronLeft
               className="color-inherit"
-              style={{ cursor: "pointer" }}
+              style={{ cursor: 'pointer' }}
               onClick={() => {
-                setTitle("");
-                setSelectedColor("black");
+                setTitle('');
+                setSelectedColor('black');
                 setIsAddFlag(false);
-                setSearch("");
-                setSelectedLabelId("");
+                setSearch('');
+                setSelectedLabelId('');
               }}
-            />{" "}
+            />{' '}
             Create Label
           </Title>
-          <div
-            style={{ minHeight: "30px", background: "black", padding: "20px" }}
-          >
+          <div style={{ minHeight: '30px', background: 'black', padding: '20px' }}>
             <div
               style={{
                 background: `${selectedColor}`,
-                padding: "4px",
-                borderRadius: "4px",
+                padding: '4px',
+                borderRadius: '4px',
               }}
             >
               {title}
@@ -130,21 +116,17 @@ const LabelPopup = ({ boardId, selectedTaskId, suggestedLabels }: IProps) => {
             value={title}
             autoFocus
             onChange={(e) => setTitle(e.target.value)}
-            style={{ marginTop: 12, marginBottom: 12, borderRadius: "4px" }}
+            style={{ marginTop: 12, marginBottom: 12, borderRadius: '4px' }}
           />
           <ColorPicker value={selectedColor} onChange={setSelectedColor} />
-          <div style={{ display: "flex", gap: "8px" }}>
+          <div style={{ display: 'flex', gap: '8px' }}>
             {selectedLabelId ? (
               <Button
                 className="button small-btn"
                 block
                 danger
                 style={{ marginTop: 16 }}
-                disabled={
-                  selectedTaskLabels?.filter(
-                    (label) => label._id === selectedLabelId
-                  ).length > 0
-                }
+                disabled={selectedTaskLabels?.filter((label) => label._id === selectedLabelId).length > 0}
                 onClick={handleDeleteLabel}
               >
                 Delete
@@ -155,53 +137,37 @@ const LabelPopup = ({ boardId, selectedTaskId, suggestedLabels }: IProps) => {
                 block
                 style={{ marginTop: 16 }}
                 onClick={() => {
-                  setSelectedLabelId("");
-                  setTitle("");
-                  setSelectedColor("black");
-                  setSearch("");
+                  setSelectedLabelId('');
+                  setTitle('');
+                  setSelectedColor('black');
+                  setSearch('');
                   setIsAddFlag(false);
                 }}
               >
                 Cancel
               </Button>
             )}
-            <Button
-              className="button small-btn"
-              type="primary"
-              block
-              disabled={!title}
-              style={{ marginTop: 16 }}
-              onClick={handleCreateUpdateLabel}
-            >
-              {selectedLabelId ? "Update" : "Create"}
+            <Button className="button small-btn" type="primary" block disabled={!title} style={{ marginTop: 16 }} onClick={handleCreateUpdateLabel}>
+              {selectedLabelId ? 'Update' : 'Create'}
             </Button>
           </div>
         </>
       ) : (
         <>
-          <Title style={{ marginTop: 0, fontSize: "16px" }}>Labels</Title>
-          <Search
-            prefixCls="form-input form-input-small"
-            placeholder="Search labels..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
+          <Title style={{ marginTop: 0, fontSize: '16px' }}>Labels</Title>
+          <Search prefixCls="form-input form-input-small" placeholder="Search labels..." value={search} onChange={(e) => setSearch(e.target.value)} />
           <List
             style={{
-              minHeight: "50px",
-              overflowX: "auto",
+              minHeight: '50px',
+              overflowX: 'auto',
               marginTop: 12,
               marginBottom: 16,
             }}
             dataSource={filteredLabels}
             renderItem={(label) => (
-              <List.Item
-                style={{ padding: "4px 0", borderBlockEnd: "initial" }}
-              >
+              <List.Item style={{ padding: '4px 0', borderBlockEnd: 'initial' }}>
                 <Checkbox
-                  checked={selectedTaskLabels
-                    ?.map((label) => label?._id)
-                    .includes(label?._id)}
+                  checked={selectedTaskLabels?.map((label) => label?._id).includes(label?._id)}
                   style={{
                     width: 20,
                     marginRight: 8,
@@ -214,9 +180,9 @@ const LabelPopup = ({ boardId, selectedTaskId, suggestedLabels }: IProps) => {
                     flex: 1,
                     minHeight: 30,
                     borderRadius: 4,
-                    display: "flex",
-                    alignItems: "center",
-                    padding: "0 8px",
+                    display: 'flex',
+                    alignItems: 'center',
+                    padding: '0 8px',
                     color: label.textColor,
                   }}
                 >
@@ -239,7 +205,7 @@ const LabelPopup = ({ boardId, selectedTaskId, suggestedLabels }: IProps) => {
           />
           {suggestedLabels.length > 0 && (
             <>
-              <Text strong style={{ fontSize: "14px", margin: "8px" }}>
+              <Text strong style={{ fontSize: '14px', margin: '8px' }}>
                 Suggested Labels
               </Text>
               <List
@@ -250,27 +216,27 @@ const LabelPopup = ({ boardId, selectedTaskId, suggestedLabels }: IProps) => {
                 renderItem={(label) => (
                   <List.Item
                     style={{
-                      padding: "4px 0",
-                      borderBlockEnd: "initial",
-                      cursor: "pointer",
+                      padding: '4px 0',
+                      borderBlockEnd: 'initial',
+                      cursor: 'pointer',
                     }}
                   >
                     <div
                       style={{
-                        backgroundColor: "#e9e9e9",
+                        backgroundColor: '#e9e9e9',
                         flex: 1,
                         height: 30,
                         borderRadius: 4,
-                        display: "flex",
-                        alignItems: "center",
-                        padding: "0 8px",
-                        color: "grey",
+                        display: 'flex',
+                        alignItems: 'center',
+                        padding: '0 8px',
+                        color: 'grey',
                       }}
                       onClick={() => {
-                        setSelectedLabelId("");
+                        setSelectedLabelId('');
                         setTitle(label);
-                        setSelectedColor("black");
-                        setSearch("");
+                        setSelectedColor('black');
+                        setSearch('');
                         setIsAddFlag(true);
                       }}
                     >
@@ -286,10 +252,10 @@ const LabelPopup = ({ boardId, selectedTaskId, suggestedLabels }: IProps) => {
             block
             style={{ marginTop: 16 }}
             onClick={() => {
-              setSelectedLabelId("");
-              setTitle("");
-              setSelectedColor("black");
-              setSearch("");
+              setSelectedLabelId('');
+              setTitle('');
+              setSelectedColor('black');
+              setSearch('');
               setIsAddFlag(true);
             }}
           >

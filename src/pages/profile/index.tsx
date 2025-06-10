@@ -1,41 +1,16 @@
-import React, { useEffect, useState } from "react";
-import {
-  Form,
-  Input,
-  Button,
-  Avatar,
-  Typography,
-  Row,
-  Col,
-  Card,
-  Upload,
-  Tabs,
-  Divider,
-} from "antd";
-import { useDispatch, useSelector } from "react-redux";
-import { AppDispatch, persistor, RootState } from "../../store";
-import {
-  getProfileData,
-  resetPassword,
-  updateProfile,
-} from "../../store/slices/profileSlice";
-import "../../layout/styles/Profile.css";
-import { logoutUser, User } from "../../store/slices/userSlice";
-import { useNavigate } from "react-router-dom";
-import { PUBLIC_ROUTE } from "../../utils/enums/route";
-import { RESET_APP } from "../../config";
-import { handleSocialLogout } from "../../config/firebase/helperFunction";
-import {
-  Camera,
-  Check,
-  Lock,
-  Mail,
-  Pencil,
-  UserRound,
-  X,
-  ShieldAlert,
-} from "lucide-react";
-import { Loader } from "../../components";
+import React, { useEffect, useState } from 'react';
+import { Form, Input, Button, Avatar, Typography, Row, Col, Card, Upload, Tabs, Divider } from 'antd';
+import { useDispatch, useSelector } from 'react-redux';
+import { AppDispatch, persistor, RootState } from '../../store';
+import { getProfileData, resetPassword, updateProfile } from '../../store/slices/profileSlice';
+import '../../layout/styles/Profile.css';
+import { logoutUser, User } from '../../store/slices/userSlice';
+import { useNavigate } from 'react-router-dom';
+import { PUBLIC_ROUTE } from '../../utils/enums/route';
+import { RESET_APP } from '../../config';
+import { handleSocialLogout } from '../../config/firebase/helperFunction';
+import { Camera, Check, Lock, Mail, Pencil, UserRound, X, ShieldAlert } from 'lucide-react';
+import { Loader } from '../../components';
 
 const { Title, Text } = Typography;
 const { TabPane } = Tabs;
@@ -47,13 +22,9 @@ const ProfilePage = () => {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const { currentUser } = useSelector((state: RootState) => state.user);
-  const { profileDetails, loading } = useSelector(
-    (state: RootState) => state.profile
-  );
+  const { profileDetails, loading } = useSelector((state: RootState) => state.profile);
   const [editMode, setEditMode] = useState(false);
-  const [previewImage, setPreviewImage] = useState<string | undefined>(
-    profileDetails?.profile_image?.url
-  );
+  const [previewImage, setPreviewImage] = useState<string | undefined>(profileDetails?.profile_image?.url);
 
   useEffect(() => {
     const fetchProfileDetails = async () => {
@@ -63,13 +34,7 @@ const ProfilePage = () => {
     fetchProfileDetails();
   }, [dispatch]);
 
-  const handleUpdate = async (values: {
-    first_name: string;
-    middle_name: string;
-    last_name: string;
-    email: string;
-    profile_image: any;
-  }) => {
+  const handleUpdate = async (values: { first_name: string; middle_name: string; last_name: string; email: string; profile_image: any }) => {
     await dispatch(
       updateProfile(
         values.profile_image
@@ -91,10 +56,7 @@ const ProfilePage = () => {
     navigate(PUBLIC_ROUTE.FORGOT_PASSWORD);
   };
 
-  const handleResetPassword = async (values: {
-    old_password: string;
-    new_password: string;
-  }) => {
+  const handleResetPassword = async (values: { old_password: string; new_password: string }) => {
     try {
       await dispatch(resetPassword(values)).unwrap();
       passwordForm.resetFields();
@@ -109,15 +71,15 @@ const ProfilePage = () => {
       {/* Header with gradient */}
       <div className="profile-header-gradient">
         <Title level={3} className="welcome-title">
-          Welcome, {profileDetails?.first_name ?? "User"}
+          Welcome, {profileDetails?.first_name ?? 'User'}
         </Title>
         <Text className="date-text">
-          Today,{" "}
-          {new Date().toLocaleDateString("en-US", {
-            weekday: "long",
-            year: "numeric",
-            month: "long",
-            day: "numeric",
+          Today,{' '}
+          {new Date().toLocaleDateString('en-US', {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
           })}
         </Text>
       </div>
@@ -127,7 +89,7 @@ const ProfilePage = () => {
           defaultActiveKey="profile"
           className="profile-tabs"
           onChange={(activeKey) => {
-            if (activeKey !== "profile") {
+            if (activeKey !== 'profile') {
               setEditMode(false);
               profileForm.resetFields();
             } else {
@@ -162,8 +124,7 @@ const ProfilePage = () => {
                         disabled={!editMode}
                         beforeUpload={(file) => {
                           const reader = new FileReader();
-                          reader.onload = () =>
-                            setPreviewImage(reader.result as string);
+                          reader.onload = () => setPreviewImage(reader.result as string);
                           reader.readAsDataURL(file);
                           return false;
                         }}
@@ -171,9 +132,7 @@ const ProfilePage = () => {
                         <div className="avatar-wrapper">
                           <Avatar
                             size={80}
-                            src={
-                              previewImage ?? profileDetails?.profile_image?.url
-                            }
+                            src={previewImage ?? profileDetails?.profile_image?.url}
                             icon={<UserRound size={16} />}
                             className="profile-avatar"
                           />
@@ -188,9 +147,7 @@ const ProfilePage = () => {
 
                     <div className="profile-info">
                       <Title level={4} className="profile-name">
-                        {`${profileDetails?.first_name || ""} ${
-                          profileDetails?.middle_name || ""
-                        } ${profileDetails?.last_name || ""}`}
+                        {`${profileDetails?.first_name || ''} ${profileDetails?.middle_name || ''} ${profileDetails?.last_name || ''}`}
                       </Title>
                       <Text type="secondary" className="profile-email">
                         <Mail size={16} /> {profileDetails?.email}
@@ -214,19 +171,17 @@ const ProfilePage = () => {
                       </Button>
                     )}
                     <Button
-                      type={editMode ? "default" : "primary"}
-                      htmlType={!editMode ? "submit" : "button"}
+                      type={editMode ? 'default' : 'primary'}
+                      htmlType={!editMode ? 'submit' : 'button'}
                       loading={loading}
-                      icon={
-                        editMode ? <Check size={16} /> : <Pencil size={16} />
-                      }
+                      icon={editMode ? <Check size={16} /> : <Pencil size={16} />}
                       onClick={async () => {
                         if (editMode) {
                           try {
                             await profileForm.validateFields();
                             setEditMode(false);
                           } catch (error) {
-                            console.error("Validation failed:", error);
+                            console.error('Validation failed:', error);
                           }
                         } else {
                           setEditMode(true);
@@ -234,7 +189,7 @@ const ProfilePage = () => {
                       }}
                       className="button"
                     >
-                      {editMode ? "Save" : "Edit Profile"}
+                      {editMode ? 'Save' : 'Edit Profile'}
                     </Button>
                   </div>
                 </div>
@@ -246,19 +201,14 @@ const ProfilePage = () => {
                       label="First Name"
                       name="first_name"
                       rules={[
-                        { required: true, message: "First Name is required" },
+                        { required: true, message: 'First Name is required' },
                         {
                           max: 50,
-                          message: "First Name must not exceed 50 characters",
+                          message: 'First Name must not exceed 50 characters',
                         },
                       ]}
                     >
-                      <Input
-                        prefix={<UserRound size={16} />}
-                        placeholder="Enter your first name"
-                        disabled={!editMode}
-                        className="profile-input"
-                      />
+                      <Input prefix={<UserRound size={16} />} placeholder="Enter your first name" disabled={!editMode} className="profile-input" />
                     </Form.Item>
                   </Col>
                   <Col xs={24} md={8}>
@@ -268,16 +218,11 @@ const ProfilePage = () => {
                       rules={[
                         {
                           max: 50,
-                          message: "Middle Name must not exceed 50 characters",
+                          message: 'Middle Name must not exceed 50 characters',
                         },
                       ]}
                     >
-                      <Input
-                        prefix={<UserRound size={16} />}
-                        placeholder="Enter your middle name"
-                        disabled={!editMode}
-                        className="profile-input"
-                      />
+                      <Input prefix={<UserRound size={16} />} placeholder="Enter your middle name" disabled={!editMode} className="profile-input" />
                     </Form.Item>
                   </Col>
                   <Col xs={24} md={8}>
@@ -285,19 +230,14 @@ const ProfilePage = () => {
                       label="Last Name"
                       name="last_name"
                       rules={[
-                        { required: true, message: "Last Name is required" },
+                        { required: true, message: 'Last Name is required' },
                         {
                           max: 50,
-                          message: "Last Name must not exceed 50 characters",
+                          message: 'Last Name must not exceed 50 characters',
                         },
                       ]}
                     >
-                      <Input
-                        prefix={<UserRound size={16} />}
-                        placeholder="Enter your last name"
-                        disabled={!editMode}
-                        className="profile-input"
-                      />
+                      <Input prefix={<UserRound size={16} />} placeholder="Enter your last name" disabled={!editMode} className="profile-input" />
                     </Form.Item>
                   </Col>
                   <Col span={24}>
@@ -305,16 +245,11 @@ const ProfilePage = () => {
                       label="Email"
                       name="email"
                       rules={[
-                        { required: true, message: "Email is required" },
-                        { type: "email", message: "Invalid email address" },
+                        { required: true, message: 'Email is required' },
+                        { type: 'email', message: 'Invalid email address' },
                       ]}
                     >
-                      <Input
-                        prefix={<Mail size={16} />}
-                        placeholder="Enter your email"
-                        disabled={!editMode}
-                        className="profile-input"
-                      />
+                      <Input prefix={<Mail size={16} />} placeholder="Enter your email" disabled={!editMode} className="profile-input" />
                     </Form.Item>
                   </Col>
                 </Row>
@@ -341,12 +276,7 @@ const ProfilePage = () => {
 
               <Divider />
 
-              <Form
-                form={passwordForm}
-                layout="vertical"
-                onFinish={handleResetPassword}
-                requiredMark={false}
-              >
+              <Form form={passwordForm} layout="vertical" onFinish={handleResetPassword} requiredMark={false}>
                 <Row gutter={24}>
                   <Col xs={24} md={8}>
                     <Form.Item
@@ -355,19 +285,15 @@ const ProfilePage = () => {
                       rules={[
                         {
                           required: true,
-                          message: "Current password is required",
+                          message: 'Current password is required',
                         },
                         {
                           min: 8,
-                          message: "Password must be at least 8 characters",
+                          message: 'Password must be at least 8 characters',
                         },
                       ]}
                     >
-                      <Input.Password
-                        prefix={<Lock size={16} />}
-                        placeholder="Enter current password"
-                        className="profile-input"
-                      />
+                      <Input.Password prefix={<Lock size={16} />} placeholder="Enter current password" className="profile-input" />
                     </Form.Item>
                   </Col>
                   <Col xs={24} md={8}>
@@ -377,68 +303,48 @@ const ProfilePage = () => {
                       rules={[
                         {
                           required: true,
-                          message: "New password is required",
+                          message: 'New password is required',
                         },
                         {
                           min: 8,
-                          message: "Password must be at least 8 characters",
+                          message: 'Password must be at least 8 characters',
                         },
                         {
                           pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
-                          message:
-                            "Password must contain uppercase, lowercase, and number",
+                          message: 'Password must contain uppercase, lowercase, and number',
                         },
                       ]}
                     >
-                      <Input.Password
-                        prefix={<Lock size={16} />}
-                        placeholder="Enter new password"
-                        className="profile-input"
-                      />
+                      <Input.Password prefix={<Lock size={16} />} placeholder="Enter new password" className="profile-input" />
                     </Form.Item>
                   </Col>
                   <Col xs={24} md={8}>
                     <Form.Item
                       label="Confirm Password"
                       name="confirm_password"
-                      dependencies={["new_password"]}
+                      dependencies={['new_password']}
                       rules={[
                         {
                           required: true,
-                          message: "Please confirm your password",
+                          message: 'Please confirm your password',
                         },
                         ({ getFieldValue }) => ({
                           validator(_, value) {
-                            if (
-                              !value ||
-                              getFieldValue("new_password") === value
-                            ) {
+                            if (!value || getFieldValue('new_password') === value) {
                               return Promise.resolve();
                             }
-                            return Promise.reject(
-                              new Error("Passwords must match")
-                            );
+                            return Promise.reject(new Error('Passwords must match'));
                           },
                         }),
                       ]}
                     >
-                      <Input.Password
-                        prefix={<Lock size={16} />}
-                        placeholder="Confirm new password"
-                        className="profile-input"
-                      />
+                      <Input.Password prefix={<Lock size={16} />} placeholder="Confirm new password" className="profile-input" />
                     </Form.Item>
                   </Col>
                 </Row>
 
                 <div className="button-container">
-                  <Button
-                    type="primary"
-                    htmlType="submit"
-                    loading={loading}
-                    icon={<Lock size={16} />}
-                    className="button"
-                  >
+                  <Button type="primary" htmlType="submit" loading={loading} icon={<Lock size={16} />} className="button">
                     Update Password
                   </Button>
                 </div>

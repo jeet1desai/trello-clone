@@ -94,7 +94,7 @@
 }
 
 .hero-title .highlight::after {
-  content: "";
+  content: '';
   position: absolute;
   left: 0;
   bottom: 8px;
@@ -452,7 +452,7 @@
 
 .stat-label {
   font-size: 1.1rem;
-  color: "#white";
+  color: '#white';
   display: block;
 }
 

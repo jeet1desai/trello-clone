@@ -3,17 +3,13 @@
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  background: linear-gradient(
-    135deg,
-    var(--bg-color) 0%,
-    var(--bg-color-secondary) 100%
-  );
+  background: linear-gradient(135deg, var(--bg-color) 0%, var(--bg-color-secondary) 100%);
   position: relative;
   overflow: hidden;
 }
 
 .auth-container::before {
-  content: "";
+  content: '';
   position: absolute;
   top: 0;
   left: 0;
@@ -141,7 +137,7 @@
 
 .social-auth-title::before,
 .social-auth-title::after {
-  content: "";
+  content: '';
   position: absolute;
   top: 50%;
   width: 30%;

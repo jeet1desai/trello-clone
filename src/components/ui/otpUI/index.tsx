@@ -1,6 +1,6 @@
-import React, { useRef, useState, useEffect } from "react";
-import { Form, Input } from "antd";
-import type { InputRef, FormInstance } from "antd";
+import React, { useRef, useState, useEffect } from 'react';
+import { Form, Input } from 'antd';
+import type { InputRef, FormInstance } from 'antd';
 
 interface OtpInputProps {
   form: FormInstance;
@@ -8,7 +8,7 @@ interface OtpInputProps {
 }
 
 const OtpInput: React.FC<OtpInputProps> = ({ form, name }) => {
-  const [otp, setOtp] = useState<string[]>(Array(6).fill(""));
+  const [otp, setOtp] = useState<string[]>(Array(6).fill(''));
   const inputRefs = useRef<Array<InputRef | null>>([]);
 
   const handleChange = (value: string, index: number) => {
@@ -22,28 +22,25 @@ const OtpInput: React.FC<OtpInputProps> = ({ form, name }) => {
       inputRefs.current[index + 1]?.focus();
     }
 
-    form.setFieldsValue({ [name]: newOtp.join("") });
+    form.setFieldsValue({ [name]: newOtp.join('') });
     form.validateFields([name]);
   };
 
-  const handleKeyDown = (
-    e: React.KeyboardEvent<HTMLInputElement>,
-    index: number
-  ) => {
-    if (e.key === "Backspace" && !otp[index] && index > 0) {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, index: number) => {
+    if (e.key === 'Backspace' && !otp[index] && index > 0) {
       inputRefs.current[index - 1]?.focus();
     }
   };
 
   const handlePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
     e.preventDefault();
-    const pasteData = e.clipboardData.getData("Text").trim();
+    const pasteData = e.clipboardData.getData('Text').trim();
     if (!/^\d{1,6}$/.test(pasteData)) return;
 
-    const pasteDigits = pasteData.split("");
+    const pasteDigits = pasteData.split('');
     const newOtp = [...otp];
     for (let i = 0; i < 6; i++) {
-      newOtp[i] = pasteDigits[i] || "";
+      newOtp[i] = pasteDigits[i] || '';
     }
     setOtp(newOtp);
 
@@ -52,7 +49,7 @@ const OtpInput: React.FC<OtpInputProps> = ({ form, name }) => {
   };
 
   useEffect(() => {
-    form.setFieldsValue({ [name]: otp.join("") });
+    form.setFieldsValue({ [name]: otp.join('') });
   }, [otp, name, form]);
 
   return (
@@ -66,18 +63,11 @@ const OtpInput: React.FC<OtpInputProps> = ({ form, name }) => {
       rules={[
         {
           validator: (_, value) =>
-            value && value.length === 6
-              ? Promise.resolve()
-              : Promise.reject(
-                  new Error("Please enter all 6 digits of the OTP")
-                ),
+            value && value.length === 6 ? Promise.resolve() : Promise.reject(new Error('Please enter all 6 digits of the OTP')),
         },
       ]}
     >
-      <div
-        style={{ display: "flex", gap: 8, justifyContent: "space-between" }}
-        onPaste={handlePaste}
-      >
+      <div style={{ display: 'flex', gap: 8, justifyContent: 'space-between' }} onPaste={handlePaste}>
         {otp.map((digit, idx) => (
           <Input
             className="form-input"
@@ -89,7 +79,7 @@ const OtpInput: React.FC<OtpInputProps> = ({ form, name }) => {
             ref={(el: InputRef | null) => {
               inputRefs.current[idx] = el;
             }}
-            style={{ width: "44px", textAlign: "center", fontSize: "18px" }}
+            style={{ width: '44px', textAlign: 'center', fontSize: '18px' }}
             inputMode="numeric"
           />
         ))}

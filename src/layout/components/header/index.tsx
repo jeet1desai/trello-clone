@@ -1,58 +1,38 @@
-import React, { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
-import { AppDispatch, RootState, persistor } from "../../../store";
-import {
-  Layout,
-  Button,
-  Avatar,
-  Dropdown,
-  MenuProps,
-  Space,
-  Popover,
-  Badge,
-  Empty,
-  Typography,
-} from "antd";
-import { logoutUser } from "../../../store/slices/userSlice";
-import { ThemeToggle } from "../../../components/ui";
-import { useTheme } from "../../../contexts/ThemeContext";
-import "../../styles/Layout.css";
-import NavigationLinks from "./NavigationLink";
-import { RESET_APP } from "../../../config";
-import socketService from "../../../services/socketService";
-import dayjs from "dayjs";
-import relativeTime from "dayjs/plugin/relativeTime";
-import {
-  addNewNotification,
-  readNotificationById,
-  Notification,
-  readAllNotifications,
-} from "../../../store/slices/notificationSlice";
-import { PRIVATE_ROUTE, PUBLIC_ROUTE } from "../../../utils/enums/route";
-import { companyLogo } from "../../../assets";
-import { getRandomColor } from "../../../utils";
-import { handleSocialLogout } from "../../../config/firebase/helperFunction";
-import { Bell, CheckCheck, EyeOff, LogOut, UserRound } from "lucide-react";
-import { useMedia } from "../../../hooks/useMedia";
+import React, { useEffect, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { AppDispatch, RootState, persistor } from '../../../store';
+import { Layout, Button, Avatar, Dropdown, MenuProps, Space, Popover, Badge, Empty, Typography } from 'antd';
+import { logoutUser } from '../../../store/slices/userSlice';
+import { ThemeToggle } from '../../../components/ui';
+import { useTheme } from '../../../contexts/ThemeContext';
+import '../../styles/Layout.css';
+import NavigationLinks from './NavigationLink';
+import { RESET_APP } from '../../../config';
+import socketService from '../../../services/socketService';
+import dayjs from 'dayjs';
+import relativeTime from 'dayjs/plugin/relativeTime';
+import { addNewNotification, readNotificationById, Notification, readAllNotifications } from '../../../store/slices/notificationSlice';
+import { PRIVATE_ROUTE, PUBLIC_ROUTE } from '../../../utils/enums/route';
+import { companyLogo } from '../../../assets';
+import { getRandomColor } from '../../../utils';
+import { handleSocialLogout } from '../../../config/firebase/helperFunction';
+import { Bell, CheckCheck, EyeOff, LogOut, UserRound } from 'lucide-react';
+import { useMedia } from '../../../hooks/useMedia';
 
 dayjs.extend(relativeTime);
 const { Header: AntHeader } = Layout;
 
 const Header: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const { allNotification } = useSelector(
-    (state: RootState) => state.notification
-  );
+  const { allNotification } = useSelector((state: RootState) => state.notification);
   const navigate = useNavigate();
-  const { currentUser, isAuthenticated } = useSelector(
-    (state: RootState) => state.user
-  );
+  const { currentUser, isAuthenticated } = useSelector((state: RootState) => state.user);
   const { theme } = useTheme();
   const [notificationOpen, setNotificationOpen] = useState(false);
 
   const isMobile = useMedia({ max: 650 });
-  const isDarkMode = theme === "dark";
+  const isDarkMode = theme === 'dark';
 
   const handleLogout = async () => {
     await dispatch(logoutUser());
@@ -67,37 +47,31 @@ const Header: React.FC = () => {
   };
 
   useEffect(() => {
-    socketService.on("receive_notification", (payload) => {
+    socketService.on('receive_notification', (payload) => {
       dispatch(addNewNotification(payload));
     });
 
     return () => {
-      socketService.off("receive_notification");
+      socketService.off('receive_notification');
     };
   });
 
-  const userMenuItems: MenuProps["items"] = [
+  const userMenuItems: MenuProps['items'] = [
     {
-      label: (
-        <span>
-          {(currentUser?.first_name ?? "") +
-            " " +
-            (currentUser?.last_name ?? "")}
-        </span>
-      ),
-      type: "group",
+      label: <span>{(currentUser?.first_name ?? '') + ' ' + (currentUser?.last_name ?? '')}</span>,
+      type: 'group',
     },
     {
-      type: "divider",
+      type: 'divider',
     },
     {
-      key: "profile",
+      key: 'profile',
       label: <span>Profile</span>,
       icon: <UserRound size={16} />,
       onClick: () => navigate(PRIVATE_ROUTE.USER_PROFILE),
     },
     {
-      key: "logout",
+      key: 'logout',
       label: <span className="require-mark">Log Out</span>,
       icon: <LogOut size={16} className="require-mark" />,
       onClick: handleLogout,
@@ -109,17 +83,14 @@ const Header: React.FC = () => {
       <AntHeader className="app-header">
         <div
           style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            height: "100%",
-            width: "100%",
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            height: '100%',
+            width: '100%',
           }}
         >
-          <div
-            className="logo-wrapper"
-            onClick={() => navigate(PUBLIC_ROUTE.HOME)}
-          >
+          <div className="logo-wrapper" onClick={() => navigate(PUBLIC_ROUTE.HOME)}>
             <img src={companyLogo} alt="Base Team" className="app-logo" />
             <Typography className="app-logo-title">BaseTeam</Typography>
           </div>
@@ -128,18 +99,14 @@ const Header: React.FC = () => {
             <Button
               type="text"
               style={{
-                color: isDarkMode ? "white" : "inherit",
-                borderRadius: "50px",
-                padding: "18px",
+                color: isDarkMode ? 'white' : 'inherit',
+                borderRadius: '50px',
+                padding: '18px',
               }}
             >
               <Link to={PUBLIC_ROUTE.REGISTRATION}>Sign Up</Link>
             </Button>
-            <Button
-              type="primary"
-              style={{ borderRadius: "50px", padding: "18px" }}
-              onClick={() => navigate(PUBLIC_ROUTE.LOGIN)}
-            >
+            <Button type="primary" style={{ borderRadius: '50px', padding: '18px' }} onClick={() => navigate(PUBLIC_ROUTE.LOGIN)}>
               Log In
             </Button>
           </Space>
@@ -151,16 +118,13 @@ const Header: React.FC = () => {
   return (
     <AntHeader className="app-header" id="header-id">
       <div className="header-wrapper">
-        <div
-          className="logo-wrapper"
-          onClick={() => navigate(PRIVATE_ROUTE.DASHBOARD)}
-        >
+        <div className="logo-wrapper" onClick={() => navigate(PRIVATE_ROUTE.DASHBOARD)}>
           <img src={companyLogo} alt="Base Team" className="app-logo" />
           <Typography className="app-logo-title">BaseTeam</Typography>
         </div>
 
         {!isMobile && <NavigationLinks />}
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <Popover
             open={notificationOpen}
             overlayClassName="custom-notification-popover"
@@ -172,7 +136,7 @@ const Header: React.FC = () => {
                       className="notification-item"
                       key={item._id}
                       style={{
-                        background: isDarkMode ? "#181818" : "#efefef",
+                        background: isDarkMode ? '#181818' : '#efefef',
                       }}
                     >
                       <div className="notification-left">
@@ -181,15 +145,14 @@ const Header: React.FC = () => {
                             background: getRandomColor(item?.sender?._id),
                           }}
                         >
-                          {item.sender?.first_name?.[0]?.toUpperCase() +
-                            item.sender?.last_name?.[0]?.toUpperCase()}
+                          {item.sender?.first_name?.[0]?.toUpperCase() + item.sender?.last_name?.[0]?.toUpperCase()}
                         </Avatar>
                         <div className="notification-text">
                           <div
                             style={{
-                              display: "flex",
-                              justifyContent: "space-between",
-                              alignItems: "center",
+                              display: 'flex',
+                              justifyContent: 'space-between',
+                              alignItems: 'center',
                             }}
                           >
                             <p>{item.message}</p>
@@ -199,20 +162,20 @@ const Header: React.FC = () => {
                               onClick={() => handleReadNotification(item._id)}
                               className="notification-button"
                               style={{
-                                color: isDarkMode ? "white" : "inherit",
+                                color: isDarkMode ? 'white' : 'inherit',
                               }}
                             />
                           </div>
                           <div
                             style={{
-                              display: "flex",
-                              justifyContent: "space-between",
-                              alignItems: "end",
+                              display: 'flex',
+                              justifyContent: 'space-between',
+                              alignItems: 'end',
                             }}
                           >
                             <span
                               style={{
-                                color: "#727272",
+                                color: '#727272',
                               }}
                             >
                               {dayjs(item.createdAt).fromNow()}
@@ -220,7 +183,7 @@ const Header: React.FC = () => {
                             {item.link && (
                               <Link
                                 to={item.link}
-                                style={{ textDecoration: "underline" }}
+                                style={{ textDecoration: 'underline' }}
                                 className="link-detail"
                                 onClick={() => setNotificationOpen(false)}
                               >
@@ -239,9 +202,7 @@ const Header: React.FC = () => {
             }
             title={
               <div className="notification-header">
-                <Typography>
-                  Notifications ({allNotification?.length ?? 0})
-                </Typography>
+                <Typography>Notifications ({allNotification?.length ?? 0})</Typography>
                 {allNotification.length > 0 && (
                   <Typography
                     className="notification-mark-as-read"
@@ -277,18 +238,9 @@ const Header: React.FC = () => {
           {isMobile ? (
             <NavigationLinks />
           ) : (
-            <Dropdown
-              menu={{ items: userMenuItems, className: "custom-user-menu" }}
-              placement="bottomRight"
-              trigger={["click"]}
-            >
-              <Avatar
-                className="user-avatar"
-                src={currentUser?.profile_image?.url}
-                style={{ background: getRandomColor(currentUser?.id ?? "") }}
-              >
-                {(currentUser?.first_name?.[0]?.toUpperCase() ?? "") +
-                  (currentUser?.last_name?.[0]?.toUpperCase() ?? "")}
+            <Dropdown menu={{ items: userMenuItems, className: 'custom-user-menu' }} placement="bottomRight" trigger={['click']}>
+              <Avatar className="user-avatar" src={currentUser?.profile_image?.url} style={{ background: getRandomColor(currentUser?.id ?? '') }}>
+                {(currentUser?.first_name?.[0]?.toUpperCase() ?? '') + (currentUser?.last_name?.[0]?.toUpperCase() ?? '')}
               </Avatar>
             </Dropdown>
           )}

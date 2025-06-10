@@ -1,55 +1,27 @@
-import React, { useState, useEffect } from "react";
-import { useSelector, useDispatch } from "react-redux";
-import {
-  Typography,
-  Card,
-  Row,
-  Col,
-  Segmented,
-  Avatar,
-  Progress,
-  Button,
-  Calendar as AntdCalendar,
-  Divider,
-  Tour,
-} from "antd";
-import { RootState, AppDispatch } from "../../store";
-import {
-  ActivityChart,
-  WorkspaceDistribution,
-  RecentActivity,
-} from "../../components";
-import "../../layout/styles/Dashboard.css";
-import { getAllNotification } from "../../store/slices/notificationSlice";
-import {
-  getDashboardAnalytics,
-  getDashboardCount,
-  getDashboardRecentActivity,
-} from "../../store/slices/dashboardSlice";
-import {
-  Calendar,
-  CircleCheck,
-  Clock,
-  UsersRound,
-  SquareKanban,
-  Sparkles,
-} from "lucide-react";
-import dayjs from "dayjs";
-import { useMedia } from "../../hooks/useMedia";
-import UpcomingTasks from "../../components/dashboard/UpcomingTasks";
-import AnalyticalMemberCard from "./components/analyticalMemberCard";
+import React, { useState, useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { Typography, Card, Row, Col, Segmented, Avatar, Progress, Button, Calendar as AntdCalendar, Divider, Tour } from 'antd';
+import { RootState, AppDispatch } from '../../store';
+import { ActivityChart, WorkspaceDistribution, RecentActivity } from '../../components';
+import '../../layout/styles/Dashboard.css';
+import { getAllNotification } from '../../store/slices/notificationSlice';
+import { getDashboardAnalytics, getDashboardCount, getDashboardRecentActivity } from '../../store/slices/dashboardSlice';
+import { Calendar, CircleCheck, Clock, UsersRound, SquareKanban, Sparkles } from 'lucide-react';
+import dayjs from 'dayjs';
+import { useMedia } from '../../hooks/useMedia';
+import UpcomingTasks from '../../components/dashboard/UpcomingTasks';
+import AnalyticalMemberCard from './components/analyticalMemberCard';
 
 const { Title, Text } = Typography;
 
 const motivationalQuotes = [
-  "Success is not the key to happiness. Happiness is the key to success.",
-  "The secret of getting ahead is getting started.",
+  'Success is not the key to happiness. Happiness is the key to success.',
+  'The secret of getting ahead is getting started.',
   "Don't watch the clock; do what it does. Keep going.",
-  "Great things never come from comfort zones.",
-  "Dream it. Wish it. Do it.",
+  'Great things never come from comfort zones.',
+  'Dream it. Wish it. Do it.',
 ];
-const getRandomQuote = () =>
-  motivationalQuotes[Math.floor(Math.random() * motivationalQuotes.length)];
+const getRandomQuote = () => motivationalQuotes[Math.floor(Math.random() * motivationalQuotes.length)];
 
 const Dashboard: React.FC = () => {
   const { dashboardCount } = useSelector((state: RootState) => state.dashboard);
@@ -66,7 +38,7 @@ const Dashboard: React.FC = () => {
         await dispatch(getDashboardAnalytics());
         await dispatch(getDashboardRecentActivity(1));
       } catch (error) {
-        console.error("Error fetching dashboard data:", error);
+        console.error('Error fetching dashboard data:', error);
       }
     };
 
@@ -78,36 +50,36 @@ const Dashboard: React.FC = () => {
   }, [dispatch]);
 
   // Analytics timeframe state
-  const [timeframe, setTimeframe] = useState<string | number>("week");
+  const [timeframe, setTimeframe] = useState<string | number>('week');
   const [open, setOpen] = useState(false);
   const steps: any = isMobile
     ? [
         {
-          title: "Theme",
-          description: "Change your app view by changing theme.",
-          target: () => document.getElementById("nav-theme"),
+          title: 'Theme',
+          description: 'Change your app view by changing theme.',
+          target: () => document.getElementById('nav-theme'),
         },
         {
-          title: "Menu",
-          description: "Navigate between application views.",
-          target: () => document.getElementById("nav-menu"),
+          title: 'Menu',
+          description: 'Navigate between application views.',
+          target: () => document.getElementById('nav-menu'),
         },
       ]
     : [
         {
-          title: "Workspaces Tab",
-          description: "Access all your workspaces here.",
-          target: () => document.getElementById("nav-workspaces"),
+          title: 'Workspaces Tab',
+          description: 'Access all your workspaces here.',
+          target: () => document.getElementById('nav-workspaces'),
         },
         {
-          title: "Boards Tab",
-          description: "View and manage your boards.",
-          target: () => document.getElementById("nav-boards"),
+          title: 'Boards Tab',
+          description: 'View and manage your boards.',
+          target: () => document.getElementById('nav-boards'),
         },
         {
-          title: "Invitations Tab",
-          description: "Check your pending invitations.",
-          target: () => document.getElementById("nav-invitations"),
+          title: 'Invitations Tab',
+          description: 'Check your pending invitations.',
+          target: () => document.getElementById('nav-invitations'),
         },
       ];
 
@@ -127,40 +99,26 @@ const Dashboard: React.FC = () => {
                   <div className="user-info-section">
                     <div className="user-info-avatar">
                       <div className="user-avatar-wrapper">
-                        <Avatar
-                          size={80}
-                          src={currentUser?.profile_image.url}
-                          className="user-avatar"
-                        >
+                        <Avatar size={80} src={currentUser?.profile_image.url} className="user-avatar">
                           {currentUser?.first_name?.[0]}
                         </Avatar>
                         <div className="online-status"></div>
                       </div>
                       <div>
                         <Title className="welcome-title">
-                          Welcome, {currentUser?.first_name ?? "User"}{" "}
-                          {currentUser?.last_name ?? "User"}!
+                          Welcome, {currentUser?.first_name ?? 'User'} {currentUser?.last_name ?? 'User'}!
                         </Title>
-                        <Text className="welcome-subtitle">
-                          Let's organize your tasks for today
-                        </Text>
+                        <Text className="welcome-subtitle">Let's organize your tasks for today</Text>
                       </div>
                     </div>
                     <div className="welcome-text">
                       <div className="task-stats">
                         <div className="stat-item">
                           <div className="stat-value">
-                            <CircleCheck size={16} />{" "}
-                            <span className="dashboard-stat-label">
-                              {dashboardCount?.task ?? 0} Completed
-                            </span>
+                            <CircleCheck size={16} /> <span className="dashboard-stat-label">{dashboardCount?.task ?? 0} Completed</span>
                           </div>
                           <Progress
-                            percent={Math.round(
-                              ((dashboardCount?.task ?? 0) /
-                                (dashboardCount?.totalTask || 1)) *
-                                100
-                            )}
+                            percent={Math.round(((dashboardCount?.task ?? 0) / (dashboardCount?.totalTask || 1)) * 100)}
                             strokeColor="#52c41a"
                             showInfo={false}
                             size="small"
@@ -169,16 +127,9 @@ const Dashboard: React.FC = () => {
                         <div className="stat-item">
                           <div className="stat-value">
                             <Clock size={16} />
-                            <span className="dashboard-stat-label">
-                              {dashboardCount?.totalTask ?? 0} Total Tasks
-                            </span>
+                            <span className="dashboard-stat-label">{dashboardCount?.totalTask ?? 0} Total Tasks</span>
                           </div>
-                          <Progress
-                            percent={100}
-                            strokeColor="#1890ff"
-                            showInfo={false}
-                            size="small"
-                          />
+                          <Progress percent={100} strokeColor="#1890ff" showInfo={false} size="small" />
                         </div>
                       </div>
                     </div>
@@ -224,11 +175,7 @@ const Dashboard: React.FC = () => {
                     <Title level={2}>{dashboardCount?.task ?? 0}</Title>
                     <Text type="secondary">Completed Tasks</Text>
                     <Progress
-                      percent={Math.round(
-                        ((dashboardCount?.task ?? 0) /
-                          (dashboardCount?.totalTask || 1)) *
-                          100
-                      )}
+                      percent={Math.round(((dashboardCount?.task ?? 0) / (dashboardCount?.totalTask || 1)) * 100)}
                       strokeColor="#fa8c16"
                       status="active"
                     />
@@ -242,29 +189,19 @@ const Dashboard: React.FC = () => {
               <div className="date-content">
                 <div className="date-header">
                   <Calendar size={28} />
-                  <span style={{ fontWeight: 600, fontSize: 18 }}>
-                    Calendar
-                  </span>
+                  <span style={{ fontWeight: 600, fontSize: 18 }}>Calendar</span>
                 </div>
-                <AntdCalendar
-                  fullscreen={false}
-                  headerRender={() => null}
-                  value={dayjs()}
-                />
-                <Divider style={{ margin: "12px 0" }}>Tips & Tricks</Divider>
+                <AntdCalendar fullscreen={false} headerRender={() => null} value={dayjs()} />
+                <Divider style={{ margin: '12px 0' }}>Tips & Tricks</Divider>
                 <div
                   style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: "16px",
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '16px',
                   }}
                 >
-                  <div className="tip-item-1">
-                    "Break big tasks into smaller steps for better progress!"
-                  </div>
-                  <div className="tip-item-2">
-                    "Maintain daily work by keeping track of hours!"
-                  </div>
+                  <div className="tip-item-1">"Break big tasks into smaller steps for better progress!"</div>
+                  <div className="tip-item-2">"Maintain daily work by keeping track of hours!"</div>
                 </div>
               </div>
             </Card>
@@ -279,45 +216,38 @@ const Dashboard: React.FC = () => {
             className="guide-container"
             id="dashboard-guide"
             style={{
-              borderRadius: "12px",
+              borderRadius: '12px',
             }}
             styles={{
               body: {
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                gap: "24px",
-                width: "100%",
-                border: "none",
-                borderRadius: "12px",
-                overflow: "hidden",
-                background:
-                  "linear-gradient(135deg, hsl(213, 72%, 21%) 0%, #3e88b6 100%)",
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                gap: '24px',
+                width: '100%',
+                border: 'none',
+                borderRadius: '12px',
+                overflow: 'hidden',
+                background: 'linear-gradient(135deg, hsl(213, 72%, 21%) 0%, #3e88b6 100%)',
               },
             }}
           >
             <div>
-              <Title level={3} style={{ color: "#59b05d", marginBottom: 12 }}>
+              <Title level={3} style={{ color: '#59b05d', marginBottom: 12 }}>
                 Learn BaseTeam!
               </Title>
               <Text
                 style={{
                   fontSize: 16,
-                  color: "#FFFFFF",
-                  display: "block",
+                  color: '#FFFFFF',
+                  display: 'block',
                 }}
               >
-                BaseTeam helps you manage your work, collaborate with your team,
-                and stay productive. Explore workspaces, boards, tasks,
-                analytics, and more—all in one place.
+                BaseTeam helps you manage your work, collaborate with your team, and stay productive. Explore workspaces, boards, tasks, analytics,
+                and more—all in one place.
               </Text>
             </div>
-            <Button
-              type="primary"
-              size="large"
-              className="button"
-              onClick={handleStartTour}
-            >
+            <Button type="primary" size="large" className="button" onClick={handleStartTour}>
               <Sparkles size={18} />
               Take a Tour
             </Button>
@@ -327,22 +257,14 @@ const Dashboard: React.FC = () => {
 
       {/* Analytics */}
       <div className="dashboard-section">
-        <Row
-          justify="space-between"
-          align="middle"
-          style={{ marginBottom: 16 }}
-        >
+        <Row justify="space-between" align="middle" style={{ marginBottom: 16 }}>
           <Col>
             <Title level={4} style={{ margin: 0 }}>
               Analytics
             </Title>
           </Col>
           <Col>
-            <Segmented
-              options={[{ label: "Week", value: "week" }]}
-              value={timeframe}
-              onChange={setTimeframe}
-            />
+            <Segmented options={[{ label: 'Week', value: 'week' }]} value={timeframe} onChange={setTimeframe} />
           </Col>
         </Row>
 
@@ -377,9 +299,9 @@ const Dashboard: React.FC = () => {
               <div
                 style={{
                   marginBottom: 24,
-                  fontStyle: "italic",
-                  color: "#7c7c7c",
-                  textAlign: "center",
+                  fontStyle: 'italic',
+                  color: '#7c7c7c',
+                  textAlign: 'center',
                 }}
               >
                 "{getRandomQuote()}"
@@ -404,9 +326,9 @@ const Dashboard: React.FC = () => {
             style={{
               fontSize: 14,
               fontWeight: 500,
-              background: "#80808052",
-              padding: "6px 8px",
-              borderRadius: "4px",
+              background: '#80808052',
+              padding: '6px 8px',
+              borderRadius: '4px',
             }}
           >
             {current + 1} / {total}

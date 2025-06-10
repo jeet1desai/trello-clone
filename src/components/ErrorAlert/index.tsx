@@ -1,5 +1,5 @@
-import React from "react";
-import { Alert } from "antd";
+import React from 'react';
+import { Alert } from 'antd';
 
 interface ErrorAlertProps {
   error?: string | null;
@@ -15,11 +15,11 @@ const ErrorAlert: React.FC<ErrorAlertProps> = ({ error, style }) => {
       type="error"
       showIcon
       style={{
-        padding: "4px 8px",
+        padding: '4px 8px',
         margin: 0,
-        color: "#ff4d4f",
-        backgroundColor: "#fff1f0",
-        borderColor: "#ffa39e",
+        color: '#ff4d4f',
+        backgroundColor: '#fff1f0',
+        borderColor: '#ffa39e',
         fontSize: 14,
         ...style,
       }}

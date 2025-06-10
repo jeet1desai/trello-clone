@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState } from 'react';
 
 export const breakpoints = {
   xs: 0,
@@ -19,16 +19,16 @@ type UseMediaOptions =
   | { min?: number; max?: number };
 
 const getMediaQuery = (options: UseMediaOptions): string => {
-  if ("below" in options) {
+  if ('below' in options) {
     const max = breakpoints[options.below] - 0.02;
     return `(max-width: ${max}px)`;
   }
 
-  if ("above" in options) {
+  if ('above' in options) {
     return `(min-width: ${breakpoints[options.above]}px)`;
   }
 
-  if ("only" in options) {
+  if ('only' in options) {
     const keys = Object.keys(breakpoints) as Breakpoint[];
     const current = breakpoints[options.only];
     const index = keys.indexOf(options.only);
@@ -41,13 +41,13 @@ const getMediaQuery = (options: UseMediaOptions): string => {
     return `(min-width: ${current}px)`;
   }
 
-  if ("from" in options && "to" in options) {
+  if ('from' in options && 'to' in options) {
     const min = breakpoints[options.from];
     const max = breakpoints[options.to] - 0.02;
     return `(min-width: ${min}px) and (max-width: ${max}px)`;
   }
 
-  if ("min" in options || "max" in options) {
+  if ('min' in options || 'max' in options) {
     const queries: string[] = [];
     if (options.min !== undefined) {
       queries.push(`(min-width: ${options.min}px)`);
@@ -55,24 +55,22 @@ const getMediaQuery = (options: UseMediaOptions): string => {
     if (options.max !== undefined) {
       queries.push(`(max-width: ${options.max}px)`);
     }
-    return queries.join(" and ");
+    return queries.join(' and ');
   }
 
-  return "";
+  return '';
 };
 
 export const useMedia = (options: UseMediaOptions): boolean => {
   const query = getMediaQuery(options);
-  const [matches, setMatches] = useState(() =>
-    typeof window !== "undefined" ? window.matchMedia(query).matches : false
-  );
+  const [matches, setMatches] = useState(() => (typeof window !== 'undefined' ? window.matchMedia(query).matches : false));
 
   useEffect(() => {
     const media = window.matchMedia(query);
     const listener = () => setMatches(media.matches);
     listener();
-    media.addEventListener("change", listener);
-    return () => media.removeEventListener("change", listener);
+    media.addEventListener('change', listener);
+    return () => media.removeEventListener('change', listener);
   }, [query]);
 
   return matches;

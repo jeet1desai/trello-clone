@@ -27,9 +27,7 @@ interface SocketProviderProps {
 
 export const SocketProvider: React.FC<SocketProviderProps> = ({ children, url }) => {
   const [isConnected, setIsConnected] = useState(false);
-  const { currentUser } = useSelector(
-    (state: RootState) => state.user
-  );
+  const { currentUser } = useSelector((state: RootState) => state.user);
 
   useEffect(() => {
     // Connect to socket
@@ -64,9 +62,5 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children, url })
     off: socketService.off.bind(socketService),
   };
 
-  return (
-    <SocketContext.Provider value={value}>
-      {children}
-    </SocketContext.Provider>
-  );
-}; 
+  return <SocketContext.Provider value={value}>{children}</SocketContext.Provider>;
+};

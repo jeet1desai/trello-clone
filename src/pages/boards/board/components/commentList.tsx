@@ -1,17 +1,14 @@
-import React, { useState } from "react";
-import { Avatar, Typography, Space, Image, Button, Upload } from "antd";
-import dayjs from "dayjs";
-import relativeTime from "dayjs/plugin/relativeTime";
-import {
-  ITaskCommentBy,
-  IAttachment,
-} from "../../../../store/slices/taskCommentSlice";
-import CommentTextRenderer from "./commentRender";
-import MentionTextComment from "../../../../components/ui/mention";
-import { useSelector } from "react-redux";
-import { RootState } from "../../../../store";
-import { getRandomColor } from "../../../../utils";
-import { CircleX, Image as ImageIcon } from "lucide-react";
+import React, { useState } from 'react';
+import { Avatar, Typography, Space, Image, Button, Upload } from 'antd';
+import dayjs from 'dayjs';
+import relativeTime from 'dayjs/plugin/relativeTime';
+import { ITaskCommentBy, IAttachment } from '../../../../store/slices/taskCommentSlice';
+import CommentTextRenderer from './commentRender';
+import MentionTextComment from '../../../../components/ui/mention';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../../../store';
+import { getRandomColor } from '../../../../utils';
+import { CircleX, Image as ImageIcon } from 'lucide-react';
 
 dayjs.extend(relativeTime);
 
@@ -36,47 +33,33 @@ interface CommentCardProps {
   commentId: string;
 }
 
-const CommentCard: React.FC<CommentCardProps> = ({
-  comment,
-  attachments,
-  createdAt,
-  commentedBy,
-  onDelete,
-  onUpdate,
-  commentId,
-}) => {
+const CommentCard: React.FC<CommentCardProps> = ({ comment, attachments, createdAt, commentedBy, onDelete, onUpdate, commentId }) => {
   const { _id, profile_image, first_name, last_name } = commentedBy;
   const { invitedMemberList } = useSelector((state: RootState) => state.board);
   const { currentUser } = useSelector((state: RootState) => state.user);
   const [isEditing, setIsEditing] = React.useState(false);
   const [msg, setMsg] = React.useState<string>(comment);
   const [fileList, setFileList] = React.useState<File[]>([]);
-  const [removedAttachments, setRemovedAttachments] = React.useState<string[]>(
-    []
-  );
+  const [removedAttachments, setRemovedAttachments] = React.useState<string[]>([]);
   const [mentionedMembers, setMentionedMembers] = useState<string[]>([]);
 
   const handleMentionChange = (value: string) => {
     setMsg(value);
   };
 
-  const [existingAttachments, setExistingAttachments] =
-    React.useState<IAttachment[]>(attachments);
+  const [existingAttachments, setExistingAttachments] = React.useState<IAttachment[]>(attachments);
 
   return (
     <>
       <div className="comment-list-container">
-        <Avatar
-          src={profile_image?.url}
-          style={{ background: getRandomColor(_id) }}
-        >
+        <Avatar src={profile_image?.url} style={{ background: getRandomColor(_id) }}>
           {first_name?.[0]?.toUpperCase()}
           {last_name?.[0]?.toUpperCase()}
         </Avatar>
         <div className="comment-container">
           <div className="commenter-container">
             <Text strong>
-              {first_name} {last_name ?? ""}
+              {first_name} {last_name ?? ''}
             </Text>
             <Text type="secondary" className="commenter-time">
               {dayjs(createdAt).fromNow()}
@@ -85,20 +68,12 @@ const CommentCard: React.FC<CommentCardProps> = ({
           <div className="comment-wrapper">
             <Space className="comment-detail-container">
               <div>
-                <CommentTextRenderer
-                  comment={comment}
-                  members={invitedMemberList.map((item) => item.memberId)}
-                />
+                <CommentTextRenderer comment={comment} members={invitedMemberList.map((item) => item.memberId)} />
               </div>
               {attachments.length > 0 && (
                 <div className="comment-attachment-container">
                   {attachments.map((file, index) => (
-                    <Image
-                      key={index}
-                      src={file.url}
-                      alt={file.imageName}
-                      className="comment-attachment-img"
-                    />
+                    <Image key={index} src={file.url} alt={file.imageName} className="comment-attachment-img" />
                   ))}
                 </div>
               )}
@@ -106,18 +81,12 @@ const CommentCard: React.FC<CommentCardProps> = ({
           </div>
           {currentUser?.id === commentedBy._id && (
             <div className="show-edit-btn-container">
-              <span
-                className="edit-comment-btn"
-                onClick={() => setIsEditing(true)}
-              >
+              <span className="edit-comment-btn" onClick={() => setIsEditing(true)}>
                 Edit
               </span>
 
               {onDelete && (
-                <span
-                  className="delete-comment-btn"
-                  onClick={() => onDelete(commentId)}
-                >
+                <span className="delete-comment-btn" onClick={() => onDelete(commentId)}>
                   Delete
                 </span>
               )}
@@ -137,13 +106,8 @@ const CommentCard: React.FC<CommentCardProps> = ({
                       <CircleX
                         size={14}
                         onClick={() => {
-                          setRemovedAttachments([
-                            ...removedAttachments,
-                            file.imageId,
-                          ]);
-                          setExistingAttachments(
-                            existingAttachments.filter((f) => f !== file)
-                          );
+                          setRemovedAttachments([...removedAttachments, file.imageId]);
+                          setExistingAttachments(existingAttachments.filter((f) => f !== file));
                         }}
                         className="edit-img-remove-icon"
                       />
@@ -157,17 +121,8 @@ const CommentCard: React.FC<CommentCardProps> = ({
                 <>
                   {fileList.map((file, index) => (
                     <div key={index} className="exist-image-container">
-                      <Image
-                        className="edit-preview-img"
-                        src={URL.createObjectURL(file)}
-                      />
-                      <CircleX
-                        size={14}
-                        onClick={() =>
-                          setFileList(fileList.filter((_, i) => i !== index))
-                        }
-                        className="edit-img-remove-icon"
-                      />
+                      <Image className="edit-preview-img" src={URL.createObjectURL(file)} />
+                      <CircleX size={14} onClick={() => setFileList(fileList.filter((_, i) => i !== index))} className="edit-img-remove-icon" />
                     </div>
                   ))}
                 </>
@@ -214,13 +169,7 @@ const CommentCard: React.FC<CommentCardProps> = ({
                   setIsEditing(false);
                   setMentionedMembers([]);
                 }}
-                disabled={
-                  (!msg.trim() ||
-                    msg.trim() === "@" ||
-                    msg.trim() === comment) &&
-                  removedAttachments.length === 0 &&
-                  fileList.length === 0
-                }
+                disabled={(!msg.trim() || msg.trim() === '@' || msg.trim() === comment) && removedAttachments.length === 0 && fileList.length === 0}
               >
                 Save
               </Button>

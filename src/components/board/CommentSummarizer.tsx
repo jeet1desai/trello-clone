@@ -1,15 +1,15 @@
-import React, { useState } from "react";
-import { Modal, Upload, message, Typography, Button, Skeleton } from "antd";
-import * as XLSX from "xlsx";
-import Papa from "papaparse";
-import * as pdfjsLib from "pdfjs-dist/legacy/build/pdf";
-import Tesseract from "tesseract.js";
-import { Inbox, WandSparkles } from "lucide-react";
-import { useDispatch, useSelector } from "react-redux";
-import { AppDispatch, RootState } from "../../store";
-import { addNewTaskComment } from "../../store/slices/taskCommentSlice";
-import { generateText } from "../../services/genAiService";
-import { ScanLine, Logs, Lightbulb } from "lucide-react";
+import React, { useState } from 'react';
+import { Modal, Upload, message, Typography, Button, Skeleton } from 'antd';
+import * as XLSX from 'xlsx';
+import Papa from 'papaparse';
+import * as pdfjsLib from 'pdfjs-dist/legacy/build/pdf';
+import Tesseract from 'tesseract.js';
+import { Inbox, WandSparkles } from 'lucide-react';
+import { useDispatch, useSelector } from 'react-redux';
+import { AppDispatch, RootState } from '../../store';
+import { addNewTaskComment } from '../../store/slices/taskCommentSlice';
+import { generateText } from '../../services/genAiService';
+import { ScanLine, Logs, Lightbulb } from 'lucide-react';
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = `${process.env.REACT_APP_PUBLIC_PDF_EXTRACT_URL}/pdf.worker.min.js`;
 
@@ -26,27 +26,23 @@ const CommentSummarizer = ({ open, onClose }: IProps) => {
   const { selectedTask } = useSelector((state: RootState) => state.task);
 
   const [loading, setLoading] = useState(false);
-  const [extractedContent, setExtractedContent] = useState<string>("");
+  const [extractedContent, setExtractedContent] = useState<string>('');
   const [AILoading, setAILoading] = useState(false);
-  const [summarize, setSummarize] = useState<string>("");
+  const [summarize, setSummarize] = useState<string>('');
   const [apiLoading, setAPILoading] = useState(false);
 
   const handleFile = (file: File) => {
     const type = file.type;
     setLoading(true);
-    setExtractedContent("");
+    setExtractedContent('');
 
-    if (type === "application/pdf") extractTextFromPDF(file);
-    else if (
-      type ===
-        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" ||
-      type === "application/vnd.ms-excel"
-    )
+    if (type === 'application/pdf') extractTextFromPDF(file);
+    else if (type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' || type === 'application/vnd.ms-excel')
       extractDataFromExcel(file);
-    else if (type === "text/csv") extractDataFromCSV(file);
-    else if (type.startsWith("image/")) extractTextFromImage(file);
+    else if (type === 'text/csv') extractDataFromCSV(file);
+    else if (type.startsWith('image/')) extractTextFromImage(file);
     else {
-      message.error("Unsupported file type");
+      message.error('Unsupported file type');
       setLoading(false);
     }
 
@@ -59,15 +55,15 @@ const CommentSummarizer = ({ open, onClose }: IProps) => {
       try {
         const typedArray = new Uint8Array(reader.result as ArrayBuffer);
         const pdf = await pdfjsLib.getDocument(typedArray).promise;
-        let text = "";
+        let text = '';
         for (let i = 1; i <= pdf.numPages; i++) {
           const page = await pdf.getPage(i);
           const content = await page.getTextContent();
-          text += content.items.map((item: any) => item.str).join(" ") + "\n";
+          text += content.items.map((item: any) => item.str).join(' ') + '\n';
         }
         setExtractedContent(text);
       } catch (err) {
-        message.error("Failed to extract PDF content");
+        message.error('Failed to extract PDF content');
       } finally {
         setLoading(false);
       }
@@ -80,14 +76,14 @@ const CommentSummarizer = ({ open, onClose }: IProps) => {
     reader.onload = (e) => {
       try {
         const data = new Uint8Array(e.target!.result as ArrayBuffer);
-        const workbook = XLSX.read(data, { type: "array" });
+        const workbook = XLSX.read(data, { type: 'array' });
         const sheetName = workbook.SheetNames[0];
         const worksheet = workbook.Sheets[sheetName];
         const json = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
-        const text = json.map((row: any) => row.join(", ")).join("\n");
+        const text = json.map((row: any) => row.join(', ')).join('\n');
         setExtractedContent(text);
       } catch {
-        message.error("Failed to extract Excel content");
+        message.error('Failed to extract Excel content');
       } finally {
         setLoading(false);
       }
@@ -98,35 +94,35 @@ const CommentSummarizer = ({ open, onClose }: IProps) => {
   const extractDataFromCSV = (file: File) => {
     Papa.parse(file, {
       complete: (results) => {
-        const text = results.data.map((row: any) => row.join(", ")).join("\n");
+        const text = results.data.map((row: any) => row.join(', ')).join('\n');
         setExtractedContent(text);
         setLoading(false);
       },
       error: () => {
-        message.error("Failed to extract CSV content");
+        message.error('Failed to extract CSV content');
         setLoading(false);
       },
     });
   };
 
   const extractTextFromImage = (file: File) => {
-    Tesseract.recognize(file, "eng")
+    Tesseract.recognize(file, 'eng')
       .then(({ data: { text } }) => {
         setExtractedContent(text);
       })
-      .catch(() => message.error("Failed to extract image text"))
+      .catch(() => message.error('Failed to extract image text'))
       .finally(() => setLoading(false));
   };
 
   const reset = () => {
     setLoading(false);
     setAILoading(false);
-    setExtractedContent("");
-    setSummarize("");
+    setExtractedContent('');
+    setSummarize('');
   };
 
   const summarizeComments = async () => {
-    setSummarize("");
+    setSummarize('');
     setAILoading(true);
     const prompt = `
     ${extractedContent}
@@ -139,34 +135,34 @@ const CommentSummarizer = ({ open, onClose }: IProps) => {
 
     try {
       const text = await generateText(prompt);
-      const cleanedText = text.replace(/```json|```/g, "").trim();
-     setSummarize(cleanedText);
+      const cleanedText = text.replace(/```json|```/g, '').trim();
+      setSummarize(cleanedText);
     } catch (err) {
-      console.error("Error generating labels:", err);
+      console.error('Error generating labels:', err);
     } finally {
       setAILoading(false);
     }
   };
 
   const addComments = async () => {
-  setAPILoading(true);
-  if (!selectedTask?._id) return;
-  await dispatch(
-    addNewTaskComment({
-      taskId: selectedTask._id,
-      comment: summarize,
-      attachments: [],
-      mentionedMembers: [],
-    })
-  ).unwrap();
+    setAPILoading(true);
+    if (!selectedTask?._id) return;
+    await dispatch(
+      addNewTaskComment({
+        taskId: selectedTask._id,
+        comment: summarize,
+        attachments: [],
+        mentionedMembers: [],
+      })
+    ).unwrap();
 
-  onClose();
-  setLoading(false);
-  setAILoading(false);
-  setAPILoading(false);
-  setExtractedContent("");
-  setSummarize("");
-};
+    onClose();
+    setLoading(false);
+    setAILoading(false);
+    setAPILoading(false);
+    setExtractedContent('');
+    setSummarize('');
+  };
 
   return (
     <Modal
@@ -184,17 +180,10 @@ const CommentSummarizer = ({ open, onClose }: IProps) => {
       width={600}
     >
       {!loading && !extractedContent && (
-        <Dragger
-          beforeUpload={handleFile}
-          accept=".pdf,.xlsx,.xls,.csv,image/*"
-          maxCount={1}
-          showUploadList={false}
-        >
+        <Dragger beforeUpload={handleFile} accept=".pdf,.xlsx,.xls,.csv,image/*" maxCount={1} showUploadList={false}>
           <Inbox size={34} />
           <p className="ant-upload-text">Click or drag file to scan</p>
-          <p className="ant-upload-hint">
-            Supports PDF, Excel, CSV, and Image files.
-          </p>
+          <p className="ant-upload-hint">Supports PDF, Excel, CSV, and Image files.</p>
         </Dragger>
       )}
 
@@ -222,8 +211,8 @@ const CommentSummarizer = ({ open, onClose }: IProps) => {
                 </Text>
                 <div className="summarize-comments">
                   {summarize
-                    .split("\n")
-                    .filter((line) => line.trim() !== "")
+                    .split('\n')
+                    .filter((line) => line.trim() !== '')
                     .map((comment, idx) => (
                       <Text key={idx}>- {comment}</Text>
                     ))}
@@ -233,34 +222,16 @@ const CommentSummarizer = ({ open, onClose }: IProps) => {
           )}
 
           <div className="footer-btns">
-            <Button
-              type="default"
-              className="button small-btn"
-              size="small"
-              danger
-              onClick={reset}
-            >
+            <Button type="default" className="button small-btn" size="small" danger onClick={reset}>
               Change Document
             </Button>
             <div className="ai-btns">
-              <Button
-                type="default"
-                className="button small-btn"
-                size="small"
-                onClick={summarizeComments}
-                loading={AILoading}
-              >
-                {!AILoading && <WandSparkles size={16} />} {AILoading ? "Summarizing..." : "Summarize"}
+              <Button type="default" className="button small-btn" size="small" onClick={summarizeComments} loading={AILoading}>
+                {!AILoading && <WandSparkles size={16} />} {AILoading ? 'Summarizing...' : 'Summarize'}
               </Button>
               {summarize.length > 0 && (
-                <Button
-                  type="primary"
-                  className="button small-btn"
-                  size="small"
-                  onClick={addComments}
-                  loading={apiLoading}
-                >
-                  {apiLoading ? "Adding..." : "Add"}
+                <Button type="primary" className="button small-btn" size="small" onClick={addComments} loading={apiLoading}>
+                  {apiLoading ? 'Adding...' : 'Add'}
                 </Button>
               )}
             </div>

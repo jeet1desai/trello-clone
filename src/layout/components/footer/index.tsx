@@ -1,25 +1,19 @@
-import React from "react";
-import { Layout, Typography, Row, Col, Space, Divider } from "antd";
-import { Link, useNavigate } from "react-router-dom";
-import {
-  GithubOutlined,
-  TwitterOutlined,
-  InstagramOutlined,
-  FacebookOutlined,
-  LinkedinOutlined,
-} from "@ant-design/icons";
-import { useTheme } from "../../../contexts/ThemeContext";
-import "../../styles/Layout.css";
-import { scrollToSectionWithOffset } from "../../../helper";
-import { PUBLIC_ROUTE } from "../../../utils/enums/route";
-import { companyLogo } from "../../../assets";
+import React from 'react';
+import { Layout, Typography, Row, Col, Space, Divider } from 'antd';
+import { Link, useNavigate } from 'react-router-dom';
+import { GithubOutlined, TwitterOutlined, InstagramOutlined, FacebookOutlined, LinkedinOutlined } from '@ant-design/icons';
+import { useTheme } from '../../../contexts/ThemeContext';
+import '../../styles/Layout.css';
+import { scrollToSectionWithOffset } from '../../../helper';
+import { PUBLIC_ROUTE } from '../../../utils/enums/route';
+import { companyLogo } from '../../../assets';
 
 const { Footer: AntFooter } = Layout;
 const { Title, Text } = Typography;
 
 const Footer: React.FC = () => {
   const { theme } = useTheme();
-  const isDarkMode = theme === "dark";
+  const isDarkMode = theme === 'dark';
   const navigate = useNavigate();
 
   const handleNavigate = (screenName: string) => {
@@ -27,38 +21,24 @@ const Footer: React.FC = () => {
     scrollToSectionWithOffset();
   };
   // More muted color for text items that's appropriate for both themes
-  const textColor = isDarkMode
-    ? "rgba(255, 255, 255, 0.65)"
-    : "rgba(0, 0, 0, 0.65)";
-  const dividerColor = isDarkMode
-    ? "rgba(255, 255, 255, 0.15)"
-    : "rgba(0, 0, 0, 0.15)";
-  const borderColor = "var(--border-color)";
+  const textColor = isDarkMode ? 'rgba(255, 255, 255, 0.65)' : 'rgba(0, 0, 0, 0.65)';
+  const dividerColor = isDarkMode ? 'rgba(255, 255, 255, 0.15)' : 'rgba(0, 0, 0, 0.15)';
+  const borderColor = 'var(--border-color)';
 
   return (
-    <AntFooter
-      className={`app-footer ${isDarkMode ? "footer-dark" : "footer-light"}`}
-      style={{ borderTop: `1px solid ${borderColor}` }}
-    >
+    <AntFooter className={`app-footer ${isDarkMode ? 'footer-dark' : 'footer-light'}`} style={{ borderTop: `1px solid ${borderColor}` }}>
       <div className="footer-main-container">
         <Row gutter={[48, 24]}>
           <Col xs={24} sm={12} md={9}>
             <div className="margin-bottom-24">
               <Link to={PUBLIC_ROUTE.HOME}>
                 <Title level={4} className="footer-company-name">
-                  <img
-                    src={companyLogo}
-                    alt="Base Team"
-                    className="footer-company-logo"
-                  />
+                  <img src={companyLogo} alt="Base Team" className="footer-company-logo" />
                   BaseTeam
                 </Title>
               </Link>
             </div>
-            <Text>
-              A simple and efficient way to organize your tasks, projects, and
-              collaborations.
-            </Text>
+            <Text>A simple and efficient way to organize your tasks, projects, and collaborations.</Text>
             <div className="margin-top-24">
               <Space size="large">
                 <Link to={PUBLIC_ROUTE.UNKNOWN}>
@@ -138,12 +118,10 @@ const Footer: React.FC = () => {
           </Col>
         </Row>
 
-        <Divider style={{ borderColor: dividerColor, margin: "32px 0" }} />
+        <Divider style={{ borderColor: dividerColor, margin: '32px 0' }} />
 
         <div className="policy-container">
-          <Text className="policy-text">
-            &copy; {new Date().getFullYear()} BaseTeam. All rights reserved.
-          </Text>
+          <Text className="policy-text">&copy; {new Date().getFullYear()} BaseTeam. All rights reserved.</Text>
           <Space size="middle" className="policy-type-container">
             <input
               type="button"
