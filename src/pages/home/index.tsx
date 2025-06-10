@@ -1,15 +1,10 @@
-import React from "react";
-import { Typography, Space, Button, Row, Col, Avatar } from "antd";
-import { Link } from "react-router-dom";
-import "../../layout/styles/home.css";
-import { PUBLIC_ROUTE } from "../../utils/enums/route";
-import {
-  partnerLogos,
-  teamAvatars,
-  integrationLogos,
-  landingPageBackground,
-} from "../../assets";
-import { ArrowRight, LayoutDashboard, Split, Zap } from "lucide-react";
+import React from 'react';
+import { Typography, Space, Button, Row, Col, Avatar } from 'antd';
+import { Link } from 'react-router-dom';
+import '../../layout/styles/home.css';
+import { PUBLIC_ROUTE } from '../../utils/enums/route';
+import { partnerLogos, teamAvatars, integrationLogos, landingPageBackground } from '../../assets';
+import { ArrowRight, LayoutDashboard, Split, Zap } from 'lucide-react';
 
 const { Title, Paragraph, Text } = Typography;
 
@@ -21,9 +16,9 @@ const Home: React.FC = () => {
         className="hero-wrapper"
         style={{
           backgroundImage: `url(${landingPageBackground})`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          backgroundRepeat: "no-repeat",
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
         }}
       >
         <div className="floating-avatars">
@@ -46,9 +41,8 @@ const Home: React.FC = () => {
                 contracts and <span className="highlight">your team</span>
               </Title>
               <Paragraph className="hero-description">
-                BaseTeam helps teams work faster, smarter and more efficiently,
-                delivering the visibility and data-driven insights to mitigate
-                risk and ensure compliance.
+                BaseTeam helps teams work faster, smarter and more efficiently, delivering the visibility and data-driven insights to mitigate risk
+                and ensure compliance.
               </Paragraph>
               <Space size="large" className="hero-buttons">
                 <Link to={PUBLIC_ROUTE.REGISTRATION}>
@@ -97,9 +91,7 @@ const Home: React.FC = () => {
               <Title level={4} className="feature-title">
                 Fast Implementation
               </Title>
-              <Paragraph>
-                Quick and easy setup process to get your team started
-              </Paragraph>
+              <Paragraph>Quick and easy setup process to get your team started</Paragraph>
             </div>
           </Col>
           <Col xs={24} sm={12} md={8}>
@@ -108,9 +100,7 @@ const Home: React.FC = () => {
               <Title level={4} className="feature-title">
                 Advanced Analytics
               </Title>
-              <Paragraph>
-                Detailed insights and reporting capabilities
-              </Paragraph>
+              <Paragraph>Detailed insights and reporting capabilities</Paragraph>
             </div>
           </Col>
           <Col xs={24} sm={12} md={8}>
@@ -119,9 +109,7 @@ const Home: React.FC = () => {
               <Title level={4} className="feature-title">
                 Secure Platform
               </Title>
-              <Paragraph>
-                Enterprise-grade security for your team's data
-              </Paragraph>
+              <Paragraph>Enterprise-grade security for your team's data</Paragraph>
             </div>
           </Col>
         </Row>
@@ -137,8 +125,7 @@ const Home: React.FC = () => {
           Don't replace. Integrate.
         </Title>
         <Paragraph className="integration-description">
-          We understand the hassle of replacing the long used tools in your
-          process.
+          We understand the hassle of replacing the long used tools in your process.
           <br />
           That's why we integrate tools you use in your day-to-day work.
         </Paragraph>
@@ -170,8 +157,7 @@ const Home: React.FC = () => {
         <div className="testimonial-quote">
           <div className="quote-mark">"</div>
           <Title level={2} className="quote-text">
-            Best Task management system for your team. Easy to use and maintain
-            project without delaying your deliveries.
+            Best Task management system for your team. Easy to use and maintain project without delaying your deliveries.
           </Title>
         </div>
       </div>

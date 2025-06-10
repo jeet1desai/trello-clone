@@ -1,18 +1,15 @@
-import React, { useEffect } from "react";
-import { Form, Input, Button, Typography, Divider } from "antd";
-import { Link, useNavigate } from "react-router-dom";
-import { AppDispatch, RootState } from "../../../store";
-import { clearAuthState, loginUser } from "../../../store/slices/userSlice";
-import { useDispatch, useSelector } from "react-redux";
-import "../../../layout/styles/Auth.css";
-import { PRIVATE_ROUTE, PUBLIC_ROUTE } from "../../../utils/enums/route";
-import {
-  GitHubSocialLogin,
-  GoogleSocialLogin,
-} from "../../../components/social";
-import { LockKeyhole, UserRound } from "lucide-react";
-import { companyLogo } from "../../../assets";
-import ErrorAlert from "../../../components/ErrorAlert";
+import React, { useEffect } from 'react';
+import { Form, Input, Button, Typography, Divider } from 'antd';
+import { Link, useNavigate } from 'react-router-dom';
+import { AppDispatch, RootState } from '../../../store';
+import { clearAuthState, loginUser } from '../../../store/slices/userSlice';
+import { useDispatch, useSelector } from 'react-redux';
+import '../../../layout/styles/Auth.css';
+import { PRIVATE_ROUTE, PUBLIC_ROUTE } from '../../../utils/enums/route';
+import { GitHubSocialLogin, GoogleSocialLogin } from '../../../components/social';
+import { LockKeyhole, UserRound } from 'lucide-react';
+import { companyLogo } from '../../../assets';
+import ErrorAlert from '../../../components/ErrorAlert';
 
 const { Title, Text } = Typography;
 
@@ -20,9 +17,7 @@ const Login: React.FC = () => {
   const [form] = Form.useForm();
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
-  const { loading, isAuthenticated, error } = useSelector(
-    (state: RootState) => state.user
-  );
+  const { loading, isAuthenticated, error } = useSelector((state: RootState) => state.user);
 
   useEffect(() => {
     // Clear any previous auth states
@@ -48,11 +43,7 @@ const Login: React.FC = () => {
   return (
     <div className="auth-container">
       <div className="auth-form-container flex">
-        <img
-          src={companyLogo}
-          alt="BaseTeam"
-          style={{ width: "14%", borderRadius: "8px", marginBottom: "8px" }}
-        />
+        <img src={companyLogo} alt="BaseTeam" style={{ width: '14%', borderRadius: '8px', marginBottom: '8px' }} />
         <Title level={2} className="auth-title">
           Welcome Back
         </Title>
@@ -66,7 +57,7 @@ const Login: React.FC = () => {
           onFinish={handleSubmit}
           layout="vertical"
           className="auth-form"
-          initialValues={{ email: "", password: "" }}
+          initialValues={{ email: '', password: '' }}
           requiredMark={false}
         >
           <Form.Item
@@ -77,16 +68,11 @@ const Login: React.FC = () => {
             }
             name="email"
             rules={[
-              { required: true, message: "Email is required" },
-              { type: "email", message: "Please enter a valid email address" },
+              { required: true, message: 'Email is required' },
+              { type: 'email', message: 'Please enter a valid email address' },
             ]}
           >
-            <Input
-              prefix={<UserRound size={16} className="form-icon" />}
-              placeholder="Enter your email"
-              size="large"
-              className="form-input"
-            />
+            <Input prefix={<UserRound size={16} className="form-icon" />} placeholder="Enter your email" size="large" className="form-input" />
           </Form.Item>
 
           <Form.Item
@@ -104,8 +90,8 @@ const Login: React.FC = () => {
             }
             name="password"
             rules={[
-              { required: true, message: "Password is required" },
-              { min: 8, message: "Password must be at least 8 characters" },
+              { required: true, message: 'Password is required' },
+              { min: 8, message: 'Password must be at least 8 characters' },
             ]}
           >
             <Input.Password
@@ -119,21 +105,13 @@ const Login: React.FC = () => {
           <ErrorAlert error={error} />
 
           <Form.Item>
-            <Button
-              type="primary"
-              htmlType="submit"
-              className="button"
-              loading={loading}
-              block
-              size="large"
-              disabled={loading}
-            >
+            <Button type="primary" htmlType="submit" className="button" loading={loading} block size="large" disabled={loading}>
               Sign In
             </Button>
           </Form.Item>
 
           <Text className="auth-signup-links">
-            Don't have an account?{" "}
+            Don't have an account?{' '}
             <Link to={PUBLIC_ROUTE.REGISTRATION} className="auth-link">
               Sign Up
             </Link>

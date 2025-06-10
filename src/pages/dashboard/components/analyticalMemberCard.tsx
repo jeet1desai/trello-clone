@@ -1,13 +1,13 @@
-import React, { useEffect, useMemo, useState } from "react";
-import { Card, Select, List, Typography, Row, Col, Divider, Tooltip } from "antd";
-import { Users, Clock3, CheckCircle, Tickets, Info } from "lucide-react";
-import dayjs from "dayjs";
-import { DASHBOARD } from "../../../utils/consts/dashboard";
-import { formatString } from "../../../helper";
-import { useDispatch, useSelector } from "react-redux";
-import { AppDispatch, RootState } from "../../../store";
-import { getDashboardState } from "../../../store/slices/dashboardSlice";
-import { AllBoard, getAllBoardsNoPagination } from "../../../store/slices/boardSlice";
+import React, { useEffect, useMemo, useState } from 'react';
+import { Card, Select, List, Typography, Row, Col, Divider } from 'antd';
+import { Users, Clock3, CheckCircle, Tickets } from 'lucide-react';
+import dayjs from 'dayjs';
+import { DASHBOARD } from '../../../utils/consts/dashboard';
+import { formatString } from '../../../helper';
+import { useDispatch, useSelector } from 'react-redux';
+import { AppDispatch, RootState } from '../../../store';
+import { getDashboardState } from '../../../store/slices/dashboardSlice';
+import { AllBoard, getAllBoardsNoPagination } from '../../../store/slices/boardSlice';
 
 const { Option } = Select;
 const { Text, Title } = Typography;
@@ -21,17 +21,17 @@ const AnalyticalMemberCard: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
 
   useEffect(() => {
-      const fetchDashboardData = async () => {
-        try {
-          await dispatch(getDashboardState({}));
-          await dispatch(getAllBoardsNoPagination());
-        } catch (error) {
-          console.error("Error fetching dashboard data:", error);
-        }
-      };
-  
-      fetchDashboardData();
-    }, [dispatch]);
+    const fetchDashboardData = async () => {
+      try {
+        await dispatch(getDashboardState({}));
+        await dispatch(getAllBoardsNoPagination());
+      } catch (error) {
+        console.error('Error fetching dashboard data:', error);
+      }
+    };
+
+    fetchDashboardData();
+  }, [dispatch]);
 
   const filteredMembers = useMemo(() => {
     return dashboardState?.teamMembers.filter((member) => !selectedBoard?.name || member.boardName === selectedBoard.name);
@@ -40,20 +40,24 @@ const AnalyticalMemberCard: React.FC = () => {
   const header = () => (
     <div
       style={{
-        display: "flex",
-        justifyContent: "space-between",
-        flexWrap: "wrap",
-        gap: "10px",
+        display: 'flex',
+        justifyContent: 'space-between',
+        flexWrap: 'wrap',
+        gap: '10px',
       }}
     >
-      <div style={{ fontSize: "1.2rem", fontWeight: 600 }}>{DASHBOARD.BOARD_DASHBOARD_OVERVIEW}</div>
-      <Select allowClear placeholder={DASHBOARD.SELECT_BOARD} value={selectedBoard?._id}
+      <div style={{ fontSize: '1.2rem', fontWeight: 600 }}>{DASHBOARD.BOARD_DASHBOARD_OVERVIEW}</div>
+      <Select
+        allowClear
+        placeholder={DASHBOARD.SELECT_BOARD}
+        value={selectedBoard?._id}
         onChange={(value) => {
-          const board = allBoard.find(b => b._id === value);
+          const board = allBoard.find((b) => b._id === value);
           setSelectedBoard(board);
           dispatch(getDashboardState({ boardId: value }));
         }}
-        style={{ width: 200 }}>
+        style={{ width: 200 }}
+      >
         {allBoard.map((board) => (
           <Option key={board._id} value={board._id}>
             {board.name}
@@ -64,7 +68,7 @@ const AnalyticalMemberCard: React.FC = () => {
   );
 
   return (
-    <Card title={header()} classNames={{ header: "dashboard-board-overview-header" }} style={{ width: "100%", borderRadius: "12px" }}>
+    <Card title={header()} classNames={{ header: 'dashboard-board-overview-header' }} style={{ width: '100%', borderRadius: '12px' }}>
       <Row gutter={[16, 16]}>
         <Col xs={24} sm={12} md={12} lg={6} xl={6}>
           <Card className="stat-card workspace-card" hoverable>
@@ -130,24 +134,24 @@ const AnalyticalMemberCard: React.FC = () => {
       </Typography.Title>
       <List
         bordered
-        style={{maxHeight: "340px", overflow: "auto", height: "auto"}}
+        style={{ maxHeight: '340px', overflow: 'auto', height: 'auto' }}
         dataSource={filteredMembers}
-        locale={{ emptyText: "No members match filters" }}
+        locale={{ emptyText: 'No members match filters' }}
         renderItem={(dataList) => (
           <List.Item>
             <div style={{ flexGrow: 1 }}>
-              <div style={{ width: "100%", marginBottom: "8px" }}>
+              <div style={{ width: '100%', marginBottom: '8px' }}>
                 <Text strong>{dataList.name}</Text> - <Text type="secondary">{dataList.email}</Text>
               </div>
 
               <div
                 style={{
-                  display: "flex",
-                  flexWrap: "wrap",
-                  gap: "8px",
-                  alignItems: "center",
-                  fontSize: "14px",
-                  marginBottom: "8px",
+                  display: 'flex',
+                  flexWrap: 'wrap',
+                  gap: '8px',
+                  alignItems: 'center',
+                  fontSize: '14px',
+                  marginBottom: '8px',
                 }}
               >
                 <Text className="dashboard-board-border-right">
@@ -162,7 +166,7 @@ const AnalyticalMemberCard: React.FC = () => {
                   <strong>{DASHBOARD.ACTIVE}</strong> {dataList.activeTickets}
                 </Text>
 
-                {(!selectedBoard || selectedBoard.name === "") && (
+                {(!selectedBoard || selectedBoard.name === '') && (
                   <Text className="dashboard-board-border-left">
                     <strong>{DASHBOARD.BOARD}</strong> {dataList.boardName}
                   </Text>
@@ -170,8 +174,8 @@ const AnalyticalMemberCard: React.FC = () => {
               </div>
             </div>
             <div>
-              <Text type="secondary" style={{ whiteSpace: "nowrap" }}>
-                <strong>{DASHBOARD.JOINED}</strong> {dayjs(dataList.joined).format("MMM D, YYYY")}
+              <Text type="secondary" style={{ whiteSpace: 'nowrap' }}>
+                <strong>{DASHBOARD.JOINED}</strong> {dayjs(dataList.joined).format('MMM D, YYYY')}
               </Text>
             </div>
           </List.Item>

@@ -177,19 +177,19 @@
 }
 
 .gradient-2 {
-  background: linear-gradient(135deg, #141E30 0%, #243B55 100%);
+  background: linear-gradient(135deg, #141e30 0%, #243b55 100%);
 }
 
 .gradient-3 {
-  background: linear-gradient(135deg, #0F2027 0%, #203A43 50%, #2C5364 100%);
+  background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
 }
 
 .gradient-4 {
-  background: linear-gradient(135deg, #2C3E50 0%, #3498db 100%);
+  background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
 }
 
 .gradient-5 {
-  background: linear-gradient(135deg, #373B44 0%, #4286f4 100%);
+  background: linear-gradient(135deg, #373b44 0%, #4286f4 100%);
 }
 
 .gradient-6 {
@@ -201,7 +201,7 @@
 }
 
 .gradient-8 {
-  background: linear-gradient(135deg, #16222A 0%, #3A6073 100%);
+  background: linear-gradient(135deg, #16222a 0%, #3a6073 100%);
 }
 
 /* Date Card Styles */
@@ -257,19 +257,14 @@
 }
 
 .task-stats {
-
   display: flex;
 
   gap: 32px;
 
   margin-top: 20px;
-
 }
 
-
-
 .stat-item {
-
   background: rgba(255, 255, 255, 0.15);
 
   padding: 12px 16px;
@@ -280,14 +275,12 @@
 
   width: 180px;
 
-  transition: transform 0.3s ease, background-color 0.3s ease;
-
+  transition:
+    transform 0.3s ease,
+    background-color 0.3s ease;
 }
 
-
-
 .stat-value {
-
   color: white;
 
   font-size: 24px;
@@ -303,13 +296,9 @@
   margin-bottom: 8px;
 
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-
 }
 
-
-
 .stat-value .anticon {
-
   background: rgba(255, 255, 255, 0.1);
 
   padding: 4px;
@@ -317,19 +306,14 @@
   border-radius: 50%;
 
   font-size: 16px;
-
 }
 
-
-
 .stat-label {
-
   font-size: 14px;
 
   margin-left: 8px;
 
   opacity: 0.9;
-
 }
 
 /* Responsive Styles */
@@ -351,7 +335,6 @@
   }
 
   .user-info-section {
-
     flex-direction: column;
 
     align-items: center;
@@ -359,49 +342,29 @@
     text-align: center;
 
     gap: 16px;
-
   }
-
-
 
   .avatar-wrapper {
-
     margin-bottom: 8px;
-
   }
-
-
 
   .user-avatar {
-
     size: 64px;
-
   }
 
-
-
   .welcome-title {
-
     font-size: 24px !important;
 
     margin-bottom: 4px !important;
-
   }
 
-
-
   .welcome-subtitle {
-
     font-size: 14px;
 
     margin-bottom: 16px;
-
   }
 
-
-
   .task-stats {
-
     flex-direction: column;
 
     gap: 12px;
@@ -409,110 +372,68 @@
     align-items: stretch;
 
     width: 100%;
-
   }
 
-
-
   .stat-item {
-
     width: 100%;
 
     padding: 10px 12px;
 
     margin: 0;
-
   }
 
-
-
   .stat-value {
-
     font-size: 20px;
 
     justify-content: center;
-
   }
 
-
-
   .stat-label {
-
     font-size: 12px;
-
   }
 }
 
-/* Extra Small Devices (phones under 480px) */ @media (max-width: 480px) {
-
-   .welcome-section {
-     padding: 8px;
-
-   }
-
-
-
-   .welcome-card,
-   .date-card {
-
-     border-radius: 16px;
-
-   }
-
-
-
-   .welcome-content {
-
-     padding: 16px;
-
-   }
-
-
-
-   .task-stats {
-
-     margin-top: 16px;
-
-   }
-
-
-
-   .stat-item {
-
-     padding: 8px 10px;
-
-     border-radius: 8px;
-
-   }
-
-
-
-   .date-content {
-
-     padding: 12px;
-
-   }
-
-
-
-   .current-date {
-
-     font-size: 16px !important;
-
-     margin-bottom: 16px !important;
-
-   }
-
-
-
-   .quick-actions {
-
-     margin-top: 16px;
-
-     gap: 8px;
-
-   }
+/* Extra Small Devices (phones under 480px) */
+@media (max-width: 480px) {
+  .welcome-section {
+    padding: 8px;
   }
+
+  .welcome-card,
+  .date-card {
+    border-radius: 16px;
+  }
+
+  .welcome-content {
+    padding: 16px;
+  }
+
+  .task-stats {
+    margin-top: 16px;
+  }
+
+  .stat-item {
+    padding: 8px 10px;
+
+    border-radius: 8px;
+  }
+
+  .date-content {
+    padding: 12px;
+  }
+
+  .current-date {
+    font-size: 16px !important;
+
+    margin-bottom: 16px !important;
+  }
+
+  .quick-actions {
+    margin-top: 16px;
+
+    gap: 8px;
+  }
+}
 
 /* Updated stat-item styles for better visibility */
 .stat-item:hover {
@@ -687,14 +608,6 @@
   animation: float 2s ease-in-out infinite;
 }
 
-
-
-
-
-
-
-
-
 .dashboard-welcome {
   margin-bottom: 24px;
   background: var(--welcome-gradient);
@@ -865,22 +778,32 @@
   right: 0;
   bottom: 0;
   opacity: 0.1;
-  background: 
-    linear-gradient(45deg, #ffffff 25%, transparent 25%),
-    linear-gradient(-45deg, #ffffff 25%, transparent 25%),
-    linear-gradient(45deg, transparent 75%, #ffffff 75%),
-    linear-gradient(-45deg, transparent 75%, #ffffff 75%);
+  background:
+    linear-gradient(45deg, #ffffff 25%, transparent 25%), linear-gradient(-45deg, #ffffff 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #ffffff 75%), linear-gradient(-45deg, transparent 75%, #ffffff 75%);
   background-size: 20px 20px;
-  background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+  background-position:
+    0 0,
+    0 10px,
+    10px -10px,
+    -10px 0px;
   animation: pattern-move 20s linear infinite;
 }
 
 @keyframes pattern-move {
   0% {
-    background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+    background-position:
+      0 0,
+      0 10px,
+      10px -10px,
+      -10px 0px;
   }
   100% {
-    background-position: 20px 20px, 20px 30px, 30px 10px, 10px 20px;
+    background-position:
+      20px 20px,
+      20px 30px,
+      30px 10px,
+      10px 20px;
   }
 }
 
@@ -950,7 +873,9 @@
   border-radius: 12px;
   backdrop-filter: blur(5px);
   width: 180px;
-  transition: transform 0.3s ease, background-color 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    background-color 0.3s ease;
 }
 
 .stat-value {
@@ -978,7 +903,7 @@
 }
 
 /* Date Card Styling */
-.date-card-col  {
+.date-card-col {
   align-self: stretch;
 }
 
@@ -1098,7 +1023,8 @@
     padding: 8px;
   }
 
-  .welcome-card, .date-card {
+  .welcome-card,
+  .date-card {
     border-radius: 16px;
   }
 

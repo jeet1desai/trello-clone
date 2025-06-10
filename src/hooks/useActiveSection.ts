@@ -1,10 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState } from 'react';
 
-export const useActiveSection = (
-  sectionIds: string[],
-  headerId: string,
-  defaultKey: string = ""
-) => {
+export const useActiveSection = (sectionIds: string[], headerId: string, defaultKey: string = '') => {
   const [activeKey, setActiveKey] = useState(defaultKey);
 
   useEffect(() => {
@@ -21,12 +17,7 @@ export const useActiveSection = (
 
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
-          if (
-            !topMostSection ||
-            entry.target.getBoundingClientRect().top <
-              document.getElementById(topMostSection)?.getBoundingClientRect()
-                .top!
-          ) {
+          if (!topMostSection || entry.target.getBoundingClientRect().top < document.getElementById(topMostSection)?.getBoundingClientRect().top!) {
             topMostSection = entry.target.id;
           }
         }

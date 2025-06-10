@@ -1,9 +1,9 @@
-import React from "react";
-import { Avatar, Checkbox } from "antd";
-import { getRandomColor } from "../../../../utils";
-import { useSelector } from "react-redux";
-import { RootState } from "../../../../store";
-import { Calendar, Clock, Tag, UserRound } from "lucide-react";
+import React from 'react';
+import { Avatar, Checkbox } from 'antd';
+import { getRandomColor } from '../../../../utils';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../../../store';
+import { Calendar, Clock, Tag, UserRound } from 'lucide-react';
 
 interface IProps {
   selectedFilters: any;
@@ -12,9 +12,7 @@ interface IProps {
 
 const BoardFilter = ({ selectedFilters, handleMemberFilter }: IProps) => {
   const { currentUser } = useSelector((state: RootState) => state.user);
-  const { boardLabels, invitedMemberList } = useSelector(
-    (state: RootState) => state.board
-  );
+  const { boardLabels, invitedMemberList } = useSelector((state: RootState) => state.board);
 
   return (
     <>
@@ -24,30 +22,23 @@ const BoardFilter = ({ selectedFilters, handleMemberFilter }: IProps) => {
       <div className="custom-filter-content">
         <Checkbox
           value="no-members"
-          checked={
-            selectedFilters.hasMember !== undefined
-              ? !selectedFilters.hasMember
-              : false
-          }
+          checked={selectedFilters.hasMember !== undefined ? !selectedFilters.hasMember : false}
           onChange={(e) => {
-            handleMemberFilter(
-              { target: { value: "no-members", checked: !e.target.checked } },
-              "hasMember"
-            );
+            handleMemberFilter({ target: { value: 'no-members', checked: !e.target.checked } }, 'hasMember');
           }}
         >
           <div
             style={{
-              display: "flex",
+              display: 'flex',
               gap: 4,
-              alignItems: "center",
+              alignItems: 'center',
             }}
           >
             <Avatar
               style={{
-                background: "#CCCCCC",
-                width: "26px",
-                height: "26px",
+                background: '#CCCCCC',
+                width: '26px',
+                height: '26px',
               }}
             >
               <UserRound size={14} />
@@ -57,30 +48,27 @@ const BoardFilter = ({ selectedFilters, handleMemberFilter }: IProps) => {
         </Checkbox>
         <Checkbox
           value="all"
-          checked={
-            selectedFilters.filterBy.includes("all") ||
-            selectedFilters.filterBy?.length === invitedMemberList?.length
-          }
-          onChange={(e) => handleMemberFilter(e, "filterBy")}
+          checked={selectedFilters.filterBy.includes('all') || selectedFilters.filterBy?.length === invitedMemberList?.length}
+          onChange={(e) => handleMemberFilter(e, 'filterBy')}
         >
           All
         </Checkbox>
         <Checkbox checked={true}>
           <div
             style={{
-              display: "flex",
+              display: 'flex',
               gap: 4,
-              alignItems: "center",
+              alignItems: 'center',
             }}
           >
             <Avatar
               style={{
-                background: getRandomColor(currentUser?.id ?? ""),
-                width: "26px",
-                height: "26px",
+                background: getRandomColor(currentUser?.id ?? ''),
+                width: '26px',
+                height: '26px',
               }}
             >
-              <p style={{ fontSize: "11px" }}>
+              <p style={{ fontSize: '11px' }}>
                 {currentUser?.first_name?.[0]?.toUpperCase()}
                 {currentUser?.last_name?.[0]?.toUpperCase()}
               </p>
@@ -94,32 +82,29 @@ const BoardFilter = ({ selectedFilters, handleMemberFilter }: IProps) => {
             <Checkbox
               value={member.memberId._id}
               key={member._id}
-              checked={
-                selectedFilters.filterBy.includes(member.memberId._id) ||
-                selectedFilters.filterBy.includes("all")
-              }
-              onChange={(e) => handleMemberFilter(e, "filterBy")}
+              checked={selectedFilters.filterBy.includes(member.memberId._id) || selectedFilters.filterBy.includes('all')}
+              onChange={(e) => handleMemberFilter(e, 'filterBy')}
             >
               <div
                 style={{
-                  display: "flex",
+                  display: 'flex',
                   gap: 4,
-                  alignItems: "center",
+                  alignItems: 'center',
                 }}
               >
                 <Avatar
                   style={{
                     background: getRandomColor(member.memberId?._id),
-                    width: "26px",
-                    height: "26px",
+                    width: '26px',
+                    height: '26px',
                   }}
                 >
-                  <p style={{ fontSize: "11px" }}>
+                  <p style={{ fontSize: '11px' }}>
                     {member.memberId.first_name?.[0]?.toUpperCase()}
                     {member.memberId.last_name?.[0]?.toUpperCase()}
                   </p>
                 </Avatar>
-                {member.memberId.first_name} {member.memberId.last_name ?? ""}
+                {member.memberId.first_name} {member.memberId.last_name ?? ''}
               </div>
             </Checkbox>
           ))}
@@ -130,23 +115,16 @@ const BoardFilter = ({ selectedFilters, handleMemberFilter }: IProps) => {
           value="completed"
           checked={selectedFilters.markAsDone}
           onChange={(e) => {
-            handleMemberFilter(e, "markAsDone");
+            handleMemberFilter(e, 'markAsDone');
           }}
         >
           Marked as complete
         </Checkbox>
         <Checkbox
           value="not-completed"
-          checked={
-            selectedFilters.markAsDone !== undefined
-              ? !selectedFilters.markAsDone
-              : false
-          }
+          checked={selectedFilters.markAsDone !== undefined ? !selectedFilters.markAsDone : false}
           onChange={(e) => {
-            handleMemberFilter(
-              { target: { value: "not-completed", checked: false } },
-              "markAsDone"
-            );
+            handleMemberFilter({ target: { value: 'not-completed', checked: false } }, 'markAsDone');
           }}
         >
           Not marked as complete
@@ -156,11 +134,7 @@ const BoardFilter = ({ selectedFilters, handleMemberFilter }: IProps) => {
       <div className="custom-filter-content">
         <Checkbox
           value="no-dates"
-          checked={
-            selectedFilters.hasDueDate !== undefined
-              ? !selectedFilters.hasDueDate
-              : false
-          }
+          checked={selectedFilters.hasDueDate !== undefined ? !selectedFilters.hasDueDate : false}
           onChange={(e) => {
             handleMemberFilter(
               {
@@ -169,22 +143,22 @@ const BoardFilter = ({ selectedFilters, handleMemberFilter }: IProps) => {
                   value: false,
                 },
               },
-              "hasDueDate"
+              'hasDueDate'
             );
           }}
         >
           <div
             style={{
-              display: "flex",
+              display: 'flex',
               gap: 4,
-              alignItems: "center",
+              alignItems: 'center',
             }}
           >
             <Avatar
               style={{
-                background: "#CCCCCC",
-                width: "26px",
-                height: "26px",
+                background: '#CCCCCC',
+                width: '26px',
+                height: '26px',
               }}
             >
               <Calendar size={14} />
@@ -195,25 +169,25 @@ const BoardFilter = ({ selectedFilters, handleMemberFilter }: IProps) => {
         <Checkbox
           value="overdue"
           onChange={(e) => {
-            handleMemberFilter(e, "hasOverDue");
+            handleMemberFilter(e, 'hasOverDue');
           }}
         >
           <div
             style={{
-              display: "flex",
+              display: 'flex',
               gap: 4,
-              alignItems: "center",
+              alignItems: 'center',
             }}
           >
             <Clock
               size={14}
               style={{
-                color: "white",
-                background: "rgb(211, 32, 41)",
-                padding: "4px",
-                borderRadius: "50%",
-                width: "24px",
-                height: "24px",
+                color: 'white',
+                background: 'rgb(211, 32, 41)',
+                padding: '4px',
+                borderRadius: '50%',
+                width: '24px',
+                height: '24px',
               }}
             />
             Overdue
@@ -222,25 +196,25 @@ const BoardFilter = ({ selectedFilters, handleMemberFilter }: IProps) => {
         <Checkbox
           value="day"
           onChange={(e) => {
-            handleMemberFilter(e, "dueTimeframe");
+            handleMemberFilter(e, 'dueTimeframe');
           }}
         >
           <div
             style={{
-              display: "flex",
+              display: 'flex',
               gap: 4,
-              alignItems: "center",
+              alignItems: 'center',
             }}
           >
             <Clock
               size={14}
               style={{
-                color: "white",
-                background: "#F5CD47",
-                padding: "4px",
-                borderRadius: "50%",
-                width: "24px",
-                height: "24px",
+                color: 'white',
+                background: '#F5CD47',
+                padding: '4px',
+                borderRadius: '50%',
+                width: '24px',
+                height: '24px',
               }}
             />
             Due in the next day
@@ -249,25 +223,25 @@ const BoardFilter = ({ selectedFilters, handleMemberFilter }: IProps) => {
         <Checkbox
           value="week"
           onChange={(e) => {
-            handleMemberFilter(e, "dueTimeframe");
+            handleMemberFilter(e, 'dueTimeframe');
           }}
         >
           <div
             style={{
-              display: "flex",
+              display: 'flex',
               gap: 4,
-              alignItems: "center",
+              alignItems: 'center',
             }}
           >
             <Clock
               size={14}
               style={{
-                color: "white",
-                padding: "4px",
-                background: "#CCCCCC",
-                borderRadius: "50%",
-                width: "24px",
-                height: "24px",
+                color: 'white',
+                padding: '4px',
+                background: '#CCCCCC',
+                borderRadius: '50%',
+                width: '24px',
+                height: '24px',
               }}
             />
             Due in the next week
@@ -276,25 +250,25 @@ const BoardFilter = ({ selectedFilters, handleMemberFilter }: IProps) => {
         <Checkbox
           value="month"
           onChange={(e) => {
-            handleMemberFilter(e, "dueTimeframe");
+            handleMemberFilter(e, 'dueTimeframe');
           }}
         >
           <div
             style={{
-              display: "flex",
+              display: 'flex',
               gap: 4,
-              alignItems: "center",
+              alignItems: 'center',
             }}
           >
             <Clock
               size={14}
               style={{
-                color: "white",
-                padding: "4px",
-                background: "#CCCCCC",
-                borderRadius: "50%",
-                width: "24px",
-                height: "24px",
+                color: 'white',
+                padding: '4px',
+                background: '#CCCCCC',
+                borderRadius: '50%',
+                width: '24px',
+                height: '24px',
               }}
             />
             Due in the next month
@@ -306,16 +280,16 @@ const BoardFilter = ({ selectedFilters, handleMemberFilter }: IProps) => {
         <Checkbox>
           <div
             style={{
-              display: "flex",
+              display: 'flex',
               gap: 4,
-              alignItems: "center",
+              alignItems: 'center',
             }}
           >
             <Avatar
               style={{
-                background: "#CCCCCC",
-                width: "26px",
-                height: "26px",
+                background: '#CCCCCC',
+                width: '26px',
+                height: '26px',
               }}
             >
               <Tag size={14} />
@@ -328,16 +302,16 @@ const BoardFilter = ({ selectedFilters, handleMemberFilter }: IProps) => {
             <Checkbox
               value={label._id}
               onChange={(e) => {
-                handleMemberFilter(e, "labelIds");
+                handleMemberFilter(e, 'labelIds');
               }}
             >
               <div
                 style={{
                   background: label.backgroundColor,
-                  width: "100%",
-                  padding: "3px 8px",
-                  borderRadius: "4px",
-                  color: "white",
+                  width: '100%',
+                  padding: '3px 8px',
+                  borderRadius: '4px',
+                  color: 'white',
                 }}
               >
                 {label.name}

@@ -1,11 +1,11 @@
-import axios, { AxiosError, AxiosResponse } from "axios";
-import { API_URL } from "../config";
-import { PUBLIC_ROUTE } from "../utils/enums/route";
+import axios, { AxiosError, AxiosResponse } from 'axios';
+import { API_URL } from '../config';
+import { PUBLIC_ROUTE } from '../utils/enums/route';
 
 const axiosInstance = axios.create({
   baseURL: API_URL,
   headers: {
-    "Content-Type": "application/json",
+    'Content-Type': 'application/json',
   },
 });
 
@@ -25,9 +25,9 @@ const processQueue = (error: any, token: string | null = null) => {
 
 axiosInstance.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem("accessToken");
+    const token = localStorage.getItem('accessToken');
     if (token && config.headers) {
-      config.headers["Authorization"] = `Bearer ${token}`;
+      config.headers['Authorization'] = `Bearer ${token}`;
     }
     return config;
   },
@@ -45,7 +45,7 @@ axiosInstance.interceptors.response.use(
           failedQueue.push({ resolve, reject });
         })
           .then((token) => {
-            originalRequest.headers["Authorization"] = `Bearer ${token}`;
+            originalRequest.headers['Authorization'] = `Bearer ${token}`;
             return axiosInstance(originalRequest);
           })
           .catch((err) => {
@@ -55,7 +55,7 @@ axiosInstance.interceptors.response.use(
 
       originalRequest._retry = true;
       isRefreshing = true;
-      const refreshToken = localStorage.getItem("refreshToken");
+      const refreshToken = localStorage.getItem('refreshToken');
 
       if (!refreshToken) {
         localStorage.clear();
@@ -68,17 +68,15 @@ axiosInstance.interceptors.response.use(
         });
         const { accessToken, refreshToken: newRefreshToken } = response.data.data;
 
-        localStorage.setItem("accessToken", accessToken);
+        localStorage.setItem('accessToken', accessToken);
         if (newRefreshToken) {
-          localStorage.setItem("refreshToken", newRefreshToken);
+          localStorage.setItem('refreshToken', newRefreshToken);
         }
 
-        axiosInstance.defaults.headers.common[
-          "Authorization"
-        ] = `Bearer ${accessToken}`;
+        axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
         processQueue(null, accessToken);
         isRefreshing = false;
-        originalRequest.headers["Authorization"] = `Bearer ${accessToken}`;
+        originalRequest.headers['Authorization'] = `Bearer ${accessToken}`;
         return axiosInstance(originalRequest);
       } catch (refreshError) {
         processQueue(refreshError, null);

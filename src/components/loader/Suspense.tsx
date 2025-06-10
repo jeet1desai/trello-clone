@@ -1,6 +1,6 @@
-import React, { useEffect, useRef } from "react";
-import { Typography } from "antd";
-import "./SuspenseLoader.css";
+import React, { useEffect, useRef } from 'react';
+import { Typography } from 'antd';
+import './SuspenseLoader.css';
 
 const { Title } = Typography;
 

@@ -1,42 +1,31 @@
-import React, { useEffect, useRef, useState } from "react";
-import { Card, Typography, List, Avatar, Tag, Space, Spin, Empty } from "antd";
-import { useDispatch, useSelector } from "react-redux";
-import { AppDispatch, RootState } from "../../store";
-import dayjs from "dayjs";
-import socketService from "../../services/socketService";
-import "../../layout/styles/Dashboard.css";
-import {
-  addNewRecentActivity,
-  getDashboardRecentActivity,
-} from "../../store/slices/dashboardSlice";
-import { getRandomColor } from "../../utils";
-import {
-  File,
-  Folder,
-  UsersRound,
-  Wrench,
-  Tag as TagIcon,
-  LayoutGrid,
-  Paperclip,
-} from "lucide-react";
+import React, { useEffect, useRef, useState } from 'react';
+import { Card, Typography, List, Avatar, Tag, Space, Spin, Empty } from 'antd';
+import { useDispatch, useSelector } from 'react-redux';
+import { AppDispatch, RootState } from '../../store';
+import dayjs from 'dayjs';
+import socketService from '../../services/socketService';
+import '../../layout/styles/Dashboard.css';
+import { addNewRecentActivity, getDashboardRecentActivity } from '../../store/slices/dashboardSlice';
+import { getRandomColor } from '../../utils';
+import { File, Folder, UsersRound, Wrench, Tag as TagIcon, LayoutGrid, Paperclip } from 'lucide-react';
 
 const { Text } = Typography;
 
 const getIconForType = (type: string) => {
   switch (type.toLowerCase()) {
-    case "workspace":
+    case 'workspace':
       return <Wrench size={16} className="marginTop4" />;
-    case "board":
+    case 'board':
       return <Folder size={16} className="marginTop4" />;
-    case "status":
+    case 'status':
       return <LayoutGrid size={16} className="marginTop4" />;
-    case "task":
+    case 'task':
       return <File size={16} className="marginTop4" />;
-    case "task label":
+    case 'task label':
       return <TagIcon size={16} className="marginTop4" />;
-    case "task member":
+    case 'task member':
       return <UsersRound size={16} className="marginTop4" />;
-    case "attachment":
+    case 'attachment':
       return <Paperclip size={16} className="marginTop4" />;
     default:
       return <File size={16} className="marginTop4" />;
@@ -45,39 +34,37 @@ const getIconForType = (type: string) => {
 
 const getTagColorForAction = (action: string) => {
   switch (action.toLowerCase()) {
-    case "created":
-    case "added":
-    case "uploaded":
-      return "green";
-    case "updated":
-      return "purple";
-    case "deleted":
-      return "red";
-    case "joined":
-      return "blue";
+    case 'created':
+    case 'added':
+    case 'uploaded':
+      return 'green';
+    case 'updated':
+      return 'purple';
+    case 'deleted':
+      return 'red';
+    case 'joined':
+      return 'blue';
     default:
-      return "default";
+      return 'default';
   }
 };
 
 const RecentActivity: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
 
-  const { recentActivity, recentActivityLoading, hasMore } = useSelector(
-    (state: RootState) => state.dashboard
-  );
+  const { recentActivity, recentActivityLoading, hasMore } = useSelector((state: RootState) => state.dashboard);
   const data = recentActivity.activities || [];
 
   const [loadingMore, setLoadingMore] = useState(false);
   const listRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    socketService.on("receive-recent-activity", (payload) => {
+    socketService.on('receive-recent-activity', (payload) => {
       dispatch(addNewRecentActivity(payload));
     });
 
     return () => {
-      socketService.off("receive-recent-activity");
+      socketService.off('receive-recent-activity');
     };
   });
 
@@ -106,11 +93,7 @@ const RecentActivity: React.FC = () => {
         const clientHeight = container.clientHeight;
         if (scrollTop + clientHeight >= scrollHeight - 100) {
           setLoadingMore(true);
-          await dispatch(
-            getDashboardRecentActivity(
-              recentActivity.pagination.currentPage + 1
-            )
-          );
+          await dispatch(getDashboardRecentActivity(recentActivity.pagination.currentPage + 1));
         }
       } else if (loadingMore && !hasMore) {
         setLoadingMore(false);
@@ -118,11 +101,7 @@ const RecentActivity: React.FC = () => {
     };
 
     return (
-      <div
-        ref={listRef}
-        style={{ maxHeight: "460px", overflow: "auto", padding: "0 16px" }}
-        onScroll={handleScroll}
-      >
+      <div ref={listRef} style={{ maxHeight: '460px', overflow: 'auto', padding: '0 16px' }} onScroll={handleScroll}>
         <List
           itemLayout="horizontal"
           dataSource={data}
@@ -137,37 +116,29 @@ const RecentActivity: React.FC = () => {
                 title={
                   <Space>
                     <Text strong>
-                      {item.created_by.first_name?.charAt(0).toUpperCase() +
-                        item.created_by.first_name?.slice(1)}{" "}
-                      {item.created_by.last_name &&
-                        item.created_by.last_name?.charAt(0).toUpperCase() +
-                          (item.created_by.last_name?.slice(1) ?? "")}
+                      {item.created_by.first_name?.charAt(0).toUpperCase() + item.created_by.first_name?.slice(1)}{' '}
+                      {item.created_by.last_name && item.created_by.last_name?.charAt(0).toUpperCase() + (item.created_by.last_name?.slice(1) ?? '')}
                     </Text>
-                    <Tag color={getTagColorForAction(item.action)}>
-                      {item.action}
-                    </Tag>
+                    <Tag color={getTagColorForAction(item.action)}>{item.action}</Tag>
                   </Space>
                 }
                 description={
                   <div
                     style={{
-                      display: "flex",
-                      flexDirection: "column",
-                      gap: "4px",
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '4px',
                     }}
                   >
                     <Space>
                       <span>{getIconForType(item.module)}</span>
                       <Text>{item.module}</Text>
-                      <Text type="secondary" style={{ fontSize: "0.85rem" }}>
+                      <Text type="secondary" style={{ fontSize: '0.85rem' }}>
                         • {dayjs(item.createdAt).fromNow()}
                       </Text>
                     </Space>
                     {item.details && (
-                      <Text
-                        type="secondary"
-                        style={{ fontSize: "0.85rem", marginLeft: "24px" }}
-                      >
+                      <Text type="secondary" style={{ fontSize: '0.85rem', marginLeft: '24px' }}>
                         • {item.details}
                       </Text>
                     )}
@@ -178,7 +149,7 @@ const RecentActivity: React.FC = () => {
           )}
           footer={
             loadingMore && (
-              <div style={{ textAlign: "center", padding: 12 }}>
+              <div style={{ textAlign: 'center', padding: 12 }}>
                 <Spin />
               </div>
             )

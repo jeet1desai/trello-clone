@@ -1,6 +1,6 @@
-import React from "react";
-import { loadingGIF } from "../../assets";
-import "./FunnelLoader.css";
+import React from 'react';
+import { loadingGIF } from '../../assets';
+import './FunnelLoader.css';
 
 export interface LoaderProps {
   fullScreen?: boolean;
@@ -16,11 +16,7 @@ const MagicWandLoader: React.FC = () => {
   );
 };
 
-const Loader: React.FC<LoaderProps> = ({
-  fullScreen = false,
-  loading = true,
-  children,
-}) => {
+const Loader: React.FC<LoaderProps> = ({ fullScreen = false, loading = true, children }) => {
   if (!loading) return <>{children}</>;
 
   if (fullScreen) {
