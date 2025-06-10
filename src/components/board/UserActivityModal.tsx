@@ -56,8 +56,12 @@ const UserActivityModal = ({ open, onClose }: IProps) => {
           itemLayout="horizontal"
           dataSource={userActivity?.activities || []}
           renderItem={item => {
-            const detailsText = item.details || "";
-            const isUpdateTask = /task was (updated|udpated)\s+by/i.test(detailsText);
+            const detailsText = (item.details || "")
+              .replace(/^"+|"+$/g, "")                      // Remove leading/trailing quotes
+              .replace(/"([^"]*?)"/g, '$1')                 // Remove internal quotes like "name"
+              .replace(/(\w)"(?=\s)/g, '$1')                // Remove stray trailing quote after a word
+              .replace(/^"\s*"|"\s*"$/, '')                 // Remove entirely empty quoted strings
+              .trim();
             return (
               <List.Item style={{ border: 0, padding: "18px 24px 8px 24px" }}>
                 <List.Item.Meta
@@ -72,46 +76,52 @@ const UserActivityModal = ({ open, onClose }: IProps) => {
                   description={
                     <div>
                       <span className="activity-description">
-                        <b>{item.created_by.first_name} {item.created_by.last_name}</b>&nbsp; 
+                        <b>{item.created_by.first_name} {item.created_by.last_name}</b>&nbsp;
                         {item.details ? (
-                          <>
-                            {isUpdateTask ? (
-                              <span style={{ fontWeight: 500 }}>
-                                <span className="task-title-link"
-                                  onClick={() => {
-                                    const boardId = item.board?._id;
-                                    const taskId = item.task?._id;
-                                    const path = boardId
-                                      ? generatePath(PRIVATE_ROUTE.BOARD, { id: boardId }) + (taskId ? `?task_id=${taskId}` : "")
-                                      : "#";
-                                    navigate(path);
-                                    onClose();
-                                  }}
-                                >
-                                  {item.task?.title || ""}
-                                </span> {item.details}&nbsp;</span>
-                            ) :
-                              item.details.split(/(\\?"[^"]*\\?")/).map((part, idx) =>
-                                /^\\?".*\\?"$/.test(part) ? (
-                                  <span key={idx} className="task-title-link"
-                                    onClick={() => {
-                                      const boardId = item.board?._id;
-                                      const taskId = item.task?._id;
-                                      const path = boardId
-                                        ? generatePath(PRIVATE_ROUTE.BOARD, { id: boardId }) + (taskId ? `?task_id=${taskId}` : "")
-                                        : "#";
+                          (item.task?.title && detailsText.includes(item.task.title)) ? (
+                            <>
+                              {
+                                detailsText.split(item.task.title).map((part, idx, arr) => (
+                                  <React.Fragment key={idx}>
+                                    <span>{part}</span>
+                                    {idx < arr.length - 1 && (
+                                      <span className="task-title-link"
+                                        onClick={() => {
+                                          const boardId = item.board?._id;
+                                          const taskId = item.task?._id;
+                                          const path = boardId
+                                            ? generatePath(PRIVATE_ROUTE.BOARD, { id: boardId }) + (taskId ? `?task_id=${taskId}` : "")
+                                            : "#";
+                                          navigate(path);
+                                          onClose();
+                                        }}
+                                      >
+                                        {item.task?.title}
+                                      </span>
+                                    )}
+                                  </React.Fragment>
+                                ))
+                              }
+                              &nbsp;
+                            </>
+                          ) : (
+                            <>
+                              <span className="task-title-link"
+                                onClick={() => {
+                                  const boardId = item.board?._id;
+                                  const taskId = item.task?._id;
+                                  const path = boardId
+                                    ? generatePath(PRIVATE_ROUTE.BOARD, { id: boardId }) + (taskId ? `?task_id=${taskId}` : "")
+                                    : "#";
+                                  navigate(path);
+                                  onClose();
+                                }}
+                              >
+                                {item.task?.title || ""}
+                              </span> {item.details}&nbsp;
+                            </>
+                          )
 
-                                      navigate(path);
-                                      onClose();
-                                    }}
-                                  >
-                                    {part.replace(/^\\?"/, "").replace(/\\?"$/, "")}
-                                  </span>
-                                ) : (
-                                  <span key={idx}>{part}</span>
-                                )
-                              )}
-                          </>
                         ) : null}
                       </span>
                       <div style={{ color: "#aaa", fontSize: 13, marginTop: 2 }}>

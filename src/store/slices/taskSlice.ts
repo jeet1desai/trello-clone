@@ -253,11 +253,11 @@ export const addEstimatedTime = createAsyncThunk(
   }
 );
 
-export const stratTimer = createAsyncThunk(
+export const startTimer = createAsyncThunk(
   "timer/start-timer",
   async ({ taskId }: { taskId: string }, { rejectWithValue }) => {
     try {
-      const response = await taskService.stratTimer(taskId);
+      const response = await taskService.startTimer(taskId);
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
@@ -836,12 +836,12 @@ const taskSlice = createSlice({
       })
 
       // start timer into task
-      .addCase(stratTimer.pending, (state) => {
+      .addCase(startTimer.pending, (state) => {
         state.loading = true;
         state.error = null;
         state.success = null;
       })
-      .addCase(stratTimer.fulfilled, (state, action) => {
+      .addCase(startTimer.fulfilled, (state, action) => {
         state.selectedTask = {
           ...state.selectedTask,
           total_estimated_time: action.payload.totalEstimatedTime,
@@ -851,7 +851,7 @@ const taskSlice = createSlice({
         state.loading = false;
         state.error = null;
       })
-      .addCase(stratTimer.rejected, (state, action) => {
+      .addCase(startTimer.rejected, (state, action) => {
         state.loading = false;
         state.success = null;
         state.error =
