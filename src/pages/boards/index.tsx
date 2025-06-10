@@ -265,14 +265,23 @@ const Boards: React.FC = () => {
           }}
         >
           <div
-            onClick={(e) => {
-              dispatch(
+            onClick={async (e) => {
+              e.stopPropagation();
+              const result = await dispatch(
                 toggleFavorite({
                   boardId: board._id,
                   isFavorite: !board.isFavorite,
                 })
               );
-              e.stopPropagation();
+              if (result.meta?.requestStatus === "fulfilled") {
+                await dispatch(
+                  getAllBoards({
+                    page: 1,
+                    search: searchText,
+                    sortType: sortOption,
+                  })
+                );
+              }
             }}
             style={{
               display: "flex",

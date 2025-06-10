@@ -203,7 +203,7 @@ export const toggleFavorite = createAsyncThunk(
     }, { rejectWithValue }) => {
     try {
       const response = await workspaceService.toggleFavorite(workspaceId, isFavorite);
-      return response;
+      return response.data;
     } catch (error: any) {
       return rejectWithValue(
         error.response?.data?.message ?? "Error while favourite workspace."
@@ -401,14 +401,6 @@ const workspaceSlice = createSlice({
         state.success = null;
       })
       .addCase(toggleFavorite.fulfilled, (state, action) => {
-        state.workspaces = state.workspaces.map((item) =>
-          item._id === action.payload.data._id
-            ? {
-              ...item,
-              isFavorite: action.payload.data.isFavorite,
-            }
-            : item
-        );
         state.loading = false;
         state.error = null;
         state.success = action.payload.message;

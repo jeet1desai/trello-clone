@@ -828,7 +828,7 @@ export const toggleFavorite = createAsyncThunk(
   ) => {
     try {
       const response = await boardService.toggleFavorite(boardId, isFavorite);
-      return response;
+      return response.data;
     } catch (error: any) {
       return rejectWithValue(
         error.response?.data?.message ?? "Error while favourite board."
@@ -1682,14 +1682,6 @@ const boardSlice = createSlice({
         state.success = null;
       })
       .addCase(toggleFavorite.fulfilled, (state, action) => {
-        state.boards = state.boards?.map((item) =>
-          item._id === action.payload.data.boardId
-            ? {
-                ...item,
-                isFavorite: action.payload.data.isFavorite,
-              }
-            : item
-        );
         state.loading = false;
         state.error = null;
         state.success = action.payload.message;

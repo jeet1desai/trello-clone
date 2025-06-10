@@ -272,14 +272,23 @@ const Workspaces: React.FC = () => {
               {workspace.createdBy._id === currentUser?.id ? (
                 <div
                   className="workspace-card-actions"
-                  onClick={(e) => {
-                    dispatch(
+                  onClick={async (e) => {
+                    e.stopPropagation();
+                    const result = await dispatch(
                       toggleFavorite({
                         workspaceId: workspace._id,
                         isFavorite: !workspace.isFavorite,
                       })
                     );
-                    e.stopPropagation();
+                    if (result.meta?.requestStatus === "fulfilled") {
+                      await dispatch(
+                        getAllWorkspaces({
+                          page: 1,
+                          search: searchText,
+                          sortType: sortOption,
+                        })
+                      );
+                    }
                   }}
                   style={{ display: "flex", gap: "8px", alignItems: "center" }}
                 >
