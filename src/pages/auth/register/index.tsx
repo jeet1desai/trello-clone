@@ -47,7 +47,8 @@ const Register: React.FC = () => {
         <img
           src={companyLogo}
           alt="BaseTeam"
-          style={{ width: "14%", borderRadius: "8px", marginBottom: "8px" }}
+          style={{ width: "14%", borderRadius: "8px", marginBottom: "8px", cursor: 'pointer' }}
+          onClick={() => navigate(PUBLIC_ROUTE.HOME)}
         />
         <Title level={2} className="auth-title">
           Create Account
