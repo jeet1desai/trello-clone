@@ -1,26 +1,9 @@
-import React, { useState, useEffect, useCallback } from "react";
-import { generatePath, useLocation, useNavigate } from "react-router-dom";
-import {
-  Row,
-  Col,
-  Card,
-  Typography,
-  Button,
-  Input,
-  Space,
-  Dropdown,
-  Modal,
-  Form,
-  Tag,
-  Empty,
-  Tooltip,
-  App,
-  Alert,
-  Pagination,
-} from "antd";
-import type { MenuProps } from "antd";
-import { useDispatch, useSelector } from "react-redux";
-import { AppDispatch, RootState } from "../../store";
+import React, { useState, useEffect, useCallback } from 'react';
+import { generatePath, useLocation, useNavigate } from 'react-router-dom';
+import { Row, Col, Card, Typography, Button, Input, Space, Dropdown, Modal, Form, Tag, Empty, Tooltip, App, Alert, Pagination } from 'antd';
+import type { MenuProps } from 'antd';
+import { useDispatch, useSelector } from 'react-redux';
+import { AppDispatch, RootState } from '../../store';
 import {
   IBoard,
   addNewBoard,
@@ -30,42 +13,22 @@ import {
   openBoardAddModal,
   clearSelectedBoard,
   toggleFavorite,
-} from "../../store/slices/boardSlice";
-import "../../layout/styles/boards.css";
-import { SORT_OPTIONS, SORT_OPTIONS_VALUES } from "../../config";
-import AddBoardForm from "./components/AddBoardForm";
-import { generateGradient } from "../../utils";
-import { PRIVATE_ROUTE } from "../../utils/enums/route";
-import CustomButton from "../../components/ui/button";
-import {
-  ArrowDownAZ,
-  Check,
-  CircleAlert,
-  Edit2,
-  GitBranch,
-  MoreHorizontal,
-  Plus,
-  Search,
-  Star,
-  Trash2,
-  UserRound,
-} from "lucide-react";
-import { Loader } from "../../components";
+} from '../../store/slices/boardSlice';
+import '../../layout/styles/boards.css';
+import { SORT_OPTIONS, SORT_OPTIONS_VALUES } from '../../config';
+import AddBoardForm from './components/AddBoardForm';
+import { generateGradient } from '../../utils';
+import { PRIVATE_ROUTE } from '../../utils/enums/route';
+import CustomButton from '../../components/ui/button';
+import { ArrowDownAZ, Check, CircleAlert, Edit2, GitBranch, MoreHorizontal, Plus, Search, Star, Trash2, UserRound } from 'lucide-react';
+import { Loader } from '../../components';
 const { Title, Paragraph } = Typography;
 
 const BoardHero: React.FC<{ onCreate: () => void }> = ({ onCreate }) => (
   <div className="header-hero gradient-bg">
     <h1 className="header-hero-title">Your Boards</h1>
-    <p className="header-hero-subtitle">
-      Organize your boards and manage your team work.
-    </p>
-    <Button
-      type="primary"
-      icon={<Plus />}
-      size="large"
-      onClick={onCreate}
-      className="header-hero-btn button"
-    >
+    <p className="header-hero-subtitle">Organize your boards and manage your team work.</p>
+    <Button type="primary" icon={<Plus />} size="large" onClick={onCreate} className="header-hero-btn button">
       Create Board
     </Button>
   </div>
@@ -78,11 +41,9 @@ const Boards: React.FC = () => {
   const location = useLocation();
   const dispatch = useDispatch<AppDispatch>();
   const { currentUser } = useSelector((state: RootState) => state.user);
-  const { boards, addError, editError, loading, boardPagination } = useSelector(
-    (state: RootState) => state.board
-  );
+  const { boards, addError, editError, loading, boardPagination } = useSelector((state: RootState) => state.board);
 
-  const [searchText, setSearchText] = useState("");
+  const [searchText, setSearchText] = useState('');
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [selectedBoard, setSelectedBoard] = useState<IBoard | null>(null);
   const [sortOption, setSortOption] = useState(SORT_OPTIONS_VALUES.DEFAULT);
@@ -91,7 +52,7 @@ const Boards: React.FC = () => {
 
   // Get owner details
   const getOwnerDetails = (board: IBoard) => {
-    const owner = board.members?.find((user) => user.role === "ADMIN")?.user;
+    const owner = board.members?.find((user) => user.role === 'ADMIN')?.user;
     return owner;
   };
 
@@ -112,7 +73,7 @@ const Boards: React.FC = () => {
   // Check URL parameters for mode=create
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
-    if (searchParams.get("mode") === "create") {
+    if (searchParams.get('mode') === 'create') {
       showAddModal();
     }
   }, [location, showAddModal]);
@@ -126,22 +87,14 @@ const Boards: React.FC = () => {
   }, [searchText]);
 
   useEffect(() => {
-    (async () =>
-      await dispatch(
-        getAllBoards({ page: 1, search: searchText, sortType: 0 })
-      ))();
+    (async () => await dispatch(getAllBoards({ page: 1, search: searchText, sortType: 0 })))();
 
     return () => {
       dispatch(clearSelectedBoard());
     };
   }, [debouncedSearch]);
 
-  const handleAddOrEditBoard = async (values: {
-    name: string;
-    description?: string;
-    workspace: string;
-    members?: string[];
-  }) => {
+  const handleAddOrEditBoard = async (values: { name: string; description?: string; workspace: string; members?: string[] }) => {
     if (selectedBoard) {
       await dispatch(
         editBoard({
@@ -161,9 +114,7 @@ const Boards: React.FC = () => {
           members: values?.members,
         })
       );
-      await dispatch(
-        getAllBoards({ page: 1, search: "", sortType: sortOption })
-      );
+      await dispatch(getAllBoards({ page: 1, search: '', sortType: sortOption }));
     }
     if (!addError) {
       setIsModalVisible(false);
@@ -187,36 +138,31 @@ const Boards: React.FC = () => {
   const handleDelete = (_id: string, name: string) => {
     modal.confirm({
       title: `Are you sure you want to delete "${name}"?`,
-      icon: (
-        <CircleAlert size={36} color="#ffac40" style={{ marginRight: 8 }} />
-      ),
-      content:
-        "This action cannot be undone. All data will be permanently deleted.",
-      okText: "Delete",
-      okType: "danger",
-      cancelText: "Cancel",
+      icon: <CircleAlert size={36} color="#ffac40" style={{ marginRight: 8 }} />,
+      content: 'This action cannot be undone. All data will be permanently deleted.',
+      okText: 'Delete',
+      okType: 'danger',
+      cancelText: 'Cancel',
       autoFocusButton: undefined,
       okButtonProps: {
-        className: "button",
+        className: 'button',
       },
       cancelButtonProps: {
-        className: "button",
+        className: 'button',
       },
       async onOk() {
         await dispatch(deleteBoard(_id));
-        await dispatch(
-          getAllBoards({ page: 1, search: searchText, sortType: sortOption })
-        );
+        await dispatch(getAllBoards({ page: 1, search: searchText, sortType: sortOption }));
       },
     });
   };
 
   const handleMenuClick = (key: string, board: IBoard) => {
     switch (key) {
-      case "edit":
+      case 'edit':
         showEditModal(board);
         break;
-      case "delete":
+      case 'delete':
         handleDelete(board._id, board.name);
         break;
       default:
@@ -227,15 +173,15 @@ const Boards: React.FC = () => {
   const renderBoardCard = (board: IBoard) => {
     const isOwner = getOwnerDetails(board)?._id === currentUser?.id;
     const background = generateGradient(board.name);
-    const moreMenu: MenuProps["items"] = [
+    const moreMenu: MenuProps['items'] = [
       {
-        key: "edit",
+        key: 'edit',
         icon: <Edit2 size={14} />,
-        label: "Edit",
+        label: 'Edit',
       },
       {
-        key: "delete",
-        label: "Delete",
+        key: 'delete',
+        label: 'Delete',
         icon: <Trash2 size={14} />,
         danger: true,
       },
@@ -247,12 +193,10 @@ const Boards: React.FC = () => {
         className="board-card"
         styles={{
           body: {
-            padding: "0 0 20px",
+            padding: '0 0 20px',
           },
         }}
-        onClick={() =>
-          navigate(generatePath(PRIVATE_ROUTE.BOARD, { id: board._id }))
-        }
+        onClick={() => navigate(generatePath(PRIVATE_ROUTE.BOARD, { id: board._id }))}
         onMouseEnter={() => setHoveredBoardId(board._id)}
         onMouseLeave={() => setHoveredBoardId(null)}
       >
@@ -275,37 +219,31 @@ const Boards: React.FC = () => {
               e.stopPropagation();
             }}
             style={{
-              display: "flex",
-              position: "absolute",
+              display: 'flex',
+              position: 'absolute',
               top: 0,
               right: 0,
-              alignItems: "center",
-              justifyContent: "center",
-              width: "24px",
-              height: "24px",
-              margin: "8px 8px 0",
-              overflow: "hidden",
-              transition: "transform 0.2s ease-in-out 0.2s",
-              borderRadius: "6px",
-              backgroundColor:
-                board.isFavorite || hoveredBoardId === board._id
-                  ? "hsla(0, 0%, 0%, 0.25)"
-                  : "",
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: '24px',
+              height: '24px',
+              margin: '8px 8px 0',
+              overflow: 'hidden',
+              transition: 'transform 0.2s ease-in-out 0.2s',
+              borderRadius: '6px',
+              backgroundColor: board.isFavorite || hoveredBoardId === board._id ? 'hsla(0, 0%, 0%, 0.25)' : '',
             }}
           >
             <Star
               size={18}
               style={{
-                fill: board.isFavorite ? "#fff" : "none",
-                stroke: "#fff",
-                visibility:
-                  board.isFavorite || hoveredBoardId === board._id
-                    ? "visible"
-                    : "hidden",
+                fill: board.isFavorite ? '#fff' : 'none',
+                stroke: '#fff',
+                visibility: board.isFavorite || hoveredBoardId === board._id ? 'visible' : 'hidden',
 
-                right: "15px",
-                top: "15px",
-                transition: "fill 0.2s, stroke 0.2s",
+                right: '15px',
+                top: '15px',
+                transition: 'fill 0.2s, stroke 0.2s',
               }}
             />
           </div>
@@ -328,43 +266,26 @@ const Boards: React.FC = () => {
                     },
                   }}
                   placement="bottomRight"
-                  trigger={["click"]}
+                  trigger={['click']}
                 >
-                  <Button
-                    type="text"
-                    shape="circle"
-                    onClick={(e) => e.stopPropagation()}
-                    icon={<MoreHorizontal size={16} />}
-                    className="more-btn"
-                  />
+                  <Button type="text" shape="circle" onClick={(e) => e.stopPropagation()} icon={<MoreHorizontal size={16} />} className="more-btn" />
                 </Dropdown>
               </div>
             ) : null}
           </div>
 
-          <Paragraph
-            ellipsis={{ rows: 2 }}
-            className="board-description color-inherit"
-          >
-            {board.description || "No description"}
+          <Paragraph ellipsis={{ rows: 2 }} className="board-description color-inherit">
+            {board.description || 'No description'}
           </Paragraph>
 
           <div className="board-card-footer">
             <Space wrap>
               <Tooltip title={getOwnerDetails(board)?.email}>
-                <Tag
-                  icon={<UserRound size={14} />}
-                  style={{ display: "flex", alignItems: "center", gap: 2 }}
-                >
-                  {getOwnerDetails(board)?.first_name +
-                    " " +
-                    (getOwnerDetails(board)?.last_name ?? "")}
+                <Tag icon={<UserRound size={14} />} style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                  {getOwnerDetails(board)?.first_name + ' ' + (getOwnerDetails(board)?.last_name ?? '')}
                 </Tag>
               </Tooltip>
-              <Tag
-                icon={<GitBranch size={14} />}
-                style={{ display: "flex", alignItems: "center", gap: 2 }}
-              >
+              <Tag icon={<GitBranch size={14} />} style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                 {board?.workspace?.name}
               </Tag>
             </Space>
@@ -376,14 +297,11 @@ const Boards: React.FC = () => {
 
   const renderBoards = (boards: IBoard[]) => {
     if (boards?.length === 0) {
-      const emptyMessage = "No boards found";
+      const emptyMessage = 'No boards found';
 
       return (
         <div className="empty-state">
-          <Empty
-            image={Empty.PRESENTED_IMAGE_SIMPLE}
-            description={emptyMessage}
-          />
+          <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={emptyMessage} />
         </div>
       );
     }
@@ -400,7 +318,7 @@ const Boards: React.FC = () => {
         {boardPagination.totalPages > 1 && (
           <Pagination
             align="end"
-            style={{ marginTop: "40px" }}
+            style={{ marginTop: '40px' }}
             defaultCurrent={1}
             pageSize={boardPagination.limit}
             current={boardPagination.currentPage}
@@ -421,47 +339,34 @@ const Boards: React.FC = () => {
   };
 
   // Sort menu items
-  const sortMenuItems: MenuProps["items"] = [
+  const sortMenuItems: MenuProps['items'] = [
     {
       key: SORT_OPTIONS_VALUES.DEFAULT,
-      label: "Default",
-      icon:
-        sortOption === SORT_OPTIONS_VALUES.DEFAULT ? <Check size={16} /> : null,
+      label: 'Default',
+      icon: sortOption === SORT_OPTIONS_VALUES.DEFAULT ? <Check size={16} /> : null,
     },
     {
       key: SORT_OPTIONS_VALUES.NAME_ASC,
-      label: "Name (A-Z)",
-      icon:
-        sortOption === SORT_OPTIONS_VALUES.NAME_ASC ? (
-          <Check size={16} />
-        ) : null,
+      label: 'Name (A-Z)',
+      icon: sortOption === SORT_OPTIONS_VALUES.NAME_ASC ? <Check size={16} /> : null,
     },
     {
       key: SORT_OPTIONS_VALUES.NAME_DESC,
-      label: "Name (Z-A)",
-      icon:
-        sortOption === SORT_OPTIONS_VALUES.NAME_DESC ? (
-          <Check size={16} />
-        ) : null,
+      label: 'Name (Z-A)',
+      icon: sortOption === SORT_OPTIONS_VALUES.NAME_DESC ? <Check size={16} /> : null,
     },
     {
-      type: "divider",
+      type: 'divider',
     },
     {
       key: SORT_OPTIONS_VALUES.CREATED_ASC,
-      label: "Date Created (Oldest first)",
-      icon:
-        sortOption === SORT_OPTIONS_VALUES.CREATED_ASC ? (
-          <Check size={16} />
-        ) : null,
+      label: 'Date Created (Oldest first)',
+      icon: sortOption === SORT_OPTIONS_VALUES.CREATED_ASC ? <Check size={16} /> : null,
     },
     {
       key: SORT_OPTIONS_VALUES.CREATED_DESC,
-      label: "Date Created (Newest first)",
-      icon:
-        sortOption === SORT_OPTIONS_VALUES.CREATED_DESC ? (
-          <Check size={16} />
-        ) : null,
+      label: 'Date Created (Newest first)',
+      icon: sortOption === SORT_OPTIONS_VALUES.CREATED_DESC ? <Check size={16} /> : null,
     },
   ];
 
@@ -475,9 +380,7 @@ const Boards: React.FC = () => {
             <Title level={3} className="page-title">
               Your Boards
             </Title>
-            <Paragraph style={{ marginBottom: 0 }}>
-              List of boards you are part of
-            </Paragraph>
+            <Paragraph style={{ marginBottom: 0 }}>List of boards you are part of</Paragraph>
           </div>
           <div className="boards-header-right">
             <Space>
@@ -489,11 +392,7 @@ const Boards: React.FC = () => {
                 className="form-input"
                 style={{ width: 220 }}
                 onChange={(e) => setSearchText(e.target.value)}
-                onClear={async () =>
-                  await dispatch(
-                    getAllBoards({ page: 1, search: "", sortType: 0 })
-                  )
-                }
+                onClear={async () => await dispatch(getAllBoards({ page: 1, search: '', sortType: 0 }))}
               />
               <Dropdown
                 menu={{
@@ -511,15 +410,9 @@ const Boards: React.FC = () => {
                   selectable: true,
                   defaultSelectedKeys: [SORT_OPTIONS.DEFAULT],
                 }}
-                trigger={["click"]}
+                trigger={['click']}
               >
-                <CustomButton
-                  type="default"
-                  className="button"
-                  style={{ marginTop: 0 }}
-                  icon={<ArrowDownAZ size={16} />}
-                  breakPoint={575}
-                >
+                <CustomButton type="default" className="button" style={{ marginTop: 0 }} icon={<ArrowDownAZ size={16} />} breakPoint={575}>
                   <Space>Sort</Space>
                 </CustomButton>
               </Dropdown>
@@ -531,7 +424,7 @@ const Boards: React.FC = () => {
 
         {/* Add/Edit Board Modal */}
         <Modal
-          title={selectedBoard ? "Edit Board" : "Create New Board"}
+          title={selectedBoard ? 'Edit Board' : 'Create New Board'}
           open={isModalVisible || !!addError || !!editError}
           onCancel={() => {
             setIsModalVisible(false);
@@ -547,13 +440,7 @@ const Boards: React.FC = () => {
               type="error"
               showIcon
               style={{ marginBottom: 10 }}
-              icon={
-                <CircleAlert
-                  size={16}
-                  color="#ffac40"
-                  style={{ marginRight: 8 }}
-                />
-              }
+              icon={<CircleAlert size={16} color="#ffac40" style={{ marginRight: 8 }} />}
             />
           )}
           {editError && (
@@ -562,13 +449,7 @@ const Boards: React.FC = () => {
               type="error"
               showIcon
               style={{ marginBottom: 10 }}
-              icon={
-                <CircleAlert
-                  size={16}
-                  color="#ffac40"
-                  style={{ marginRight: 8 }}
-                />
-              }
+              icon={<CircleAlert size={16} color="#ffac40" style={{ marginRight: 8 }} />}
             />
           )}
           <AddBoardForm

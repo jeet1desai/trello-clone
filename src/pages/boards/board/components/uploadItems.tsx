@@ -1,7 +1,7 @@
-import React, { useState } from "react";
-import { Tooltip, Button } from "antd";
-import type { UploadFile } from "antd/es/upload/interface";
-import { ArrowDownToLine, Eye, Trash2 } from "lucide-react";
+import React, { useState } from 'react';
+import { Tooltip, Button } from 'antd';
+import type { UploadFile } from 'antd/es/upload/interface';
+import { ArrowDownToLine, Eye, Trash2 } from 'lucide-react';
 
 interface CustomUploadItemProps {
   file: UploadFile;
@@ -11,18 +11,13 @@ interface CustomUploadItemProps {
   handlePreview: () => void;
 }
 
-const CustomUploadItem: React.FC<CustomUploadItemProps> = ({
-  file,
-  originNode,
-  remove,
-  handlePreview,
-}) => {
+const CustomUploadItem: React.FC<CustomUploadItemProps> = ({ file, originNode, remove, handlePreview }) => {
   const [hovered, setHovered] = useState<boolean>(false);
   const isDownloadable = [
-    "application/pdf",
-    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-    "application/vnd.ms-excel",
-  ].includes(file.type ?? "");
+    'application/pdf',
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    'application/vnd.ms-excel',
+  ].includes(file.type ?? '');
 
   const handleDownload = () => {
     let downloadUrl = file.url ?? file.preview;
@@ -32,14 +27,14 @@ const CustomUploadItem: React.FC<CustomUploadItemProps> = ({
     }
 
     if (!downloadUrl) {
-      console.warn("No URL available to download this file.");
+      console.warn('No URL available to download this file.');
       return;
     }
 
-    const link = document.createElement("a");
+    const link = document.createElement('a');
     link.href = downloadUrl;
     link.download = file.name;
-    link.target = "_blank";
+    link.target = '_blank';
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -49,20 +44,15 @@ const CustomUploadItem: React.FC<CustomUploadItemProps> = ({
     }
   };
 
-  const handleKeyPress =
-    (callback: () => void) => (e: React.KeyboardEvent<HTMLButtonElement>) => {
-      if (e.key === "Enter" || e.key === " ") {
-        e.preventDefault();
-        callback();
-      }
-    };
+  const handleKeyPress = (callback: () => void) => (e: React.KeyboardEvent<HTMLButtonElement>) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      callback();
+    }
+  };
 
   return (
-    <div
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      className="upload-img-container"
-    >
+    <div onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)} className="upload-img-container">
       {originNode}
 
       {hovered && (

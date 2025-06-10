@@ -31,4 +31,4 @@ const Input = InputComponent as InputType;
 Input.Password = Password;
 Input.TextArea = TextArea;
 
-export default Input; 
+export default Input;

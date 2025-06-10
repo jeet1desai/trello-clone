@@ -1,21 +1,14 @@
-import { Button, Divider, Drawer, Menu } from "antd";
-import { useNavigate } from "react-router-dom";
-import { useMedia } from "../../../hooks/useMedia";
-import { useIsActivePath } from "../../../hooks/useNavigation";
-import { PRIVATE_ROUTE, PUBLIC_ROUTE } from "../../../utils/enums/route";
-import { useState } from "react";
-import {
-  Briefcase,
-  ClipboardList,
-  LogOut,
-  Menu as MenuIcon,
-  ShieldPlus,
-  UserRound,
-} from "lucide-react";
-import { AppDispatch, persistor } from "../../../store";
-import { logoutUser } from "../../../store/slices/userSlice";
-import { useDispatch } from "react-redux";
-import { RESET_APP } from "../../../config";
+import { Button, Divider, Drawer, Menu } from 'antd';
+import { useNavigate } from 'react-router-dom';
+import { useMedia } from '../../../hooks/useMedia';
+import { useIsActivePath } from '../../../hooks/useNavigation';
+import { PRIVATE_ROUTE, PUBLIC_ROUTE } from '../../../utils/enums/route';
+import { useState } from 'react';
+import { Briefcase, ClipboardList, LogOut, Menu as MenuIcon, ShieldPlus, UserRound } from 'lucide-react';
+import { AppDispatch, persistor } from '../../../store';
+import { logoutUser } from '../../../store/slices/userSlice';
+import { useDispatch } from 'react-redux';
+import { RESET_APP } from '../../../config';
 
 const NavigationLinks = () => {
   const navigate = useNavigate();
@@ -27,21 +20,21 @@ const NavigationLinks = () => {
   const navItems = [
     {
       icon: <Briefcase size={16} />,
-      label: "Workspaces",
+      label: 'Workspaces',
       path: PRIVATE_ROUTE.WORKSPACES,
-      includePath: [PRIVATE_ROUTE.WORKSPACES, PRIVATE_ROUTE.WORKSPACE]
+      includePath: [PRIVATE_ROUTE.WORKSPACES, PRIVATE_ROUTE.WORKSPACE],
     },
     {
       icon: <ClipboardList size={16} />,
-      label: "Boards",
+      label: 'Boards',
       path: PRIVATE_ROUTE.BOARDS,
-      includePath: [PRIVATE_ROUTE.BOARDS, PRIVATE_ROUTE.BOARD]
+      includePath: [PRIVATE_ROUTE.BOARDS, PRIVATE_ROUTE.BOARD],
     },
     {
       icon: <ShieldPlus size={16} />,
-      label: "Invitations",
+      label: 'Invitations',
       path: PRIVATE_ROUTE.INVITATIONS,
-      includePath: [PRIVATE_ROUTE.INVITATIONS]
+      includePath: [PRIVATE_ROUTE.INVITATIONS],
     },
   ];
 
@@ -51,22 +44,20 @@ const NavigationLinks = () => {
         ...navItems,
         {
           icon: <UserRound size={16} />,
-          label: "Profile",
+          label: 'Profile',
           path: PRIVATE_ROUTE.USER_PROFILE,
-          includePath: [PRIVATE_ROUTE.USER_PROFILE]
+          includePath: [PRIVATE_ROUTE.USER_PROFILE],
         },
       ].map((item) => {
         const isActive = isActivePath(item.includePath);
         return (
-          <Menu.Item key={item.label} style={{ backgroundColor: "initial" }}>
+          <Menu.Item key={item.label} style={{ backgroundColor: 'initial' }}>
             <Button
               onClick={() => {
                 setDrawerVisible(false);
                 navigate(item.path);
               }}
-              className={`navigate-btn ${
-                isActive ? "active-link" : "navigate-link"
-              }`}
+              className={`navigate-btn ${isActive ? 'active-link' : 'navigate-link'}`}
             >
               {item.icon}
               {item.label}
@@ -96,19 +87,8 @@ const NavigationLinks = () => {
 
   return isMobile ? (
     <>
-      <Button
-        id="nav-menu"
-        icon={<MenuIcon size={20} />}
-        onClick={() => setDrawerVisible(true)}
-      />
-      <Drawer
-        title="Menu"
-        placement="left"
-        closable
-        onClose={() => setDrawerVisible(false)}
-        open={drawerVisible}
-        styles={{ body: { padding: 0 } }}
-      >
+      <Button id="nav-menu" icon={<MenuIcon size={20} />} onClick={() => setDrawerVisible(true)} />
+      <Drawer title="Menu" placement="left" closable onClose={() => setDrawerVisible(false)} open={drawerVisible} styles={{ body: { padding: 0 } }}>
         {menu}
       </Drawer>
     </>
@@ -117,16 +97,14 @@ const NavigationLinks = () => {
       {navItems.map((item) => {
         const isActive = isActivePath(item.includePath);
         let navId = undefined;
-        if (item.label === "Workspaces") navId = "nav-workspaces";
-        if (item.label === "Boards") navId = "nav-boards";
-        if (item.label === "Invitations") navId = "nav-invitations";
+        if (item.label === 'Workspaces') navId = 'nav-workspaces';
+        if (item.label === 'Boards') navId = 'nav-boards';
+        if (item.label === 'Invitations') navId = 'nav-invitations';
         return (
           <Button
             key={item.path}
             type="text"
-            className={`navigate-btn-padding ${
-              isActive ? "active-link" : "navigate-link"
-            }`}
+            className={`navigate-btn-padding ${isActive ? 'active-link' : 'navigate-link'}`}
             id={navId}
             onClick={() => navigate(item.path)}
           >

@@ -1,5 +1,5 @@
-import React, { ReactNode } from "react";
-import { Card as AntCard, CardProps as AntCardProps } from "antd";
+import React, { ReactNode } from 'react';
+import { Card as AntCard, CardProps as AntCardProps } from 'antd';
 
 export interface CardProps extends AntCardProps {
   children: ReactNode;

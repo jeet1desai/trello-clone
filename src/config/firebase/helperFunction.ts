@@ -1,8 +1,8 @@
-import { FirebaseError } from "firebase/app";
-import { GoogleAuthProvider, FacebookAuthProvider, OAuthProvider, UserCredential, AuthProvider, signOut, signInWithPopup } from "firebase/auth";
-import { auth } from "./firebaseConfig";
-import { handleLoginResp } from "../../components/social";
-import { Dispatch } from "redux";
+import { FirebaseError } from 'firebase/app';
+import { GoogleAuthProvider, FacebookAuthProvider, OAuthProvider, UserCredential, AuthProvider, signOut, signInWithPopup } from 'firebase/auth';
+import { auth } from './firebaseConfig';
+import { handleLoginResp } from '../../components/social';
+import { Dispatch } from 'redux';
 
 export const getAccessToken = (provider: AuthProvider, result: UserCredential): string | null => {
   if (provider instanceof GoogleAuthProvider) {
@@ -18,13 +18,13 @@ export const getAccessToken = (provider: AuthProvider, result: UserCredential): 
 export const handleAuthError = (error: unknown, providerName: string) => {
   if (error instanceof FirebaseError) {
     switch (error.code) {
-      case "auth/cancelled-popup-request":
+      case 'auth/cancelled-popup-request':
         console.warn(`Popup was cancelled before completing Social login. Provider Name ==> ${providerName}`);
         break;
-      case "auth/popup-closed-by-user":
+      case 'auth/popup-closed-by-user':
         console.warn(`Popup was closed before completing Social login. Provider Name ==> ${providerName}`);
         break;
-      case "auth/invalid-credential":
+      case 'auth/invalid-credential':
         console.error(`Invalid credential provided. Please check your configuration. Provider Name ==> ${providerName}`);
         break;
       default:
@@ -51,7 +51,7 @@ export const handleSignIn = async (
     if (error instanceof FirebaseError) {
       handleAuthError(error, providerName);
     } else {
-      console.error("Unexpected error:", error);
+      console.error('Unexpected error:', error);
     }
   }
 };
@@ -60,6 +60,6 @@ export const handleSocialLogout = async () => {
   try {
     await signOut(auth);
   } catch (e) {
-    console.error("Error during logout:", e);
+    console.error('Error during logout:', e);
   }
 };

@@ -1,14 +1,14 @@
-import React, { useEffect } from "react";
-import { Form, Input, Button, Typography } from "antd";
-import { Link, useNavigate } from "react-router-dom";
-import type { RootState, AppDispatch } from "../../../store";
-import { useDispatch, useSelector } from "react-redux";
-import { clearAuthState, registerUser } from "../../../store/slices/userSlice";
-import "../../../layout/styles/Auth.css";
-import { PUBLIC_ROUTE } from "../../../utils/enums/route";
-import { LockKeyhole, Mail, UserRound } from "lucide-react";
-import { companyLogo } from "../../../assets";
-import ErrorAlert from "../../../components/ErrorAlert";
+import React, { useEffect } from 'react';
+import { Form, Input, Button, Typography } from 'antd';
+import { Link, useNavigate } from 'react-router-dom';
+import type { RootState, AppDispatch } from '../../../store';
+import { useDispatch, useSelector } from 'react-redux';
+import { clearAuthState, registerUser } from '../../../store/slices/userSlice';
+import '../../../layout/styles/Auth.css';
+import { PUBLIC_ROUTE } from '../../../utils/enums/route';
+import { LockKeyhole, Mail, UserRound } from 'lucide-react';
+import { companyLogo } from '../../../assets';
+import ErrorAlert from '../../../components/ErrorAlert';
 
 const { Title, Text } = Typography;
 
@@ -16,9 +16,7 @@ const Register: React.FC = () => {
   const [form] = Form.useForm();
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
-  const { loading, registrationSuccess, error } = useSelector(
-    (state: RootState) => state.user
-  );
+  const { loading, registrationSuccess, error } = useSelector((state: RootState) => state.user);
 
   useEffect(() => {
     // Clear any previous auth states
@@ -32,23 +30,14 @@ const Register: React.FC = () => {
     }
   }, [registrationSuccess, navigate]);
 
-  const handleSubmit = async (values: {
-    first_name: string;
-    last_name: string;
-    email: string;
-    password: string;
-  }) => {
+  const handleSubmit = async (values: { first_name: string; last_name: string; email: string; password: string }) => {
     await dispatch(registerUser(values));
   };
 
   return (
     <div className="auth-container">
       <div className="auth-form-container flex">
-        <img
-          src={companyLogo}
-          alt="BaseTeam"
-          style={{ width: "14%", borderRadius: "8px", marginBottom: "8px" }}
-        />
+        <img src={companyLogo} alt="BaseTeam" style={{ width: '14%', borderRadius: '8px', marginBottom: '8px' }} />
         <Title level={2} className="auth-title">
           Create Account
         </Title>
@@ -60,12 +49,12 @@ const Register: React.FC = () => {
           form={form}
           name="register"
           initialValues={{
-            first_name: "",
-            last_name: "",
-            email: "",
-            phone: "",
-            password: "",
-            confirmPassword: "",
+            first_name: '',
+            last_name: '',
+            email: '',
+            phone: '',
+            password: '',
+            confirmPassword: '',
           }}
           onFinish={handleSubmit}
           layout="vertical"
@@ -80,15 +69,11 @@ const Register: React.FC = () => {
             }
             name="first_name"
             rules={[
-              { required: true, message: "First Name is required" },
-              { max: 50, message: "First Name must not exceed 50 characters" },
+              { required: true, message: 'First Name is required' },
+              { max: 50, message: 'First Name must not exceed 50 characters' },
             ]}
           >
-            <Input
-              prefix={<UserRound size={16} className="form-icon" />}
-              placeholder="Enter your first name"
-              className="form-input"
-            />
+            <Input prefix={<UserRound size={16} className="form-icon" />} placeholder="Enter your first name" className="form-input" />
           </Form.Item>
 
           <Form.Item
@@ -99,15 +84,11 @@ const Register: React.FC = () => {
             }
             name="last_name"
             rules={[
-              { required: true, message: "Last Name is required" },
-              { max: 50, message: "Last Name must not exceed 50 characters" },
+              { required: true, message: 'Last Name is required' },
+              { max: 50, message: 'Last Name must not exceed 50 characters' },
             ]}
           >
-            <Input
-              prefix={<UserRound size={16} className="form-icon" />}
-              placeholder="Enter your last name"
-              className="form-input"
-            />
+            <Input prefix={<UserRound size={16} className="form-icon" />} placeholder="Enter your last name" className="form-input" />
           </Form.Item>
 
           <Form.Item
@@ -118,15 +99,11 @@ const Register: React.FC = () => {
             }
             name="email"
             rules={[
-              { required: true, message: "Email is required" },
-              { type: "email", message: "Invalid email address" },
+              { required: true, message: 'Email is required' },
+              { type: 'email', message: 'Invalid email address' },
             ]}
           >
-            <Input
-              prefix={<Mail size={16} className="form-icon" />}
-              placeholder="Enter your email"
-              className="form-input"
-            />
+            <Input prefix={<Mail size={16} className="form-icon" />} placeholder="Enter your email" className="form-input" />
           </Form.Item>
 
           <Form.Item
@@ -137,21 +114,15 @@ const Register: React.FC = () => {
             }
             name="password"
             rules={[
-              { required: true, message: "Password is required" },
-              { min: 8, message: "Password must be at least 8 characters" },
+              { required: true, message: 'Password is required' },
+              { min: 8, message: 'Password must be at least 8 characters' },
               {
-                pattern:
-                  /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
-                message:
-                  "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character",
+                pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
+                message: 'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character',
               },
             ]}
           >
-            <Input.Password
-              prefix={<LockKeyhole size={16} className="form-icon" />}
-              placeholder="Enter your password"
-              className="form-input"
-            />
+            <Input.Password prefix={<LockKeyhole size={16} className="form-icon" />} placeholder="Enter your password" className="form-input" />
           </Form.Item>
 
           <Form.Item
@@ -161,43 +132,33 @@ const Register: React.FC = () => {
               </span>
             }
             name="confirmPassword"
-            dependencies={["password"]}
+            dependencies={['password']}
             rules={[
-              { required: true, message: "Please confirm your password" },
+              { required: true, message: 'Please confirm your password' },
               ({ getFieldValue }) => ({
                 validator(_, value) {
-                  if (!value || getFieldValue("password") === value) {
+                  if (!value || getFieldValue('password') === value) {
                     return Promise.resolve();
                   }
-                  return Promise.reject(new Error("Passwords must match"));
+                  return Promise.reject(new Error('Passwords must match'));
                 },
               }),
             ]}
           >
-            <Input.Password
-              prefix={<LockKeyhole size={16} className="form-icon" />}
-              placeholder="Confirm your password"
-              className="form-input"
-            />
+            <Input.Password prefix={<LockKeyhole size={16} className="form-icon" />} placeholder="Confirm your password" className="form-input" />
           </Form.Item>
 
           <ErrorAlert error={error} />
 
           <Form.Item>
-            <Button
-              type="primary"
-              htmlType="submit"
-              className="button"
-              loading={loading}
-              block
-            >
+            <Button type="primary" htmlType="submit" className="button" loading={loading} block>
               Create Account
             </Button>
           </Form.Item>
         </Form>
 
         <Text className="link">
-          Already have an account?{" "}
+          Already have an account?{' '}
           <Link to={PUBLIC_ROUTE.LOGIN} className="auth-link">
             Login
           </Link>

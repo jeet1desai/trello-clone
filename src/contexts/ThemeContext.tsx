@@ -17,7 +17,7 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
   // Try to get theme from localStorage first, default to 'light'
   const [theme, setTheme] = useState<ThemeType>(() => {
     const savedTheme = localStorage.getItem('theme');
-    return (savedTheme === 'dark' || savedTheme === 'light') ? savedTheme : 'light';
+    return savedTheme === 'dark' || savedTheme === 'light' ? savedTheme : 'light';
   });
 
   // Update body class and localStorage when theme changes
@@ -27,16 +27,12 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
   }, [theme]);
 
   const toggleTheme = () => {
-    setTheme(prevTheme => prevTheme === 'light' ? 'dark' : 'light');
+    setTheme((prevTheme) => (prevTheme === 'light' ? 'dark' : 'light'));
   };
 
   const value = { theme, toggleTheme };
 
-  return (
-    <ThemeContext.Provider value={value}>
-      {children}
-    </ThemeContext.Provider>
-  );
+  return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
 };
 
 // Custom hook to use the theme context
@@ -48,4 +44,4 @@ export const useTheme = (): ThemeContextType => {
   return context;
 };
 
-export default ThemeProvider; 
+export default ThemeProvider;

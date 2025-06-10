@@ -1,29 +1,10 @@
-import React, { useEffect, useRef, useState } from "react";
-import {
-  Typography,
-  Button,
-  Avatar,
-  Space,
-  Card,
-  Tooltip,
-  App,
-  Popover,
-  Empty,
-  Divider,
-  Badge,
-  Dropdown,
-  Table,
-} from "antd";
-import type {
-  DraggableProvided,
-  DraggableStateSnapshot,
-  DroppableProvided,
-  DropResult,
-} from "@hello-pangea/dnd";
-import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
-import { useDispatch, useSelector } from "react-redux";
-import { AppDispatch, RootState } from "../../../store";
-import { generatePath, useNavigate, useParams } from "react-router";
+import React, { useEffect, useRef, useState } from 'react';
+import { Typography, Button, Avatar, Space, Card, Tooltip, App, Popover, Empty, Divider, Badge, Dropdown, Table } from 'antd';
+import type { DraggableProvided, DraggableStateSnapshot, DroppableProvided, DropResult } from '@hello-pangea/dnd';
+import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
+import { useDispatch, useSelector } from 'react-redux';
+import { AppDispatch, RootState } from '../../../store';
+import { generatePath, useNavigate, useParams } from 'react-router';
 import {
   IBoardDetails,
   getAllLabels,
@@ -32,9 +13,9 @@ import {
   getBoardMemberListById,
   getUserBackground,
   updateBackground,
-} from "../../../store/slices/boardSlice";
-import InviteBoard from "./components/inviteBoard";
-import "../../../layout/styles/Board.css";
+} from '../../../store/slices/boardSlice';
+import InviteBoard from './components/inviteBoard';
+import '../../../layout/styles/Board.css';
 import {
   IStatusList,
   addNewStatus,
@@ -45,10 +26,10 @@ import {
   setSelectedStatus,
   updateStatus,
   updateStatusPosition,
-} from "../../../store/slices/statusSlice";
-import Paragraph from "antd/es/typography/Paragraph";
-import { Input, Loader } from "../../../components";
-import AddTaskForm from "./components/addTaskForm";
+} from '../../../store/slices/statusSlice';
+import Paragraph from 'antd/es/typography/Paragraph';
+import { Input, Loader } from '../../../components';
+import AddTaskForm from './components/addTaskForm';
 import {
   ITask,
   addNewTask,
@@ -61,14 +42,14 @@ import {
   removeTask,
   getTaskById,
   updateSocketTask,
-} from "../../../store/slices/taskSlice";
-import TaskModal from "./components/taskModal";
-import { getRandomColor } from "../../../utils";
-import socketService from "../../../services/socketService";
-import { useSearchParams } from "react-router-dom";
-import dayjs from "dayjs";
-import { Priority, TaskStatus } from "../../../utils/enums/task";
-import { openNotification } from "../../../services/notificationService";
+} from '../../../store/slices/taskSlice';
+import TaskModal from './components/taskModal';
+import { getRandomColor } from '../../../utils';
+import socketService from '../../../services/socketService';
+import { useSearchParams } from 'react-router-dom';
+import dayjs from 'dayjs';
+import { Priority, TaskStatus } from '../../../utils/enums/task';
+import { openNotification } from '../../../services/notificationService';
 import {
   Pencil,
   Trash2,
@@ -86,18 +67,18 @@ import {
   ChevronDown,
   Clock,
   TableProperties,
-  SquareKanban, 
+  SquareKanban,
   ArrowLeft,
   ArrowRight,
   ChartNoAxesCombined,
-} from "lucide-react";
-import BoardFilter from "./components/boardFilter";
-import ChangeBackgroundPopover from "./components/ChangeBackgroundModal";
-import TaskMenu from "./components/taskMenu";
-import { PRIVATE_ROUTE } from "../../../utils/enums/route";
-import { userActivity } from "../../../store/slices/userSlice";
-import UserActivityModal from "../../../components/board/UserActivityModal";
-import CsvManager from "../../../components/board/CsvManager";
+} from 'lucide-react';
+import BoardFilter from './components/boardFilter';
+import ChangeBackgroundPopover from './components/ChangeBackgroundModal';
+import TaskMenu from './components/taskMenu';
+import { PRIVATE_ROUTE } from '../../../utils/enums/route';
+import { userActivity } from '../../../store/slices/userSlice';
+import UserActivityModal from '../../../components/board/UserActivityModal';
+import CsvManager from '../../../components/board/CsvManager';
 
 const { Title, Text } = Typography;
 
@@ -116,28 +97,28 @@ const BoardDetail: React.FC = () => {
   const { modal } = App.useApp();
   const { id } = useParams<{ id: string }>();
   const [searchParams] = useSearchParams();
-  const taskId = searchParams.get("task_id");
+  const taskId = searchParams.get('task_id');
   const wrapperRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   const viewOptions = [
     {
-      key: "table",
-      label: "Table View",
+      key: 'table',
+      label: 'Table View',
       icon: <TableProperties size={18} />,
     },
     {
-      key: "board",
-      label: "Board View",
+      key: 'board',
+      label: 'Board View',
       icon: <SquareKanban size={18} />,
     },
   ];
   const [selectedView, setSelectedView] = useState(() => {
-    return localStorage.getItem("selectedView") || "board";
+    return localStorage.getItem('selectedView') || 'board';
   });
 
   const handleMenuClick = (key: string) => {
     setSelectedView(key);
-    localStorage.setItem("selectedView", key);
+    localStorage.setItem('selectedView', key);
   };
 
   const menuItems = viewOptions.map((item) => ({
@@ -147,7 +128,7 @@ const BoardDetail: React.FC = () => {
   }));
 
   useEffect(() => {
-    const savedView = localStorage.getItem("selectedView");
+    const savedView = localStorage.getItem('selectedView');
     if (savedView) {
       setSelectedView(savedView);
     }
@@ -155,31 +136,20 @@ const BoardDetail: React.FC = () => {
 
   const dispatch = useDispatch<AppDispatch>();
   const { currentUser } = useSelector((state: RootState) => state.user);
-  const { selectedBoard, invitedMemberList } = useSelector(
-    (state: RootState) => state.board
-  );
-  const {
-    statusList,
-    selectedStatus,
-    loading: statusLoading,
-  } = useSelector((state: RootState) => state.status);
-  const { tasksByStatus, loading: taskLoading } = useSelector(
-    (state: RootState) => state.task
-  );
-  const [boardData, setBoardData] = useState(
-    selectedBoard || ({} as IBoardDetails)
-  );
+  const { selectedBoard, invitedMemberList } = useSelector((state: RootState) => state.board);
+  const { statusList, selectedStatus, loading: statusLoading } = useSelector((state: RootState) => state.status);
+  const { tasksByStatus, loading: taskLoading } = useSelector((state: RootState) => state.task);
+  const [boardData, setBoardData] = useState(selectedBoard || ({} as IBoardDetails));
   const [isEditStatus, setIsEditStatus] = useState<{
     [key: string]: boolean;
   }>({});
-  const [newStatusTitle, setNewStatusTitle] = useState<string>("");
+  const [newStatusTitle, setNewStatusTitle] = useState<string>('');
   const [showAddList, setShowAddList] = useState<boolean>(false);
   const [showInviteModal, setShowInviteModal] = useState<boolean>(false);
   const [showAddTaskMap, setShowAddTaskMap] = useState<{
     [key: string]: boolean;
   }>({});
-  const [visibleTaskCardForm, setVisibleTaskCardForm] =
-    useState<boolean>(false);
+  const [visibleTaskCardForm, setVisibleTaskCardForm] = useState<boolean>(false);
   const [filterOpen, setFilterOpen] = useState(false);
   const [selectedFilters, setSelectedFilters] = useState<{
     filterBy: any[];
@@ -188,7 +158,7 @@ const BoardDetail: React.FC = () => {
     filterBy: [currentUser?.id],
     labelIds: [],
   });
-  const [openUserMenu, setOpenUserMenu] = useState("");
+  const [openUserMenu, setOpenUserMenu] = useState('');
   const [openUserActivity, setOpenUserActivity] = useState(false);
 
   const [collapsedColumns, setCollapsedColumns] = useState<{
@@ -208,18 +178,18 @@ const BoardDetail: React.FC = () => {
         const board: any = await dispatch(getBoardById(id));
         if (!board.error) {
           await dispatch(getStatusListByBoardId(id));
-          await dispatch(getBoardMemberListById({ _id: id, search: "" }));
+          await dispatch(getBoardMemberListById({ _id: id, search: '' }));
           await dispatch(getAllLabels(id));
           await dispatch(getBackground());
           await dispatch(getUserBackground());
         } else {
           openNotification({
-            type: "error",
-            message: "You are not authorized to view this board",
-            placement: "bottomRight",
+            type: 'error',
+            message: 'You are not authorized to view this board',
+            placement: 'bottomRight',
             duration: 2,
           });
-          navigate("/boards");
+          navigate('/boards');
         }
       }
     })();
@@ -274,42 +244,42 @@ const BoardDetail: React.FC = () => {
   }, [selectedBoard]);
 
   useEffect(() => {
-    socketService.on("receive_updated_board_background", (payload) => {
+    socketService.on('receive_updated_board_background', (payload) => {
       dispatch(updateBackground(payload));
     });
 
-    socketService.on("receive_status", (payload) => {
+    socketService.on('receive_status', (payload) => {
       dispatch(addNewStatus(payload));
     });
 
-    socketService.on("receive_updated_status", (payload) => {
+    socketService.on('receive_updated_status', (payload) => {
       dispatch(updateStatusPosition(payload));
     });
 
-    socketService.on("remove_status", (payload) => {
+    socketService.on('remove_status', (payload) => {
       dispatch(removeStatus(payload));
     });
 
-    socketService.on("receive-new-task", (payload) => {
-      if (isOwner() || selectedFilters.filterBy.includes("all")) {
+    socketService.on('receive-new-task', (payload) => {
+      if (isOwner() || selectedFilters.filterBy.includes('all')) {
         dispatch(addNewTask(payload));
       }
     });
 
-    socketService.on("receive-updated-task", (payload) => {
+    socketService.on('receive-updated-task', (payload) => {
       const data = payload as ISocketUpdateTask;
-      if (isOwner() || selectedFilters.filterBy.includes("all")) {
+      if (isOwner() || selectedFilters.filterBy.includes('all')) {
         dispatch(updateTaskPosition(payload));
         dispatch(updateTaskInState(payload));
       }
       dispatch(updateSocketTask(data));
     });
 
-    socketService.on("remove_task", (payload) => {
+    socketService.on('remove_task', (payload) => {
       dispatch(removeTask(payload));
     });
 
-    socketService.on("receive_new_task-member", () => {
+    socketService.on('receive_new_task-member', () => {
       // if (payload.data.member_id._id === currentUser?.id) {
       if (statusList.length > 0) {
         statusList.forEach(async (status) => {
@@ -318,9 +288,7 @@ const BoardDetail: React.FC = () => {
               getTasksByStatusId({
                 statusId: status._id,
                 filter: {
-                  filterBy: selectedFilters.filterBy.filter(
-                    (f): f is string => f !== undefined
-                  ),
+                  filterBy: selectedFilters.filterBy.filter((f): f is string => f !== undefined),
                 },
               })
             );
@@ -330,7 +298,7 @@ const BoardDetail: React.FC = () => {
       // }
     });
 
-    socketService.on("task-member-removed", () => {
+    socketService.on('task-member-removed', () => {
       // if (payload.data.member_id === currentUser?.id) {
       if (statusList.length > 0) {
         statusList.forEach(async (status) => {
@@ -339,9 +307,7 @@ const BoardDetail: React.FC = () => {
               getTasksByStatusId({
                 statusId: status._id,
                 filter: {
-                  filterBy: selectedFilters.filterBy.filter(
-                    (f): f is string => f !== undefined
-                  ),
+                  filterBy: selectedFilters.filterBy.filter((f): f is string => f !== undefined),
                 },
               })
             );
@@ -352,14 +318,14 @@ const BoardDetail: React.FC = () => {
     });
 
     return () => {
-      socketService.off("receive_status");
-      socketService.off("receive_updated_status");
-      socketService.off("remove_status");
-      socketService.off("receive-new-task");
-      socketService.off("receive-updated-task");
-      socketService.off("remove_task");
-      socketService.off("receive_new_task-member");
-      socketService.off("task-member-removed");
+      socketService.off('receive_status');
+      socketService.off('receive_updated_status');
+      socketService.off('remove_status');
+      socketService.off('receive-new-task');
+      socketService.off('receive-updated-task');
+      socketService.off('remove_task');
+      socketService.off('receive_new_task-member');
+      socketService.off('task-member-removed');
     };
   });
 
@@ -380,15 +346,12 @@ const BoardDetail: React.FC = () => {
     }
 
     // No movement
-    if (
-      source.droppableId === destination.droppableId &&
-      source.index === destination.index
-    ) {
+    if (source.droppableId === destination.droppableId && source.index === destination.index) {
       return;
     }
 
     // Moving lists
-    if (type === "list" && selectedStatus) {
+    if (type === 'list' && selectedStatus) {
       dispatch(
         updateStatusPosition({
           data: {
@@ -408,19 +371,13 @@ const BoardDetail: React.FC = () => {
     }
 
     // Moving cards
-    const sourceList = statusList?.find(
-      (list: IStatusList) => list._id === source.droppableId
-    );
-    const destList = statusList?.find(
-      (list: IStatusList) => list._id === destination.droppableId
-    );
+    const sourceList = statusList?.find((list: IStatusList) => list._id === source.droppableId);
+    const destList = statusList?.find((list: IStatusList) => list._id === destination.droppableId);
 
     if (!sourceList || !destList) return;
 
     // Find the task being moved
-    const taskToMove = tasksByStatus[source.droppableId]?.find(
-      (task) => task._id === draggableId
-    );
+    const taskToMove = tasksByStatus[source.droppableId]?.find((task) => task._id === draggableId);
 
     if (!taskToMove) return;
 
@@ -463,7 +420,7 @@ const BoardDetail: React.FC = () => {
           name: newStatusTitle,
         })
       );
-      setNewStatusTitle("");
+      setNewStatusTitle('');
       setShowAddList(false);
     }
   };
@@ -480,10 +437,7 @@ const BoardDetail: React.FC = () => {
     setVisibleTaskCardForm(true);
   };
 
-  const handleDeleteTask = (
-    event: React.MouseEvent<HTMLElement, MouseEvent>,
-    taskId: string
-  ) => {
+  const handleDeleteTask = (event: React.MouseEvent<HTMLElement, MouseEvent>, taskId: string) => {
     event.stopPropagation();
     dispatch(deleteTask(taskId));
   };
@@ -495,20 +449,17 @@ const BoardDetail: React.FC = () => {
   const handleDelete = (list: IStatusList) => {
     modal.confirm({
       title: `Are you sure you want to delete "${list.name}" list?`,
-      icon: (
-        <CircleAlert size={25} color="#ffac40" style={{ marginRight: 8 }} />
-      ),
-      content:
-        "This action cannot be undone. All data will be permanently deleted.",
-      okText: "Delete",
-      okType: "danger",
-      cancelText: "Cancel",
+      icon: <CircleAlert size={25} color="#ffac40" style={{ marginRight: 8 }} />,
+      content: 'This action cannot be undone. All data will be permanently deleted.',
+      okText: 'Delete',
+      okType: 'danger',
+      cancelText: 'Cancel',
       autoFocusButton: undefined,
       okButtonProps: {
-        className: "button btn-small",
+        className: 'button btn-small',
       },
       cancelButtonProps: {
-        className: "button btn-small",
+        className: 'button btn-small',
       },
       async onOk() {
         await dispatch(deleteStatus(list._id));
@@ -521,16 +472,12 @@ const BoardDetail: React.FC = () => {
     const checked = e.target.checked;
 
     const filterBy =
-      key === "filterBy" && checked === true
-        ? [...selectedFilters.filterBy, value]
-        : selectedFilters.filterBy.filter((member) => member !== value);
+      key === 'filterBy' && checked === true ? [...selectedFilters.filterBy, value] : selectedFilters.filterBy.filter((member) => member !== value);
 
     const labelIds =
-      key === "labelIds" && checked === true
-        ? [...selectedFilters.labelIds, value]
-        : selectedFilters.labelIds.filter((label) => label !== value);
+      key === 'labelIds' && checked === true ? [...selectedFilters.labelIds, value] : selectedFilters.labelIds.filter((label) => label !== value);
 
-    const dueTimeframe = key === "dueTimeframe" && value;
+    const dueTimeframe = key === 'dueTimeframe' && value;
 
     const filter = {
       ...selectedFilters,
@@ -555,9 +502,7 @@ const BoardDetail: React.FC = () => {
   };
 
   const isOwner = () => {
-    const owner = boardData.members?.find(
-      (user) => user.role === "ADMIN"
-    )?.user;
+    const owner = boardData.members?.find((user) => user.role === 'ADMIN')?.user;
     return owner?._id === currentUser?.id;
   };
 
@@ -585,41 +530,40 @@ const BoardDetail: React.FC = () => {
           <Card
             size="small"
             style={{
-              boxShadow: "0 1px 2px rgba(0, 0, 0, 0.1)",
-              cursor: "pointer",
-              background:
-                task.status === "Completed" ? "rgba(107, 241, 107, 0.70)" : "",
+              boxShadow: '0 1px 2px rgba(0, 0, 0, 0.1)',
+              cursor: 'pointer',
+              background: task.status === 'Completed' ? 'rgba(107, 241, 107, 0.70)' : '',
             }}
             styles={{
               body: {
-                padding: "8px 12px",
+                padding: '8px 12px',
               },
             }}
           >
-            <div style={{ marginBottom: 8, display: "flex", gap: 6 }}>
+            <div style={{ marginBottom: 8, display: 'flex', gap: 6 }}>
               {task.labels?.map((label) => {
                 return (
                   <Tooltip key={label?._id} title={label?.name}>
                     <div
                       style={{
                         background: label?.backgroundColor,
-                        height: "8px",
-                        width: "45px",
-                        borderRadius: "8px",
+                        height: '8px',
+                        width: '45px',
+                        borderRadius: '8px',
                       }}
                     />
                   </Tooltip>
                 );
               })}
             </div>
-            <div style={{ display: "flex", justifyContent: "space-between" }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
               <div>
                 <Paragraph
                   ellipsis={{ rows: 2 }}
                   style={{
                     marginBottom: 8,
                     fontWeight: 500,
-                    display: "flex",
+                    display: 'flex',
                     gap: 4,
                   }}
                 >
@@ -627,52 +571,45 @@ const BoardDetail: React.FC = () => {
                 </Paragraph>
                 <div
                   style={{
-                    margin: "12px 0 8px -2px",
-                    display: "flex",
+                    margin: '12px 0 8px -2px',
+                    display: 'flex',
                     gap: 8,
-                    alignItems: "center",
+                    alignItems: 'center',
                   }}
                 >
                   {task.end_date && (
                     <Paragraph
                       style={{
                         marginBottom: 0,
-                        display: "flex",
+                        display: 'flex',
                         gap: 4,
-                        alignItems: "center",
-                        fontSize: "12px",
+                        alignItems: 'center',
+                        fontSize: '12px',
                         background:
                           task.status !== TaskStatus.COMPLETED
                             ? dayjs().isAfter(task.end_date)
-                              ? "#d32029"
-                              : dayjs(task.end_date).isSame(
-                                  dayjs().add(1, "day"),
-                                  "day"
-                                )
-                              ? "rgb(255, 191, 0)"
-                              : "transparent"
-                            : "transparent",
-                        padding: "2px 4px",
-                        borderRadius: "4px",
-                        color:
-                          dayjs().isAfter(task.end_date) &&
-                          task.status !== TaskStatus.COMPLETED
-                            ? "rgb(255 174 167)"
-                            : "inherit",
+                              ? '#d32029'
+                              : dayjs(task.end_date).isSame(dayjs().add(1, 'day'), 'day')
+                                ? 'rgb(255, 191, 0)'
+                                : 'transparent'
+                            : 'transparent',
+                        padding: '2px 4px',
+                        borderRadius: '4px',
+                        color: dayjs().isAfter(task.end_date) && task.status !== TaskStatus.COMPLETED ? 'rgb(255 174 167)' : 'inherit',
                       }}
                     >
                       <Clock size={14} />
-                      {dayjs(task.end_date).format("MMM DD")}
+                      {dayjs(task.end_date).format('MMM DD')}
                     </Paragraph>
                   )}
                   {task.comments > 0 ? (
                     <Paragraph
                       style={{
                         marginBottom: 0,
-                        display: "flex",
+                        display: 'flex',
                         gap: 4,
-                        alignItems: "center",
-                        fontSize: "12px",
+                        alignItems: 'center',
+                        fontSize: '12px',
                       }}
                     >
                       <MessageSquare size={14} />
@@ -683,10 +620,10 @@ const BoardDetail: React.FC = () => {
                     <Paragraph
                       style={{
                         marginBottom: 0,
-                        display: "flex",
+                        display: 'flex',
                         gap: 4,
-                        alignItems: "center",
-                        fontSize: "12px",
+                        alignItems: 'center',
+                        fontSize: '12px',
                       }}
                     >
                       <Paperclip size={14} />
@@ -694,13 +631,13 @@ const BoardDetail: React.FC = () => {
                     </Paragraph>
                   ) : null}
                   {task.priority === Priority.LOW ? (
-                    <ChevronDown style={{ color: "#33cf40" }} />
+                    <ChevronDown style={{ color: '#33cf40' }} />
                   ) : task.priority === Priority.MEDIUM ? (
-                    <Equal style={{ color: "#404dff" }} />
+                    <Equal style={{ color: '#404dff' }} />
                   ) : task.priority === Priority.HIGH ? (
-                    <ChevronUp style={{ color: "#ffac40" }} />
+                    <ChevronUp style={{ color: '#ffac40' }} />
                   ) : (
-                    <ChevronsUp style={{ color: "#ff4040" }} />
+                    <ChevronsUp style={{ color: '#ff4040' }} />
                   )}
                 </div>
               </div>
@@ -713,10 +650,7 @@ const BoardDetail: React.FC = () => {
                 onClick={(e) => handleDeleteTask(e, task._id)}
               />
               {task.assigned_to && (
-                <Avatar
-                  className="assign-member-avatar"
-                  style={{ background: getRandomColor(task.assigned_to._id) }}
-                >
+                <Avatar className="assign-member-avatar" style={{ background: getRandomColor(task.assigned_to._id) }}>
                   {task.assigned_to?.first_name?.[0]?.toUpperCase()}
                   {task.assigned_to?.last_name?.[0]?.toUpperCase()}
                 </Avatar>
@@ -733,7 +667,7 @@ const BoardDetail: React.FC = () => {
       <Loader loading={statusLoading || taskLoading} fullScreen />
       <div className="board-header">
         <div>
-          <div style={{ display: "flex", alignItems: "center" }}>
+          <div style={{ display: 'flex', alignItems: 'center' }}>
             <Space size={16}>
               <Title level={4} className="board-title">
                 {boardData?.name}
@@ -741,10 +675,10 @@ const BoardDetail: React.FC = () => {
             </Space>
             <div
               style={{
-                padding: "5px",
-                marginLeft: "5px",
-                borderRadius: "5px",
-                display: "flex",
+                padding: '5px',
+                marginLeft: '5px',
+                borderRadius: '5px',
+                display: 'flex',
               }}
             >
               <Dropdown
@@ -756,58 +690,41 @@ const BoardDetail: React.FC = () => {
                   },
                 }}
                 placement="bottomLeft"
-                trigger={["click"]}
+                trigger={['click']}
               >
                 <div
                   style={{
-                    padding: "5px",
-                    marginLeft: "5px",
-                    borderRadius: "5px",
-                    display: "flex",
-                    alignItems: "center",
-                    cursor: "pointer",
-                    color: "white",
+                    padding: '5px',
+                    marginLeft: '5px',
+                    borderRadius: '5px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    cursor: 'pointer',
+                    color: 'white',
                   }}
                   onClick={(e) => e.stopPropagation()}
                 >
-                  {selectedView === "table" ? (
-                    <TableProperties size={20} />
-                  ) : (
-                    <SquareKanban size={20} />
-                  )}
+                  {selectedView === 'table' ? <TableProperties size={20} /> : <SquareKanban size={20} />}
                   <ChevronDown size={18} />
                 </div>
               </Dropdown>
             </div>
           </div>
-          <Paragraph className="board-title color-inherit">
-            {selectedBoard?.description}
-          </Paragraph>
+          <Paragraph className="board-title color-inherit">{selectedBoard?.description}</Paragraph>
         </div>
         <div>
           <Space size={16}>
             <Popover
               open={filterOpen}
-              content={
-                <BoardFilter
-                  selectedFilters={selectedFilters}
-                  handleMemberFilter={handleMemberFilter}
-                />
-              }
+              content={<BoardFilter selectedFilters={selectedFilters} handleMemberFilter={handleMemberFilter} />}
               title={
                 <>
                   <div className="custom-filter-popup">
                     <div>
                       <p style={{ margin: 0 }}>Filter Properties</p>
-                      <Text className="filter-subtext">
-                        Select properties that you want to see on the board.
-                      </Text>
+                      <Text className="filter-subtext">Select properties that you want to see on the board.</Text>
                     </div>
-                    <X
-                      size={16}
-                      style={{ cursor: "pointer" }}
-                      onClick={() => setFilterOpen(false)}
-                    />
+                    <X size={16} style={{ cursor: 'pointer' }} onClick={() => setFilterOpen(false)} />
                   </div>
                   <Divider />
                 </>
@@ -819,11 +736,11 @@ const BoardDetail: React.FC = () => {
             >
               <div
                 style={{
-                  background: "white",
-                  padding: "8px 10px",
-                  borderRadius: "8px",
-                  display: "flex",
-                  alignItems: "center",
+                  background: 'white',
+                  padding: '8px 10px',
+                  borderRadius: '8px',
+                  display: 'flex',
+                  alignItems: 'center',
                   gap: 6,
                 }}
                 className="filter-icon"
@@ -832,10 +749,10 @@ const BoardDetail: React.FC = () => {
                   <div
                     style={{
                       marginTop: 0,
-                      cursor: "pointer",
-                      display: "flex",
+                      cursor: 'pointer',
+                      display: 'flex',
                       gap: 4,
-                      alignItems: "center",
+                      alignItems: 'center',
                     }}
                   >
                     <Badge dot={hasActiveFilters}>
@@ -847,7 +764,7 @@ const BoardDetail: React.FC = () => {
                   <>
                     <Divider type="vertical" />
                     <span
-                      style={{ fontWeight: 600, cursor: "pointer" }}
+                      style={{ fontWeight: 600, cursor: 'pointer' }}
                       onClick={(e) => {
                         e.stopPropagation();
                         setFilterOpen(false);
@@ -892,54 +809,46 @@ const BoardDetail: React.FC = () => {
                     title={
                       <div
                         style={{
-                          backgroundColor: "#143654",
-                          padding: "12px",
-                          borderRadius: "4px 4px 0 0",
-                          display: "flex",
+                          backgroundColor: '#143654',
+                          padding: '12px',
+                          borderRadius: '4px 4px 0 0',
+                          display: 'flex',
                           gap: 4,
-                          alignItems: "center",
+                          alignItems: 'center',
                         }}
                       >
                         <Avatar
                           style={{
                             background: getRandomColor(member.memberId?._id),
-                            cursor: "pointer",
+                            cursor: 'pointer',
                           }}
                         >{`${member?.memberId?.first_name?.[0]?.toUpperCase()}${member?.memberId?.last_name?.[0]?.toUpperCase()}`}</Avatar>
-                        <div
-                          style={{ display: "flex", flexDirection: "column" }}
-                        >
-                          <Text style={{ color: "white" }}>
-                            {member?.memberId?.first_name +
-                              " " +
-                              member?.memberId?.last_name}
-                          </Text>
-                          <Text style={{ color: "white" }}>
-                            {member.memberId.email}
-                          </Text>
+                        <div style={{ display: 'flex', flexDirection: 'column' }}>
+                          <Text style={{ color: 'white' }}>{member?.memberId?.first_name + ' ' + member?.memberId?.last_name}</Text>
+                          <Text style={{ color: 'white' }}>{member.memberId.email}</Text>
                         </div>
                         <X
                           size={16}
                           color="white"
                           style={{
-                            cursor: "pointer",
-                            position: "absolute",
+                            cursor: 'pointer',
+                            position: 'absolute',
                             top: 8,
                             right: 8,
                           }}
-                          onClick={() => setOpenUserMenu("")}
+                          onClick={() => setOpenUserMenu('')}
                         />
                       </div>
                     }
                     content={
                       <div
                         style={{
-                          padding: "0 12px 12px 12px",
-                          cursor: "pointer",
+                          padding: '0 12px 12px 12px',
+                          cursor: 'pointer',
                         }}
                         onClick={() => {
-                          dispatch(userActivity({ userId: member.memberId._id, boardId: id ?? "" }));
-                          setOpenUserMenu("");
+                          dispatch(userActivity({ userId: member.memberId._id, boardId: id ?? '' }));
+                          setOpenUserMenu('');
                           setOpenUserActivity(true);
                         }}
                       >
@@ -949,14 +858,12 @@ const BoardDetail: React.FC = () => {
                   >
                     <Tooltip
                       arrow={false}
-                      title={`${member?.memberId?.first_name} ${
-                        member?.memberId?.last_name ?? ""
-                      } (${member?.memberId?.email})`}
+                      title={`${member?.memberId?.first_name} ${member?.memberId?.last_name ?? ''} (${member?.memberId?.email})`}
                     >
                       <Avatar
                         style={{
                           background: getRandomColor(member.memberId?._id),
-                          cursor: "pointer",
+                          cursor: 'pointer',
                         }}
                       >{`${member?.memberId?.first_name?.[0]?.toUpperCase()}${member?.memberId?.last_name?.[0]?.toUpperCase()}`}</Avatar>
                     </Tooltip>
@@ -965,21 +872,16 @@ const BoardDetail: React.FC = () => {
               })}
             </Avatar.Group>
             <ChangeBackgroundPopover />
-            <div 
-              className="filter-icon"
-              onClick={() => navigate(generatePath(PRIVATE_ROUTE.BOARD_STATISTICS, { id: id ?? "" }))}
-              >
-              <ChartNoAxesCombined
-                size={20}
-              />
+            <div className="filter-icon" onClick={() => navigate(generatePath(PRIVATE_ROUTE.BOARD_STATISTICS, { id: id ?? '' }))}>
+              <ChartNoAxesCombined size={20} />
             </div>
             <div
               className="filter-icon"
               style={{
                 fontWeight: 600,
-                padding: "6px 10px",
-                display: "flex",
-                alignItems: "center",
+                padding: '6px 10px',
+                display: 'flex',
+                alignItems: 'center',
                 gap: 4,
               }}
               onClick={() => setShowInviteModal(true)}
@@ -989,39 +891,25 @@ const BoardDetail: React.FC = () => {
           </Space>
         </div>
       </div>
-      <CsvManager/>
+      <CsvManager />
       {statusList?.length > 0 || isOwner() ? (
-        selectedView === "board" ? (
+        selectedView === 'board' ? (
           <div
             className="board-content"
             style={{
-              height: "calc(100vh - 125px)",
+              height: 'calc(100vh - 125px)',
             }}
           >
             <DragDropContext onDragEnd={handleDragEnd}>
-              <Droppable
-                droppableId={id ? id : "all-lists"}
-                direction="horizontal"
-                type="list"
-                isDropDisabled={!isOwner()}
-              >
+              <Droppable droppableId={id ? id : 'all-lists'} direction="horizontal" type="list" isDropDisabled={!isOwner()}>
                 {(provided: DroppableProvided) => (
-                  <div
-                    {...provided.droppableProps}
-                    ref={provided.innerRef}
-                    style={{ display: "flex", gap: 8 }}
-                  >
+                  <div {...provided.droppableProps} ref={provided.innerRef} style={{ display: 'flex', gap: 8 }}>
                     {statusList?.map((list: IStatusList, index: number) => {
                       const statusTasks = getTasksByStatus(list._id);
                       const isCollapsed = collapsedColumns[list._id];
                       const isEditing = !!isEditStatus[list._id];
                       return (
-                        <Draggable
-                          key={list._id}
-                          draggableId={list._id}
-                          index={index}
-                          isDragDisabled={!isOwner()}
-                        >
+                        <Draggable key={list._id} draggableId={list._id} index={index} isDragDisabled={!isOwner()}>
                           {(provided: DraggableProvided) => (
                             <div
                               ref={provided.innerRef}
@@ -1029,67 +917,54 @@ const BoardDetail: React.FC = () => {
                               {...provided.dragHandleProps}
                               style={{
                                 minWidth: isCollapsed ? 60 : 280,
-                                transition: "all 0.3s",
+                                transition: 'all 0.3s',
                                 ...provided.draggableProps.style,
                               }}
-                              onMouseDown={() =>
-                                dispatch(setSelectedStatus(list))
-                              }
+                              onMouseDown={() => dispatch(setSelectedStatus(list))}
                             >
                               <div
                                 className="task-border"
                                 style={{
                                   maxWidth: isCollapsed ? 250 : 350,
-                                  backgroundColor:
-                                    list.background === "#FFF"
-                                      ? "var(--bg-primary)"
-                                      : list.background,
-                                  boxShadow: "0px 2px 5px black",
+                                  backgroundColor: list.background === '#FFF' ? 'var(--bg-primary)' : list.background,
+                                  boxShadow: '0px 2px 5px black',
                                 }}
                               >
                                 <div
                                   style={{
-                                    display: "flex",
-                                    justifyContent: "space-between",
-                                    alignItems: "center",
+                                    display: 'flex',
+                                    justifyContent: 'space-between',
+                                    alignItems: 'center',
                                   }}
                                   ref={wrapperRef}
                                 >
                                   {isCollapsed ? (
                                     <div
                                       style={{
-                                        cursor: "pointer",
+                                        cursor: 'pointer',
                                         fontWeight: 600,
-                                        fontSize: "0.875rem",
+                                        fontSize: '0.875rem',
                                       }}
                                       title={list.name}
                                     >
-                                      {list.name}{" "}
-                                      <span className="count-chip">
-                                        {statusTasks.length}
-                                      </span>
+                                      {list.name} <span className="count-chip">{statusTasks.length}</span>
                                     </div>
                                   ) : isEditing && isOwner() ? (
                                     <Input
                                       defaultValue={newStatusTitle}
                                       className="form-input"
                                       style={{
-                                        marginRight: "8px",
-                                        borderRadius: "4px",
-                                        margin: "8px 8px 8px 0",
-                                        height: "32px",
+                                        marginRight: '8px',
+                                        borderRadius: '4px',
+                                        margin: '8px 8px 8px 0',
+                                        height: '32px',
                                       }}
                                       autoFocus
-                                      onChange={(e) =>
-                                        setNewStatusTitle(e.target.value)
-                                      }
+                                      onChange={(e) => setNewStatusTitle(e.target.value)}
                                     />
                                   ) : (
                                     <Text className="text-wrapper" strong>
-                                      {list.name}{" "}
-                                      <span className="count-chip">
-                                        {statusTasks.length}
-                                      </span>
+                                      {list.name} <span className="count-chip">{statusTasks.length}</span>
                                     </Text>
                                   )}
                                   {isCollapsed && (
@@ -1098,12 +973,12 @@ const BoardDetail: React.FC = () => {
                                       size="small"
                                       onClick={() => toggleCollapse(list._id)}
                                       icon={
-                                        <div style={{ display: "flex" }}>
+                                        <div style={{ display: 'flex' }}>
                                           <ArrowLeft size={14} />
                                           <ArrowRight
                                             size={14}
                                             style={{
-                                              marginLeft: "-3px",
+                                              marginLeft: '-3px',
                                             }}
                                           />
                                         </div>
@@ -1113,9 +988,7 @@ const BoardDetail: React.FC = () => {
                                   {!isCollapsed &&
                                     (isOwner() ? (
                                       isEditing ? (
-                                        <div
-                                          style={{ display: "flex", gap: 4 }}
-                                        >
+                                        <div style={{ display: 'flex', gap: 4 }}>
                                           <Button
                                             type="text"
                                             size="small"
@@ -1123,42 +996,28 @@ const BoardDetail: React.FC = () => {
                                             onClick={async () => {
                                               await dispatch(
                                                 updateStatus({
-                                                  statusId:
-                                                    Object.keys(
-                                                      isEditStatus
-                                                    )[0],
+                                                  statusId: Object.keys(isEditStatus)[0],
                                                   name: newStatusTitle,
                                                 })
                                               );
-                                              await dispatch(
-                                                getStatusListByBoardId(id ?? "")
-                                              );
+                                              await dispatch(getStatusListByBoardId(id ?? ''));
                                               setIsEditStatus({});
                                             }}
                                           />
-                                          <Button
-                                            type="text"
-                                            size="small"
-                                            icon={<X size={16} />}
-                                            onClick={() => setIsEditStatus({})}
-                                          />
+                                          <Button type="text" size="small" icon={<X size={16} />} onClick={() => setIsEditStatus({})} />
                                         </div>
                                       ) : (
-                                        <div
-                                          style={{ display: "flex", gap: 4 }}
-                                        >
+                                        <div style={{ display: 'flex', gap: 4 }}>
                                           <Button
                                             type="text"
                                             size="small"
-                                            onClick={() =>
-                                              toggleCollapse(list._id)
-                                            }
+                                            onClick={() => toggleCollapse(list._id)}
                                             icon={
-                                              <div style={{ display: "flex" }}>
+                                              <div style={{ display: 'flex' }}>
                                                 <ArrowRight
                                                   size={14}
                                                   style={{
-                                                    marginRight: "-3px",
+                                                    marginRight: '-3px',
                                                   }}
                                                 />
                                                 <ArrowLeft size={14} />
@@ -1169,82 +1028,52 @@ const BoardDetail: React.FC = () => {
                                             type="text"
                                             size="small"
                                             icon={<Pencil size={16} />}
-                                            onClick={() =>
-                                              isOwner() &&
-                                              toggleStatusName(
-                                                list._id,
-                                                list.name,
-                                                true
-                                              )
-                                            }
+                                            onClick={() => isOwner() && toggleStatusName(list._id, list.name, true)}
                                           />
-                                          <Button
-                                            type="text"
-                                            size="small"
-                                            icon={<Trash2 size={16} />}
-                                            onClick={() => handleDelete(list)}
-                                          />
-                                          <TaskMenu
-                                            statusId={selectedStatus?._id ?? ""}
-                                            activeColor={
-                                              selectedStatus?.background ?? ""
-                                            }
-                                          />
+                                          <Button type="text" size="small" icon={<Trash2 size={16} />} onClick={() => handleDelete(list)} />
+                                          <TaskMenu statusId={selectedStatus?._id ?? ''} activeColor={selectedStatus?.background ?? ''} />
                                         </div>
                                       )
                                     ) : (
-                                      <TaskMenu
-                                        statusId={selectedStatus?._id ?? ""}
-                                        activeColor={
-                                          selectedStatus?.background ?? ""
-                                        }
-                                      />
+                                      <TaskMenu statusId={selectedStatus?._id ?? ''} activeColor={selectedStatus?.background ?? ''} />
                                     ))}
                                 </div>
                                 {!isCollapsed && (
                                   <>
                                     {hasActiveFilters && (
                                       <Empty
-                                        description={
-                                          getTasksByStatus(list._id)?.length +
-                                          " tasks match filters"
-                                        }
+                                        description={getTasksByStatus(list._id)?.length + ' tasks match filters'}
                                         styles={{
                                           image: {
-                                            display: "none",
+                                            display: 'none',
                                           },
                                         }}
                                         style={{
                                           fontSize: 12,
-                                          textAlign: "start",
+                                          textAlign: 'start',
                                           marginBottom: 4,
-                                          fontStyle: "italic",
+                                          fontStyle: 'italic',
                                         }}
                                       />
                                     )}
-                                    {statusTasks?.length === 0 &&
-                                    !showAddTaskMap[list._id] &&
-                                    !hasActiveFilters ? (
+                                    {statusTasks?.length === 0 && !showAddTaskMap[list._id] && !hasActiveFilters ? (
                                       <Empty
                                         description="No tasks in this column"
                                         styles={{
                                           image: {
-                                            display: "none",
+                                            display: 'none',
                                           },
                                         }}
                                         style={{
-                                          textAlign: "center",
-                                          margin: "20px 0",
+                                          textAlign: 'center',
+                                          margin: '20px 0',
                                           fontSize: 14,
-                                          fontStyle: "italic",
+                                          fontStyle: 'italic',
                                         }}
                                       />
                                     ) : null}
 
-                                    <Droppable
-                                      droppableId={list._id}
-                                      type="card"
-                                    >
+                                    <Droppable droppableId={list._id} type="card">
                                       {(provided: DroppableProvided) => (
                                         <div
                                           ref={provided.innerRef}
@@ -1252,28 +1081,22 @@ const BoardDetail: React.FC = () => {
                                           style={{
                                             borderRadius: 6,
                                             minHeight: 10,
-                                            maxHeight: "61vh",
-                                            overflow: "auto",
+                                            maxHeight: '61vh',
+                                            overflow: 'auto',
                                             marginTop: 8,
                                           }}
                                         >
-                                          {statusTasks.map((task, index) =>
-                                            renderTaskCard(task, index)
-                                          )}
+                                          {statusTasks.map((task, index) => renderTaskCard(task, index))}
                                           {provided.placeholder}
                                         </div>
                                       )}
                                     </Droppable>
                                     {showAddTaskMap[list._id] ? (
                                       <AddTaskForm
-                                        boardId={id || ""}
+                                        boardId={id || ''}
                                         statusId={list._id}
-                                        onCancel={() =>
-                                          toggleAddTask(list._id, false)
-                                        }
-                                        onSuccess={() =>
-                                          toggleAddTask(list._id, false)
-                                        }
+                                        onCancel={() => toggleAddTask(list._id, false)}
+                                        onSuccess={() => toggleAddTask(list._id, false)}
                                       />
                                     ) : isOwner() ? (
                                       <Button
@@ -1281,9 +1104,7 @@ const BoardDetail: React.FC = () => {
                                         className="add-card-button"
                                         icon={<CirclePlus size={16} />}
                                         block
-                                        onClick={() =>
-                                          toggleAddTask(list._id, true)
-                                        }
+                                        onClick={() => toggleAddTask(list._id, true)}
                                       >
                                         Add card
                                       </Button>
@@ -1307,7 +1128,7 @@ const BoardDetail: React.FC = () => {
                     <Input
                       placeholder="Enter list title..."
                       className="form-input"
-                      style={{ borderRadius: "4px" }}
+                      style={{ borderRadius: '4px' }}
                       value={newStatusTitle}
                       onChange={(e) => setNewStatusTitle(e.target.value)}
                       onPressEnter={handleAddStatus}
@@ -1315,9 +1136,9 @@ const BoardDetail: React.FC = () => {
                     />
                     <div
                       style={{
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "flex-end",
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'flex-end',
                         marginTop: 8,
                         gap: 5,
                       }}
@@ -1329,18 +1150,12 @@ const BoardDetail: React.FC = () => {
                         icon={<X size={16} />}
                         onClick={() => {
                           setShowAddList(false);
-                          setNewStatusTitle("");
+                          setNewStatusTitle('');
                         }}
                       >
                         Cancel
                       </Button>
-                      <Button
-                        type="primary"
-                        size="small"
-                        className="button add-btn"
-                        icon={<Check size={16} />}
-                        onClick={handleAddStatus}
-                      >
+                      <Button type="primary" size="small" className="button add-btn" icon={<Check size={16} />} onClick={handleAddStatus}>
                         Add List
                       </Button>
                     </div>
@@ -1349,7 +1164,7 @@ const BoardDetail: React.FC = () => {
                   <div
                     style={{
                       borderRadius: 6,
-                      padding: "8px 16px",
+                      padding: '8px 16px',
                       opacity: 0.8,
                     }}
                   >
@@ -1359,7 +1174,7 @@ const BoardDetail: React.FC = () => {
                       icon={<CirclePlus size={16} />}
                       block
                       onClick={() => {
-                        setNewStatusTitle("");
+                        setNewStatusTitle('');
                         setShowAddList(true);
                       }}
                     >
@@ -1382,27 +1197,24 @@ const BoardDetail: React.FC = () => {
               )}
               columns={[
                 {
-                  title: "Task",
-                  dataIndex: "title",
-                  key: "title",
+                  title: 'Task',
+                  dataIndex: 'title',
+                  key: 'title',
                   render: (text, record) => (
-                    <span
-                      style={{ cursor: "pointer", fontWeight: 500 }}
-                      onClick={() => handleTaskClick(record)}
-                    >
+                    <span style={{ cursor: 'pointer', fontWeight: 500 }} onClick={() => handleTaskClick(record)}>
                       {text}
                     </span>
                   ),
                 },
                 {
-                  title: "Status",
-                  dataIndex: "statusName",
-                  key: "statusName",
+                  title: 'Status',
+                  dataIndex: 'statusName',
+                  key: 'statusName',
                 },
                 {
-                  title: "Assignee",
-                  dataIndex: "assigned_to",
-                  key: "assigned_to",
+                  title: 'Assignee',
+                  dataIndex: 'assigned_to',
+                  key: 'assigned_to',
                   render: (assigned_to) =>
                     assigned_to ? (
                       <Avatar
@@ -1416,43 +1228,31 @@ const BoardDetail: React.FC = () => {
                         {assigned_to.last_name?.[0]?.toUpperCase()}
                       </Avatar>
                     ) : (
-                      "-"
+                      '-'
                     ),
                 },
                 {
-                  title: "Due Date",
-                  dataIndex: "end_date",
-                  key: "end_date",
-                  render: (date) =>
-                    date ? dayjs(date).format("MMM DD, YYYY") : "-",
+                  title: 'Due Date',
+                  dataIndex: 'end_date',
+                  key: 'end_date',
+                  render: (date) => (date ? dayjs(date).format('MMM DD, YYYY') : '-'),
                 },
                 {
-                  title: "Priority",
-                  dataIndex: "priority",
-                  key: "priority",
+                  title: 'Priority',
+                  dataIndex: 'priority',
+                  key: 'priority',
                   render: (priority) => {
-                    return <span style={{ color: "#888" }}>{priority}</span>;
+                    return <span style={{ color: '#888' }}>{priority}</span>;
                   },
                 },
                 {
-                  title: "Actions",
-                  key: "actions",
+                  title: 'Actions',
+                  key: 'actions',
                   render: (_, record) => (
                     <Space>
-                      <Button
-                        type="link"
-                        size="small"
-                        icon={<Pencil size={16} />}
-                        onClick={() => handleTaskClick(record)}
-                      />
+                      <Button type="link" size="small" icon={<Pencil size={16} />} onClick={() => handleTaskClick(record)} />
                       {isOwner() && (
-                        <Button
-                          type="link"
-                          size="small"
-                          danger
-                          icon={<Trash2 size={16} />}
-                          onClick={(e) => handleDeleteTask(e, record._id)}
-                        />
+                        <Button type="link" size="small" danger icon={<Trash2 size={16} />} onClick={(e) => handleDeleteTask(e, record._id)} />
                       )}
                     </Space>
                   ),
@@ -1461,12 +1261,12 @@ const BoardDetail: React.FC = () => {
               pagination={false}
               scroll={{ x: true }}
             />
-            {selectedView === "table" && isOwner() && statusList.length > 0 && (
+            {selectedView === 'table' && isOwner() && statusList.length > 0 && (
               <div
                 style={{
-                  display: "flex",
-                  justifyContent: "center",
-                  margin: "20px 30px",
+                  display: 'flex',
+                  justifyContent: 'center',
+                  margin: '20px 30px',
                 }}
               >
                 <Button
@@ -1481,9 +1281,9 @@ const BoardDetail: React.FC = () => {
                   style={{
                     marginTop: 16,
                     fontWeight: 800,
-                    background: "#f5f5f5",
-                    border: "1px solid white",
-                    borderRadius: "5px",
+                    background: '#f5f5f5',
+                    border: '1px solid white',
+                    borderRadius: '5px',
                   }}
                 >
                   Add Card
@@ -1491,7 +1291,7 @@ const BoardDetail: React.FC = () => {
 
                 {statusList.length > 0 && showAddTaskMap[statusList[0]._id] && (
                   <AddTaskForm
-                    boardId={id ?? ""}
+                    boardId={id ?? ''}
                     statusId={statusList[0]._id}
                     onCancel={() => toggleAddTask(statusList[0]._id, false)}
                     onSuccess={() => toggleAddTask(statusList[0]._id, false)}
@@ -1504,33 +1304,22 @@ const BoardDetail: React.FC = () => {
       ) : (
         <div
           style={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            height: "70vh",
-            flexDirection: "column",
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            height: '70vh',
+            flexDirection: 'column',
           }}
         >
           <Empty description="Nothing to show on board at the moment. Please try after some time." />
         </div>
       )}
 
-      <TaskModal
-        boardId={id ? id : ""}
-        taskId={taskId}
-        visible={visibleTaskCardForm}
-        onClose={() => setVisibleTaskCardForm(false)}
-      />
+      <TaskModal boardId={id ? id : ''} taskId={taskId} visible={visibleTaskCardForm} onClose={() => setVisibleTaskCardForm(false)} />
 
-      <InviteBoard
-        isOpen={showInviteModal}
-        onClose={() => setShowInviteModal(false)}
-      />
+      <InviteBoard isOpen={showInviteModal} onClose={() => setShowInviteModal(false)} />
 
-      <UserActivityModal
-        open={openUserActivity}
-        onClose={() => setOpenUserActivity(false)}
-      />
+      <UserActivityModal open={openUserActivity} onClose={() => setOpenUserActivity(false)} />
     </>
   );
 };

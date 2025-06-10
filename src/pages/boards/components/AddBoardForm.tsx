@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from "react";
-import { Button, Form, FormInstance, Input, Select, Space } from "antd";
-import { useDispatch, useSelector } from "react-redux";
-import { AppDispatch, RootState } from "../../../store";
-import { getWorkspacesForBoards } from "../../../store/slices/boardSlice";
+import React, { useEffect, useState } from 'react';
+import { Button, Form, FormInstance, Input, Select, Space } from 'antd';
+import { useDispatch, useSelector } from 'react-redux';
+import { AppDispatch, RootState } from '../../../store';
+import { getWorkspacesForBoards } from '../../../store/slices/boardSlice';
 
 interface IProps {
   form: FormInstance<any>;
@@ -13,18 +13,11 @@ interface IProps {
   onFinish: any;
 }
 
-const AddBoardForm = ({
-  form,
-  isEdit,
-  defaultWorkspace,
-  loading,
-  onCancel,
-  onFinish,
-}: IProps) => {
+const AddBoardForm = ({ form, isEdit, defaultWorkspace, loading, onCancel, onFinish }: IProps) => {
   const dispatch = useDispatch<AppDispatch>();
   const { boardWorkspaces } = useSelector((state: RootState) => state.board);
 
-  const [searchText, setSearchText] = useState("");
+  const [searchText, setSearchText] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState(searchText);
 
   useEffect(() => {
@@ -36,10 +29,7 @@ const AddBoardForm = ({
   }, [searchText]);
 
   useEffect(() => {
-    (async () =>
-      await dispatch(
-        getWorkspacesForBoards({ page: 1, search: searchText, sortType: 1 })
-      ))();
+    (async () => await dispatch(getWorkspacesForBoards({ page: 1, search: searchText, sortType: 1 })))();
   }, [debouncedSearch]);
 
   return (
@@ -58,21 +48,12 @@ const AddBoardForm = ({
           </span>
         }
         name="name"
-        rules={[{ required: true, message: "Please enter board name" }]}
+        rules={[{ required: true, message: 'Please enter board name' }]}
       >
         <Input placeholder="Enter board name" className="form-input" />
       </Form.Item>
-      <Form.Item
-        label={<span className="input-label">Description</span>}
-        name="description"
-      >
-        <Input.TextArea
-          placeholder="Enter board description"
-          className="form-input description"
-          rows={4}
-          showCount
-          maxLength={100}
-        />
+      <Form.Item label={<span className="input-label">Description</span>} name="description">
+        <Input.TextArea placeholder="Enter board description" className="form-input description" rows={4} showCount maxLength={100} />
       </Form.Item>
       <Form.Item
         label={
@@ -81,14 +62,12 @@ const AddBoardForm = ({
           </span>
         }
         name="workspace"
-        rules={[{ required: true, message: "Please select workspace" }]}
+        rules={[{ required: true, message: 'Please select workspace' }]}
       >
         <Select
           showSearch
           placeholder="Select workspace"
-          filterOption={(input, option) =>
-            (option?.label ?? "").toLowerCase().includes(input.toLowerCase())
-          }
+          filterOption={(input, option) => (option?.label ?? '').toLowerCase().includes(input.toLowerCase())}
           onSearch={(value) => setSearchText(value)}
           className="form-input"
           defaultValue={defaultWorkspace}
@@ -98,30 +77,16 @@ const AddBoardForm = ({
           })}
         />
       </Form.Item>
-      <Form.Item
-        label={<span className="input-label">Members (Optional)</span>}
-        name="members"
-      >
-        <Select
-          mode="tags"
-          open={false}
-          tokenSeparators={[",", " "]}
-          placeholder="Enter member emails"
-          className="form-input"
-        />
+      <Form.Item label={<span className="input-label">Members (Optional)</span>} name="members">
+        <Select mode="tags" open={false} tokenSeparators={[',', ' ']} placeholder="Enter member emails" className="form-input" />
       </Form.Item>
       <Form.Item className="form-actions">
         <Space>
           <Button type="default" className="button" onClick={onCancel}>
             Cancel
           </Button>
-          <Button
-            type="primary"
-            className="button"
-            htmlType="submit"
-            loading={loading}
-          >
-            {isEdit ? "Update" : "Create"}
+          <Button type="primary" className="button" htmlType="submit" loading={loading}>
+            {isEdit ? 'Update' : 'Create'}
           </Button>
         </Space>
       </Form.Item>

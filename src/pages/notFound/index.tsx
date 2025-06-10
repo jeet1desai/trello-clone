@@ -1,7 +1,7 @@
-import React from "react";
-import { Link } from "react-router-dom";
-import { Result, Button } from "antd";
-import { PUBLIC_ROUTE } from "../../utils/enums/route";
+import React from 'react';
+import { Link } from 'react-router-dom';
+import { Result, Button } from 'antd';
+import { PUBLIC_ROUTE } from '../../utils/enums/route';
 
 const NotFound: React.FC = () => {
   return (
