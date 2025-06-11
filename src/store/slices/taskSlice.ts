@@ -214,6 +214,33 @@ export const assignMember = createAsyncThunk(
   }
 );
 
+export const recurringTask = createAsyncThunk(
+  "task/repeat-task",
+  async (
+    {
+      taskId,
+      repeat_type,
+      start_date,
+      end_date
+    }: {
+      taskId: string;
+      repeat_type: string;
+      start_date: string ;
+      end_date: string;
+    },
+    { rejectWithValue }
+  ) => {
+    try {
+      const response = await taskService.recurringTask(taskId, repeat_type, start_date, end_date);
+      return response;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message ?? "Error while assigning member."
+      );
+    }
+  }
+);
+
 export const unassignMember = createAsyncThunk(
   "task/unassign-member-from-task",
   async ({ taskId }: { taskId: string }, { rejectWithValue }) => {
@@ -783,6 +810,25 @@ const taskSlice = createSlice({
         state.success = null;
         state.error =
           (action.payload as string) || "Error while assigning member.";
+      })
+
+      //create recurring task
+      .addCase(recurringTask.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.success = null;
+      })
+      .addCase(recurringTask.fulfilled, (state, action) => {
+        state.selectedTask = action.payload.data as ITask;
+        state.loading = false;
+        state.error = null;
+        state.success = "Follow up task created successfully.";
+      })
+      .addCase(recurringTask.rejected, (state, action) => {
+        state.loading = false;
+        state.success = null;
+        state.error =
+          (action.payload as string) || "Error while creating followup task.";
       })
 
       // Unassign member from task

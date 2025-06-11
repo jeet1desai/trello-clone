@@ -55,6 +55,16 @@ export const taskService = {
     return response.data;
   },
 
+    async recurringTask(taskId: string, repeat_type: string , start_date:string, end_date:string) {
+    const response = await axiosInstance.post(`/task/repeat-task`, {
+      taskId,
+      repeat_type,
+      start_date,
+      end_date
+    });
+    return response.data;
+  },
+
   async unassignMember(taskId: string) {
     const response = await axiosInstance.delete(
       `/task-member/unassign-member?taskId=${taskId}`
