@@ -589,12 +589,14 @@ const handleCreate = () => {
   setDateError(false);
 
   if (selectedTask) {
+    const formattedStartDate = dayjs(dateRange[0]).format('YYYY-MM-DD');
+    const formattedEndDate = dayjs(dateRange[1]).format('YYYY-MM-DD');
     dispatch(
       recurringTask({
         taskId: selectedTask._id,
         repeat_type: recurrence,
-        start_date: dateRange[0].toISOString(),
-        end_date: dateRange[1].toISOString(),
+        start_date: formattedStartDate,
+        end_date: formattedEndDate,
       })
     );
   }
