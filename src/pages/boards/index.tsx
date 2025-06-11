@@ -227,7 +227,7 @@ const Boards: React.FC = () => {
           }}
         >
           <div
-            onClick={(e) => clickFavourite(e)}
+            onClick={clickFavourite}
             style={{
               display: 'flex',
               position: 'absolute',

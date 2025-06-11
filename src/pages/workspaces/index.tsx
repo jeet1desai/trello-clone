@@ -239,7 +239,7 @@ const Workspaces: React.FC = () => {
               {workspace.createdBy._id === currentUser?.id ? (
                 <div
                   className="workspace-card-actions"
-                  onClick={(e) => { clickFavourite(e) }}
+                  onClick={clickFavourite}
                   style={{ display: 'flex', gap: '8px', alignItems: 'center' }}
                 >
                   <div
