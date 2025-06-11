@@ -76,7 +76,7 @@ import BoardFilter from './components/boardFilter';
 import ChangeBackgroundPopover from './components/ChangeBackgroundModal';
 import TaskMenu from './components/taskMenu';
 import { PRIVATE_ROUTE } from '../../../utils/enums/route';
-import { userActivity } from '../../../store/slices/userSlice';
+import { userActivity  as fetchUserActivity } from '../../../store/slices/userSlice';
 import UserActivityModal from '../../../components/board/UserActivityModal';
 import CsvManager from '../../../components/board/CsvManager';
 
@@ -139,11 +139,13 @@ const BoardDetail: React.FC = () => {
   const { selectedBoard, invitedMemberList } = useSelector((state: RootState) => state.board);
   const { statusList, selectedStatus, loading: statusLoading } = useSelector((state: RootState) => state.status);
   const { tasksByStatus, loading: taskLoading } = useSelector((state: RootState) => state.task);
+  const { userActivity } = useSelector((state: RootState) => state.user);
   const [boardData, setBoardData] = useState(selectedBoard || ({} as IBoardDetails));
   const [isEditStatus, setIsEditStatus] = useState<{
     [key: string]: boolean;
   }>({});
   const [newStatusTitle, setNewStatusTitle] = useState<string>('');
+  const [memberId, setMemberId] = useState<string>('');
   const [showAddList, setShowAddList] = useState<boolean>(false);
   const [showInviteModal, setShowInviteModal] = useState<boolean>(false);
   const [showAddTaskMap, setShowAddTaskMap] = useState<{
@@ -847,8 +849,9 @@ const BoardDetail: React.FC = () => {
                           cursor: 'pointer',
                         }}
                         onClick={() => {
-                          dispatch(userActivity({ userId: member.memberId._id, boardId: id ?? '' }));
+                          dispatch(fetchUserActivity({ userId: member.memberId._id, boardId: id ?? '', page: 1 }));
                           setOpenUserMenu('');
+                          setMemberId(member.memberId._id)
                           setOpenUserActivity(true);
                         }}
                       >
@@ -1319,7 +1322,17 @@ const BoardDetail: React.FC = () => {
 
       <InviteBoard isOpen={showInviteModal} onClose={() => setShowInviteModal(false)} />
 
-      <UserActivityModal open={openUserActivity} onClose={() => setOpenUserActivity(false)} />
+      <UserActivityModal 
+        open={openUserActivity} 
+        onClose={() => setOpenUserActivity(false)} 
+        onNextPageLoad={() => {
+          dispatch(fetchUserActivity({
+            userId: memberId,
+            boardId: id ?? '',
+            page: (userActivity?.pagination?.currentPage ?? 0) + 1
+          }));
+        }}
+      />
     </>
   );
 };

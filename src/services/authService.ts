@@ -73,8 +73,8 @@ export const authService = {
     return response.data;
   },
 
-  async userActivity(userId: string, boardId: string) {
-    const response = await axiosInstance.get(`/user/activity/${userId}/${boardId}`);
+  async userActivity(userId: string, boardId: string, page: number) {
+    const response = await axiosInstance.get(`/user/activity/${userId}/${boardId}?page=${page}`);
     return response.data;
   },
 };

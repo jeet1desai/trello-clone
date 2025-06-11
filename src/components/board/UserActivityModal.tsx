@@ -1,13 +1,14 @@
 import React from 'react';
-import { Modal, Typography, List, Avatar, Space } from 'antd';
-import { useSelector } from 'react-redux';
-import { RootState } from '../../store';
+import { Modal, Typography, List, Avatar, Space, Button } from 'antd';
+import { useDispatch, useSelector } from 'react-redux';
+import { AppDispatch, RootState } from '../../store';
 import { Logs } from 'lucide-react';
 import { getRandomColor } from '../../utils';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import { generatePath, useNavigate } from 'react-router-dom';
 import { PRIVATE_ROUTE } from '../../utils/enums/route';
+import { clearUserActivity } from '../../store/slices/userSlice';
 dayjs.extend(relativeTime);
 
 const { Text } = Typography;
@@ -15,12 +16,14 @@ const { Text } = Typography;
 interface IProps {
   open: boolean;
   onClose: () => void;
+  onNextPageLoad?: () => void;
 }
 
-const UserActivityModal = ({ open, onClose }: IProps) => {
+const UserActivityModal = ({ open, onClose, onNextPageLoad }: IProps) => {
   const { userActivity } = useSelector((state: RootState) => state.user);
   const user = userActivity?.activities?.[0]?.created_by;
   const navigate = useNavigate();
+  const dispatch = useDispatch<AppDispatch>();
 
   const navigateToTicket = (boardId: string|undefined, taskId: string|undefined) => {
     const path = boardId
@@ -30,11 +33,16 @@ const UserActivityModal = ({ open, onClose }: IProps) => {
     onClose();
   }
 
+  const handleCloseModal = () => {
+    dispatch(clearUserActivity());
+    onClose()
+  };
+
   return (
     <Modal
       title={null}
       open={open}
-      onCancel={onClose}
+      onCancel={handleCloseModal}
       footer={null}
       className="task-modal"
       styles={{
@@ -126,6 +134,21 @@ const UserActivityModal = ({ open, onClose }: IProps) => {
           }
           }
         />
+        {userActivity?.pagination.totalPages > 1 &&
+          userActivity.pagination.currentPage < userActivity.pagination.totalPages && (
+            <Button
+              size="small"
+              className="button small-btn"
+              style={{
+                fontSize: '12px',
+                margin: "15px 0",
+                boxShadow: "none"
+              }}
+              onClick={onNextPageLoad}
+            >
+              Load more activity
+            </Button>
+          )}
       </div>
     </Modal>
   );
