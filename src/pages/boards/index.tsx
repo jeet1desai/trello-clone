@@ -186,6 +186,24 @@ const Boards: React.FC = () => {
         danger: true,
       },
     ];
+    const clickFavourite = async (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+      e.stopPropagation();
+      const result = await dispatch(
+        toggleFavorite({
+          boardId: board._id,
+          isFavorite: !board.isFavorite,
+        })
+      );
+      if (result.meta?.requestStatus === "fulfilled") {
+        await dispatch(
+          getAllBoards({
+            page: 1,
+            search: searchText,
+            sortType: sortOption,
+          })
+        );
+      }
+    }
 
     return (
       <Card
@@ -209,24 +227,7 @@ const Boards: React.FC = () => {
           }}
         >
           <div
-            onClick={async (e) => {
-              e.stopPropagation();
-              const result = await dispatch(
-                toggleFavorite({
-                  boardId: board._id,
-                  isFavorite: !board.isFavorite,
-                })
-              );
-              if (result.meta?.requestStatus === "fulfilled") {
-                await dispatch(
-                  getAllBoards({
-                    page: 1,
-                    search: searchText,
-                    sortType: sortOption,
-                  })
-                );
-              }
-            }}
+            onClick={(e) => clickFavourite(e)}
             style={{
               display: 'flex',
               position: 'absolute',

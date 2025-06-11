@@ -22,6 +22,14 @@ const UserActivityModal = ({ open, onClose }: IProps) => {
   const user = userActivity?.activities?.[0]?.created_by;
   const navigate = useNavigate();
 
+  const navigateToTicket = (boardId: string|undefined, taskId: string|undefined) => {
+    const path = boardId
+      ? generatePath(PRIVATE_ROUTE.BOARD, { id: boardId }) + (taskId ? `?task_id=${taskId}` : "")
+      : "#";
+    navigate(path);
+    onClose();
+  }
+
   return (
     <Modal
       title={null}
@@ -85,15 +93,7 @@ const UserActivityModal = ({ open, onClose }: IProps) => {
                                     <span>{part}</span>
                                     {idx < arr.length - 1 && (
                                       <span className="task-title-link"
-                                        onClick={() => {
-                                          const boardId = item.board?._id;
-                                          const taskId = item.task?._id;
-                                          const path = boardId
-                                            ? generatePath(PRIVATE_ROUTE.BOARD, { id: boardId }) + (taskId ? `?task_id=${taskId}` : "")
-                                            : "#";
-                                          navigate(path);
-                                          onClose();
-                                        }}
+                                        onClick={() => navigateToTicket(item.board?._id, item.task?._id)}
                                       >
                                         {item.task?.title}
                                       </span>
@@ -106,15 +106,7 @@ const UserActivityModal = ({ open, onClose }: IProps) => {
                           ) : (
                             <>
                               <span className="task-title-link"
-                                onClick={() => {
-                                  const boardId = item.board?._id;
-                                  const taskId = item.task?._id;
-                                  const path = boardId
-                                    ? generatePath(PRIVATE_ROUTE.BOARD, { id: boardId }) + (taskId ? `?task_id=${taskId}` : "")
-                                    : "#";
-                                  navigate(path);
-                                  onClose();
-                                }}
+                                onClick={() => navigateToTicket(item.board?._id, item.task?._id)}
                               >
                                 {item.task?.title || ""}
                               </span> {item.details}&nbsp;
