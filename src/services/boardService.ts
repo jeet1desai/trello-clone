@@ -1,20 +1,13 @@
-import axiosInstance from "../helper/axiosInstance";
-import { BOARD_BACKGROUND_TYPE } from "../utils/enums/board";
+import axiosInstance from '../helper/axiosInstance';
+import { BOARD_BACKGROUND_TYPE } from '../utils/enums/board';
 
 export const boardService = {
   async getAllBoards(page: number, search: string, sortType: number) {
-    const response = await axiosInstance.get(
-      `/board/get-boards?page=${page}&search=${search}&sortType=${sortType}`
-    );
+    const response = await axiosInstance.get(`/board/get-boards?page=${page}&search=${search}&sortType=${sortType}`);
     return response.data;
   },
 
-  async addNewBoard(
-    name: string,
-    workspace: string,
-    description?: string,
-    members?: string[]
-  ) {
+  async addNewBoard(name: string, workspace: string, description?: string, members?: string[]) {
     const response = await axiosInstance.post(`/board/create-board`, {
       name,
       description,
@@ -24,13 +17,7 @@ export const boardService = {
     return response.data;
   },
 
-  async editBoard(
-    boardId: string,
-    name: string,
-    workspace: string,
-    description?: string,
-    members?: string[]
-  ) {
+  async editBoard(boardId: string, name: string, workspace: string, description?: string, members?: string[]) {
     const response = await axiosInstance.put(`/board/update-board/${boardId}`, {
       name,
       description,
@@ -41,9 +28,7 @@ export const boardService = {
   },
 
   async deleteBoard(boardId: string) {
-    const response = await axiosInstance.delete(
-      `/board/delete-board/${boardId}`
-    );
+    const response = await axiosInstance.delete(`/board/delete-board/${boardId}`);
     return response.data;
   },
 
@@ -53,51 +38,34 @@ export const boardService = {
   },
 
   async getBoardMemberListById(boardId: string, search: string) {
-    const response = await axiosInstance.get(
-      `/member/member-list/${boardId}?search=${search}`
-    );
+    const response = await axiosInstance.get(`/member/member-list/${boardId}?search=${search}`);
     return response.data;
   },
 
   async removeBoardMemberFromListById(boardId: string, memberId: string) {
-    const response = await axiosInstance.delete(
-      `/member/remove-member/${boardId}/${memberId}`
-    );
+    const response = await axiosInstance.delete(`/member/remove-member/${boardId}/${memberId}`);
     return response.data;
   },
 
   async leaveBoard(boardId: string) {
-    const response = await axiosInstance.delete(
-      `/member/leave-board/${boardId}`
-    );
+    const response = await axiosInstance.delete(`/member/leave-board/${boardId}`);
     return response.data;
   },
 
   async inviteBoardMember(boardId: string, members: string[]) {
-    const response = await axiosInstance.post(
-      `/invite/send-invitation/${boardId}`,
-      {
-        members,
-      }
-    );
+    const response = await axiosInstance.post(`/invite/send-invitation/${boardId}`, {
+      members,
+    });
     return response.data;
   },
 
   async getInvitationDetailsById(inviteId: string) {
-    const response = await axiosInstance.get(
-      `/invite/invite-details/${inviteId}`
-    );
+    const response = await axiosInstance.get(`/invite/invite-details/${inviteId}`);
     return response.data;
   },
 
-  async updateInvitationDetailsById(
-    inviteId: string,
-    data: { status: string }
-  ) {
-    const response = await axiosInstance.put(
-      `/invite/update-invitation/${inviteId}`,
-      data
-    );
+  async updateInvitationDetailsById(inviteId: string, data: { status: string }) {
+    const response = await axiosInstance.put(`/invite/update-invitation/${inviteId}`, data);
     return response.data;
   },
 
@@ -106,12 +74,7 @@ export const boardService = {
     return response.data;
   },
 
-  async addNewLabel(
-    name: string,
-    board: string,
-    background_color: string,
-    text_color: string
-  ) {
+  async addNewLabel(name: string, board: string, background_color: string, text_color: string) {
     const response = await axiosInstance.post(`/label/create-label`, {
       name,
       board,
@@ -121,12 +84,7 @@ export const boardService = {
     return response.data;
   },
 
-  async editLabel(
-    labelId: string,
-    name?: string,
-    background_color?: string,
-    text_color?: string
-  ) {
+  async editLabel(labelId: string, name?: string, background_color?: string, text_color?: string) {
     const response = await axiosInstance.put(`/label/update-label/${labelId}`, {
       name,
       background_color,
@@ -136,9 +94,7 @@ export const boardService = {
   },
 
   async deleteLabel(labelId: string) {
-    const response = await axiosInstance.delete(
-      `/label/delete-label/${labelId}`
-    );
+    const response = await axiosInstance.delete(`/label/delete-label/${labelId}`);
     return response.data;
   },
 
@@ -156,16 +112,12 @@ export const boardService = {
   },
 
   async removeLabelFromTask(taskId: string, labelId: string) {
-    const response = await axiosInstance.delete(
-      `/tasklabel/delete?taskId=${taskId}&labelId=${labelId}`
-    );
+    const response = await axiosInstance.delete(`/tasklabel/delete?taskId=${taskId}&labelId=${labelId}`);
     return response.data;
   },
 
   async getMembersByTaskId(taskId: string, search: string) {
-    const response = await axiosInstance.get(
-      `/task-member/get-task-member/${taskId}?search=${search}`
-    );
+    const response = await axiosInstance.get(`/task-member/get-task-member/${taskId}?search=${search}`);
     return response.data;
   },
 
@@ -178,9 +130,7 @@ export const boardService = {
   },
 
   async removeMemberFromTask(taskId: string, memberId: string) {
-    const response = await axiosInstance.delete(
-      `/task-member/delete-member?taskId=${taskId}&memberId=${memberId}`
-    );
+    const response = await axiosInstance.delete(`/task-member/delete-member?taskId=${taskId}&memberId=${memberId}`);
     return response.data;
   },
 
@@ -211,35 +161,21 @@ export const boardService = {
 
   async postUserBackground(attachments: File[]) {
     const formData = new FormData();
-    if (attachments.length > 0)
-      attachments.map((attachment) =>
-        formData.append("attachment", attachment)
-      );
-    const response = await axiosInstance.post(
-      `/user/board/background`,
-      formData,
-      {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      }
-    );
+    if (attachments.length > 0) attachments.map((attachment) => formData.append('attachment', attachment));
+    const response = await axiosInstance.post(`/user/board/background`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
     return response.data;
   },
 
   async deleteUserBackground(imageId: string, boardId: string) {
-    const response = await axiosInstance.delete(
-      `/user/board/background?imageId=${imageId}&boardId=${boardId}`
-    );
+    const response = await axiosInstance.delete(`/user/board/background?imageId=${imageId}&boardId=${boardId}`);
     return response.data;
   },
 
-  async changebackground(
-    boardId: string,
-    backgroundType: BOARD_BACKGROUND_TYPE,
-    background: string,
-    imageId: string
-  ) {
+  async changebackground(boardId: string, backgroundType: BOARD_BACKGROUND_TYPE, background: string, imageId: string) {
     const response = await axiosInstance.put(`/board/update-background`, {
       boardId,
       backgroundType,
@@ -250,16 +186,12 @@ export const boardService = {
   },
 
   async getAnalyticsData(boardId: string) {
-    const response = await axiosInstance.get(
-      `/board/analytics/${boardId}`
-    );
+    const response = await axiosInstance.get(`/board/analytics/${boardId}`);
     return response.data;
   },
 
   async getAllBoardsNoPagination() {
-    const response = await axiosInstance.get(
-      `/board/get-boards?all=true&sortType=1`
-    );
+    const response = await axiosInstance.get(`/board/get-boards?all=true&sortType=1`);
     return response.data;
   },
 };

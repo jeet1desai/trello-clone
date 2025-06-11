@@ -1,11 +1,8 @@
-import axiosInstance from "../helper/axiosInstance";
-import { Priority } from "../utils/enums/task";
+import axiosInstance from '../helper/axiosInstance';
+import { Priority } from '../utils/enums/task';
 
 export const taskService = {
-  async getTasksByStatusId(
-    statusId: string,
-    filter: { filterBy: string[]; labelIds?: string[] }
-  ) {
+  async getTasksByStatusId(statusId: string, filter: { filterBy: string[]; labelIds?: string[] }) {
     const response = await axiosInstance.post(`/task/get-task`, {
       statusId: statusId,
       ...filter,
@@ -56,35 +53,26 @@ export const taskService = {
   },
 
   async unassignMember(taskId: string) {
-    const response = await axiosInstance.delete(
-      `/task-member/unassign-member?taskId=${taskId}`
-    );
+    const response = await axiosInstance.delete(`/task-member/unassign-member?taskId=${taskId}`);
     return response.data;
   },
 
   async addEstimatedTime(task_id: string, hours: number, minutes: number) {
-    const response = await axiosInstance.put(
-      `/task/add-estimated-time`,
-      {
-        task_id,
-        hours,
-        minutes
-      }
-    );
+    const response = await axiosInstance.put(`/task/add-estimated-time`, {
+      task_id,
+      hours,
+      minutes,
+    });
     return response.data;
   },
 
   async stratTimer(taskId: string) {
-    const response = await axiosInstance.put(
-      `/task/start-timer/${taskId}`
-    );
+    const response = await axiosInstance.put(`/task/start-timer/${taskId}`);
     return response.data;
   },
 
   async stopTimer(taskId: string) {
-    const response = await axiosInstance.put(
-      `/task/stop-timer/${taskId}`
-    );
+    const response = await axiosInstance.put(`/task/stop-timer/${taskId}`);
     return response.data;
   },
 };

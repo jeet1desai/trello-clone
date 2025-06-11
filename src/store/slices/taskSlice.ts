@@ -1,6 +1,6 @@
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { taskService } from "../../services/taskService";
-import { Priority, TaskTimerStatus } from "../../utils/enums/task";
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import { taskService } from '../../services/taskService';
+import { Priority, TaskTimerStatus } from '../../utils/enums/task';
 
 export interface IAttachment {
   imageName: string;
@@ -18,10 +18,10 @@ interface ILabels {
 }
 
 interface TimerSession {
-  start_time: string
-  end_time: string
-  duration: number
-  _id: string
+  start_time: string;
+  end_time: string;
+  duration: number;
+  _id: string;
 }
 
 export interface ITask {
@@ -54,12 +54,12 @@ export interface ITask {
     first_name: string;
     last_name: string;
   } | null;
-  total_estimated_time: number
-  actual_time_spent: number
-  timer_start_time: any
-  is_timer_active: boolean
-  timer_status: TaskTimerStatus
-  timer_sessions: TimerSession[]
+  total_estimated_time: number;
+  actual_time_spent: number;
+  timer_start_time: any;
+  is_timer_active: boolean;
+  timer_status: TaskTimerStatus;
+  timer_sessions: TimerSession[];
   estimated_hours: number;
   estimated_minutes: number;
   current_elapsed: number;
@@ -83,7 +83,7 @@ const initialState: TaskState = {
 };
 
 export const getTasksByStatusId = createAsyncThunk(
-  "task/get-tasks-by-status",
+  'task/get-tasks-by-status',
   async (
     data: {
       statusId: string;
@@ -95,21 +95,16 @@ export const getTasksByStatusId = createAsyncThunk(
     { rejectWithValue }
   ) => {
     try {
-      const response = await taskService.getTasksByStatusId(
-        data.statusId,
-        data.filter
-      );
+      const response = await taskService.getTasksByStatusId(data.statusId, data.filter);
       return response.data;
     } catch (error: any) {
-      return rejectWithValue(
-        error.response?.data?.message ?? "Error while fetching tasks."
-      );
+      return rejectWithValue(error.response?.data?.message ?? 'Error while fetching tasks.');
     }
   }
 );
 
 export const createTask = createAsyncThunk(
-  "task/create",
+  'task/create',
   async (
     {
       title,
@@ -123,22 +118,16 @@ export const createTask = createAsyncThunk(
     { rejectWithValue }
   ) => {
     try {
-      const response = await taskService.createTask(
-        title,
-        board_id,
-        status_list_id
-      );
+      const response = await taskService.createTask(title, board_id, status_list_id);
       return response;
     } catch (error: any) {
-      return rejectWithValue(
-        error.response?.data?.message ?? "Error while creating task."
-      );
+      return rejectWithValue(error.response?.data?.message ?? 'Error while creating task.');
     }
   }
 );
 
 export const updateTask = createAsyncThunk(
-  "task/update",
+  'task/update',
   async (
     data: {
       taskId: string;
@@ -156,43 +145,31 @@ export const updateTask = createAsyncThunk(
       const response = await taskService.updateTask(data);
       return response.data;
     } catch (error: any) {
-      return rejectWithValue(
-        error.response?.data?.message ?? "Error while updating task."
-      );
+      return rejectWithValue(error.response?.data?.message ?? 'Error while updating task.');
     }
   }
 );
 
-export const deleteTask = createAsyncThunk(
-  "task/delete",
-  async (taskId: string, { rejectWithValue }) => {
-    try {
-      const response = await taskService.deleteTask(taskId);
-      return { taskId, ...response };
-    } catch (error: any) {
-      return rejectWithValue(
-        error.response?.data?.message ?? "Error while deleting task."
-      );
-    }
+export const deleteTask = createAsyncThunk('task/delete', async (taskId: string, { rejectWithValue }) => {
+  try {
+    const response = await taskService.deleteTask(taskId);
+    return { taskId, ...response };
+  } catch (error: any) {
+    return rejectWithValue(error.response?.data?.message ?? 'Error while deleting task.');
   }
-);
+});
 
-export const getTaskById = createAsyncThunk(
-  "task/get-by-id",
-  async (taskId: string, { rejectWithValue }) => {
-    try {
-      const response = await taskService.getTaskById(taskId);
-      return response.data;
-    } catch (error: any) {
-      return rejectWithValue(
-        error.response?.data?.message ?? "Error while fetching task."
-      );
-    }
+export const getTaskById = createAsyncThunk('task/get-by-id', async (taskId: string, { rejectWithValue }) => {
+  try {
+    const response = await taskService.getTaskById(taskId);
+    return response.data;
+  } catch (error: any) {
+    return rejectWithValue(error.response?.data?.message ?? 'Error while fetching task.');
   }
-);
+});
 
 export const assignMember = createAsyncThunk(
-  "task/assign-member-in-task",
+  'task/assign-member-in-task',
   async (
     {
       task_id,
@@ -207,34 +184,27 @@ export const assignMember = createAsyncThunk(
       const response = await taskService.assignMember(task_id, member_id);
       return response;
     } catch (error: any) {
-      return rejectWithValue(
-        error.response?.data?.message ?? "Error while assigning member."
-      );
+      return rejectWithValue(error.response?.data?.message ?? 'Error while assigning member.');
     }
   }
 );
 
-export const unassignMember = createAsyncThunk(
-  "task/unassign-member-from-task",
-  async ({ taskId }: { taskId: string }, { rejectWithValue }) => {
-    try {
-      const response = await taskService.unassignMember(taskId);
-      return response.data;
-    } catch (error: any) {
-      return rejectWithValue(
-        error.response?.data?.message ?? "Error while unassigning member."
-      );
-    }
+export const unassignMember = createAsyncThunk('task/unassign-member-from-task', async ({ taskId }: { taskId: string }, { rejectWithValue }) => {
+  try {
+    const response = await taskService.unassignMember(taskId);
+    return response.data;
+  } catch (error: any) {
+    return rejectWithValue(error.response?.data?.message ?? 'Error while unassigning member.');
   }
-);
+});
 
 export const addEstimatedTime = createAsyncThunk(
-  "timer/add-estimated-time",
+  'timer/add-estimated-time',
   async (
     {
       taskId,
       hours,
-      minutes
+      minutes,
     }: {
       taskId: string;
       hours: number;
@@ -246,49 +216,35 @@ export const addEstimatedTime = createAsyncThunk(
       const response = await taskService.addEstimatedTime(taskId, hours, minutes);
       return response.data;
     } catch (error: any) {
-      return rejectWithValue(
-        error.response?.data?.message ?? "Error while assigning member."
-      );
+      return rejectWithValue(error.response?.data?.message ?? 'Error while assigning member.');
     }
   }
 );
 
-export const stratTimer = createAsyncThunk(
-  "timer/start-timer",
-  async ({ taskId }: { taskId: string }, { rejectWithValue }) => {
-    try {
-      const response = await taskService.stratTimer(taskId);
-      return response.data;
-    } catch (error: any) {
-      return rejectWithValue(
-        error.response?.data?.message ?? "Error while start timer."
-      );
-    }
+export const stratTimer = createAsyncThunk('timer/start-timer', async ({ taskId }: { taskId: string }, { rejectWithValue }) => {
+  try {
+    const response = await taskService.stratTimer(taskId);
+    return response.data;
+  } catch (error: any) {
+    return rejectWithValue(error.response?.data?.message ?? 'Error while start timer.');
   }
-);
+});
 
-export const stopTimer = createAsyncThunk(
-  "timer/stop-timer",
-  async ({ taskId }: { taskId: string }, { rejectWithValue }) => {
-    try {
-      const response = await taskService.stopTimer(taskId);
-      return response.data;
-    } catch (error: any) {
-      return rejectWithValue(
-        error.response?.data?.message ?? "Error while stop timer."
-      );
-    }
+export const stopTimer = createAsyncThunk('timer/stop-timer', async ({ taskId }: { taskId: string }, { rejectWithValue }) => {
+  try {
+    const response = await taskService.stopTimer(taskId);
+    return response.data;
+  } catch (error: any) {
+    return rejectWithValue(error.response?.data?.message ?? 'Error while stop timer.');
   }
-);
+});
 
 const taskSlice = createSlice({
-  name: "task",
+  name: 'task',
   initialState,
   reducers: {
     addNewTask: (state, action) => {
-      const statusListId =
-        action.payload.data.status_list_id._id ??
-        action.payload.data.status_list_id;
+      const statusListId = action.payload.data.status_list_id._id ?? action.payload.data.status_list_id;
       if (!state.tasksByStatus[statusListId]) {
         state.tasksByStatus[statusListId] = [];
       }
@@ -299,9 +255,7 @@ const taskSlice = createSlice({
       if (!state.tasksByStatus[statusListId]) {
         state.tasksByStatus[statusListId] = [];
       }
-      state.tasksByStatus[statusListId] = state.tasksByStatus[
-        statusListId
-      ].filter((task) => task._id !== action.payload.data._id);
+      state.tasksByStatus[statusListId] = state.tasksByStatus[statusListId].filter((task) => task._id !== action.payload.data._id);
     },
     clearTaskState: (state) => {
       state.tasksByStatus = {};
@@ -322,7 +276,7 @@ const taskSlice = createSlice({
       const newPosition = task.position;
       const status_list_id = task.status_list_id;
 
-      let sourceStatusId = "";
+      let sourceStatusId = '';
       let taskIndex = -1;
       Object.entries(state.tasksByStatus).forEach(([statusId, tasks]) => {
         const index = tasks.findIndex((t) => t._id === taskId);
@@ -341,28 +295,18 @@ const taskSlice = createSlice({
           state.tasksByStatus[status_list_id] = [];
         }
 
-        if (typeof taskToMove.status_list_id === "object") {
+        if (typeof taskToMove.status_list_id === 'object') {
           taskToMove.status_list_id._id = status_list_id;
         } else {
           taskToMove.status_list_id = status_list_id;
         }
 
         taskToMove.position = newPosition;
-        const destInsertIndex = Math.min(
-          Math.max(0, newPosition - 1),
-          state.tasksByStatus[status_list_id].length
-        );
-        state.tasksByStatus[status_list_id].splice(
-          destInsertIndex,
-          0,
-          taskToMove
-        );
+        const destInsertIndex = Math.min(Math.max(0, newPosition - 1), state.tasksByStatus[status_list_id].length);
+        state.tasksByStatus[status_list_id].splice(destInsertIndex, 0, taskToMove);
       } else {
         taskToMove.position = newPosition;
-        const insertIndex = Math.min(
-          Math.max(0, newPosition - 1),
-          state.tasksByStatus[sourceStatusId].length
-        );
+        const insertIndex = Math.min(Math.max(0, newPosition - 1), state.tasksByStatus[sourceStatusId].length);
         state.tasksByStatus[sourceStatusId].splice(insertIndex, 0, taskToMove);
       }
     },
@@ -370,15 +314,10 @@ const taskSlice = createSlice({
       const updatedTask = action.payload.data;
       const taskId = updatedTask._id;
       for (const statusId in state.tasksByStatus) {
-        const taskIndex = state.tasksByStatus[statusId].findIndex(
-          (task) => task._id === taskId
-        );
+        const taskIndex = state.tasksByStatus[statusId].findIndex((task) => task._id === taskId);
 
         if (taskIndex !== -1) {
-          if (
-            updatedTask.status_list_id &&
-            updatedTask.status_list_id !== statusId
-          ) {
+          if (updatedTask.status_list_id && updatedTask.status_list_id !== statusId) {
             const taskToUpdate = {
               ...state.tasksByStatus[statusId][taskIndex],
             };
@@ -406,9 +345,9 @@ const taskSlice = createSlice({
             if (updatedTask.end_date !== undefined) {
               taskToUpdate.end_date = updatedTask.end_date;
             }
-            if (typeof updatedTask.status_list_id === "object") {
+            if (typeof updatedTask.status_list_id === 'object') {
               taskToUpdate.status_list_id = updatedTask.status_list_id;
-            } else if (typeof taskToUpdate.status_list_id === "object") {
+            } else if (typeof taskToUpdate.status_list_id === 'object') {
               taskToUpdate.status_list_id._id = newStatusId;
             } else {
               taskToUpdate.status_list_id = { _id: newStatusId } as any;
@@ -457,13 +396,10 @@ const taskSlice = createSlice({
               state.selectedTask.end_date = updatedTask.end_date;
             }
             if (updatedTask.status_list_id !== undefined) {
-              if (typeof updatedTask.status_list_id === "object") {
+              if (typeof updatedTask.status_list_id === 'object') {
                 state.selectedTask.status_list_id = updatedTask.status_list_id;
-              } else if (
-                typeof state.selectedTask.status_list_id === "object"
-              ) {
-                state.selectedTask.status_list_id._id =
-                  updatedTask.status_list_id;
+              } else if (typeof state.selectedTask.status_list_id === 'object') {
+                state.selectedTask.status_list_id._id = updatedTask.status_list_id;
               }
             }
           }
@@ -489,9 +425,7 @@ const taskSlice = createSlice({
     },
     addLabelToTask: (state, action) => {
       const { label_id, task_id, status_list_id } = action.payload;
-      const task = state.tasksByStatus[status_list_id]?.find(
-        (t) => t._id === task_id
-      );
+      const task = state.tasksByStatus[status_list_id]?.find((t) => t._id === task_id);
       if (task) {
         const exists = task?.labels?.some((l) => l._id === label_id._id);
         if (!exists) {
@@ -502,9 +436,7 @@ const taskSlice = createSlice({
     removeLabelToTask: (state, action) => {
       const { label_id, task_id, status_list_id } = action.payload;
 
-      const task = state.tasksByStatus[status_list_id]?.find(
-        (t) => t._id === task_id
-      );
+      const task = state.tasksByStatus[status_list_id]?.find((t) => t._id === task_id);
       if (task) {
         task.labels = task.labels.filter((label) => label._id !== label_id);
       }
@@ -512,12 +444,8 @@ const taskSlice = createSlice({
     removeTaskLabel: (state, action) => {
       const { label_id, task_id } = action.payload;
       if (state.selectedTask) {
-        const updatedTasks = state.tasksByStatus[
-          state.selectedTask?.status_list_id._id
-        ].map((task) => {
-          const updatedLabels = task.labels.filter(
-            (label) => label._id !== label_id
-          );
+        const updatedTasks = state.tasksByStatus[state.selectedTask?.status_list_id._id].map((task) => {
+          const updatedLabels = task.labels.filter((label) => label._id !== label_id);
           return task._id === task_id
             ? {
                 ...task,
@@ -568,9 +496,7 @@ const taskSlice = createSlice({
     removeTaskComments: (state, action) => {
       const { task_id } = action.payload;
       if (state.selectedTask) {
-        const updatedTasks = state.tasksByStatus[
-          state.selectedTask.status_list_id._id
-        ].map((task) => {
+        const updatedTasks = state.tasksByStatus[state.selectedTask.status_list_id._id].map((task) => {
           return task._id === task_id
             ? {
                 ...task,
@@ -599,9 +525,7 @@ const taskSlice = createSlice({
     addAssignMemberToTask: (state, action) => {
       const { status_list_id, task_id, assigned_to } = action.payload.data;
 
-      const task = state.tasksByStatus[status_list_id]?.find(
-        (t) => t._id === task_id
-      );
+      const task = state.tasksByStatus[status_list_id]?.find((t) => t._id === task_id);
 
       if (task) {
         task.assigned_to = assigned_to;
@@ -609,9 +533,7 @@ const taskSlice = createSlice({
     },
     removeAssignMemberTask: (state, action) => {
       const { status_list_id, task_id } = action.payload.data;
-      const task = state.tasksByStatus[status_list_id]?.find(
-        (t) => t._id === task_id
-      );
+      const task = state.tasksByStatus[status_list_id]?.find((t) => t._id === task_id);
 
       if (task) {
         task.assigned_to = null;
@@ -620,9 +542,7 @@ const taskSlice = createSlice({
     updateSocketTask: (state, action) => {
       const { data } = action.payload;
       const { _id, status_list_id } = data;
-      const task = state.tasksByStatus[status_list_id]?.find(
-        (t) => t._id === _id
-      );
+      const task = state.tasksByStatus[status_list_id]?.find((t) => t._id === _id);
       if (task) {
         Object.assign(task, data);
       }
@@ -631,22 +551,15 @@ const taskSlice = createSlice({
       const { task_id } = action.payload.payload.data;
 
       const { _id, status_list_id } = task_id;
-      const task = state.tasksByStatus[status_list_id]?.find(
-        (t) => t._id === _id
-      );
+      const task = state.tasksByStatus[status_list_id]?.find((t) => t._id === _id);
       if (task) {
-        task.comments =
-          action.payload.dataScript === "add"
-            ? task.comments + 1
-            : task.comments - 1;
+        task.comments = action.payload.dataScript === 'add' ? task.comments + 1 : task.comments - 1;
       }
     },
     updateAttachmentCount: (state, action) => {
       const { _id, status_list_id, attachment } = action.payload.data;
 
-      const task = state.tasksByStatus[status_list_id]?.find(
-        (t) => t._id === _id
-      );
+      const task = state.tasksByStatus[status_list_id]?.find((t) => t._id === _id);
       if (task) {
         task.attachment = attachment;
       }
@@ -665,13 +578,12 @@ const taskSlice = createSlice({
         state.tasksByStatus[data.statusId] = action.payload;
         state.loading = false;
         state.error = null;
-        state.success = "Tasks fetched successfully.";
+        state.success = 'Tasks fetched successfully.';
       })
       .addCase(getTasksByStatusId.rejected, (state, action) => {
         state.loading = false;
         state.success = null;
-        state.error =
-          (action.payload as string) || "Error while fetching tasks.";
+        state.error = (action.payload as string) || 'Error while fetching tasks.';
       })
 
       // Create task
@@ -688,13 +600,12 @@ const taskSlice = createSlice({
         state.tasksByStatus[statusId].push(newTask);
         state.loading = false;
         state.error = null;
-        state.success = "Task created successfully.";
+        state.success = 'Task created successfully.';
       })
       .addCase(createTask.rejected, (state, action) => {
         state.loading = false;
         state.success = null;
-        state.error =
-          (action.payload as string) || "Error while creating task.";
+        state.error = (action.payload as string) || 'Error while creating task.';
       })
 
       // Update task
@@ -707,13 +618,12 @@ const taskSlice = createSlice({
         state.loading = false;
         state.error = null;
         state.selectedTask = action.payload;
-        state.success = "Task updated successfully.";
+        state.success = 'Task updated successfully.';
       })
       .addCase(updateTask.rejected, (state, action) => {
         state.loading = false;
         state.success = null;
-        state.error =
-          (action.payload as string) || "Error while updating task.";
+        state.error = (action.payload as string) || 'Error while updating task.';
       })
 
       // Delete task
@@ -726,22 +636,19 @@ const taskSlice = createSlice({
 
         // Remove from tasksByStatus map
         for (const statusId in state.tasksByStatus) {
-          state.tasksByStatus[statusId] = state.tasksByStatus[statusId].filter(
-            (task) => task._id !== taskId
-          );
+          state.tasksByStatus[statusId] = state.tasksByStatus[statusId].filter((task) => task._id !== taskId);
         }
         if (state.selectedTask && state.selectedTask._id === taskId) {
           state.selectedTask = null;
         }
         state.loading = false;
         state.error = null;
-        state.success = "Task deleted successfully.";
+        state.success = 'Task deleted successfully.';
       })
       .addCase(deleteTask.rejected, (state, action) => {
         state.loading = false;
         state.success = null;
-        state.error =
-          (action.payload as string) || "Error while deleting task.";
+        state.error = (action.payload as string) || 'Error while deleting task.';
       })
 
       // Get task by ID
@@ -753,14 +660,13 @@ const taskSlice = createSlice({
         state.selectedTask = action.payload;
         state.loading = false;
         state.error = null;
-        state.success = "Task fetched successfully.";
+        state.success = 'Task fetched successfully.';
       })
       .addCase(getTaskById.rejected, (state, action) => {
         state.loading = false;
         state.selectedTask = null;
         state.success = null;
-        state.error =
-          (action.payload as string) || "Error while fetching task.";
+        state.error = (action.payload as string) || 'Error while fetching task.';
       })
 
       // Assign member into task
@@ -776,13 +682,12 @@ const taskSlice = createSlice({
         } as ITask;
         state.loading = false;
         state.error = null;
-        state.success = "Member assigned successfully.";
+        state.success = 'Member assigned successfully.';
       })
       .addCase(assignMember.rejected, (state, action) => {
         state.loading = false;
         state.success = null;
-        state.error =
-          (action.payload as string) || "Error while assigning member.";
+        state.error = (action.payload as string) || 'Error while assigning member.';
       })
 
       // Unassign member from task
@@ -798,15 +703,14 @@ const taskSlice = createSlice({
         } as ITask;
         state.loading = false;
         state.error = null;
-        state.success = "Member unassigned successfully.";
+        state.success = 'Member unassigned successfully.';
       })
       .addCase(unassignMember.rejected, (state, action) => {
         state.loading = false;
         state.success = null;
-        state.error =
-          (action.payload as string) || "Error while unassigning member.";
+        state.error = (action.payload as string) || 'Error while unassigning member.';
       })
-      
+
       // Add estimate time into task
       .addCase(addEstimatedTime.pending, (state) => {
         state.loading = true;
@@ -831,8 +735,7 @@ const taskSlice = createSlice({
       .addCase(addEstimatedTime.rejected, (state, action) => {
         state.loading = false;
         state.success = null;
-        state.error =
-          (action.payload as string) || "Error while adding estimate time.";
+        state.error = (action.payload as string) || 'Error while adding estimate time.';
       })
 
       // start timer into task
@@ -854,8 +757,7 @@ const taskSlice = createSlice({
       .addCase(stratTimer.rejected, (state, action) => {
         state.loading = false;
         state.success = null;
-        state.error =
-          (action.payload as string) || "Error while starting timer.";
+        state.error = (action.payload as string) || 'Error while starting timer.';
       })
 
       // stop timer into task
@@ -877,8 +779,7 @@ const taskSlice = createSlice({
       .addCase(stopTimer.rejected, (state, action) => {
         state.loading = false;
         state.success = null;
-        state.error =
-          (action.payload as string) || "Error while stopping timer.";
+        state.error = (action.payload as string) || 'Error while stopping timer.';
       });
   },
 });

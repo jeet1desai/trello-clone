@@ -1,5 +1,5 @@
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { notificationService } from "../../services/notificationServices";
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import { notificationService } from '../../services/notificationServices';
 
 export interface Notification {
   _id: string;
@@ -33,52 +33,35 @@ const initialState: NotificationState = {
   success: null,
 };
 
-export const getAllNotification = createAsyncThunk(
-  "notification/notification-list",
-  async (_, { rejectWithValue }) => {
-    try {
-      const response = await notificationService.getAllNotification();
-      return response.data;
-    } catch (error: any) {
-      return rejectWithValue(
-        error.response?.data?.message ?? "Error while fetching notifications."
-      );
-    }
+export const getAllNotification = createAsyncThunk('notification/notification-list', async (_, { rejectWithValue }) => {
+  try {
+    const response = await notificationService.getAllNotification();
+    return response.data;
+  } catch (error: any) {
+    return rejectWithValue(error.response?.data?.message ?? 'Error while fetching notifications.');
   }
-);
+});
 
-export const readNotificationById = createAsyncThunk(
-  "notification/mark-notification",
-  async (_id: string, { rejectWithValue }) => {
-    try {
-      const response = await notificationService.readNotificationById(_id);
-      return response.data;
-    } catch (error: any) {
-      return rejectWithValue(
-        error.response?.data?.message ??
-          "Error while marking notification as read."
-      );
-    }
+export const readNotificationById = createAsyncThunk('notification/mark-notification', async (_id: string, { rejectWithValue }) => {
+  try {
+    const response = await notificationService.readNotificationById(_id);
+    return response.data;
+  } catch (error: any) {
+    return rejectWithValue(error.response?.data?.message ?? 'Error while marking notification as read.');
   }
-);
+});
 
-export const readAllNotifications = createAsyncThunk(
-  "notification/mark-all-notification",
-  async (_, { rejectWithValue }) => {
-    try {
-      const response = await notificationService.readAllNotifications();
-      return response.data;
-    } catch (error: any) {
-      return rejectWithValue(
-        error.response?.data?.message ??
-          "Error while marking notifications as read."
-      );
-    }
+export const readAllNotifications = createAsyncThunk('notification/mark-all-notification', async (_, { rejectWithValue }) => {
+  try {
+    const response = await notificationService.readAllNotifications();
+    return response.data;
+  } catch (error: any) {
+    return rejectWithValue(error.response?.data?.message ?? 'Error while marking notifications as read.');
   }
-);
+});
 
 const notificationSlice = createSlice({
-  name: "notification",
+  name: 'notification',
   initialState,
   reducers: {
     addNewNotification: (state, action) => {
@@ -97,14 +80,13 @@ const notificationSlice = createSlice({
         state.allNotification = action.payload;
         state.loading = false;
         state.error = null;
-        state.success = "Notifications fetched successfully.";
+        state.success = 'Notifications fetched successfully.';
       })
       .addCase(getAllNotification.rejected, (state, action) => {
         state.loading = false;
         state.allNotification = [];
         state.success = null;
-        state.error =
-          (action.payload as string) || "Error while fetching notifications.";
+        state.error = (action.payload as string) || 'Error while fetching notifications.';
       })
 
       // read notification
@@ -115,28 +97,22 @@ const notificationSlice = createSlice({
       })
       .addCase(readNotificationById.fulfilled, (state, action) => {
         const { _id } = action.payload;
-        const index = state.allNotification.findIndex(
-          (notificationList) => notificationList._id === _id
-        );
-        state.allNotification = state.allNotification.filter(
-          (item) => item._id !== _id
-        );
+        const index = state.allNotification.findIndex((notificationList) => notificationList._id === _id);
+        state.allNotification = state.allNotification.filter((item) => item._id !== _id);
         if (index !== -1) {
           state.loading = false;
           state.error = null;
-          state.success = "Notification read successfully.";
+          state.success = 'Notification read successfully.';
         } else {
           state.loading = false;
-          state.error = "Notification not found.";
+          state.error = 'Notification not found.';
         }
       })
       .addCase(readNotificationById.rejected, (state, action) => {
         state.loading = false;
         state.allNotification = [];
         state.success = null;
-        state.error =
-          (action.payload as string) ||
-          "Error while marking notification as read.";
+        state.error = (action.payload as string) || 'Error while marking notification as read.';
       })
 
       // read all notification
@@ -149,15 +125,13 @@ const notificationSlice = createSlice({
         state.allNotification = [];
         state.loading = false;
         state.error = null;
-        state.success = "Notification read successfully.";
+        state.success = 'Notification read successfully.';
       })
       .addCase(readAllNotifications.rejected, (state, action) => {
         state.loading = false;
         state.allNotification = [];
         state.success = null;
-        state.error =
-          (action.payload as string) ||
-          "Error while marking notification as read.";
+        state.error = (action.payload as string) || 'Error while marking notification as read.';
       });
   },
 });
