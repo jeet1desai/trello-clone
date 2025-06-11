@@ -71,6 +71,7 @@ import {
   ArrowLeft,
   ArrowRight,
   ChartNoAxesCombined,
+  Bug,
 } from 'lucide-react';
 import BoardFilter from './components/boardFilter';
 import ChangeBackgroundPopover from './components/ChangeBackgroundModal';
@@ -558,17 +559,21 @@ const BoardDetail: React.FC = () => {
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
               <div>
-                <Paragraph
-                  ellipsis={{ rows: 2 }}
-                  style={{
-                    marginBottom: 8,
-                    fontWeight: 500,
-                    display: 'flex',
-                    gap: 4,
-                  }}
-                >
-                  {task.title}
-                </Paragraph>
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <Paragraph
+                    ellipsis={{ rows: 2 }}
+                    style={{
+                      fontWeight: 500,
+                      margin: 0,
+                      padding: 0,
+                    }}
+                  >
+                    {task.title}
+                    {task.labels.some(label => label.name.toLowerCase() === "bug") && (
+                      <Bug style={{ height: '15px', width: '15px', margin: "5px 0 0 10px" }} />
+                    )} 
+                  </Paragraph>
+                </div>
                 <div
                   style={{
                     margin: '12px 0 8px -2px',
