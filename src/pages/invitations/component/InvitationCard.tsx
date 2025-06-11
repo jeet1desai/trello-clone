@@ -55,7 +55,8 @@ const InvitationCard = ({ invitation }: IProps) => {
           <Avatar style={{ background: getRandomColor(_id) }}>{invitees.fullName?.[0]?.toUpperCase()}</Avatar>
           <div>
             <Title level={5} className="margin-0 name-wrap">
-              {invitees.fullName} <Tag color={color}>{label}</Tag>
+              {invitees.fullName === "No User Found" ? "Guest user" : invitees.fullName}
+               <Tag color={color}>{label}</Tag>
             </Title>
             <Paragraph className="margin-0 email-text">{invitees.email}</Paragraph>
           </div>
