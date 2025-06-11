@@ -37,7 +37,12 @@ const Register: React.FC = () => {
   return (
     <div className="auth-container">
       <div className="auth-form-container flex">
-        <img src={companyLogo} alt="BaseTeam" style={{ width: '14%', borderRadius: '8px', marginBottom: '8px' }} />
+        <img
+          src={companyLogo}
+          alt="BaseTeam"
+          style={{ width: "14%", borderRadius: "8px", marginBottom: "8px", cursor: 'pointer' }}
+          onClick={() => navigate(PUBLIC_ROUTE.HOME)}
+        />
         <Title level={2} className="auth-title">
           Create Account
         </Title>

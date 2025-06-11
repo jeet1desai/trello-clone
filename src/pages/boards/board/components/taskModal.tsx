@@ -37,6 +37,7 @@ import {
   updateAttachmentCount,
   updateCommentCount,
   updateTask,
+  recurringTask
 } from '../../../../store/slices/taskSlice';
 import { Priority, TaskStatus, TaskTimerStatus, Duration } from '../../../../utils/enums/task';
 import Search from 'antd/es/transfer/search';
@@ -580,6 +581,26 @@ const TaskModal: React.FC<TaskModalProps> = ({ boardId, taskId, visible, onClose
     }
   };
 
+const handleCreate = () => {
+  if (!dateRange || !dateRange[0] || !dateRange[1]) {
+    setDateError(true);
+    return;
+  }
+  setDateError(false);
+
+  if (selectedTask) {
+    dispatch(
+      recurringTask({
+        taskId: selectedTask._id,
+        repeat_type: recurrence,
+        start_date: dateRange[0].toISOString(),
+        end_date: dateRange[1].toISOString(),
+      })
+    );
+  }
+  setIsModalVisible(false);
+};
+
   const handleUnassignMember = () => {
     if (selectedTask) {
       dispatch(
@@ -791,14 +812,6 @@ const TaskModal: React.FC<TaskModalProps> = ({ boardId, taskId, visible, onClose
     </div>
   );
 
-  const handleCreate = () => {
-    if (!dateRange || !dateRange[0] || !dateRange[1]) {
-      setDateError(true);
-      return;
-    }
-    setDateError(false);
-    setIsModalVisible(false);
-  };
   const recurringTaskContent = (
     <div style={{ width: 450, padding: 10 }}>
       <div style={{ marginBottom: 12 }}>
