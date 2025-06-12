@@ -11,12 +11,7 @@
     {
       "src": "./base-team-logo.jpg",
       "type": "image/png",
-      "sizes": "192x192"
-    },
-    {
-      "src": "./base-team-logo.jpg",
-      "type": "image/png",
-      "sizes": "512x512"
+      "sizes": "192x192 512x512 630x630"
     }
   ],
   "start_url": "/index.html",

@@ -12,6 +12,7 @@ import './layout/styles/Theme.css';
 import { NotificationProvider } from './contexts/NotificationContext';
 import { SocketProvider } from './contexts/SocketContext';
 import '@ant-design/v5-patch-for-react-19';
+import OfflineStatus from './components/offline-status';
 
 const { defaultAlgorithm, darkAlgorithm } = theme;
 
@@ -47,6 +48,7 @@ const App: React.FC = () => {
           <NotificationProvider>
             <SocketProvider url={process.env.REACT_APP_SOCKET_URL || 'http://localhost:3001'}>
               <ThemedApp />
+              <OfflineStatus />
             </SocketProvider>
           </NotificationProvider>
         </ThemeProvider>
