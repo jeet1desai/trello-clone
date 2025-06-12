@@ -33,16 +33,11 @@ const UserActivityModal = ({ open, onClose, onNextPageLoad }: IProps) => {
     onClose();
   }
 
-  const handleCloseModal = () => {
-    dispatch(clearUserActivity());
-    onClose()
-  };
-
   return (
     <Modal
       title={null}
       open={open}
-      onCancel={handleCloseModal}
+      onCancel={onClose}
       footer={null}
       className="task-modal"
       styles={{
