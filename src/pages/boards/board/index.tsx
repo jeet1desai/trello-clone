@@ -80,6 +80,7 @@ import { PRIVATE_ROUTE } from '../../../utils/enums/route';
 import { clearUserActivity, userActivity  as fetchUserActivity } from '../../../store/slices/userSlice';
 import UserActivityModal from '../../../components/board/UserActivityModal';
 import CsvManager from '../../../components/board/CsvManager';
+import TaskTimer from './components/TaskTimer';
 
 const { Title, Text } = Typography;
 
@@ -220,8 +221,8 @@ const BoardDetail: React.FC = () => {
       const task = Object.values(tasksByStatus)
         .flat()
         .find((t) => t.board_id === id && t._id === taskId) as ITask;
-
-      if (task) {
+      console.log( task);
+      if (task && !task._id) {
         handleTaskClick(task);
       } else {
         dispatch(getTaskById(taskId)).then((result) => {
@@ -516,29 +517,6 @@ const BoardDetail: React.FC = () => {
 
   // Render task card component
   const renderTaskCard = (task: ITask, index: number) => {
-    // const [elapsedSeconds, setElapsedSeconds] = useState(0);
-    // const timerRef = useRef<NodeJS.Timeout | null>(null);
-
-    // useEffect(() => {
-    //   if (task.is_timer_active) {
-    //     const initial = Math.floor(task.actual_time_spent / 1000);
-    //     setElapsedSeconds(initial); // ✅ set it only once on mount
-
-    //     timerRef.current = setInterval(() => {
-    //       setElapsedSeconds((prev) => prev + 1);
-    //     }, 1000);
-    //   } else {
-    //     setElapsedSeconds(Math.floor(task.actual_time_spent / 1000)); // Static fallback if not active
-    //   }
-
-    //   return () => {
-    //     if (timerRef.current) {
-    //       clearInterval(timerRef.current);
-    //       timerRef.current = null;
-    //     }
-    //   };
-    // }, [task._id, task.is_timer_active]);
-
     const formatTime = (seconds: number) => {
       const dur = dayjs.duration(seconds, 'seconds');
       return dur.format('HH:mm:ss');
@@ -716,9 +694,11 @@ const BoardDetail: React.FC = () => {
                       <Text type="secondary" style={{ display: "block", fontSize: 12 }}>
                         Tracked
                       </Text>
-                      <Text strong style={{ fontSize: 16 }}>
-                        {trackedTime}
-                      </Text>
+                      <TaskTimer 
+                        isTimerActive={task.is_timer_active} 
+                        actualTimeSpent={task.actual_time_spent}
+                        startTime={task.timer_start_time}
+                      />
                     </div>
                   </Space>
                   <Tooltip title="Copy task link">

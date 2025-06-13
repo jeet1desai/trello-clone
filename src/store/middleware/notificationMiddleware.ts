@@ -1,3 +1,4 @@
+import React from 'react';
 import {
   Dispatch,
   Middleware,
@@ -8,6 +9,22 @@ import {
 } from "@reduxjs/toolkit";
 import { RootState } from "..";
 import { openNotification } from "../../services/notificationService";
+
+const createClickableLink = (message: string) => {
+  const parts = message.split("\nLink: ");
+  if (parts.length === 2) {
+    return React.createElement('div', null, [
+      React.createElement('div', null, parts[0]),
+      React.createElement('a', {
+        href: parts[1],
+        target: '_blank',
+        rel: 'noopener noreferrer',
+        style: { color: '#1890ff' }
+      }, parts[1])
+    ]);
+  }
+  return message;
+};
 
 export const notificationMiddleware: Middleware<
   {},
@@ -31,7 +48,7 @@ export const notificationMiddleware: Middleware<
 
       openNotification({
         type: "error",
-        message: errorMessage,
+        message: createClickableLink(errorMessage),
         placement: "bottomRight",
         duration: 2,
       });
