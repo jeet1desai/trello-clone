@@ -221,8 +221,7 @@ const BoardDetail: React.FC = () => {
       const task = Object.values(tasksByStatus)
         .flat()
         .find((t) => t.board_id === id && t._id === taskId) as ITask;
-      console.log( task);
-      if (task && !task._id) {
+      if (task) {
         handleTaskClick(task);
       } else {
         dispatch(getTaskById(taskId)).then((result) => {
