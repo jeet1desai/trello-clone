@@ -189,6 +189,31 @@ export const assignMember = createAsyncThunk(
   }
 );
 
+export const recurringTask = createAsyncThunk(
+  'task/repeat-task',
+  async (
+    {
+      taskId,
+      repeat_type,
+      start_date,
+      end_date,
+    }: {
+      taskId: string;
+      repeat_type: string;
+      start_date: string;
+      end_date: string;
+    },
+    { rejectWithValue }
+  ) => {
+    try {
+      const response = await taskService.recurringTask(taskId, repeat_type, start_date, end_date);
+      return response;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message ?? 'Error while assigning member.');
+    }
+  }
+);
+
 export const unassignMember = createAsyncThunk('task/unassign-member-from-task', async ({ taskId }: { taskId: string }, { rejectWithValue }) => {
   try {
     const response = await taskService.unassignMember(taskId);
@@ -413,9 +438,9 @@ const taskSlice = createSlice({
       const updatedTasks = state.tasksByStatus[status_list_id].map((task) => {
         return task._id === _id
           ? {
-              ...task,
-              labels: [...task.labels, action.payload.label_id],
-            }
+            ...task,
+            labels: [...task.labels, action.payload.label_id],
+          }
           : task;
       });
       state.tasksByStatus = {
@@ -448,9 +473,9 @@ const taskSlice = createSlice({
           const updatedLabels = task.labels.filter((label) => label._id !== label_id);
           return task._id === task_id
             ? {
-                ...task,
-                labels: updatedLabels,
-              }
+              ...task,
+              labels: updatedLabels,
+            }
             : task;
         });
         state.tasksByStatus = {
@@ -464,9 +489,9 @@ const taskSlice = createSlice({
       const updatedTasks = state.tasksByStatus[status_list_id].map((task) => {
         return task._id === _id
           ? {
-              ...task,
-              attachment: action.payload.attachment,
-            }
+            ...task,
+            attachment: action.payload.attachment,
+          }
           : task;
       });
       state.tasksByStatus = {
@@ -483,9 +508,9 @@ const taskSlice = createSlice({
       const updatedTasks = state.tasksByStatus[status_list_id].map((task) => {
         return task._id === _id
           ? {
-              ...task,
-              comments: task.comments + 1,
-            }
+            ...task,
+            comments: task.comments + 1,
+          }
           : task;
       });
       state.tasksByStatus = {
@@ -499,9 +524,9 @@ const taskSlice = createSlice({
         const updatedTasks = state.tasksByStatus[state.selectedTask.status_list_id._id].map((task) => {
           return task._id === task_id
             ? {
-                ...task,
-                comments: task.comments - 1,
-              }
+              ...task,
+              comments: task.comments - 1,
+            }
             : task;
         });
         state.tasksByStatus = {
@@ -688,6 +713,24 @@ const taskSlice = createSlice({
         state.loading = false;
         state.success = null;
         state.error = (action.payload as string) || 'Error while assigning member.';
+      })
+
+      //create recurring task
+      .addCase(recurringTask.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.success = null;
+      })
+      .addCase(recurringTask.fulfilled, (state, action) => {
+        state.selectedTask = action.payload.data as ITask;
+        state.loading = false;
+        state.error = null;
+        state.success = 'Follow up task created successfully.';
+      })
+      .addCase(recurringTask.rejected, (state, action) => {
+        state.loading = false;
+        state.success = null;
+        state.error = (action.payload as string) || 'Error while creating followup task.';
       })
 
       // Unassign member from task
