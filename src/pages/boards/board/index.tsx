@@ -569,11 +569,11 @@ const BoardDetail: React.FC = () => {
                     }}
                   >
                     {task.title}
-                    {task.labels.some(label => label.name.toLowerCase() === "bug") && (
-                      <Bug style={{ height: '15px', width: '15px', margin: "5px 0 0 10px" }} />
-                    )} 
+                    {task.task_type === "Bug" && (
+                      <Bug style={{ height: '16px', width: '16px', marginLeft: '8px' }} />
+                    )}
                   </Paragraph>
-                </div>
+                </div>  
                 <div
                   style={{
                     margin: '12px 0 8px -2px',

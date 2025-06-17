@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { taskService } from "../../services/taskService";
-import { Priority, TaskTimerStatus } from "../../utils/enums/task";
+import { Priority, TaskTimerStatus, TaskType } from "../../utils/enums/task";
 
 export interface IAttachment {
   imageName: string;
@@ -31,6 +31,7 @@ export interface ITask {
   board_id: string;
   created_by: string;
   priority?: Priority;
+  task_type?: TaskType;
   status?: string;
   attachment: IAttachment[];
   labels: ILabels[];
@@ -149,6 +150,7 @@ export const updateTask = createAsyncThunk(
       description?: string;
       priority?: Priority;
       end_date?: string | null;
+      task_type?: TaskType;
     },
     { rejectWithValue }
   ) => {

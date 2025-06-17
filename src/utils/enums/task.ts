@@ -21,3 +21,9 @@ DAILY = "daily",
 WEEKLY = "weekly",
 MONTHLY = "monthly"
 }
+
+export enum TaskType {
+  FEATURE = 'Feature',
+  SUBTASK = 'Subtask',
+  BUG = 'Bug',
+}

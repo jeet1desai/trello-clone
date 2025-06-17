@@ -32,6 +32,7 @@ export const taskService = {
     priority?: Priority;
     start_date?: string | null;
     end_date?: string | null;
+    task_type?:string;
   }) {
     const response = await axiosInstance.put(`/task/update-task`, data);
     return response.data;
