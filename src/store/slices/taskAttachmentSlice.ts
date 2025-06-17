@@ -1,6 +1,6 @@
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { taskAttachmentService } from "../../services/taskAttachmentService";
-import { updateTaskAttachment } from "./taskSlice";
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import { taskAttachmentService } from '../../services/taskAttachmentService';
+import { updateTaskAttachment } from './taskSlice';
 
 export interface IAttachment {
   imageName: string;
@@ -62,79 +62,54 @@ const initialState: TaskAttachmentState = {
   success: null,
   addError: null,
   editError: null,
-  task_id: "",
+  task_id: '',
 };
 
-export const getTaskAttachmentById = createAsyncThunk(
-  "taskAttachment/get-comment-by-task-id",
-  async (_id: string, { dispatch, rejectWithValue }) => {
-    try {
-      const response = await taskAttachmentService.getAttachmentsById(_id);
-      dispatch(selectedTaskId(_id));
-      return response.data;
-    } catch (error: any) {
-      return rejectWithValue(
-        error.response?.data?.message ??
-          "Error while fetching task comment details."
-      );
-    }
+export const getTaskAttachmentById = createAsyncThunk('taskAttachment/get-comment-by-task-id', async (_id: string, { dispatch, rejectWithValue }) => {
+  try {
+    const response = await taskAttachmentService.getAttachmentsById(_id);
+    dispatch(selectedTaskId(_id));
+    return response.data;
+  } catch (error: any) {
+    return rejectWithValue(error.response?.data?.message ?? 'Error while fetching task comment details.');
   }
-);
+});
 
 export const addNewTaskAttachment = createAsyncThunk(
-  "taskAttachment/add-to-task",
-  async (
-    { taskId, attachments }: { taskId: string; attachments: File[] },
-    { rejectWithValue, dispatch }
-  ) => {
+  'taskAttachment/add-to-task',
+  async ({ taskId, attachments }: { taskId: string; attachments: File[] }, { rejectWithValue, dispatch }) => {
     try {
-      const response = await taskAttachmentService.addTaskAttachment(
-        taskId,
-        attachments
-      );
+      const response = await taskAttachmentService.addTaskAttachment(taskId, attachments);
       dispatch(updateTaskAttachment(response.data));
       return response;
     } catch (error: any) {
-      return rejectWithValue(
-        error.response?.data?.message ?? "Error while adding task comment."
-      );
+      return rejectWithValue(error.response?.data?.message ?? 'Error while adding task comment.');
     }
   }
 );
 
 export const deleteTaskAttachment = createAsyncThunk(
-  "taskAttachment/delete-to-task",
-  async (
-    data: { _id: string; taskId: string },
-    { rejectWithValue, dispatch }
-  ) => {
+  'taskAttachment/delete-to-task',
+  async (data: { _id: string; taskId: string }, { rejectWithValue, dispatch }) => {
     try {
-      const response = await taskAttachmentService.deleteTaskAttachment(
-        data._id,
-        data.taskId
-      );
+      const response = await taskAttachmentService.deleteTaskAttachment(data._id, data.taskId);
       const responseData = { _id: data._id };
       dispatch(updateTaskAttachment(response.data));
       if (response.success) return responseData;
     } catch (error: any) {
-      return rejectWithValue(
-        error.response?.data?.message ?? "Error while deleting task comment."
-      );
+      return rejectWithValue(error.response?.data?.message ?? 'Error while deleting task comment.');
     }
   }
 );
 
 const taskAttachmentSlice = createSlice({
-  name: "taskAttachment",
+  name: 'taskAttachment',
   initialState,
   reducers: {
     addNewAttachment: (state, action) => {
       if (state.task_id === action.payload.data._id) {
         const newAttachments = action.payload.data.attachment.filter(
-          (newA: IAttachment) =>
-            !state.taskAttachments.some(
-              (existingA) => existingA.imageName === newA.imageName
-            )
+          (newA: IAttachment) => !state.taskAttachments.some((existingA) => existingA.imageName === newA.imageName)
         );
 
         if (newAttachments.length > 0) {
@@ -172,14 +147,12 @@ const taskAttachmentSlice = createSlice({
         state.taskAttachments = action.payload;
         state.taskAttachmentLoading = false;
         state.error = null;
-        state.success = "Task comment details fetched successfully.";
+        state.success = 'Task comment details fetched successfully.';
       })
       .addCase(getTaskAttachmentById.rejected, (state, action) => {
         state.taskAttachmentLoading = false;
         state.success = null;
-        state.error =
-          (action.payload as string) ||
-          "Error while fetching task comment details.";
+        state.error = (action.payload as string) || 'Error while fetching task comment details.';
       })
 
       // Add task comment
@@ -191,28 +164,19 @@ const taskAttachmentSlice = createSlice({
       })
       .addCase(addNewTaskAttachment.fulfilled, (state, action) => {
         const newAttachments = action.payload.data.attachment.filter(
-          (newA: { imageName: string }) =>
-            !state.taskAttachments.some(
-              (existingA) => existingA.imageName === newA.imageName
-            )
+          (newA: { imageName: string }) => !state.taskAttachments.some((existingA) => existingA.imageName === newA.imageName)
         );
-        if (newAttachments.length > 0)
-          state.taskAttachments = [
-            ...state.taskAttachments,
-            ...action.payload.data.attachment,
-          ];
+        if (newAttachments.length > 0) state.taskAttachments = [...state.taskAttachments, ...action.payload.data.attachment];
         state.taskAttachmentLoading = false;
         state.addError = null;
         state.error = null;
-        state.success = "Task comment added successfully.";
+        state.success = 'Task comment added successfully.';
       })
       .addCase(addNewTaskAttachment.rejected, (state, action) => {
         state.taskAttachmentLoading = false;
         state.success = null;
-        state.addError =
-          (action.payload as string) || "Error while adding task comment.";
-        state.error =
-          (action.payload as string) || "Error while adding task comment.";
+        state.addError = (action.payload as string) || 'Error while adding task comment.';
+        state.error = (action.payload as string) || 'Error while adding task comment.';
       })
 
       // Delete task comment
@@ -222,35 +186,26 @@ const taskAttachmentSlice = createSlice({
         state.success = null;
       })
       .addCase(deleteTaskAttachment.fulfilled, (state, action) => {
-        const _id: string = action.payload?._id ?? "";
-        const index = state.taskAttachments.findIndex(
-          (taskAttachment) => taskAttachment._id === _id
-        );
+        const _id: string = action.payload?._id ?? '';
+        const index = state.taskAttachments.findIndex((taskAttachment) => taskAttachment._id === _id);
         if (index !== -1) {
           state.taskAttachmentLoading = false;
           state.error = null;
           state.taskAttachments.splice(index, 1);
-          state.success = "Task comment deleted successfully.";
+          state.success = 'Task comment deleted successfully.';
         } else {
           state.taskAttachmentLoading = false;
-          state.error = "Task comment not found.";
+          state.error = 'Task comment not found.';
         }
       })
       .addCase(deleteTaskAttachment.rejected, (state, action) => {
         state.taskAttachmentLoading = false;
         state.success = null;
-        state.error =
-          (action.payload as string) || "Error while fetching task comment.";
+        state.error = (action.payload as string) || 'Error while fetching task comment.';
       });
   },
 });
 
-export const {
-  addNewAttachment,
-  removeAttachment,
-  addTaskAttachment,
-  clearSelectedTaskAttachment,
-  selectedTaskId,
-} = taskAttachmentSlice.actions;
+export const { addNewAttachment, removeAttachment, addTaskAttachment, clearSelectedTaskAttachment, selectedTaskId } = taskAttachmentSlice.actions;
 
 export default taskAttachmentSlice.reducer;

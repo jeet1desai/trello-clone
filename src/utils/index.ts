@@ -1,4 +1,4 @@
-import { AVATAR_COLORS, GRADIENT_COMBOS } from "../config";
+import { AVATAR_COLORS, GRADIENT_COMBOS } from '../config';
 
 export const getRandomColor = (id: string) => {
   let hash = 0;
@@ -21,8 +21,8 @@ export const generateGradient = (name: string) => {
 export const fetchImageAsBase64 = (url: string): Promise<string> => {
   return new Promise((resolve, reject) => {
     const xhr = new XMLHttpRequest();
-    xhr.open("GET", url, true);
-    xhr.responseType = "blob";
+    xhr.open('GET', url, true);
+    xhr.responseType = 'blob';
 
     xhr.onload = () => {
       if (xhr.status === 200) {

@@ -1,21 +1,17 @@
 {
+  "id": "/",  
   "short_name": "BaseTeam",
   "name": "Work Management System",
   "icons": [
     {
-      "src": "base-team-logo.png",
+      "src": "./base-team-logo.jpg",
       "sizes": "64x64 32x32 24x24 16x16",
       "type": "image/x-icon"
     },
     {
-      "src": "base-team-logo.png",
+      "src": "./base-team-logo.jpg",
       "type": "image/png",
-      "sizes": "192x192"
-    },
-    {
-      "src": "base-team-logo.png",
-      "type": "image/png",
-      "sizes": "512x512"
+      "sizes": "192x192 512x512 630x630"
     }
   ],
   "start_url": "/index.html",

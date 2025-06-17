@@ -1,4 +1,4 @@
-import { NotificationInstance } from "antd/es/notification/interface";
+import { NotificationInstance } from 'antd/es/notification/interface';
 
 let notificationApi: NotificationInstance | null = null;
 
@@ -11,7 +11,7 @@ export const openNotification = (config: Parameters<NotificationInstance['open']
     notificationApi.open(config);
   } else {
     // fallback to direct notification if api is not set
-    const { notification } = require("antd");
+    const { notification } = require('antd');
     notification.open(config);
   }
 };

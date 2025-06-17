@@ -1,14 +1,7 @@
+import { Dispatch, Middleware, MiddlewareAPI, UnknownAction, isFulfilled, isRejectedWithValue } from '@reduxjs/toolkit';
+import { RootState } from '..';
+import { openNotification } from '../../services/notificationService';
 import React from 'react';
-import {
-  Dispatch,
-  Middleware,
-  MiddlewareAPI,
-  UnknownAction,
-  isFulfilled,
-  isRejectedWithValue,
-} from "@reduxjs/toolkit";
-import { RootState } from "..";
-import { openNotification } from "../../services/notificationService";
 
 const createClickableLink = (message: string) => {
   const parts = message.split("\nLink: ");
@@ -26,25 +19,16 @@ const createClickableLink = (message: string) => {
   return message;
 };
 
-export const notificationMiddleware: Middleware<
-  {},
-  RootState,
-  Dispatch<UnknownAction>
-> =
-  (storeAPI: MiddlewareAPI<Dispatch<UnknownAction>, RootState>) =>
-  (next: any) =>
-  (action: any) => {
+export const notificationMiddleware: Middleware<{}, RootState, Dispatch<UnknownAction>> =
+  (storeAPI: MiddlewareAPI<Dispatch<UnknownAction>, RootState>) => (next: any) => (action: any) => {
     const result = next(action);
 
     const fullState = storeAPI.getState();
-    const [sliceName] = action.type.split("/");
+    const [sliceName] = action.type.split('/');
     const sliceState = fullState[sliceName as keyof RootState];
 
     if (isRejectedWithValue(action)) {
-      const errorMessage =
-        typeof action.payload === "string"
-          ? action.payload
-          : sliceState?.error ?? "Something went wrong.";
+      const errorMessage = typeof action.payload === 'string' ? action.payload : (sliceState?.error ?? 'Something went wrong.');
 
       openNotification({
         type: "error",
@@ -56,24 +40,21 @@ export const notificationMiddleware: Middleware<
 
     if (isFulfilled(action)) {
       if (
-        sliceName.includes("status") ||
-        sliceName.includes("task") ||
-        sliceName.includes("notification") ||
-        sliceName.includes("dashboard") ||
-        sliceName.includes("user")
+        sliceName.includes('status') ||
+        sliceName.includes('task') ||
+        sliceName.includes('notification') ||
+        sliceName.includes('dashboard') ||
+        sliceName.includes('user')
       )
         return;
 
-      const successMessage =
-        typeof action.payload === "string"
-          ? action.payload
-          : sliceState?.success;
+      const successMessage = typeof action.payload === 'string' ? action.payload : sliceState?.success;
 
       if (successMessage)
         openNotification({
-          type: "success",
+          type: 'success',
           message: successMessage,
-          placement: "bottomRight",
+          placement: 'bottomRight',
           duration: 2,
         });
     }

@@ -1,6 +1,6 @@
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { invitationService } from "../../services/invitationService";
-import { Pagination } from "./dashboardSlice";
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import { invitationService } from '../../services/invitationService';
+import { Pagination } from './dashboardSlice';
 
 export interface Invitation {
   _id: string;
@@ -51,7 +51,7 @@ const initialState: StatusState = {
 };
 
 export const getInvitationsList = createAsyncThunk(
-  "notification/get-invitations",
+  'notification/get-invitations',
   async (
     {
       page,
@@ -66,15 +66,13 @@ export const getInvitationsList = createAsyncThunk(
       const response = await invitationService.getInvitations(page, status);
       return response.data;
     } catch (error: any) {
-      return rejectWithValue(
-        error.response?.data?.message ?? "Error while fetching invitations."
-      );
+      return rejectWithValue(error.response?.data?.message ?? 'Error while fetching invitations.');
     }
   }
 );
 
 export const manageInvitation = createAsyncThunk(
-  "invitation/manage",
+  'invitation/manage',
   async (
     {
       status,
@@ -86,21 +84,16 @@ export const manageInvitation = createAsyncThunk(
     { rejectWithValue }
   ) => {
     try {
-      const response = await invitationService.manageInvitation(
-        status,
-        inviteId
-      );
+      const response = await invitationService.manageInvitation(status, inviteId);
       return response;
     } catch (error: any) {
-      return rejectWithValue(
-        error.response?.data?.message ?? "Error while changing status."
-      );
+      return rejectWithValue(error.response?.data?.message ?? 'Error while changing status.');
     }
   }
 );
 
 const invitationSlice = createSlice({
-  name: "invitation",
+  name: 'invitation',
   initialState,
   reducers: {
     clearInvitationState: (state) => {
@@ -124,14 +117,13 @@ const invitationSlice = createSlice({
         state.pagination = pagination;
         state.loading = false;
         state.error = null;
-        state.success = "Invitations fetched successfully.";
+        state.success = 'Invitations fetched successfully.';
       })
       .addCase(getInvitationsList.rejected, (state, action) => {
         state.loading = false;
         state.invitationList = [];
         state.success = null;
-        state.error =
-          (action.payload as string) || "Error while fetching invitations.";
+        state.error = (action.payload as string) || 'Error while fetching invitations.';
       })
 
       // Manage Invitation
@@ -146,7 +138,7 @@ const invitationSlice = createSlice({
           ...state,
           loading: false,
           error: null,
-          success: "Invitation updated successfully.",
+          success: 'Invitation updated successfully.',
           invitationList: state.invitationList.map((item) =>
             item._id === data._id
               ? {
@@ -161,8 +153,7 @@ const invitationSlice = createSlice({
       .addCase(manageInvitation.rejected, (state, action) => {
         state.loading = false;
         state.success = null;
-        state.error =
-          (action.payload as string) || "Error while updating invitation.";
+        state.error = (action.payload as string) || 'Error while updating invitation.';
       });
   },
 });

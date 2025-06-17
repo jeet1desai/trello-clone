@@ -1,5 +1,5 @@
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { statusService } from "../../services/statusService";
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import { statusService } from '../../services/statusService';
 
 export interface IStatusList {
   _id: string;
@@ -44,22 +44,17 @@ const initialState: StatusState = {
   success: null,
 };
 
-export const getStatusListByBoardId = createAsyncThunk(
-  "status/get-status",
-  async (boardId: string, { rejectWithValue }) => {
-    try {
-      const response = await statusService.getStatusListByBoardId(boardId);
-      return response.data;
-    } catch (error: any) {
-      return rejectWithValue(
-        error.response?.data?.message ?? "Error while fetching status."
-      );
-    }
+export const getStatusListByBoardId = createAsyncThunk('status/get-status', async (boardId: string, { rejectWithValue }) => {
+  try {
+    const response = await statusService.getStatusListByBoardId(boardId);
+    return response.data;
+  } catch (error: any) {
+    return rejectWithValue(error.response?.data?.message ?? 'Error while fetching status.');
   }
-);
+});
 
 export const createNewStatus = createAsyncThunk(
-  "list/add",
+  'list/add',
   async (
     {
       boardId,
@@ -74,21 +69,19 @@ export const createNewStatus = createAsyncThunk(
       const response = await statusService.createNewStatus(boardId, name);
       return response.message;
     } catch (error: any) {
-      return rejectWithValue(
-        error.response?.data?.message ?? "Error while adding status."
-      );
+      return rejectWithValue(error.response?.data?.message ?? 'Error while adding status.');
     }
   }
 );
 
 export const updateStatus = createAsyncThunk(
-  "status/edit",
+  'status/edit',
   async (
     {
       statusId,
       name,
       newPosition,
-      background
+      background,
     }: {
       statusId: string;
       name?: string;
@@ -98,58 +91,41 @@ export const updateStatus = createAsyncThunk(
     { rejectWithValue }
   ) => {
     try {
-      const response = await statusService.updateStatus(
-        statusId,
-        name,
-        newPosition,
-        background
-      );
+      const response = await statusService.updateStatus(statusId, name, newPosition, background);
       return response;
     } catch (error: any) {
-      return rejectWithValue(
-        error.response?.data?.message ?? "Error while updating status."
-      );
+      return rejectWithValue(error.response?.data?.message ?? 'Error while updating status.');
     }
   }
 );
 
-export const deleteStatus = createAsyncThunk(
-  "list/delete",
-  async (_id: string, { rejectWithValue }) => {
-    try {
-      const response = await statusService.deleteStatus(_id);
-      return response.message;
-    } catch (error: any) {
-      return rejectWithValue(
-        error.response?.data?.message ?? "Error while deleting status."
-      );
-    }
+export const deleteStatus = createAsyncThunk('list/delete', async (_id: string, { rejectWithValue }) => {
+  try {
+    const response = await statusService.deleteStatus(_id);
+    return response.message;
+  } catch (error: any) {
+    return rejectWithValue(error.response?.data?.message ?? 'Error while deleting status.');
   }
-);
+});
 
-export const removeStatusBackground = createAsyncThunk(
-  "list/remove/background",
-  async (_id: string, { rejectWithValue }) => {
-    try {
-      const response = await statusService.removeStatusBackground(_id);
-      return response.message;
-    } catch (error: any) {
-      return rejectWithValue(
-        error.response?.data?.message ?? "Error while deleting status."
-      );
-    }
+export const removeStatusBackground = createAsyncThunk('list/remove/background', async (_id: string, { rejectWithValue }) => {
+  try {
+    const response = await statusService.removeStatusBackground(_id);
+    return response.message;
+  } catch (error: any) {
+    return rejectWithValue(error.response?.data?.message ?? 'Error while deleting status.');
   }
-);
+});
 
 const statusSlice = createSlice({
-  name: "status",
+  name: 'status',
   initialState,
   reducers: {
     addNewStatus: (state, action) => {
       state.statusList = [...state.statusList, action.payload.data];
     },
     removeStatus: (state, action) => {
-      state.statusList = state.statusList.filter(status => status._id !== action.payload.data._id);
+      state.statusList = state.statusList.filter((status) => status._id !== action.payload.data._id);
     },
     setSelectedStatus: (state, action) => {
       state.selectedStatus = action.payload;
@@ -162,7 +138,7 @@ const statusSlice = createSlice({
     },
     updateStatusPosition: (state, action) => {
       const { _id, position, background } = action.payload.data;
-      const statusIndex = state.statusList.findIndex(status => status._id === _id);
+      const statusIndex = state.statusList.findIndex((status) => status._id === _id);
       if (statusIndex !== -1) {
         const updatedStatus = { ...state.statusList[statusIndex], position: position, background };
         state.statusList.splice(statusIndex, 1);
@@ -182,14 +158,13 @@ const statusSlice = createSlice({
         state.statusList = action.payload;
         state.loading = false;
         state.error = null;
-        state.success = "Status fetched successfully.";
+        state.success = 'Status fetched successfully.';
       })
       .addCase(getStatusListByBoardId.rejected, (state, action) => {
         state.loading = false;
         state.statusList = [];
         state.success = null;
-        state.error =
-          (action.payload as string) || "Error while fetching status.";
+        state.error = (action.payload as string) || 'Error while fetching status.';
       })
 
       // Add status
@@ -200,13 +175,12 @@ const statusSlice = createSlice({
       .addCase(createNewStatus.fulfilled, (state) => {
         state.loading = false;
         state.error = null;
-        state.success = "Status added successfully.";
+        state.success = 'Status added successfully.';
       })
       .addCase(createNewStatus.rejected, (state, action) => {
         state.loading = false;
         state.success = null;
-        state.error =
-          (action.payload as string) || "Error while adding status.";
+        state.error = (action.payload as string) || 'Error while adding status.';
       })
 
       // Edit status
@@ -218,13 +192,12 @@ const statusSlice = createSlice({
       .addCase(updateStatus.fulfilled, (state) => {
         state.loading = false;
         state.error = null;
-        state.success = "Status updated successfully.";
+        state.success = 'Status updated successfully.';
       })
       .addCase(updateStatus.rejected, (state, action) => {
         state.loading = false;
         state.success = null;
-        state.error =
-          (action.payload as string) || "Error while updating status.";
+        state.error = (action.payload as string) || 'Error while updating status.';
       })
 
       // Delete status
@@ -234,24 +207,21 @@ const statusSlice = createSlice({
       })
       .addCase(deleteStatus.fulfilled, (state, action) => {
         const { _id } = action.payload;
-        const index = state.statusList.findIndex(
-          (status) => status._id === _id
-        );
+        const index = state.statusList.findIndex((status) => status._id === _id);
         if (index !== -1) {
           state.loading = false;
           state.error = null;
           state.statusList.splice(index, 1);
-          state.success = "Status deleted successfully.";
+          state.success = 'Status deleted successfully.';
         } else {
           state.loading = false;
-          state.error = "Status not found.";
+          state.error = 'Status not found.';
         }
       })
       .addCase(deleteStatus.rejected, (state, action) => {
         state.loading = false;
         state.success = null;
-        state.error =
-          (action.payload as string) || "Error while deleting status.";
+        state.error = (action.payload as string) || 'Error while deleting status.';
       });
   },
 });
