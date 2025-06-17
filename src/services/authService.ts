@@ -1,21 +1,16 @@
-import axiosInstance from "../helper/axiosInstance";
+import axiosInstance from '../helper/axiosInstance';
 
 export const authService = {
-  async register(
-    first_name: string,
-    last_name: string,
-    email: string,
-    password: string
-  ) {
+  async register(first_name: string, last_name: string, email: string, password: string) {
     const formData = new FormData();
-    formData.append("first_name", first_name);
-    formData.append("last_name", last_name);
-    formData.append("email", email);
-    formData.append("password", password);
+    formData.append('first_name', first_name);
+    formData.append('last_name', last_name);
+    formData.append('email', email);
+    formData.append('password', password);
 
     const response = await axiosInstance.post(`/auth/signup`, formData, {
       headers: {
-        "Content-Type": "multipart/form-data",
+        'Content-Type': 'multipart/form-data',
       },
     });
     return response.data;

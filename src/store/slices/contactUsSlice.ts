@@ -1,5 +1,5 @@
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { contactUsService } from "../../services/contactUsService";
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import { contactUsService } from '../../services/contactUsService';
 
 interface IValidationObject {
   name?: string;
@@ -31,7 +31,7 @@ const initialState: ContactUsState = {
 };
 
 export const contactUsCreate = createAsyncThunk(
-  "contact-us",
+  'contact-us',
   async (
     data: {
       name: string;
@@ -48,16 +48,13 @@ export const contactUsCreate = createAsyncThunk(
         dispatch(validationState(error.response?.data?.errors));
         return rejectWithValue(error.response.data.errors);
       }
-      return rejectWithValue(
-        error.response?.data?.message ??
-          "Error while fetching adding contact us data"
-      );
+      return rejectWithValue(error.response?.data?.message ?? 'Error while fetching adding contact us data');
     }
   }
 );
 
 const contactUsSlice = createSlice({
-  name: "contactUs",
+  name: 'contactUs',
   initialState,
   reducers: {
     validationState: (state, action) => {
@@ -75,14 +72,13 @@ const contactUsSlice = createSlice({
       .addCase(contactUsCreate.fulfilled, (state, action) => {
         state.loading = false;
         state.error = null;
-        state.success = "Your request send successfully..!";
+        state.success = 'Your request send successfully..!';
         state.response = action.payload;
       })
       .addCase(contactUsCreate.rejected, (state, action) => {
         state.loading = false;
         state.success = null;
-        state.error =
-          (action.payload as string) || "Error while fetching Dashboard count.";
+        state.error = (action.payload as string) || 'Error while fetching Dashboard count.';
       });
   },
 });

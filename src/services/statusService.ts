@@ -1,10 +1,8 @@
-import axiosInstance from "../helper/axiosInstance";
+import axiosInstance from '../helper/axiosInstance';
 
 export const statusService = {
   async getStatusListByBoardId(boardId: string) {
-    const response = await axiosInstance.get(
-      `/status/get-status?boardId=${boardId}`
-    );
+    const response = await axiosInstance.get(`/status/get-status?boardId=${boardId}`);
     return response.data;
   },
 
@@ -16,12 +14,7 @@ export const statusService = {
     return response.data;
   },
 
-  async updateStatus(
-    statusId: string,
-    name?: string,
-    newPosition?: number,
-    background?: string
-  ) {
+  async updateStatus(statusId: string, name?: string, newPosition?: number, background?: string) {
     const response = await axiosInstance.put(`/status/update-status`, {
       statusId,
       name,
@@ -32,16 +25,12 @@ export const statusService = {
   },
 
   async deleteStatus(statusId: string) {
-    const response = await axiosInstance.delete(
-      `/status/delete-status/${statusId}`
-    );
+    const response = await axiosInstance.delete(`/status/delete-status/${statusId}`);
     return response.data;
   },
 
   async removeStatusBackground(statusId: string) {
-    const response = await axiosInstance.delete(
-      `/status/remove-background-status/${statusId}`
-    );
+    const response = await axiosInstance.delete(`/status/remove-background-status/${statusId}`);
     return response.data;
   },
 };

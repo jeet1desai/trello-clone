@@ -1,4 +1,4 @@
-import axiosInstance from "../helper/axiosInstance";
+import axiosInstance from '../helper/axiosInstance';
 
 export const contactUsService = {
   async createTask(data: { name: string; email: string; description: string }) {

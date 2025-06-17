@@ -1,25 +1,25 @@
 export enum TaskStatus {
-  COMPLETED = "Completed",
-  INCOMPLETE = "Incomplete",
+  COMPLETED = 'Completed',
+  INCOMPLETE = 'Incomplete',
 }
 
 export enum Priority {
-  LOW = "Low",
-  MEDIUM = "Medium",
-  HIGH = "High",
-  CRITICAL = "Critical",
+  LOW = 'Low',
+  MEDIUM = 'Medium',
+  HIGH = 'High',
+  CRITICAL = 'Critical',
 }
 
 export enum TaskTimerStatus {
-  PENDING = "pending",
-  IN_PROGRESS = "in-progress",
-  COMPLETED = "completed"
+  PENDING = 'pending',
+  IN_PROGRESS = 'in-progress',
+  COMPLETED = 'completed',
 }
 
 export enum Duration {
-DAILY = "daily",
-WEEKLY = "weekly",
-MONTHLY = "monthly"
+  DAILY = 'daily',
+  WEEKLY = 'weekly',
+  MONTHLY = 'monthly',
 }
 
 export enum TaskType {
