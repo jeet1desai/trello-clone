@@ -21,3 +21,9 @@ export enum Duration {
   WEEKLY = 'weekly',
   MONTHLY = 'monthly',
 }
+
+export enum TaskType {
+  FEATURE = 'Feature',
+  SUBTASK = 'Subtask',
+  BUG = 'Bug',
+}

@@ -39,7 +39,7 @@ import {
   updateTask,
   recurringTask
 } from '../../../../store/slices/taskSlice';
-import { Priority, TaskStatus, TaskTimerStatus, Duration } from '../../../../utils/enums/task';
+import { Priority, TaskStatus, TaskTimerStatus, Duration, TaskType } from '../../../../utils/enums/task';
 import Search from 'antd/es/transfer/search';
 import LabelPopup from './labelPopup';
 import DatePickerPopup from './datePopup';
@@ -102,6 +102,7 @@ import {
   Clock,
   CopyPlus,
   ScanText,
+  Bug,
 } from 'lucide-react';
 import { useLabelSuggestions } from '../../../../hooks/useLabelSuggestions';
 import CommentSummarizer from '../../../../components/board/CommentSummarizer';
@@ -139,6 +140,7 @@ export interface ITask {
   start_date: string | null;
   end_date: string | null;
   priority: Priority;
+  task_type: TaskType;
   position: number;
   status: TaskStatus;
   attachment: ITaskAttachment[];
@@ -227,6 +229,28 @@ const PrioritySelect = ({ value, onChange }: { value: Priority; onChange: (val: 
           {meta.icon}
           {priority}
         </div>
+      </Option>
+    ))}
+  </Select>
+);
+
+const StoryTypeSelect = ({
+  value,
+  onChange,
+}: {
+  value: TaskType;
+  onChange: (val: TaskType) => void;
+}) => (
+  <Select
+    placeholder="Select Task Type"
+    value={value}
+    onChange={(val) => onChange(val as TaskType)}
+    style={{ width: 110 }}
+    optionLabelProp="label"
+  >
+    {Object.values(TaskType).map((taskType) => (
+      <Option key={taskType} value={taskType} label={taskType}>
+        <div>{taskType}</div>
       </Option>
     ))}
   </Select>
@@ -1063,6 +1087,10 @@ const handleCreate = () => {
     dispatch(updateTask({ taskId: selectedTask?._id ?? '', priority: value }));
   };
 
+   const setSelectTaskType = (value: TaskType) => {
+    dispatch(updateTask({ taskId: selectedTask?._id ?? '', task_type: value }));
+  };
+
   return (
     <>
       <CommentSummarizer open={isUploadModal} onClose={() => setIsUploadModal(false)} />
@@ -1110,9 +1138,22 @@ const handleCreate = () => {
               }}
             />
           ) : (
-            <Text strong style={{ fontSize: '16px', margin: '8px' }} onClick={() => setIsEditTitle(true)}>
-              {selectedTask?.title}
-            </Text>
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  margin: '8px',
+                  cursor: 'pointer',
+                }}
+                onClick={() => setIsEditTitle(true)}
+              >
+                <Text strong style={{ fontSize: '16px' }}>
+                  {selectedTask?.title}
+                </Text>
+                {selectedTask?.task_type === 'Bug' && (
+                  <Bug style={{ height: '16px', width: '16px', marginLeft: '8px' }} />
+                )}
+              </div>
           )}
         </div>
         <Row>
@@ -1309,6 +1350,21 @@ const handleCreate = () => {
               >
                 <Button type="default" shape="circle" className="button small-btn" icon={<Files size={16} />} />
               </Popover>
+            </div>
+          </div>
+          <div className="task-labels-main">
+            <Text strong style={{ fontSize: '12px', color: '#44546f' }}>
+              Select Task Type
+            </Text>
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 4,
+                marginTop: '4px',
+              }}
+            >
+              <StoryTypeSelect value={selectedTask?.task_type ?? TaskType.FEATURE} onChange={setSelectTaskType} />
             </div>
           </div>
         </div>
