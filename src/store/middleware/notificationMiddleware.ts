@@ -1,6 +1,23 @@
 import { Dispatch, Middleware, MiddlewareAPI, UnknownAction, isFulfilled, isRejectedWithValue } from '@reduxjs/toolkit';
 import { RootState } from '..';
 import { openNotification } from '../../services/notificationService';
+import React from 'react';
+
+const createClickableLink = (message: string) => {
+  const parts = message.split("\nLink: ");
+  if (parts.length === 2) {
+    return React.createElement('div', null, [
+      React.createElement('div', null, parts[0]),
+      React.createElement('a', {
+        href: parts[1],
+        target: '_blank',
+        rel: 'noopener noreferrer',
+        style: { color: '#1890ff' }
+      }, parts[1])
+    ]);
+  }
+  return message;
+};
 
 export const notificationMiddleware: Middleware<{}, RootState, Dispatch<UnknownAction>> =
   (storeAPI: MiddlewareAPI<Dispatch<UnknownAction>, RootState>) => (next: any) => (action: any) => {
@@ -14,9 +31,9 @@ export const notificationMiddleware: Middleware<{}, RootState, Dispatch<UnknownA
       const errorMessage = typeof action.payload === 'string' ? action.payload : (sliceState?.error ?? 'Something went wrong.');
 
       openNotification({
-        type: 'error',
-        message: errorMessage,
-        placement: 'bottomRight',
+        type: "error",
+        message: createClickableLink(errorMessage),
+        placement: "bottomRight",
         duration: 2,
       });
     }

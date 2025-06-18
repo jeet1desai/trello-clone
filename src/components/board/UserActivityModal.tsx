@@ -1,13 +1,14 @@
 import React from 'react';
-import { Modal, Typography, List, Avatar, Space } from 'antd';
-import { useSelector } from 'react-redux';
-import { RootState } from '../../store';
+import { Modal, Typography, List, Avatar, Space, Button } from 'antd';
+import { useDispatch, useSelector } from 'react-redux';
+import { AppDispatch, RootState } from '../../store';
 import { Logs } from 'lucide-react';
 import { getRandomColor } from '../../utils';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import { generatePath, useNavigate } from 'react-router-dom';
 import { PRIVATE_ROUTE } from '../../utils/enums/route';
+import { clearUserActivity } from '../../store/slices/userSlice';
 dayjs.extend(relativeTime);
 
 const { Text } = Typography;
@@ -15,12 +16,22 @@ const { Text } = Typography;
 interface IProps {
   open: boolean;
   onClose: () => void;
+  onNextPageLoad?: () => void;
 }
 
-const UserActivityModal = ({ open, onClose }: IProps) => {
+const UserActivityModal = ({ open, onClose, onNextPageLoad }: IProps) => {
   const { userActivity } = useSelector((state: RootState) => state.user);
   const user = userActivity?.activities?.[0]?.created_by;
   const navigate = useNavigate();
+  const dispatch = useDispatch<AppDispatch>();
+
+  const navigateToTicket = (boardId: string|undefined, taskId: string|undefined) => {
+    const path = boardId
+      ? generatePath(PRIVATE_ROUTE.BOARD, { id: boardId }) + (taskId ? `?task_id=${taskId}` : "")
+      : "#";
+    navigate(path);
+    onClose();
+  }
 
   return (
     <Modal
@@ -54,10 +65,14 @@ const UserActivityModal = ({ open, onClose }: IProps) => {
           itemLayout="horizontal"
           dataSource={userActivity?.activities || []}
           renderItem={(item) => {
-            const detailsText = item.details || '';
-            const isUpdateTask = /task was (updated|udpated)\s+by/i.test(detailsText);
+            const detailsText = (item.details || "")
+              .replace(/^"+|"+$/g, "")                      // Remove leading/trailing quotes
+              .replace(/"([^"]*?)"/g, '$1')                 // Remove internal quotes like "name"
+              .replace(/(\w)"(?=\s)/g, '$1')                // Remove stray trailing quote after a word
+              .replace(/^"\s*"|"\s*"$/, '')                 // Remove entirely empty quoted strings
+              .trim();
             return (
-              <List.Item style={{ border: 0, padding: '18px 24px 8px 24px' }}>
+              <List.Item style={{ border: 0, padding: "18px 24px 8px 24px" }}>
                 <List.Item.Meta
                   avatar={
                     <Avatar src={item.created_by.profile_image?.url} style={{ background: getRandomColor(item.created_by._id) }}>
@@ -73,50 +88,33 @@ const UserActivityModal = ({ open, onClose }: IProps) => {
                         </b>
                         &nbsp;
                         {item.details ? (
-                          <>
-                            {isUpdateTask ? (
-                              <span style={{ fontWeight: 500 }}>
-                                <span
-                                  className="task-title-link"
-                                  onClick={() => {
-                                    const boardId = item.board?._id;
-                                    const taskId = item.task?._id;
-                                    const path = boardId
-                                      ? generatePath(PRIVATE_ROUTE.BOARD, { id: boardId }) + (taskId ? `?task_id=${taskId}` : '')
-                                      : '#';
-                                    navigate(path);
-                                    onClose();
-                                  }}
-                                >
-                                  {item.task?.title || ''}
-                                </span>{' '}
-                                {item.details}&nbsp;
-                              </span>
-                            ) : (
-                              item.details.split(/(\\?"[^"]*\\?")/).map((part, idx) =>
-                                /^\\?".*\\?"$/.test(part) ? (
-                                  <span
-                                    key={idx}
-                                    className="task-title-link"
-                                    onClick={() => {
-                                      const boardId = item.board?._id;
-                                      const taskId = item.task?._id;
-                                      const path = boardId
-                                        ? generatePath(PRIVATE_ROUTE.BOARD, { id: boardId }) + (taskId ? `?task_id=${taskId}` : '')
-                                        : '#';
-
-                                      navigate(path);
-                                      onClose();
-                                    }}
-                                  >
-                                    {part.replace(/^\\?"/, '').replace(/\\?"$/, '')}
-                                  </span>
-                                ) : (
-                                  <span key={idx}>{part}</span>
-                                )
-                              )
-                            )}
-                          </>
+                          (item.task?.title && detailsText.includes(item.task.title)) ? (
+                            <>
+                              {
+                                detailsText.split(item.task.title).map((part, idx, arr) => (
+                                  <React.Fragment key={idx}>
+                                    <span>{part}</span>
+                                    {idx < arr.length - 1 && (
+                                      <span className="task-title-link"
+                                        onClick={() => navigateToTicket(item.board?._id, item.task?._id)}
+                                      >
+                                        {item.task?.title}
+                                      </span>
+                                    )}
+                                  </React.Fragment>
+                                ))
+                              }
+                              &nbsp;
+                            </>
+                          ) : (
+                            <>
+                              <span className="task-title-link"
+                                onClick={() => navigateToTicket(item.board?._id, item.task?._id)}
+                              >
+                                {item.task?.title || ""}
+                              </span> {item.details}&nbsp;
+                            </>
+                          )
                         ) : null}
                       </span>
                       <div style={{ color: '#aaa', fontSize: 13, marginTop: 2 }}>
@@ -127,9 +125,25 @@ const UserActivityModal = ({ open, onClose }: IProps) => {
                   }
                 />
               </List.Item>
-            );
-          }}
+            )
+          }
+          }
         />
+        {userActivity?.pagination.totalPages > 1 &&
+          userActivity.pagination.currentPage < userActivity.pagination.totalPages && (
+            <Button
+              size="small"
+              className="button small-btn"
+              style={{
+                fontSize: '12px',
+                margin: "15px 0",
+                boxShadow: "none"
+              }}
+              onClick={onNextPageLoad}
+            >
+              Load more activity
+            </Button>
+          )}
       </div>
     </Modal>
   );

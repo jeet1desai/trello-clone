@@ -87,7 +87,7 @@ interface UserState {
   passwordChangeSuccess: boolean;
   passwordResetSuccess: boolean;
   verificationSuccess: boolean;
-  userActivity: userActivity | null;
+  userActivity: userActivity;
 }
 
 const initialState: UserState = {
@@ -101,7 +101,15 @@ const initialState: UserState = {
   passwordChangeSuccess: false,
   passwordResetSuccess: false,
   verificationSuccess: false,
-  userActivity: null,
+  userActivity: {
+    activities: [],
+    pagination: {
+      currentPage: 0,
+      totalPages: 0,
+      totalRecords: 0,
+      limit: 0,
+    }
+  },
 };
 
 // Async thunks
@@ -204,10 +212,10 @@ export const firebaseSocialLogin = createAsyncThunk(
 );
 
 export const userActivity = createAsyncThunk(
-  'auth/user-activity',
-  async ({ userId, boardId }: { userId: string; boardId: string }, { rejectWithValue }) => {
+  "auth/user-activity",
+  async ({ userId, boardId, page }: { userId: string, boardId: string, page: number }, { rejectWithValue }) => {
     try {
-      const response = await authService.userActivity(userId, boardId);
+      const response = await authService.userActivity(userId, boardId, page);
       return response.data;
     } catch (error) {
       console.error('Failed to fetch user activity', error);
@@ -241,6 +249,17 @@ const userSlice = createSlice({
       state.passwordResetSuccess = false;
       state.verificationSuccess = false;
     },
+    clearUserActivity: (state) => {
+      state.userActivity = {
+        activities: [],
+        pagination: {
+          currentPage: 0,
+          totalPages: 0,
+          limit: 0,
+          totalRecords: 0,
+        }
+      };
+    }
   },
   extraReducers: (builder) => {
     builder
@@ -416,13 +435,21 @@ const userSlice = createSlice({
 
       // User activity
       .addCase(userActivity.pending, (state) => {
-        state.userActivity = null;
         state.loading = true;
         state.error = null;
         state.success = null;
       })
       .addCase(userActivity.fulfilled, (state, action) => {
-        state.userActivity = action.payload;
+        const newActivities = action.payload.activities || [];
+        if (!state.userActivity || state.userActivity.activities.length === 0) {
+          state.userActivity = action.payload;
+        } else {
+          state.userActivity.activities = [
+            ...state.userActivity.activities,
+            ...newActivities
+          ];
+          state.userActivity.pagination = action.payload.pagination;
+        }
         state.loading = false;
         state.error = null;
       })
@@ -434,6 +461,6 @@ const userSlice = createSlice({
   },
 });
 
-export const { updateImage, clearAuthState } = userSlice.actions;
+export const { updateImage, clearAuthState, clearUserActivity } = userSlice.actions;
 
 export default userSlice.reducer;

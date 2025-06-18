@@ -71,15 +71,16 @@ import {
   ArrowLeft,
   ArrowRight,
   ChartNoAxesCombined,
-  Bug,
+  Files,
 } from 'lucide-react';
 import BoardFilter from './components/boardFilter';
 import ChangeBackgroundPopover from './components/ChangeBackgroundModal';
 import TaskMenu from './components/taskMenu';
 import { PRIVATE_ROUTE } from '../../../utils/enums/route';
-import { userActivity } from '../../../store/slices/userSlice';
+import { clearUserActivity, userActivity  as fetchUserActivity } from '../../../store/slices/userSlice';
 import UserActivityModal from '../../../components/board/UserActivityModal';
 import CsvManager from '../../../components/board/CsvManager';
+import TaskTimer from './components/TaskTimer';
 
 const { Title, Text } = Typography;
 
@@ -140,11 +141,13 @@ const BoardDetail: React.FC = () => {
   const { selectedBoard, invitedMemberList } = useSelector((state: RootState) => state.board);
   const { statusList, selectedStatus, loading: statusLoading } = useSelector((state: RootState) => state.status);
   const { tasksByStatus, loading: taskLoading } = useSelector((state: RootState) => state.task);
+  const { userActivity } = useSelector((state: RootState) => state.user);
   const [boardData, setBoardData] = useState(selectedBoard || ({} as IBoardDetails));
   const [isEditStatus, setIsEditStatus] = useState<{
     [key: string]: boolean;
   }>({});
   const [newStatusTitle, setNewStatusTitle] = useState<string>('');
+  const [memberId, setMemberId] = useState<string>('');
   const [showAddList, setShowAddList] = useState<boolean>(false);
   const [showInviteModal, setShowInviteModal] = useState<boolean>(false);
   const [showAddTaskMap, setShowAddTaskMap] = useState<{
@@ -218,7 +221,6 @@ const BoardDetail: React.FC = () => {
       const task = Object.values(tasksByStatus)
         .flat()
         .find((t) => t.board_id === id && t._id === taskId) as ITask;
-
       if (task) {
         handleTaskClick(task);
       } else {
@@ -513,159 +515,207 @@ const BoardDetail: React.FC = () => {
     Object.keys(selectedFilters).length > 2;
 
   // Render task card component
-  const renderTaskCard = (task: ITask, index: number) => (
-    <Draggable key={task._id} draggableId={task._id} index={index}>
-      {(provided: DraggableProvided, snapshot: DraggableStateSnapshot) => (
-        <div
-          ref={provided.innerRef}
-          {...provided.draggableProps}
-          {...provided.dragHandleProps}
-          style={{
-            ...provided.draggableProps.style,
-            marginBottom: 8,
-            opacity: snapshot.isDragging ? 0.8 : 1,
-          }}
-          onClick={() => handleTaskClick(task)}
-          onMouseDown={() => dispatch(getTaskById(task._id))}
-        >
-          <Card
-            size="small"
+  const renderTaskCard = (task: ITask, index: number) => {
+    const formatTime = (seconds: number) => {
+      const dur = dayjs.duration(seconds, 'seconds');
+      return dur.format('HH:mm:ss');
+    };
+
+    const trackedTime = task.is_timer_active
+      ? formatTime(0)
+      : formatTime(Math.floor(task.actual_time_spent / 1000));
+
+    return (
+      <Draggable key={task._id} draggableId={task._id} index={index}>
+        {(provided: DraggableProvided, snapshot: DraggableStateSnapshot) => (
+          <div
+            ref={provided.innerRef}
+            {...provided.draggableProps}
+            {...provided.dragHandleProps}
             style={{
-              boxShadow: '0 1px 2px rgba(0, 0, 0, 0.1)',
-              cursor: 'pointer',
-              background: task.status === 'Completed' ? 'rgba(107, 241, 107, 0.70)' : '',
+              ...provided.draggableProps.style,
+              marginBottom: 8,
+              opacity: snapshot.isDragging ? 0.8 : 1,
             }}
-            styles={{
-              body: {
-                padding: '8px 12px',
-              },
-            }}
+            onClick={() => handleTaskClick(task)}
+            onMouseDown={() => dispatch(getTaskById(task._id))}
           >
-            <div style={{ marginBottom: 8, display: 'flex', gap: 6 }}>
-              {task.labels?.map((label) => {
-                return (
-                  <Tooltip key={label?._id} title={label?.name}>
+            <Card
+              size="small"
+              style={{
+                boxShadow: '0 1px 2px rgba(0, 0, 0, 0.1)',
+                cursor: 'pointer',
+                background: task.status === 'Completed' ? 'rgba(107, 241, 107, 0.70)' : '',
+              }}
+              styles={{
+                body: {
+                  padding: '8px 12px',
+                },
+              }}
+            >
+              <div style={{ marginBottom: 8, display: 'flex', gap: 6 }}>
+                {task.labels?.map((label) => {
+                  return (
+                    <Tooltip key={label?._id} title={label?.name}>
+                      <div
+                        style={{
+                          background: label?.backgroundColor,
+                          height: '8px',
+                          width: '45px',
+                          borderRadius: '8px',
+                        }}
+                      />
+                    </Tooltip>
+                  );
+                })}
+              </div>
+              <div>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <div>
+                    <Paragraph
+                      ellipsis={{ rows: 2 }}
+                      style={{
+                        marginBottom: 8,
+                        fontWeight: 500,
+                        display: 'flex',
+                        gap: 4,
+                      }}
+                    >
+                      {task.title}
+                    </Paragraph>
                     <div
                       style={{
-                        background: label?.backgroundColor,
-                        height: '8px',
-                        width: '45px',
-                        borderRadius: '8px',
-                      }}
-                    />
-                  </Tooltip>
-                );
-              })}
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-              <div>
-                <div style={{ display: 'flex', alignItems: 'center' }}>
-                  <Paragraph
-                    ellipsis={{ rows: 2 }}
-                    style={{
-                      fontWeight: 500,
-                      margin: 0,
-                      padding: 0,
-                    }}
-                  >
-                    {task.title}
-                    {task.task_type === "Bug" && (
-                      <Bug style={{ height: '16px', width: '16px', marginLeft: '8px' }} />
-                    )}
-                  </Paragraph>
-                </div>  
-                <div
-                  style={{
-                    margin: '12px 0 8px -2px',
-                    display: 'flex',
-                    gap: 8,
-                    alignItems: 'center',
-                  }}
-                >
-                  {task.end_date && (
-                    <Paragraph
-                      style={{
-                        marginBottom: 0,
+                        margin: '12px 0 8px -2px',
                         display: 'flex',
-                        gap: 4,
+                        gap: 8,
                         alignItems: 'center',
-                        fontSize: '12px',
-                        background:
-                          task.status !== TaskStatus.COMPLETED
-                            ? dayjs().isAfter(task.end_date)
-                              ? '#d32029'
-                              : dayjs(task.end_date).isSame(dayjs().add(1, 'day'), 'day')
-                                ? 'rgb(255, 191, 0)'
-                                : 'transparent'
-                            : 'transparent',
-                        padding: '2px 4px',
-                        borderRadius: '4px',
-                        color: dayjs().isAfter(task.end_date) && task.status !== TaskStatus.COMPLETED ? 'rgb(255 174 167)' : 'inherit',
                       }}
                     >
-                      <Clock size={14} />
-                      {dayjs(task.end_date).format('MMM DD')}
-                    </Paragraph>
-                  )}
-                  {task.comments > 0 ? (
-                    <Paragraph
-                      style={{
-                        marginBottom: 0,
-                        display: 'flex',
-                        gap: 4,
-                        alignItems: 'center',
-                        fontSize: '12px',
-                      }}
-                    >
-                      <MessageSquare size={14} />
-                      {task.comments}
-                    </Paragraph>
-                  ) : null}
-                  {task.attachment.length > 0 ? (
-                    <Paragraph
-                      style={{
-                        marginBottom: 0,
-                        display: 'flex',
-                        gap: 4,
-                        alignItems: 'center',
-                        fontSize: '12px',
-                      }}
-                    >
-                      <Paperclip size={14} />
-                      {task.attachment.length}
-                    </Paragraph>
-                  ) : null}
-                  {task.priority === Priority.LOW ? (
-                    <ChevronDown style={{ color: '#33cf40' }} />
-                  ) : task.priority === Priority.MEDIUM ? (
-                    <Equal style={{ color: '#404dff' }} />
-                  ) : task.priority === Priority.HIGH ? (
-                    <ChevronUp style={{ color: '#ffac40' }} />
-                  ) : (
-                    <ChevronsUp style={{ color: '#ff4040' }} />
+                      {task.end_date && (
+                        <Paragraph
+                          style={{
+                            marginBottom: 0,
+                            display: 'flex',
+                            gap: 4,
+                            alignItems: 'center',
+                            fontSize: '12px',
+                            background:
+                              task.status !== TaskStatus.COMPLETED
+                                ? dayjs().isAfter(task.end_date)
+                                  ? '#d32029'
+                                  : dayjs(task.end_date).isSame(dayjs().add(1, 'day'), 'day')
+                                    ? 'rgb(255, 191, 0)'
+                                    : 'transparent'
+                                : 'transparent',
+                            padding: '2px 4px',
+                            borderRadius: '4px',
+                            color: dayjs().isAfter(task.end_date) && task.status !== TaskStatus.COMPLETED ? 'rgb(255 174 167)' : 'inherit',
+                          }}
+                        >
+                          <Clock size={14} />
+                          {dayjs(task.end_date).format('MMM DD')}
+                        </Paragraph>
+                      )}
+                      {task.comments > 0 ? (
+                        <Paragraph
+                          style={{
+                            marginBottom: 0,
+                            display: 'flex',
+                            gap: 4,
+                            alignItems: 'center',
+                            fontSize: '12px',
+                          }}
+                        >
+                          <MessageSquare size={14} />
+                          {task.comments}
+                        </Paragraph>
+                      ) : null}
+                      {task.attachment.length > 0 ? (
+                        <Paragraph
+                          style={{
+                            marginBottom: 0,
+                            display: 'flex',
+                            gap: 4,
+                            alignItems: 'center',
+                            fontSize: '12px',
+                          }}
+                        >
+                          <Paperclip size={14} />
+                          {task.attachment.length}
+                        </Paragraph>
+                      ) : null}
+                      {task.priority === Priority.LOW ? (
+                        <ChevronDown style={{ color: '#33cf40' }} />
+                      ) : task.priority === Priority.MEDIUM ? (
+                        <Equal style={{ color: '#404dff' }} />
+                      ) : task.priority === Priority.HIGH ? (
+                        <ChevronUp style={{ color: '#ffac40' }} />
+                      ) : (
+                        <ChevronsUp style={{ color: '#ff4040' }} />
+                      )}
+                    </div>
+                  </div>
+                  <Button
+                    type="text"
+                    size="small"
+                    style={{ marginLeft: 0 }}
+                    danger
+                    icon={<Trash2 size={16} />}
+                    onClick={(e) => handleDeleteTask(e, task._id)}
+                  />
+                  {task.assigned_to && (
+                    <Avatar className="assign-member-avatar" style={{ background: getRandomColor(task.assigned_to._id) }}>
+                      {task.assigned_to?.first_name?.[0]?.toUpperCase()}
+                      {task.assigned_to?.last_name?.[0]?.toUpperCase()}
+                    </Avatar>
                   )}
                 </div>
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    width: "100%",
+                    paddingTop: 8,
+                    borderTop: "1px solid #F0F0F0",
+                  }}
+                >
+                  <Space size="large">
+                    <div>
+                      <Text type="secondary" style={{ display: "block", fontSize: 12 }}>
+                        Estimated
+                      </Text>
+                      <Text strong style={{ fontSize: 16 }}>
+                        {task.estimated_hours ?? 0}:{task.estimated_minutes ?? 0}
+                      </Text>
+                    </div>
+                    <div>
+                      <Text type="secondary" style={{ display: "block", fontSize: 12 }}>
+                        Tracked
+                      </Text>
+                      <TaskTimer 
+                        isTimerActive={task.is_timer_active} 
+                        actualTimeSpent={task.actual_time_spent}
+                        startTime={task.timer_start_time}
+                      />
+                    </div>
+                  </Space>
+                  <Tooltip title="Copy task link">
+                    <Button
+                      shape="circle"
+                      className="copy-icon-btn"
+                      style={{ background: "transparent", border: "none", padding: 0 }}
+                      icon={<Files size={16} className="copy-icon" />}
+                    />
+                  </Tooltip>
+                </div>
               </div>
-              <Button
-                type="text"
-                size="small"
-                style={{ marginLeft: 0 }}
-                danger
-                icon={<Trash2 size={16} />}
-                onClick={(e) => handleDeleteTask(e, task._id)}
-              />
-              {task.assigned_to && (
-                <Avatar className="assign-member-avatar" style={{ background: getRandomColor(task.assigned_to._id) }}>
-                  {task.assigned_to?.first_name?.[0]?.toUpperCase()}
-                  {task.assigned_to?.last_name?.[0]?.toUpperCase()}
-                </Avatar>
-              )}
-            </div>
-          </Card>
-        </div>
-      )}
-    </Draggable>
-  );
+            </Card>
+          </div>
+        )}
+      </Draggable>
+    )
+  };
 
   return (
     <>
@@ -799,6 +849,20 @@ const BoardDetail: React.FC = () => {
             </Popover>
             <Avatar.Group max={{ count: 3 }}>
               {invitedMemberList?.map((member) => {
+                const boardActivityClick = () => {
+                  const activity = userActivity.activities[0];
+                  const sameData =
+                    userActivity.activities.length &&
+                    activity.created_by._id === member.memberId._id &&
+                    activity.board._id === id;
+                  if (!sameData) {
+                    dispatch(clearUserActivity());
+                    dispatch(fetchUserActivity({ userId: member.memberId._id, boardId: id ?? '', page: 1 }));
+                  }
+                  setOpenUserMenu('');
+                  setMemberId(member.memberId._id)
+                  setOpenUserActivity(true);
+                }
                 return (
                   <Popover
                     trigger="click"
@@ -851,11 +915,7 @@ const BoardDetail: React.FC = () => {
                           padding: '0 12px 12px 12px',
                           cursor: 'pointer',
                         }}
-                        onClick={() => {
-                          dispatch(userActivity({ userId: member.memberId._id, boardId: id ?? '' }));
-                          setOpenUserMenu('');
-                          setOpenUserActivity(true);
-                        }}
+                        onClick={boardActivityClick}
                       >
                         View member's board activity
                       </div>
@@ -1324,7 +1384,17 @@ const BoardDetail: React.FC = () => {
 
       <InviteBoard isOpen={showInviteModal} onClose={() => setShowInviteModal(false)} />
 
-      <UserActivityModal open={openUserActivity} onClose={() => setOpenUserActivity(false)} />
+      <UserActivityModal 
+        open={openUserActivity} 
+        onClose={() => setOpenUserActivity(false)} 
+        onNextPageLoad={() => {
+          dispatch(fetchUserActivity({
+            userId: memberId,
+            boardId: id ?? '',
+            page: (userActivity?.pagination?.currentPage ?? 0) + 1
+          }));
+        }}
+      />
     </>
   );
 };

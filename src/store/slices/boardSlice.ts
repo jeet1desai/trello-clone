@@ -697,7 +697,7 @@ export const toggleFavorite = createAsyncThunk(
   ) => {
     try {
       const response = await boardService.toggleFavorite(boardId, isFavorite);
-      return response;
+      return response.data;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message ?? 'Error while favourite board.');
     }

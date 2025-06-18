@@ -31,7 +31,7 @@ import {
   removeAssignMemberTask,
   removeLabelToTask,
   stopTimer,
-  stratTimer,
+  startTimer,
   unassignMember,
   unassignTaskMember,
   updateAttachmentCount,
@@ -394,10 +394,15 @@ const TaskModal: React.FC<TaskModalProps> = ({ boardId, taskId, visible, onClose
     return dur.format('HH:mm:ss');
   };
 
-  const handleStart = () => {
-    if (!isTracking && totalSeconds > Math.floor(selectedTask?.actual_time_spent ?? 0)) {
-      setIsTracking(true);
-      dispatch(stratTimer({ taskId: selectedTask?._id ?? '' }));
+  const handleStart = async () => {
+    if (
+      !isTracking &&
+      totalSeconds > Math.floor(selectedTask?.actual_time_spent ?? 0)
+    ) {
+      const start = await dispatch(startTimer({ taskId: selectedTask?._id ?? "" }));
+      if (start.meta?.requestStatus === 'fulfilled') {
+        setIsTracking(true);
+      }
     }
   };
 

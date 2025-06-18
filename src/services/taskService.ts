@@ -77,7 +77,7 @@ export const taskService = {
     return response.data;
   },
 
-  async stratTimer(taskId: string) {
+  async startTimer(taskId: string) {
     const response = await axiosInstance.put(`/task/start-timer/${taskId}`);
     return response.data;
   },

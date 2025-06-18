@@ -173,6 +173,25 @@ const Workspaces: React.FC = () => {
       },
     ];
 
+    const clickFavourite = async (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+    e.stopPropagation();
+    const result = await dispatch(
+      toggleFavorite({
+        workspaceId: workspace._id,
+        isFavorite: !workspace.isFavorite,
+      })
+    );
+    if (result.meta?.requestStatus === "fulfilled") {
+      await dispatch(
+        getAllWorkspaces({
+          page: 1,
+          search: searchText,
+          sortType: sortOption,
+        })
+      );
+    }
+  }
+
     return (
       <div style={{ position: 'relative' }}>
         <Card
@@ -220,15 +239,7 @@ const Workspaces: React.FC = () => {
               {workspace.createdBy._id === currentUser?.id ? (
                 <div
                   className="workspace-card-actions"
-                  onClick={(e) => {
-                    dispatch(
-                      toggleFavorite({
-                        workspaceId: workspace._id,
-                        isFavorite: !workspace.isFavorite,
-                      })
-                    );
-                    e.stopPropagation();
-                  }}
+                  onClick={clickFavourite}
                   style={{ display: 'flex', gap: '8px', alignItems: 'center' }}
                 >
                   <div

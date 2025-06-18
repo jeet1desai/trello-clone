@@ -630,7 +630,7 @@
 .assign-member-avatar {
   position: absolute;
   right: 12px;
-  bottom: 8px;
+  bottom: 68px;
   width: 30px;
   height: 30px;
 }
@@ -1095,4 +1095,13 @@
 .task-title-link {
   color: var(--primary-color-hover);
   cursor: pointer;
+}
+
+.copy-icon {
+  color: rgba(0, 0, 0, 0.3); /* Light color */
+  transition: color 0.3s ease;
+}
+
+.copy-icon-btn:hover .copy-icon {
+  color: rgba(0, 0, 0, 0.85); /* Darker on hover */
 }

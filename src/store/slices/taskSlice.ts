@@ -237,10 +237,27 @@ export const addEstimatedTime = createAsyncThunk(
       hours: number;
       minutes: number;
     },
-    { rejectWithValue }
+    { rejectWithValue, dispatch, getState }
   ) => {
     try {
       const response = await taskService.addEstimatedTime(taskId, hours, minutes);
+      // Access the Redux state using getState()
+      const state = getState() as { task: TaskState };
+      const selectedTask = state.task.selectedTask;
+      const statusId = selectedTask && typeof selectedTask.status_list_id === 'object'
+        ? selectedTask.status_list_id._id
+        : selectedTask?.status_list_id;
+
+      if (statusId) {
+        dispatch(
+          taskSlice.actions.timerCount({
+            task_id: taskId,
+            status_list_id: statusId,
+            hours,
+            minutes,
+          })
+        );
+      }
       return response.data;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message ?? 'Error while assigning member.');
@@ -248,23 +265,66 @@ export const addEstimatedTime = createAsyncThunk(
   }
 );
 
-export const stratTimer = createAsyncThunk('timer/start-timer', async ({ taskId }: { taskId: string }, { rejectWithValue }) => {
+export const startTimer = createAsyncThunk('timer/start-timer', async ({ taskId }: { taskId: string }, { rejectWithValue, dispatch, getState }) => {
   try {
-    const response = await taskService.stratTimer(taskId);
-    return response.data;
-  } catch (error: any) {
-    return rejectWithValue(error.response?.data?.message ?? 'Error while start timer.');
-  }
-});
+    const response = await taskService.startTimer(taskId);
+      // Access the Redux state using getState()
+      const state = getState() as { task: TaskState };
+      const selectedTask = state.task.selectedTask;
+      const statusId = selectedTask && typeof selectedTask.status_list_id === 'object'
+        ? selectedTask.status_list_id._id
+        : selectedTask?.status_list_id;
 
-export const stopTimer = createAsyncThunk('timer/stop-timer', async ({ taskId }: { taskId: string }, { rejectWithValue }) => {
+      if (statusId) {
+        dispatch(
+          taskSlice.actions.timerCount({
+            task_id: taskId,
+            status_list_id: statusId,
+            is_timer_active: true,
+            startTime: response.data.startTime,
+          })
+        );
+      }
+      return response.data;
+    } catch (error: any) {
+      const message = error.response?.data?.message ?? "Error while start timer.";
+      if (message.includes("You already have an active timer running.")) {
+        const link = `${window.location}?task_id=${error.response?.data?.data?.taskId}`;
+        return rejectWithValue(`${message}\nLink: ${link}`);
+      }
+      return rejectWithValue(message);
+    }
+  }
+);
+
+export const stopTimer = createAsyncThunk('timer/stop-timer', async ({ taskId }: { taskId: string }, { rejectWithValue, getState, dispatch}) => {
   try {
     const response = await taskService.stopTimer(taskId);
-    return response.data;
-  } catch (error: any) {
-    return rejectWithValue(error.response?.data?.message ?? 'Error while stop timer.');
+      // Access the Redux state using getState()
+      const state = getState() as { task: TaskState };
+      const selectedTask = state.task.selectedTask;
+      const statusId = selectedTask && typeof selectedTask.status_list_id === 'object'
+        ? selectedTask.status_list_id._id
+        : selectedTask?.status_list_id;
+
+      if (statusId) {
+        dispatch(
+          taskSlice.actions.timerCount({
+            task_id: taskId,
+            status_list_id: statusId,
+            is_timer_active: false,
+            actualTimeSpent: response.data.totalTimeSpent,
+          })
+        );
+      }
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message ?? "Error while stop timer."
+      );
+    }
   }
-});
+);
 
 const taskSlice = createSlice({
   name: 'task',
@@ -591,6 +651,23 @@ const taskSlice = createSlice({
         task.attachment = attachment;
       }
     },
+    timerCount: (state, action) => {
+      const { task_id, status_list_id, is_timer_active, startTime, actualTimeSpent, hours, minutes } = action.payload;
+      const task = state.tasksByStatus[status_list_id]?.find(
+        (t) => t._id == task_id
+      );
+      if (task) {
+        task.is_timer_active = is_timer_active;
+        task.actual_time_spent = actualTimeSpent ? actualTimeSpent : task.actual_time_spent;
+        if (startTime) {
+          task.timer_start_time = startTime ? startTime : null;
+        }
+        if (hours && minutes) {
+          task.estimated_hours = hours;
+          task.estimated_minutes = minutes;
+        }
+      }
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -784,12 +861,12 @@ const taskSlice = createSlice({
       })
 
       // start timer into task
-      .addCase(stratTimer.pending, (state) => {
+      .addCase(startTimer.pending, (state) => {
         state.loading = true;
         state.error = null;
         state.success = null;
       })
-      .addCase(stratTimer.fulfilled, (state, action) => {
+      .addCase(startTimer.fulfilled, (state, action) => {
         state.selectedTask = {
           ...state.selectedTask,
           total_estimated_time: action.payload.totalEstimatedTime,
@@ -799,7 +876,7 @@ const taskSlice = createSlice({
         state.loading = false;
         state.error = null;
       })
-      .addCase(stratTimer.rejected, (state, action) => {
+      .addCase(startTimer.rejected, (state, action) => {
         state.loading = false;
         state.success = null;
         state.error = (action.payload as string) || 'Error while starting timer.';
@@ -851,6 +928,7 @@ export const {
   updateSocketTask,
   updateCommentCount,
   updateAttachmentCount,
+  timerCount
 } = taskSlice.actions;
 
 export default taskSlice.reducer;
