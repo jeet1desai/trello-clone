@@ -849,6 +849,20 @@ const BoardDetail: React.FC = () => {
             </Popover>
             <Avatar.Group max={{ count: 3 }}>
               {invitedMemberList?.map((member) => {
+                const boardActivityClick = () => {
+                  const activity = userActivity.activities[0];
+                  const sameData =
+                    userActivity.activities.length &&
+                    activity.created_by._id === member.memberId._id &&
+                    activity.board._id === id;
+                  if (!sameData) {
+                    dispatch(clearUserActivity());
+                    dispatch(fetchUserActivity({ userId: member.memberId._id, boardId: id ?? '', page: 1 }));
+                  }
+                  setOpenUserMenu('');
+                  setMemberId(member.memberId._id)
+                  setOpenUserActivity(true);
+                }
                 return (
                   <Popover
                     trigger="click"
@@ -901,20 +915,7 @@ const BoardDetail: React.FC = () => {
                           padding: '0 12px 12px 12px',
                           cursor: 'pointer',
                         }}
-                        onClick={() => {
-                          const activity = userActivity.activities[0];
-                          const sameData =
-                            userActivity.activities.length &&
-                            activity.created_by._id === member.memberId._id &&
-                            activity.board._id === id;
-                          if (!sameData) {
-                            dispatch(clearUserActivity());
-                            dispatch(fetchUserActivity({ userId: member.memberId._id, boardId: id ?? '', page: 1 }));
-                          }
-                          setOpenUserMenu('');
-                          setMemberId(member.memberId._id)
-                          setOpenUserActivity(true);
-                        }}
+                        onClick={boardActivityClick}
                       >
                         View member's board activity
                       </div>
