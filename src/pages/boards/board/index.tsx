@@ -7,6 +7,7 @@ import { AppDispatch, RootState } from '../../../store';
 import { generatePath, useNavigate, useParams } from 'react-router';
 import {
   IBoardDetails,
+  duplicateTask,
   getAllLabels,
   getBackground,
   getBoardById,
@@ -521,6 +522,16 @@ const BoardDetail: React.FC = () => {
       return dur.format('HH:mm:ss');
     };
 
+    const copyTask = (e: React.MouseEvent<HTMLButtonElement>) => {
+      e.stopPropagation();
+      dispatch(
+        duplicateTask({
+          _id: task?._id ?? '',
+          title: task?.title ?? '',
+        })
+      )
+    }
+
     const trackedTime = task.is_timer_active
       ? formatTime(0)
       : formatTime(Math.floor(task.actual_time_spent / 1000));
@@ -686,7 +697,8 @@ const BoardDetail: React.FC = () => {
                         Estimated
                       </Text>
                       <Text strong style={{ fontSize: 16 }}>
-                        {task.estimated_hours ?? 0}:{task.estimated_minutes ?? 0}
+                        {(task.estimated_hours ?? 0).toString().padStart(2, '0')}:
+                        {(task.estimated_minutes ?? 0).toString().padStart(2, '0')}
                       </Text>
                     </div>
                     <div>
@@ -703,6 +715,7 @@ const BoardDetail: React.FC = () => {
                   <Tooltip title="Copy task link">
                     <Button
                       shape="circle"
+                      onClick={copyTask}
                       className="copy-icon-btn"
                       style={{ background: "transparent", border: "none", padding: 0 }}
                       icon={<Files size={16} className="copy-icon" />}
