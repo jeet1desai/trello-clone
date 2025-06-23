@@ -28,6 +28,8 @@ export const notificationMiddleware: Middleware<{}, RootState, Dispatch<UnknownA
     const sliceState = fullState[sliceName as keyof RootState];
 
     if (isRejectedWithValue(action)) {
+      if (sliceName.includes('remove-toaster'))
+        return;
       const errorMessage = typeof action.payload === 'string' ? action.payload : (sliceState?.error ?? 'Something went wrong.');
 
       openNotification({
