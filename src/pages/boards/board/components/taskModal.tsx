@@ -406,15 +406,17 @@ const TaskModal: React.FC<TaskModalProps> = ({ boardId, taskId, visible, onClose
     }
   };
 
-  const handlePause = () => {
-    if (timerRef.current) clearInterval(timerRef.current);
-    setIsTracking(false);
-    setElapsedSeconds((prev) => {
-      const actualTime = Math.floor((selectedTask?.actual_time_spent ?? 0) / 1000);
-      return actualTime > prev ? actualTime : prev;
-    });
-    justPausedRef.current = true;
-    dispatch(stopTimer({ taskId: selectedTask?._id ?? '' }));
+  const handlePause = async () => {
+    const stop = await dispatch(stopTimer({ taskId: selectedTask?._id ?? '' }));
+    if (stop.meta?.requestStatus === 'fulfilled') {
+      setIsTracking(false);
+      if (timerRef.current) clearInterval(timerRef.current);
+      setElapsedSeconds((prev) => {
+        const actualTime = Math.floor((selectedTask?.actual_time_spent ?? 0) / 1000);
+        return actualTime > prev ? actualTime : prev;
+      });
+      justPausedRef.current = true;
+    }
   };
 
   const handleSubmitTime = async (hours = assignedHours, minutes = assignedMinutes) => {
