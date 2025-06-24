@@ -176,7 +176,7 @@ export const getUpcomingTasks = createAsyncThunk('dashboard/upcoming-tasks', asy
   }
 });
 
-export const getDashboardState = createAsyncThunk('dashboard/state', async (payload: { boardId?: string } = {}, { rejectWithValue }) => {
+export const getDashboardState = createAsyncThunk('remove-toaster/dashboard', async (payload: { boardId?: string } = {}, { rejectWithValue }) => {
   try {
     const response = await dashboardService.getDashboardState(payload.boardId);
     return response.data;
@@ -305,7 +305,7 @@ const dashboardSlice = createSlice({
         state.dashboardState = action.payload;
         state.loading = false;
         state.error = null;
-        state.success = 'Upcoming tasks fetched successfully.';
+        state.success = 'Dashboard overview fetched successfully.';
       })
       .addCase(getDashboardState.rejected, (state, action) => {
         state.loading = false;

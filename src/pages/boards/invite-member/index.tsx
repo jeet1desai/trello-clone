@@ -13,7 +13,7 @@ import socketService from '../../../services/socketService';
 const { Title, Text, Link } = Typography;
 
 const InviteMemberPage: React.FC = () => {
-  const { id, userId } = useParams<{ id: string; userId: string }>();
+  const { id } = useParams<{ id: string;}>();
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
 
@@ -93,7 +93,6 @@ const InviteMemberPage: React.FC = () => {
             If you don't have an account, you can <Link onClick={handleRegister}>register here</Link>
           </Text>
 
-          {currentUser?.id === userId ? (
             <Space
               style={{
                 width: '100%',
@@ -118,9 +117,6 @@ const InviteMemberPage: React.FC = () => {
                 Reject
               </Button>
             </Space>
-          ) : (
-            <Text style={{ color: 'red', fontWeight: 'bold', fontSize: '18px' }}>You do not have permission to perform this action</Text>
-          )}
         </Space>
       </div>
     </div>
