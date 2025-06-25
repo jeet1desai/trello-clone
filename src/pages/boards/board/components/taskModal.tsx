@@ -466,11 +466,7 @@ const TaskModal: React.FC<TaskModalProps> = ({ boardId, taskId, visible, onClose
         if (justPausedRef.current) {
           justPausedRef.current = false;
         } else {
-          if (actualTimeSpent > totalSeconds) {
-            setElapsedSeconds(totalSeconds);
-          } else {
-            setElapsedSeconds(actualTimeSpent);
-          }
+          setElapsedSeconds(actualTimeSpent);
         }
       }
     }
@@ -498,7 +494,7 @@ const TaskModal: React.FC<TaskModalProps> = ({ boardId, taskId, visible, onClose
     };
   }, []);
 
-  const minuteOptions = [0, 15, 30, 45];
+  const minuteOptions = [0,31, 15, 30, 45];
 
   useEffect(() => {
     const handler = setTimeout(() => {
