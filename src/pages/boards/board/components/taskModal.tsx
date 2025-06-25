@@ -37,7 +37,7 @@ import {
   updateAttachmentCount,
   updateCommentCount,
   updateTask,
-  recurringTask
+  recurringTask,
 } from '../../../../store/slices/taskSlice';
 import { Priority, TaskStatus, TaskTimerStatus, Duration, TaskType } from '../../../../utils/enums/task';
 import Search from 'antd/es/transfer/search';
@@ -236,20 +236,8 @@ const PrioritySelect = ({ value, onChange }: { value: Priority; onChange: (val: 
   </Select>
 );
 
-const StoryTypeSelect = ({
-  value,
-  onChange,
-}: {
-  value: TaskType;
-  onChange: (val: TaskType) => void;
-}) => (
-  <Select
-    placeholder="Select Task Type"
-    value={value}
-    onChange={(val) => onChange(val as TaskType)}
-    style={{ width: 110 }}
-    optionLabelProp="label"
-  >
+const StoryTypeSelect = ({ value, onChange }: { value: TaskType; onChange: (val: TaskType) => void }) => (
+  <Select placeholder="Select Task Type" value={value} onChange={(val) => onChange(val as TaskType)} style={{ width: 110 }} optionLabelProp="label">
     {Object.values(TaskType).map((taskType) => (
       <Option key={taskType} value={taskType} label={taskType}>
         <div>{taskType}</div>
@@ -398,11 +386,8 @@ const TaskModal: React.FC<TaskModalProps> = ({ boardId, taskId, visible, onClose
   };
 
   const handleStart = async () => {
-    if (
-      !isTracking &&
-      totalSeconds > Math.floor(selectedTask?.actual_time_spent ?? 0)
-    ) {
-      const start = await dispatch(startTimer({ taskId: selectedTask?._id ?? "" }));
+    if (!isTracking && totalSeconds > Math.floor(selectedTask?.actual_time_spent ?? 0)) {
+      const start = await dispatch(startTimer({ taskId: selectedTask?._id ?? '' }));
       if (start.meta?.requestStatus === 'fulfilled') {
         setIsTracking(true);
       }
@@ -611,27 +596,27 @@ const TaskModal: React.FC<TaskModalProps> = ({ boardId, taskId, visible, onClose
     }
   };
 
-const handleCreate = () => {
-  if (!dateRange || !dateRange[0] || !dateRange[1]) {
-    setDateError(true);
-    return;
-  }
-  setDateError(false);
+  const handleCreate = () => {
+    if (!dateRange || !dateRange[0] || !dateRange[1]) {
+      setDateError(true);
+      return;
+    }
+    setDateError(false);
 
-  if (selectedTask) {
-    const formattedStartDate = dayjs(dateRange[0]).format('YYYY-MM-DD');
-    const formattedEndDate = dayjs(dateRange[1]).format('YYYY-MM-DD');
-    dispatch(
-      recurringTask({
-        taskId: selectedTask._id,
-        repeat_type: recurrence,
-        start_date: formattedStartDate,
-        end_date: formattedEndDate,
-      })
-    );
-  }
-  setIsModalVisible(false);
-};
+    if (selectedTask) {
+      const formattedStartDate = dayjs(dateRange[0]).format('YYYY-MM-DD');
+      const formattedEndDate = dayjs(dateRange[1]).format('YYYY-MM-DD');
+      dispatch(
+        recurringTask({
+          taskId: selectedTask._id,
+          repeat_type: recurrence,
+          start_date: formattedStartDate,
+          end_date: formattedEndDate,
+        })
+      );
+    }
+    setIsModalVisible(false);
+  };
 
   const handleUnassignMember = () => {
     if (selectedTask) {
@@ -1102,7 +1087,7 @@ const handleCreate = () => {
     dispatch(updateTask({ taskId: selectedTask?._id ?? '', priority: value }));
   };
 
-   const setSelectTaskType = (value: TaskType) => {
+  const setSelectTaskType = (value: TaskType) => {
     dispatch(updateTask({ taskId: selectedTask?._id ?? '', task_type: value }));
   };
 
@@ -1156,22 +1141,20 @@ const handleCreate = () => {
               }}
             />
           ) : (
-              <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  margin: '8px',
-                  cursor: 'pointer',
-                }}
-                onClick={() => setIsEditTitle(true)}
-              >
-                <Text strong style={{ fontSize: '16px' }}>
-                  {selectedTask?.title}
-                </Text>
-                {selectedTask?.task_type === 'Bug' && (
-                  <Bug style={{ height: '16px', width: '16px', marginLeft: '8px' }} />
-                )}
-              </div>
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                margin: '8px',
+                cursor: 'pointer',
+              }}
+              onClick={() => setIsEditTitle(true)}
+            >
+              <Text strong style={{ fontSize: '16px' }}>
+                {selectedTask?.title}
+              </Text>
+              {selectedTask?.task_type === 'Bug' && <Bug style={{ height: '16px', width: '16px', marginLeft: '8px' }} />}
+            </div>
           )}
         </div>
         <Row>

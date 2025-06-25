@@ -108,7 +108,7 @@ const initialState: UserState = {
       totalPages: 0,
       totalRecords: 0,
       limit: 0,
-    }
+    },
   },
 };
 
@@ -212,8 +212,8 @@ export const firebaseSocialLogin = createAsyncThunk(
 );
 
 export const userActivity = createAsyncThunk(
-  "auth/user-activity",
-  async ({ userId, boardId, page }: { userId: string, boardId: string, page: number }, { rejectWithValue }) => {
+  'auth/user-activity',
+  async ({ userId, boardId, page }: { userId: string; boardId: string; page: number }, { rejectWithValue }) => {
     try {
       const response = await authService.userActivity(userId, boardId, page);
       return response.data;
@@ -257,9 +257,9 @@ const userSlice = createSlice({
           totalPages: 0,
           limit: 0,
           totalRecords: 0,
-        }
+        },
       };
-    }
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -444,10 +444,7 @@ const userSlice = createSlice({
         if (!state.userActivity || state.userActivity.activities.length === 0) {
           state.userActivity = action.payload;
         } else {
-          state.userActivity.activities = [
-            ...state.userActivity.activities,
-            ...newActivities
-          ];
+          state.userActivity.activities = [...state.userActivity.activities, ...newActivities];
           state.userActivity.pagination = action.payload.pagination;
         }
         state.loading = false;

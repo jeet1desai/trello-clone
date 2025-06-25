@@ -194,7 +194,7 @@ const Boards: React.FC = () => {
           isFavorite: !board.isFavorite,
         })
       );
-      if (result.meta?.requestStatus === "fulfilled") {
+      if (result.meta?.requestStatus === 'fulfilled') {
         await dispatch(
           getAllBoards({
             page: 1,
@@ -203,7 +203,7 @@ const Boards: React.FC = () => {
           })
         );
       }
-    }
+    };
 
     return (
       <Card

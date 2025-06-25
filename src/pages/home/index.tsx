@@ -5,8 +5,8 @@ import '../../layout/styles/home.css';
 import { PUBLIC_ROUTE } from '../../utils/enums/route';
 import { partnerLogos, teamAvatars, integrationLogos, landingPageBackground } from '../../assets';
 import { ArrowRight, LayoutDashboard, Split, Zap } from 'lucide-react';
-import CountUp from "react-countup";
-import { useInView } from "react-intersection-observer";
+import CountUp from 'react-countup';
+import { useInView } from 'react-intersection-observer';
 
 const { Title, Paragraph, Text } = Typography;
 
@@ -174,7 +174,7 @@ const Home: React.FC = () => {
           <Col xs={24} sm={8}>
             <div className="stat-items">
               <Title level={2} className="stat-number">
-                {inView ? <CountUp key={inView.toString() + "-year"} end={2025} duration={2} /> : "0"}
+                {inView ? <CountUp key={inView.toString() + '-year'} end={2025} duration={2} /> : '0'}
               </Title>
               <Text className="stat-label">Year of Introduction</Text>
             </div>
@@ -182,7 +182,7 @@ const Home: React.FC = () => {
           <Col xs={24} sm={8}>
             <div className="stat-items">
               <Title level={2} className="stat-number">
-                {inView ? <CountUp key={inView.toString() + "-users"} end={15} duration={2} suffix="+" /> : "0"}
+                {inView ? <CountUp key={inView.toString() + '-users'} end={15} duration={2} suffix="+" /> : '0'}
               </Title>
               <Text className="stat-label">Active Users</Text>
             </div>
@@ -190,7 +190,7 @@ const Home: React.FC = () => {
           <Col xs={24} sm={8}>
             <div className="stat-items">
               <Title level={2} className="stat-number">
-                {inView ? <CountUp key={inView.toString() + "-partners"} end={1} duration={2} suffix="+" /> : "0"}
+                {inView ? <CountUp key={inView.toString() + '-partners'} end={1} duration={2} suffix="+" /> : '0'}
               </Title>
               <Text className="stat-label">Company Partners</Text>
             </div>

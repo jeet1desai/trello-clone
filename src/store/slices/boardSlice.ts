@@ -1436,9 +1436,9 @@ const boardSlice = createSlice({
         state.boards = state.boards?.map((item) =>
           item._id === action.payload.data.boardId
             ? {
-              ...item,
-              isFavorite: action.payload.data.isFavorite,
-            }
+                ...item,
+                isFavorite: action.payload.data.isFavorite,
+              }
             : item
         );
         state.loading = false;

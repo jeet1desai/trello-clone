@@ -78,7 +78,7 @@ import BoardFilter from './components/boardFilter';
 import ChangeBackgroundPopover from './components/ChangeBackgroundModal';
 import TaskMenu from './components/taskMenu';
 import { PRIVATE_ROUTE } from '../../../utils/enums/route';
-import { clearUserActivity, userActivity  as fetchUserActivity } from '../../../store/slices/userSlice';
+import { clearUserActivity, userActivity as fetchUserActivity } from '../../../store/slices/userSlice';
 import UserActivityModal from '../../../components/board/UserActivityModal';
 import CsvManager from '../../../components/board/CsvManager';
 import TaskTimer from './components/TaskTimer';
@@ -529,12 +529,10 @@ const BoardDetail: React.FC = () => {
           _id: task?._id ?? '',
           title: task?.title ?? '',
         })
-      )
-    }
+      );
+    };
 
-    const trackedTime = task.is_timer_active
-      ? formatTime(0)
-      : formatTime(Math.floor(task.actual_time_spent / 1000));
+    const trackedTime = task.is_timer_active ? formatTime(0) : formatTime(Math.floor(task.actual_time_spent / 1000));
 
     return (
       <Draggable key={task._id} draggableId={task._id} index={index}>
@@ -683,33 +681,28 @@ const BoardDetail: React.FC = () => {
                 </div>
                 <div
                   style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    width: "100%",
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    width: '100%',
                     paddingTop: 8,
-                    borderTop: "1px solid #F0F0F0",
+                    borderTop: '1px solid #F0F0F0',
                   }}
                 >
                   <Space size="large">
                     <div>
-                      <Text type="secondary" style={{ display: "block", fontSize: 12 }}>
+                      <Text type="secondary" style={{ display: 'block', fontSize: 12 }}>
                         Estimated
                       </Text>
                       <Text strong style={{ fontSize: 16 }}>
-                        {(task.estimated_hours ?? 0).toString().padStart(2, '0')}:
-                        {(task.estimated_minutes ?? 0).toString().padStart(2, '0')}
+                        {(task.estimated_hours ?? 0).toString().padStart(2, '0')}:{(task.estimated_minutes ?? 0).toString().padStart(2, '0')}
                       </Text>
                     </div>
                     <div>
-                      <Text type="secondary" style={{ display: "block", fontSize: 12 }}>
+                      <Text type="secondary" style={{ display: 'block', fontSize: 12 }}>
                         Tracked
                       </Text>
-                      <TaskTimer 
-                        isTimerActive={task.is_timer_active} 
-                        actualTimeSpent={task.actual_time_spent}
-                        startTime={task.timer_start_time}
-                      />
+                      <TaskTimer isTimerActive={task.is_timer_active} actualTimeSpent={task.actual_time_spent} startTime={task.timer_start_time} />
                     </div>
                   </Space>
                   <Tooltip title="Copy task link">
@@ -717,7 +710,7 @@ const BoardDetail: React.FC = () => {
                       shape="circle"
                       onClick={copyTask}
                       className="copy-icon-btn"
-                      style={{ background: "transparent", border: "none", padding: 0 }}
+                      style={{ background: 'transparent', border: 'none', padding: 0 }}
                       icon={<Files size={16} className="copy-icon" />}
                     />
                   </Tooltip>
@@ -727,7 +720,7 @@ const BoardDetail: React.FC = () => {
           </div>
         )}
       </Draggable>
-    )
+    );
   };
 
   return (
@@ -864,18 +857,15 @@ const BoardDetail: React.FC = () => {
               {invitedMemberList?.map((member) => {
                 const boardActivityClick = () => {
                   const activity = userActivity.activities[0];
-                  const sameData =
-                    userActivity.activities.length &&
-                    activity.created_by._id === member.memberId._id &&
-                    activity.board._id === id;
+                  const sameData = userActivity.activities.length && activity.created_by._id === member.memberId._id && activity.board._id === id;
                   if (!sameData) {
                     dispatch(clearUserActivity());
                     dispatch(fetchUserActivity({ userId: member.memberId._id, boardId: id ?? '', page: 1 }));
                   }
                   setOpenUserMenu('');
-                  setMemberId(member.memberId._id)
+                  setMemberId(member.memberId._id);
                   setOpenUserActivity(true);
-                }
+                };
                 return (
                   <Popover
                     trigger="click"
@@ -1397,15 +1387,17 @@ const BoardDetail: React.FC = () => {
 
       <InviteBoard isOpen={showInviteModal} onClose={() => setShowInviteModal(false)} />
 
-      <UserActivityModal 
-        open={openUserActivity} 
-        onClose={() => setOpenUserActivity(false)} 
+      <UserActivityModal
+        open={openUserActivity}
+        onClose={() => setOpenUserActivity(false)}
         onNextPageLoad={() => {
-          dispatch(fetchUserActivity({
-            userId: memberId,
-            boardId: id ?? '',
-            page: (userActivity?.pagination?.currentPage ?? 0) + 1
-          }));
+          dispatch(
+            fetchUserActivity({
+              userId: memberId,
+              boardId: id ?? '',
+              page: (userActivity?.pagination?.currentPage ?? 0) + 1,
+            })
+          );
         }}
       />
     </>

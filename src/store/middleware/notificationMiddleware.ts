@@ -4,16 +4,20 @@ import { openNotification } from '../../services/notificationService';
 import React from 'react';
 
 const createClickableLink = (message: string) => {
-  const parts = message.split("\nLink: ");
+  const parts = message.split('\nLink: ');
   if (parts.length === 2) {
     return React.createElement('div', null, [
       React.createElement('div', null, parts[0]),
-      React.createElement('a', {
-        href: parts[1],
-        target: '_blank',
-        rel: 'noopener noreferrer',
-        style: { color: '#1890ff' }
-      }, parts[1])
+      React.createElement(
+        'a',
+        {
+          href: parts[1],
+          target: '_blank',
+          rel: 'noopener noreferrer',
+          style: { color: '#1890ff' },
+        },
+        parts[1]
+      ),
     ]);
   }
   return message;
@@ -28,14 +32,13 @@ export const notificationMiddleware: Middleware<{}, RootState, Dispatch<UnknownA
     const sliceState = fullState[sliceName as keyof RootState];
 
     if (isRejectedWithValue(action)) {
-      if (sliceName.includes('remove-toaster'))
-        return;
+      if (sliceName.includes('remove-toaster')) return;
       const errorMessage = typeof action.payload === 'string' ? action.payload : (sliceState?.error ?? 'Something went wrong.');
 
       openNotification({
-        type: "error",
+        type: 'error',
         message: createClickableLink(errorMessage),
-        placement: "bottomRight",
+        placement: 'bottomRight',
         duration: 2,
       });
     }

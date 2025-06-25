@@ -25,13 +25,11 @@ const UserActivityModal = ({ open, onClose, onNextPageLoad }: IProps) => {
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
 
-  const navigateToTicket = (boardId: string|undefined, taskId: string|undefined) => {
-    const path = boardId
-      ? generatePath(PRIVATE_ROUTE.BOARD, { id: boardId }) + (taskId ? `?task_id=${taskId}` : "")
-      : "#";
+  const navigateToTicket = (boardId: string | undefined, taskId: string | undefined) => {
+    const path = boardId ? generatePath(PRIVATE_ROUTE.BOARD, { id: boardId }) + (taskId ? `?task_id=${taskId}` : '') : '#';
     navigate(path);
     onClose();
-  }
+  };
 
   return (
     <Modal
@@ -65,14 +63,14 @@ const UserActivityModal = ({ open, onClose, onNextPageLoad }: IProps) => {
           itemLayout="horizontal"
           dataSource={userActivity?.activities || []}
           renderItem={(item) => {
-            const detailsText = (item.details || "")
-              .replace(/^"+|"+$/g, "")                      // Remove leading/trailing quotes
-              .replace(/"([^"]*?)"/g, '$1')                 // Remove internal quotes like "name"
-              .replace(/(\w)"(?=\s)/g, '$1')                // Remove stray trailing quote after a word
-              .replace(/^"\s*"|"\s*"$/, '')                 // Remove entirely empty quoted strings
+            const detailsText = (item.details || '')
+              .replace(/^"+|"+$/g, '') // Remove leading/trailing quotes
+              .replace(/"([^"]*?)"/g, '$1') // Remove internal quotes like "name"
+              .replace(/(\w)"(?=\s)/g, '$1') // Remove stray trailing quote after a word
+              .replace(/^"\s*"|"\s*"$/, '') // Remove entirely empty quoted strings
               .trim();
             return (
-              <List.Item style={{ border: 0, padding: "18px 24px 8px 24px" }}>
+              <List.Item style={{ border: 0, padding: '18px 24px 8px 24px' }}>
                 <List.Item.Meta
                   avatar={
                     <Avatar src={item.created_by.profile_image?.url} style={{ background: getRandomColor(item.created_by._id) }}>
@@ -88,31 +86,26 @@ const UserActivityModal = ({ open, onClose, onNextPageLoad }: IProps) => {
                         </b>
                         &nbsp;
                         {item.details ? (
-                          (item.task?.title && detailsText.includes(item.task.title)) ? (
+                          item.task?.title && detailsText.includes(item.task.title) ? (
                             <>
-                              {
-                                detailsText.split(item.task.title).map((part, idx, arr) => (
-                                  <React.Fragment key={idx}>
-                                    <span>{part}</span>
-                                    {idx < arr.length - 1 && (
-                                      <span className="task-title-link"
-                                        onClick={() => navigateToTicket(item.board?._id, item.task?._id)}
-                                      >
-                                        {item.task?.title}
-                                      </span>
-                                    )}
-                                  </React.Fragment>
-                                ))
-                              }
+                              {detailsText.split(item.task.title).map((part, idx, arr) => (
+                                <React.Fragment key={idx}>
+                                  <span>{part}</span>
+                                  {idx < arr.length - 1 && (
+                                    <span className="task-title-link" onClick={() => navigateToTicket(item.board?._id, item.task?._id)}>
+                                      {item.task?.title}
+                                    </span>
+                                  )}
+                                </React.Fragment>
+                              ))}
                               &nbsp;
                             </>
                           ) : (
                             <>
-                              <span className="task-title-link"
-                                onClick={() => navigateToTicket(item.board?._id, item.task?._id)}
-                              >
-                                {item.task?.title || ""}
-                              </span> {item.details}&nbsp;
+                              <span className="task-title-link" onClick={() => navigateToTicket(item.board?._id, item.task?._id)}>
+                                {item.task?.title || ''}
+                              </span>{' '}
+                              {item.details}&nbsp;
                             </>
                           )
                         ) : null}
@@ -125,25 +118,23 @@ const UserActivityModal = ({ open, onClose, onNextPageLoad }: IProps) => {
                   }
                 />
               </List.Item>
-            )
-          }
-          }
+            );
+          }}
         />
-        {userActivity?.pagination.totalPages > 1 &&
-          userActivity.pagination.currentPage < userActivity.pagination.totalPages && (
-            <Button
-              size="small"
-              className="button small-btn"
-              style={{
-                fontSize: '12px',
-                margin: "15px 0",
-                boxShadow: "none"
-              }}
-              onClick={onNextPageLoad}
-            >
-              Load more activity
-            </Button>
-          )}
+        {userActivity?.pagination.totalPages > 1 && userActivity.pagination.currentPage < userActivity.pagination.totalPages && (
+          <Button
+            size="small"
+            className="button small-btn"
+            style={{
+              fontSize: '12px',
+              margin: '15px 0',
+              boxShadow: 'none',
+            }}
+            onClick={onNextPageLoad}
+          >
+            Load more activity
+          </Button>
+        )}
       </div>
     </Modal>
   );

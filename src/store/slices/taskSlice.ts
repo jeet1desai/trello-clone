@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { taskService } from '../../services/taskService';
-import { Priority, TaskTimerStatus , TaskType} from '../../utils/enums/task';
+import { Priority, TaskTimerStatus, TaskType } from '../../utils/enums/task';
 
 export interface IAttachment {
   imageName: string;
@@ -244,9 +244,8 @@ export const addEstimatedTime = createAsyncThunk(
       // Access the Redux state using getState()
       const state = getState() as { task: TaskState };
       const selectedTask = state.task.selectedTask;
-      const statusId = selectedTask && typeof selectedTask.status_list_id === 'object'
-        ? selectedTask.status_list_id._id
-        : selectedTask?.status_list_id;
+      const statusId =
+        selectedTask && typeof selectedTask.status_list_id === 'object' ? selectedTask.status_list_id._id : selectedTask?.status_list_id;
 
       if (statusId) {
         dispatch(
@@ -268,63 +267,55 @@ export const addEstimatedTime = createAsyncThunk(
 export const startTimer = createAsyncThunk('timer/start-timer', async ({ taskId }: { taskId: string }, { rejectWithValue, dispatch, getState }) => {
   try {
     const response = await taskService.startTimer(taskId);
-      // Access the Redux state using getState()
-      const state = getState() as { task: TaskState };
-      const selectedTask = state.task.selectedTask;
-      const statusId = selectedTask && typeof selectedTask.status_list_id === 'object'
-        ? selectedTask.status_list_id._id
-        : selectedTask?.status_list_id;
+    // Access the Redux state using getState()
+    const state = getState() as { task: TaskState };
+    const selectedTask = state.task.selectedTask;
+    const statusId = selectedTask && typeof selectedTask.status_list_id === 'object' ? selectedTask.status_list_id._id : selectedTask?.status_list_id;
 
-      if (statusId) {
-        dispatch(
-          taskSlice.actions.timerCount({
-            task_id: taskId,
-            status_list_id: statusId,
-            is_timer_active: true,
-            startTime: response.data.startTime,
-          })
-        );
-      }
-      return response.data;
-    } catch (error: any) {
-      const message = error.response?.data?.message ?? "Error while start timer.";
-      if (message.includes("You already have an active timer running.")) {
-        const link = `${window.location}?task_id=${error.response?.data?.data?.taskId}`;
-        return rejectWithValue(`${message}\nLink: ${link}`);
-      }
-      return rejectWithValue(message);
-    }
-  }
-);
-
-export const stopTimer = createAsyncThunk('timer/stop-timer', async ({ taskId }: { taskId: string }, { rejectWithValue, getState, dispatch}) => {
-  try {
-    const response = await taskService.stopTimer(taskId);
-      // Access the Redux state using getState()
-      const state = getState() as { task: TaskState };
-      const selectedTask = state.task.selectedTask;
-      const statusId = selectedTask && typeof selectedTask.status_list_id === 'object'
-        ? selectedTask.status_list_id._id
-        : selectedTask?.status_list_id;
-
-      if (statusId) {
-        dispatch(
-          taskSlice.actions.timerCount({
-            task_id: taskId,
-            status_list_id: statusId,
-            is_timer_active: false,
-            actualTimeSpent: response.data.totalTimeSpent,
-          })
-        );
-      }
-      return response.data;
-    } catch (error: any) {
-      return rejectWithValue(
-        error.response?.data?.message ?? "Error while stop timer."
+    if (statusId) {
+      dispatch(
+        taskSlice.actions.timerCount({
+          task_id: taskId,
+          status_list_id: statusId,
+          is_timer_active: true,
+          startTime: response.data.startTime,
+        })
       );
     }
+    return response.data;
+  } catch (error: any) {
+    const message = error.response?.data?.message ?? 'Error while start timer.';
+    if (message.includes('You already have an active timer running.')) {
+      const link = `${window.location}?task_id=${error.response?.data?.data?.taskId}`;
+      return rejectWithValue(`${message}\nLink: ${link}`);
+    }
+    return rejectWithValue(message);
   }
-);
+});
+
+export const stopTimer = createAsyncThunk('timer/stop-timer', async ({ taskId }: { taskId: string }, { rejectWithValue, getState, dispatch }) => {
+  try {
+    const response = await taskService.stopTimer(taskId);
+    // Access the Redux state using getState()
+    const state = getState() as { task: TaskState };
+    const selectedTask = state.task.selectedTask;
+    const statusId = selectedTask && typeof selectedTask.status_list_id === 'object' ? selectedTask.status_list_id._id : selectedTask?.status_list_id;
+
+    if (statusId) {
+      dispatch(
+        taskSlice.actions.timerCount({
+          task_id: taskId,
+          status_list_id: statusId,
+          is_timer_active: false,
+          actualTimeSpent: response.data.totalTimeSpent,
+        })
+      );
+    }
+    return response.data;
+  } catch (error: any) {
+    return rejectWithValue(error.response?.data?.message ?? 'Error while stop timer.');
+  }
+});
 
 const taskSlice = createSlice({
   name: 'task',
@@ -500,9 +491,9 @@ const taskSlice = createSlice({
       const updatedTasks = state.tasksByStatus[status_list_id].map((task) => {
         return task._id === _id
           ? {
-            ...task,
-            labels: [...task.labels, action.payload.label_id],
-          }
+              ...task,
+              labels: [...task.labels, action.payload.label_id],
+            }
           : task;
       });
       state.tasksByStatus = {
@@ -535,9 +526,9 @@ const taskSlice = createSlice({
           const updatedLabels = task.labels.filter((label) => label._id !== label_id);
           return task._id === task_id
             ? {
-              ...task,
-              labels: updatedLabels,
-            }
+                ...task,
+                labels: updatedLabels,
+              }
             : task;
         });
         state.tasksByStatus = {
@@ -551,9 +542,9 @@ const taskSlice = createSlice({
       const updatedTasks = state.tasksByStatus[status_list_id].map((task) => {
         return task._id === _id
           ? {
-            ...task,
-            attachment: action.payload.attachment,
-          }
+              ...task,
+              attachment: action.payload.attachment,
+            }
           : task;
       });
       state.tasksByStatus = {
@@ -570,9 +561,9 @@ const taskSlice = createSlice({
       const updatedTasks = state.tasksByStatus[status_list_id].map((task) => {
         return task._id === _id
           ? {
-            ...task,
-            comments: task.comments + 1,
-          }
+              ...task,
+              comments: task.comments + 1,
+            }
           : task;
       });
       state.tasksByStatus = {
@@ -586,9 +577,9 @@ const taskSlice = createSlice({
         const updatedTasks = state.tasksByStatus[state.selectedTask.status_list_id._id].map((task) => {
           return task._id === task_id
             ? {
-              ...task,
-              comments: task.comments - 1,
-            }
+                ...task,
+                comments: task.comments - 1,
+              }
             : task;
         });
         state.tasksByStatus = {
@@ -653,9 +644,7 @@ const taskSlice = createSlice({
     },
     timerCount: (state, action) => {
       const { task_id, status_list_id, is_timer_active, startTime, actualTimeSpent, hours, minutes } = action.payload;
-      const task = state.tasksByStatus[status_list_id]?.find(
-        (t) => t._id == task_id
-      );
+      const task = state.tasksByStatus[status_list_id]?.find((t) => t._id == task_id);
       if (task) {
         task.is_timer_active = is_timer_active;
         task.actual_time_spent = actualTimeSpent ? actualTimeSpent : task.actual_time_spent;
@@ -928,7 +917,7 @@ export const {
   updateSocketTask,
   updateCommentCount,
   updateAttachmentCount,
-  timerCount
+  timerCount,
 } = taskSlice.actions;
 
 export default taskSlice.reducer;

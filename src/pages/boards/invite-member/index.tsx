@@ -13,7 +13,7 @@ import socketService from '../../../services/socketService';
 const { Title, Text, Link } = Typography;
 
 const InviteMemberPage: React.FC = () => {
-  const { id } = useParams<{ id: string;}>();
+  const { id } = useParams<{ id: string }>();
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
 
@@ -93,30 +93,30 @@ const InviteMemberPage: React.FC = () => {
             If you don't have an account, you can <Link onClick={handleRegister}>register here</Link>
           </Text>
 
-            <Space
+          <Space
+            style={{
+              width: '100%',
+              justifyContent: 'space-between',
+              marginTop: '20px',
+            }}
+          >
+            <Button type="primary" size="large" onClick={handleAccept} block style={{ marginRight: '8px' }}>
+              Accept
+            </Button>
+            <Button
+              size="large"
+              onClick={handleReject}
+              block
               style={{
-                width: '100%',
-                justifyContent: 'space-between',
-                marginTop: '20px',
+                marginLeft: '8px',
+                background: '#f4f5f7',
+                borderColor: '#f4f5f7',
+                color: '#172b4d',
               }}
             >
-              <Button type="primary" size="large" onClick={handleAccept} block style={{ marginRight: '8px' }}>
-                Accept
-              </Button>
-              <Button
-                size="large"
-                onClick={handleReject}
-                block
-                style={{
-                  marginLeft: '8px',
-                  background: '#f4f5f7',
-                  borderColor: '#f4f5f7',
-                  color: '#172b4d',
-                }}
-              >
-                Reject
-              </Button>
-            </Space>
+              Reject
+            </Button>
+          </Space>
         </Space>
       </div>
     </div>

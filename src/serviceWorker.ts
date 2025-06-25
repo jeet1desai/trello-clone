@@ -15,7 +15,7 @@ export function register(config?: Config) {
       const swUrl = `${process.env.PUBLIC_URL}/service-worker.js`;
 
       registerValidSW(swUrl, config);
-      
+
       // Request notification permission if not already granted
       if ('Notification' in window && Notification.permission !== 'denied') {
         Notification.requestPermission();
@@ -64,28 +64,28 @@ export async function requestPushSubscription(): Promise<PushSubscription | null
   try {
     const registration = await navigator.serviceWorker.ready;
     const existingSubscription = await registration.pushManager.getSubscription();
-    
+
     if (existingSubscription) {
       return existingSubscription;
     }
-    
+
     const response = await fetch('/api/vapid-public-key');
     const vapidPublicKey = await response.text();
-    
+
     const subscription = await registration.pushManager.subscribe({
       userVisibleOnly: true,
-      applicationServerKey: urlBase64ToUint8Array(vapidPublicKey)
+      applicationServerKey: urlBase64ToUint8Array(vapidPublicKey),
     });
-    
+
     // Send subscription to server
     await fetch('/api/push-subscription', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(subscription)
+      body: JSON.stringify(subscription),
     });
-    
+
     return subscription;
   } catch (error) {
     console.error('Error subscribing to push notifications:', error);
