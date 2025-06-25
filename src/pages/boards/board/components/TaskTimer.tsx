@@ -52,4 +52,4 @@ const TaskTimer: React.FC<TaskTimerProps> = ({ isTimerActive, actualTimeSpent, s
   );
 };
 
-export default TaskTimer; 
+export default TaskTimer;

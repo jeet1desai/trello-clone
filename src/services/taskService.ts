@@ -29,7 +29,7 @@ export const taskService = {
     priority?: Priority;
     start_date?: string | null;
     end_date?: string | null;
-    task_type?:string;
+    task_type?: string;
   }) {
     const response = await axiosInstance.put(`/task/update-task`, data);
     return response.data;
@@ -53,12 +53,12 @@ export const taskService = {
     return response.data;
   },
 
-    async recurringTask(taskId: string, repeat_type: string , start_date:string, end_date:string) {
+  async recurringTask(taskId: string, repeat_type: string, start_date: string, end_date: string) {
     const response = await axiosInstance.post(`/task/repeat-task`, {
       taskId,
       repeat_type,
       start_date,
-      end_date
+      end_date,
     });
     return response.data;
   },
