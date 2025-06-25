@@ -54,7 +54,8 @@ import {
   updateTaskComment,
 } from '../../../../store/slices/taskCommentSlice';
 import { RcFile } from 'antd/es/upload';
-import { Input, Loader } from '../../../../components';
+import { Loader } from '../../../../components';
+import { Input } from 'antd';
 import CommentCard from './commentList';
 import { deleteTaskAttachment, getTaskAttachmentById, IAttachment, removeAttachment } from '../../../../store/slices/taskAttachmentSlice';
 import { handleDownload } from '../../../../services/downloadService';
@@ -110,6 +111,7 @@ import { generateText } from '../../../../services/genAiService';
 import { marked } from 'marked';
 import dayjs, { Dayjs } from 'dayjs';
 import duration from 'dayjs/plugin/duration';
+import type { InputRef } from 'antd';
 dayjs.extend(duration);
 
 const { Text } = Typography;
@@ -349,6 +351,7 @@ const TaskModal: React.FC<TaskModalProps> = ({ boardId, taskId, visible, onClose
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const justPausedRef = useRef(false);
+  const inputRef = useRef<InputRef>(null);
 
   const generateDescription = async () => {
     setGenAiLoading(true);
@@ -494,7 +497,7 @@ const TaskModal: React.FC<TaskModalProps> = ({ boardId, taskId, visible, onClose
     };
   }, []);
 
-  const minuteOptions = [0,31, 15, 30, 45];
+  const minuteOptions = [0, 15, 30, 45];
 
   useEffect(() => {
     const handler = setTimeout(() => {
@@ -1068,15 +1071,24 @@ const handleCreate = () => {
   ) => dispatch(updateTaskComment({ taskId: commentId, updateTask }));
 
   useEffect(() => {
-    async function handleClickOutside() {
-      setIsEditTitle(false);
-      if (isEditTitle) {
-        dispatch(
-          updateTask({
-            taskId: selectedTask?._id ?? '',
-            title: taskName,
-          })
-        );
+    function handleClickOutside(e: MouseEvent) {
+      if (
+        inputRef.current &&
+        inputRef.current.input &&
+        !inputRef.current.input.contains(e.target as Node)
+      ) {
+        setTimeout(() => {
+          setIsEditTitle(false);
+          if (taskName) {
+            dispatch(
+              updateTask({
+                taskId: selectedTask?._id ?? '',
+                title: taskName,
+              })
+            );
+          }
+          setTaskName('');
+        }, 200);
       }
     }
 
@@ -1084,7 +1096,7 @@ const handleCreate = () => {
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [dispatch, isEditTitle, selectedTask, taskName]);
+  }, [taskName, selectedTask, dispatch, updateTask]);
 
   const setPriorityValue = (value: Priority) => {
     dispatch(updateTask({ taskId: selectedTask?._id ?? '', priority: value }));
@@ -1105,6 +1117,7 @@ const handleCreate = () => {
           setFileList([]);
           setMsg('');
           setIsEditTitle(false);
+          setTaskName("");
           setShowEditor(false);
           setMemberVisible(false);
           setLabelVisible(false);
@@ -1118,6 +1131,7 @@ const handleCreate = () => {
           <Checkbox checked={isCompleted} onChange={handleChange} prefixCls="status-checkbox" />
           {isEditTitle ? (
             <Input
+              ref={inputRef}
               defaultValue={selectedTask?.title}
               className="form-input"
               style={{
@@ -1131,6 +1145,7 @@ const handleCreate = () => {
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
                   setIsEditTitle(false);
+                  setTaskName("");
                   dispatch(
                     updateTask({
                       taskId: selectedTask?._id ?? '',
