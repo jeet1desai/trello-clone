@@ -1,6 +1,7 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { taskService } from '../../services/taskService';
-import { Priority, TaskTimerStatus, TaskType } from '../../utils/enums/task';
+import { Priority, TaskStatus, TaskTimerStatus, TaskType } from '../../utils/enums/task';
+import { RootState } from '..';
 
 export interface IAttachment {
   imageName: string;
@@ -140,6 +141,37 @@ export const updateTask = createAsyncThunk(
       priority?: Priority;
       end_date?: string | null;
       task_type?: TaskType;
+    },
+    { rejectWithValue, getState, dispatch }
+  ) => {
+    try {
+      const response = await taskService.updateTask(data);
+      
+      const state = getState() as RootState;
+      const statuses = state.status.statusList;
+      const statusList = statuses.find((status) => status._id === data.status_list_id &&  status.name.toLowerCase().includes('complete'));
+      const statusFinal = !!statusList;
+      if (statusFinal) {
+        await dispatch(
+          updateTaskStatusOnly({
+            taskId: data.taskId,
+            status: TaskStatus.COMPLETED,
+          })
+        )
+      }
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message ?? 'Error while updating task.');
+    }
+  }
+);
+
+export const updateTaskStatusOnly = createAsyncThunk(
+  'task/update/status-only',
+  async (
+    data: {
+      taskId: string;
+      status?: string;
     },
     { rejectWithValue }
   ) => {
@@ -714,6 +746,24 @@ const taskSlice = createSlice({
         state.success = 'Task updated successfully.';
       })
       .addCase(updateTask.rejected, (state, action) => {
+        state.loading = false;
+        state.success = null;
+        state.error = (action.payload as string) || 'Error while updating task.';
+      })
+
+      // Update task
+      .addCase(updateTaskStatusOnly.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.success = null;
+      })
+      .addCase(updateTaskStatusOnly.fulfilled, (state, action) => {
+        state.loading = false;
+        state.error = null;
+        state.selectedTask = action.payload;
+        state.success = 'Task updated successfully.';
+      })
+      .addCase(updateTaskStatusOnly.rejected, (state, action) => {
         state.loading = false;
         state.success = null;
         state.error = (action.payload as string) || 'Error while updating task.';

@@ -5,15 +5,17 @@ import { useDispatch } from 'react-redux';
 import { AppDispatch } from '../../../../store';
 import { removeStatusBackground, updateStatus } from '../../../../store/slices/statusSlice';
 import { STATUS_LIST_COLORS } from '../../../../config';
+import '../../../../layout/styles/Board.css';
 
 interface IProps {
   statusId: string;
   activeColor: string;
+  background?: string;
 }
 
 const { Panel } = Collapse;
 
-const TaskMenu = ({ activeColor, statusId }: IProps) => {
+const TaskMenu = ({ activeColor, statusId, background }: IProps) => {
   const [visible, setVisible] = useState(false);
   const [selectedColor, setSelectedColor] = useState<string | null>(activeColor);
   const dispatch = useDispatch<AppDispatch>();
@@ -80,7 +82,7 @@ const TaskMenu = ({ activeColor, statusId }: IProps) => {
       }}
       placement="bottomLeft"
     >
-      <Button type="text" size="small" icon={<Ellipsis size={16} />} />
+      <Button type="text" size="small" className={`button small-btn ${background === "#FFF" ? "btn-shadow" : "btn-none"}`} icon={<Ellipsis size={16} />} />
     </Popover>
   );
 };

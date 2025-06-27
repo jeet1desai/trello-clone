@@ -192,6 +192,7 @@ export interface Analytics {
 export interface AnalyticsUsersList {
   name: string;
   completedTasks: number;
+  totalTasks: number;
   spendHours: number;
   estimatedHours: number;
 }

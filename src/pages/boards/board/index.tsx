@@ -1012,6 +1012,7 @@ const BoardDetail: React.FC = () => {
                                         cursor: 'pointer',
                                         fontWeight: 600,
                                         fontSize: '0.875rem',
+                                        color: list.background !== "#FFF" ? "#333333" : ""
                                       }}
                                       title={list.name}
                                     >
@@ -1031,7 +1032,7 @@ const BoardDetail: React.FC = () => {
                                       onChange={(e) => setNewStatusTitle(e.target.value)}
                                     />
                                   ) : (
-                                    <Text className="text-wrapper" strong>
+                                    <Text className="text-wrapper" style={{color: list.background !== "#FFF" ? "#333333" : ""}} strong>
                                       {list.name} <span className="count-chip">{statusTasks.length}</span>
                                     </Text>
                                   )}
@@ -1039,6 +1040,7 @@ const BoardDetail: React.FC = () => {
                                     <Button
                                       type="text"
                                       size="small"
+                                      className={`button small-btn ${list.background === "#FFF" ? "btn-shadow" : "btn-none"}`}
                                       onClick={() => toggleCollapse(list._id)}
                                       icon={
                                         <div style={{ display: 'flex' }}>
@@ -1079,6 +1081,7 @@ const BoardDetail: React.FC = () => {
                                           <Button
                                             type="text"
                                             size="small"
+                                            className={`button small-btn ${list.background === "#FFF" ? "btn-shadow" : "btn-none"}`}
                                             onClick={() => toggleCollapse(list._id)}
                                             icon={
                                               <div style={{ display: 'flex' }}>
@@ -1095,11 +1098,12 @@ const BoardDetail: React.FC = () => {
                                           <Button
                                             type="text"
                                             size="small"
+                                            className={`button small-btn ${list.background === "#FFF" ? "btn-shadow" : "btn-none"}`}
                                             icon={<Pencil size={16} />}
                                             onClick={() => isOwner() && toggleStatusName(list._id, list.name, true)}
                                           />
-                                          <Button type="text" size="small" icon={<Trash2 size={16} />} onClick={() => handleDelete(list)} />
-                                          <TaskMenu statusId={selectedStatus?._id ?? ''} activeColor={selectedStatus?.background ?? ''} />
+                                          <Button type="text" size="small" className={`button small-btn ${list.background === "#FFF" ? "btn-shadow" : "btn-none"}`} icon={<Trash2 size={16} />} onClick={() => handleDelete(list)} />
+                                          <TaskMenu statusId={selectedStatus?._id ?? ''} background={list.background} activeColor={selectedStatus?.background ?? ''} />
                                         </div>
                                       )
                                     ) : (
@@ -1132,6 +1136,7 @@ const BoardDetail: React.FC = () => {
                                             display: 'none',
                                           },
                                         }}
+                                        className='empty-tasks'
                                         style={{
                                           textAlign: 'center',
                                           margin: '20px 0',
