@@ -158,6 +158,13 @@ export const updateTask = createAsyncThunk(
             status: TaskStatus.COMPLETED,
           })
         )
+      } else {
+        await dispatch(
+          updateTaskStatusOnly({
+            taskId: data.taskId,
+            status: TaskStatus.INCOMPLETE,
+          })
+        )
       }
       return response.data;
     } catch (error: any) {
