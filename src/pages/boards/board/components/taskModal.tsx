@@ -105,6 +105,7 @@ import {
   ScanText,
   Bug,
 } from 'lucide-react';
+import copy from 'copy-to-clipboard';
 import { useLabelSuggestions } from '../../../../hooks/useLabelSuggestions';
 import CommentSummarizer from '../../../../components/board/CommentSummarizer';
 import { generateText } from '../../../../services/genAiService';
@@ -762,12 +763,20 @@ const TaskModal: React.FC<TaskModalProps> = ({ boardId, taskId, visible, onClose
     </div>
   );
 
-  const shareCopiedLink = selectedTask?._id && selectedTask.board_id ? `${window.location}?task_id=${selectedTask._id}` : '';
+  const getShareLink = (taskId?: string, boardId?: string): string => {
+    if (!taskId || !boardId) return '';
+    const url = new URL(window.location.href);
+    url.searchParams.set('task_id', taskId);
+    return url.toString();
+  };
+  const shareCopiedLink = getShareLink(selectedTask?._id, selectedTask?.board_id);
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(shareCopiedLink).then(() => {
-      message.success('Link copied!');
-    });
+    const url = new URL(window.location.href);
+    selectedTask?._id && selectedTask.board_id &&
+      url.searchParams.set('task_id', selectedTask._id);
+    copy(url.toString());
+    message.success('Link copied!');
   };
 
   const shareContent = (

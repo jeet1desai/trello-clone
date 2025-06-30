@@ -72,8 +72,9 @@ import {
   ArrowLeft,
   ArrowRight,
   ChartNoAxesCombined,
-  Files,
+  Link,
 } from 'lucide-react';
+import copy from 'copy-to-clipboard';
 import BoardFilter from './components/boardFilter';
 import ChangeBackgroundPopover from './components/ChangeBackgroundModal';
 import TaskMenu from './components/taskMenu';
@@ -524,10 +525,10 @@ const BoardDetail: React.FC = () => {
 
     const copyTask = (e: React.MouseEvent<HTMLElement>, taskId: string) => {
       e.stopPropagation();
-      const shareCopiedLink = taskId && id ? `${window.location}?task_id=${taskId}` : '';
-      navigator.clipboard.writeText(shareCopiedLink).then(() => {
-        message.success('Link copied!');
-      });
+      const url = new URL(window.location.href);
+      url.searchParams.set('task_id', taskId);
+      copy(url.toString());
+      message.success('Link copied!');
     };
 
     const trackedTime = task.is_timer_active ? formatTime(0) : formatTime(Math.floor(task.actual_time_spent / 1000));
@@ -709,7 +710,7 @@ const BoardDetail: React.FC = () => {
                       onClick={(e)=>copyTask(e, task._id)}
                       className="copy-icon-btn"
                       style={{ background: 'transparent', border: 'none', padding: 0 }}
-                      icon={<Files size={16} className="copy-icon" />}
+                      icon={<Link size={16} className="copy-icon" />}
                     />
                   </Tooltip>
                 </div>
