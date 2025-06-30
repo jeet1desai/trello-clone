@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Typography, Button, Avatar, Space, Card, Tooltip, App, Popover, Empty, Divider, Badge, Dropdown, Table } from 'antd';
+import { Typography, Button, Avatar, Space, Card, Tooltip, App, Popover, Empty, Divider, Badge, Dropdown, Table, message } from 'antd';
 import type { DraggableProvided, DraggableStateSnapshot, DroppableProvided, DropResult } from '@hello-pangea/dnd';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import { useDispatch, useSelector } from 'react-redux';
@@ -72,8 +72,9 @@ import {
   ArrowLeft,
   ArrowRight,
   ChartNoAxesCombined,
-  Files,
+  Link,
 } from 'lucide-react';
+import copy from 'copy-to-clipboard';
 import BoardFilter from './components/boardFilter';
 import ChangeBackgroundPopover from './components/ChangeBackgroundModal';
 import TaskMenu from './components/taskMenu';
@@ -522,14 +523,12 @@ const BoardDetail: React.FC = () => {
       return dur.format('HH:mm:ss');
     };
 
-    const copyTask = (e: React.MouseEvent<HTMLButtonElement>) => {
+    const copyTask = (e: React.MouseEvent<HTMLElement>, taskId: string) => {
       e.stopPropagation();
-      dispatch(
-        duplicateTask({
-          _id: task?._id ?? '',
-          title: task?.title ?? '',
-        })
-      );
+      const url = new URL(window.location.href);
+      url.searchParams.set('task_id', taskId);
+      copy(url.toString());
+      message.success('Link copied!');
     };
 
     const trackedTime = task.is_timer_active ? formatTime(0) : formatTime(Math.floor(task.actual_time_spent / 1000));
@@ -708,10 +707,10 @@ const BoardDetail: React.FC = () => {
                   <Tooltip title="Copy task link">
                     <Button
                       shape="circle"
-                      onClick={copyTask}
+                      onClick={(e)=>copyTask(e, task._id)}
                       className="copy-icon-btn"
                       style={{ background: 'transparent', border: 'none', padding: 0 }}
-                      icon={<Files size={16} className="copy-icon" />}
+                      icon={<Link size={16} className="copy-icon" />}
                     />
                   </Tooltip>
                 </div>
@@ -1012,6 +1011,7 @@ const BoardDetail: React.FC = () => {
                                         cursor: 'pointer',
                                         fontWeight: 600,
                                         fontSize: '0.875rem',
+                                        color: list.background !== "#FFF" ? "#333333" : ""
                                       }}
                                       title={list.name}
                                     >
@@ -1031,7 +1031,7 @@ const BoardDetail: React.FC = () => {
                                       onChange={(e) => setNewStatusTitle(e.target.value)}
                                     />
                                   ) : (
-                                    <Text className="text-wrapper" strong>
+                                    <Text className="text-wrapper" style={{color: list.background !== "#FFF" ? "#333333" : ""}} strong>
                                       {list.name} <span className="count-chip">{statusTasks.length}</span>
                                     </Text>
                                   )}
@@ -1039,6 +1039,7 @@ const BoardDetail: React.FC = () => {
                                     <Button
                                       type="text"
                                       size="small"
+                                      className={`button small-btn ${list.background === "#FFF" ? "btn-shadow" : "btn-none"}`}
                                       onClick={() => toggleCollapse(list._id)}
                                       icon={
                                         <div style={{ display: 'flex' }}>
@@ -1079,6 +1080,7 @@ const BoardDetail: React.FC = () => {
                                           <Button
                                             type="text"
                                             size="small"
+                                            className={`button small-btn ${list.background === "#FFF" ? "btn-shadow" : "btn-none"}`}
                                             onClick={() => toggleCollapse(list._id)}
                                             icon={
                                               <div style={{ display: 'flex' }}>
@@ -1095,11 +1097,12 @@ const BoardDetail: React.FC = () => {
                                           <Button
                                             type="text"
                                             size="small"
+                                            className={`button small-btn ${list.background === "#FFF" ? "btn-shadow" : "btn-none"}`}
                                             icon={<Pencil size={16} />}
                                             onClick={() => isOwner() && toggleStatusName(list._id, list.name, true)}
                                           />
-                                          <Button type="text" size="small" icon={<Trash2 size={16} />} onClick={() => handleDelete(list)} />
-                                          <TaskMenu statusId={selectedStatus?._id ?? ''} activeColor={selectedStatus?.background ?? ''} />
+                                          <Button type="text" size="small" className={`button small-btn ${list.background === "#FFF" ? "btn-shadow" : "btn-none"}`} icon={<Trash2 size={16} />} onClick={() => handleDelete(list)} />
+                                          <TaskMenu statusId={selectedStatus?._id ?? ''} background={list.background} activeColor={selectedStatus?.background ?? ''} />
                                         </div>
                                       )
                                     ) : (
@@ -1132,6 +1135,7 @@ const BoardDetail: React.FC = () => {
                                             display: 'none',
                                           },
                                         }}
+                                        className='empty-tasks'
                                         style={{
                                           textAlign: 'center',
                                           margin: '20px 0',

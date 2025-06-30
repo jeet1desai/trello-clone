@@ -54,7 +54,8 @@ import {
   updateTaskComment,
 } from '../../../../store/slices/taskCommentSlice';
 import { RcFile } from 'antd/es/upload';
-import { Input, Loader } from '../../../../components';
+import { Loader } from '../../../../components';
+import { Input } from 'antd';
 import CommentCard from './commentList';
 import { deleteTaskAttachment, getTaskAttachmentById, IAttachment, removeAttachment } from '../../../../store/slices/taskAttachmentSlice';
 import { handleDownload } from '../../../../services/downloadService';
@@ -104,12 +105,14 @@ import {
   ScanText,
   Bug,
 } from 'lucide-react';
+import copy from 'copy-to-clipboard';
 import { useLabelSuggestions } from '../../../../hooks/useLabelSuggestions';
 import CommentSummarizer from '../../../../components/board/CommentSummarizer';
 import { generateText } from '../../../../services/genAiService';
 import { marked } from 'marked';
 import dayjs, { Dayjs } from 'dayjs';
 import duration from 'dayjs/plugin/duration';
+import type { InputRef } from 'antd';
 dayjs.extend(duration);
 
 const { Text } = Typography;
@@ -337,6 +340,7 @@ const TaskModal: React.FC<TaskModalProps> = ({ boardId, taskId, visible, onClose
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const justPausedRef = useRef(false);
+  const inputRef = useRef<InputRef>(null);
 
   const generateDescription = async () => {
     setGenAiLoading(true);
@@ -391,15 +395,17 @@ const TaskModal: React.FC<TaskModalProps> = ({ boardId, taskId, visible, onClose
     }
   };
 
-  const handlePause = () => {
-    if (timerRef.current) clearInterval(timerRef.current);
-    setIsTracking(false);
-    setElapsedSeconds((prev) => {
-      const actualTime = Math.floor((selectedTask?.actual_time_spent ?? 0) / 1000);
-      return actualTime > prev ? actualTime : prev;
-    });
-    justPausedRef.current = true;
-    dispatch(stopTimer({ taskId: selectedTask?._id ?? '' }));
+  const handlePause = async () => {
+    const stop = await dispatch(stopTimer({ taskId: selectedTask?._id ?? '' }));
+    if (stop.meta?.requestStatus === 'fulfilled') {
+      setIsTracking(false);
+      if (timerRef.current) clearInterval(timerRef.current);
+      setElapsedSeconds((prev) => {
+        const actualTime = Math.floor((selectedTask?.actual_time_spent ?? 0) / 1000);
+        return actualTime > prev ? actualTime : prev;
+      });
+      justPausedRef.current = true;
+    }
   };
 
   const handleSubmitTime = async (hours = assignedHours, minutes = assignedMinutes) => {
@@ -449,11 +455,7 @@ const TaskModal: React.FC<TaskModalProps> = ({ boardId, taskId, visible, onClose
         if (justPausedRef.current) {
           justPausedRef.current = false;
         } else {
-          if (actualTimeSpent > totalSeconds) {
-            setElapsedSeconds(totalSeconds);
-          } else {
-            setElapsedSeconds(actualTimeSpent);
-          }
+          setElapsedSeconds(actualTimeSpent);
         }
       }
     }
@@ -761,12 +763,20 @@ const TaskModal: React.FC<TaskModalProps> = ({ boardId, taskId, visible, onClose
     </div>
   );
 
-  const shareCopiedLink = selectedTask?._id && selectedTask.board_id ? `${window.location}?task_id=${selectedTask._id}` : '';
+  const getShareLink = (taskId?: string, boardId?: string): string => {
+    if (!taskId || !boardId) return '';
+    const url = new URL(window.location.href);
+    url.searchParams.set('task_id', taskId);
+    return url.toString();
+  };
+  const shareCopiedLink = getShareLink(selectedTask?._id, selectedTask?.board_id);
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(shareCopiedLink).then(() => {
-      message.success('Link copied!');
-    });
+    const url = new URL(window.location.href);
+    selectedTask?._id && selectedTask.board_id &&
+      url.searchParams.set('task_id', selectedTask._id);
+    copy(url.toString());
+    message.success('Link copied!');
   };
 
   const shareContent = (
@@ -1055,15 +1065,24 @@ const TaskModal: React.FC<TaskModalProps> = ({ boardId, taskId, visible, onClose
   ) => dispatch(updateTaskComment({ taskId: commentId, updateTask }));
 
   useEffect(() => {
-    async function handleClickOutside() {
-      setIsEditTitle(false);
-      if (isEditTitle) {
-        dispatch(
-          updateTask({
-            taskId: selectedTask?._id ?? '',
-            title: taskName,
-          })
-        );
+    function handleClickOutside(e: MouseEvent) {
+      if (
+        inputRef.current &&
+        inputRef.current.input &&
+        !inputRef.current.input.contains(e.target as Node)
+      ) {
+        setTimeout(() => {
+          setIsEditTitle(false);
+          if (taskName) {
+            dispatch(
+              updateTask({
+                taskId: selectedTask?._id ?? '',
+                title: taskName,
+              })
+            );
+          }
+          setTaskName('');
+        }, 200);
       }
     }
 
@@ -1071,7 +1090,7 @@ const TaskModal: React.FC<TaskModalProps> = ({ boardId, taskId, visible, onClose
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [dispatch, isEditTitle, selectedTask, taskName]);
+  }, [taskName, selectedTask, dispatch, updateTask]);
 
   const setPriorityValue = (value: Priority) => {
     dispatch(updateTask({ taskId: selectedTask?._id ?? '', priority: value }));
@@ -1092,6 +1111,7 @@ const TaskModal: React.FC<TaskModalProps> = ({ boardId, taskId, visible, onClose
           setFileList([]);
           setMsg('');
           setIsEditTitle(false);
+          setTaskName("");
           setShowEditor(false);
           setMemberVisible(false);
           setLabelVisible(false);
@@ -1105,6 +1125,7 @@ const TaskModal: React.FC<TaskModalProps> = ({ boardId, taskId, visible, onClose
           <Checkbox checked={isCompleted} onChange={handleChange} prefixCls="status-checkbox" />
           {isEditTitle ? (
             <Input
+              ref={inputRef}
               defaultValue={selectedTask?.title}
               className="form-input"
               style={{
@@ -1118,6 +1139,7 @@ const TaskModal: React.FC<TaskModalProps> = ({ boardId, taskId, visible, onClose
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
                   setIsEditTitle(false);
+                  setTaskName("");
                   dispatch(
                     updateTask({
                       taskId: selectedTask?._id ?? '',

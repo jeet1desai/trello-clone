@@ -32,6 +32,11 @@ const BoardStatistics: React.FC = () => {
       sorter: (a, b) => a.name.localeCompare(b.name),
     },
     {
+      title: 'Total Tasks',
+      dataIndex: 'totalTasks',
+      sorter: (a, b) => a.totalTasks - b.totalTasks,
+    },
+    {
       title: 'Completed Tasks',
       dataIndex: 'completedTasks',
       sorter: (a, b) => a.completedTasks - b.completedTasks,
