@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Typography, Button, Avatar, Space, Card, Tooltip, App, Popover, Empty, Divider, Badge, Dropdown, Table } from 'antd';
+import { Typography, Button, Avatar, Space, Card, Tooltip, App, Popover, Empty, Divider, Badge, Dropdown, Table, message } from 'antd';
 import type { DraggableProvided, DraggableStateSnapshot, DroppableProvided, DropResult } from '@hello-pangea/dnd';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import { useDispatch, useSelector } from 'react-redux';
@@ -522,14 +522,12 @@ const BoardDetail: React.FC = () => {
       return dur.format('HH:mm:ss');
     };
 
-    const copyTask = (e: React.MouseEvent<HTMLButtonElement>) => {
+    const copyTask = (e: React.MouseEvent<HTMLElement>, taskId: string) => {
       e.stopPropagation();
-      dispatch(
-        duplicateTask({
-          _id: task?._id ?? '',
-          title: task?.title ?? '',
-        })
-      );
+      const shareCopiedLink = taskId && id ? `${window.location}?task_id=${taskId}` : '';
+      navigator.clipboard.writeText(shareCopiedLink).then(() => {
+        message.success('Link copied!');
+      });
     };
 
     const trackedTime = task.is_timer_active ? formatTime(0) : formatTime(Math.floor(task.actual_time_spent / 1000));
@@ -708,7 +706,7 @@ const BoardDetail: React.FC = () => {
                   <Tooltip title="Copy task link">
                     <Button
                       shape="circle"
-                      onClick={copyTask}
+                      onClick={(e)=>copyTask(e, task._id)}
                       className="copy-icon-btn"
                       style={{ background: 'transparent', border: 'none', padding: 0 }}
                       icon={<Files size={16} className="copy-icon" />}
