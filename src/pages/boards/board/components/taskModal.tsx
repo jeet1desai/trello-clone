@@ -773,8 +773,7 @@ const TaskModal: React.FC<TaskModalProps> = ({ boardId, taskId, visible, onClose
 
   const handleCopy = () => {
     const url = new URL(window.location.href);
-    selectedTask?._id && selectedTask.board_id &&
-      url.searchParams.set('task_id', selectedTask._id);
+    selectedTask?._id && selectedTask.board_id && url.searchParams.set('task_id', selectedTask._id);
     copy(url.toString());
     message.success('Link copied!');
   };
@@ -1066,11 +1065,7 @@ const TaskModal: React.FC<TaskModalProps> = ({ boardId, taskId, visible, onClose
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
-      if (
-        inputRef.current &&
-        inputRef.current.input &&
-        !inputRef.current.input.contains(e.target as Node)
-      ) {
+      if (inputRef.current && inputRef.current.input && !inputRef.current.input.contains(e.target as Node)) {
         setTimeout(() => {
           setIsEditTitle(false);
           if (taskName) {
@@ -1111,7 +1106,7 @@ const TaskModal: React.FC<TaskModalProps> = ({ boardId, taskId, visible, onClose
           setFileList([]);
           setMsg('');
           setIsEditTitle(false);
-          setTaskName("");
+          setTaskName('');
           setShowEditor(false);
           setMemberVisible(false);
           setLabelVisible(false);
@@ -1139,7 +1134,7 @@ const TaskModal: React.FC<TaskModalProps> = ({ boardId, taskId, visible, onClose
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
                   setIsEditTitle(false);
-                  setTaskName("");
+                  setTaskName('');
                   dispatch(
                     updateTask({
                       taskId: selectedTask?._id ?? '',

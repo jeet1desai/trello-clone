@@ -82,7 +82,12 @@ const TaskMenu = ({ activeColor, statusId, background }: IProps) => {
       }}
       placement="bottomLeft"
     >
-      <Button type="text" size="small" className={`button small-btn ${background === "#FFF" ? "btn-shadow" : "btn-none"}`} icon={<Ellipsis size={16} />} />
+      <Button
+        type="text"
+        size="small"
+        className={`button small-btn ${background === '#FFF' ? 'btn-shadow' : 'btn-none'}`}
+        icon={<Ellipsis size={16} />}
+      />
     </Popover>
   );
 };

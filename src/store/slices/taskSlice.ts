@@ -146,10 +146,10 @@ export const updateTask = createAsyncThunk(
   ) => {
     try {
       const response = await taskService.updateTask(data);
-      
+
       const state = getState() as RootState;
       const statuses = state.status.statusList;
-      const statusList = statuses.find((status) => status._id === data.status_list_id &&  status.name.toLowerCase().includes('complete'));
+      const statusList = statuses.find((status) => status._id === data.status_list_id && status.name.toLowerCase().includes('complete'));
       const statusFinal = !!statusList;
       if (statusFinal) {
         await dispatch(
@@ -157,14 +157,14 @@ export const updateTask = createAsyncThunk(
             taskId: data.taskId,
             status: TaskStatus.COMPLETED,
           })
-        )
+        );
       } else {
         await dispatch(
           updateTaskStatusOnly({
             taskId: data.taskId,
             status: TaskStatus.INCOMPLETE,
           })
-        )
+        );
       }
       return response.data;
     } catch (error: any) {

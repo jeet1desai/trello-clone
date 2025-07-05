@@ -53,11 +53,7 @@ const BoardFilter = ({ selectedFilters, handleMemberFilter }: IProps) => {
         >
           All
         </Checkbox>
-        <Checkbox
-          value={currentUser?.id}
-          checked={selectedFilters.filterBy.includes(currentUser?.id)}
-          onChange={(e) => handleMemberFilter(e, 'me')}
-        >
+        <Checkbox value={currentUser?.id} checked={selectedFilters.filterBy.includes(currentUser?.id)} onChange={(e) => handleMemberFilter(e, 'me')}>
           <div
             style={{
               display: 'flex',
